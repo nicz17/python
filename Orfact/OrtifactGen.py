@@ -10,7 +10,7 @@ class OrtifactGen:
     def generate(self):
         sName = self.nameGen.generate()
         oKind = random.choice(list(OrKind))
+        oRarity = random.choice(list(OrRarity))
         iLevel = random.randrange(6)
-        iRarity = random.randrange(4)
-        ortifact = Ortifact(sName, oKind, iLevel, iRarity)
+        ortifact = Ortifact(sName, oKind, iLevel, oRarity)
         return ortifact
