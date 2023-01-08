@@ -15,7 +15,6 @@ def testNameGen():
     for i in range(nGen):
         log(nameGen.generate())
 
-
 def testOrtifactGen():
     nGen = 8
     log('Generating ' + str(nGen) + ' ortifacts')
