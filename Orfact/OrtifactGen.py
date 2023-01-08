@@ -6,12 +6,11 @@ class OrtifactGen:
     def __init__(self, seed):
         self.seed = seed
         self.nameGen = NameGen(seed)
-        self.kinds = ['Source', 'Food', 'Combiner', 'Duplicator']
 
     def generate(self):
         sName = self.nameGen.generate()
-        sKind = random.choice(self.kinds)
+        oKind = random.choice(list(OrKind))
         iLevel = random.randrange(6)
         iRarity = random.randrange(4)
-        ortifact = Ortifact(sName, sKind, iLevel, iRarity)
+        ortifact = Ortifact(sName, oKind, iLevel, iRarity)
         return ortifact
