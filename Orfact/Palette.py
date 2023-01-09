@@ -13,6 +13,8 @@ import math
 from PIL import Image
 import numpy as np
 
+from NameGen import *
+
 class Palette:
     sigma = 0.35
 
@@ -39,6 +41,18 @@ class Palette:
         return self.sName
     def __repr__(self):
         return 'Palette ' + self.sName
+
+class RandomPalette(Palette):
+    def __init__(self):
+        nameGen = NameGen(42)
+        super().__init__(nameGen.generate())
+        self.sigma = random.random()
+        self.muR = random.random()
+        self.muG = random.random()
+        self.muB = random.random()
+
+    def getColor(self, x):
+        return [Palette.gauss(x, self.muR, self.sigma), Palette.gauss(x, self.muG, self.sigma), Palette.gauss(x, self.muB, self.sigma)]
 
 class HeatPalette(Palette):
     sigma = 0.32

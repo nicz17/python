@@ -37,6 +37,8 @@ def testPalette():
     pal.toColorScale('HeatPalette.png', 800, 50)
     pal = OraVioPalette()
     pal.toColorScale('OraVioPalette.png', 800, 50)
+    pal = RandomPalette()
+    pal.toColorScale('RandomPalette.png', 800, 50)
 
 def main():
     log('Welcome to Orfact v' + __version__)
