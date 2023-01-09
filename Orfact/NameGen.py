@@ -1,4 +1,10 @@
-# Orfact NameGenerator
+"""
+ A name generation tool
+"""
+
+__author__ = "Nicolas Zwahlen"
+__copyright__ = "Copyright 2023 N. Zwahlen"
+__version__ = "1.0.0"
 
 import random
 
@@ -6,7 +12,7 @@ class NameGen:
     def __init__(self, seed):
         self.seed = seed
         self.vowels = ['a', 'e', 'i', 'o', 'u', 'y']
-        self.consos = ['b', 'c', 'd', 'f', 'g', 'h', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'z']
+        self.consos = ['b', 'c', 'd', 'f', 'g', 'h', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'x', 'z']
 
     def generate(self):
         nSyllables = random.randint(2, 4)

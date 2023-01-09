@@ -1,4 +1,4 @@
-""" Palette
+"""
  A palette rendered as a color gradient
  using gaussian distributions
 """

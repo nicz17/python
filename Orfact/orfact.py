@@ -1,9 +1,17 @@
+"""
+ A random artifact factory
+"""
+
+__author__ = "Nicolas Zwahlen"
+__copyright__ = "Copyright 2023 N. Zwahlen"
+__version__ = "1.0.0"
+
 import sys
+
 from NameGen import *
 from Ortifact import *
 from OrtifactGen import *
-
-sVersion = '1.0.0'
+from Palette import *
 
 def log(msg):
     print(msg, file=sys.stdout, flush=True)
@@ -23,8 +31,16 @@ def testOrtifactGen():
         ortifact = ogen.generate()
         log(ortifact)
 
+def testPalette():
+    log('Testing palette')
+    pal = HeatPalette()
+    pal.toColorScale('HeatPalette.png', 800, 50)
+    pal = OraVioPalette()
+    pal.toColorScale('OraVioPalette.png', 800, 50)
+
 def main():
-    log('Welcome to Orfact v' + sVersion)
+    log('Welcome to Orfact v' + __version__)
     testOrtifactGen()
+    testPalette()
 
 main()
