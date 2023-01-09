@@ -22,6 +22,11 @@ class NameGen:
         return sName.capitalize()
 
     def getSyllable(self):
+        rPermutation = random.random()
+        if (rPermutation < 0.06):
+            return self.getVowel() + self.getConsonant()
+        elif (rPermutation < 0.12):
+            self.getConsonant() + self.getConsonant() + self.getVowel()
         return self.getConsonant() + self.getVowel()
 
     def getVowel(self):
