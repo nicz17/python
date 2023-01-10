@@ -57,7 +57,7 @@ class HtmlPage:
     def save(self, sFilename):
         print('Saving', self.__str__(), 'as', sFilename)
         oFile = open(sFilename, 'w')
-        oFile.write(self.html.getHtml())
+        oFile.write('<!DOCTYPE html>\n' + self.html.getHtml())
 
     def __str__(self):
         return 'HtmlPage ' + self.sTitle
@@ -101,3 +101,10 @@ class HtmlTag:
 
     def __str__(self):
         return 'HtmlTag ' + self.sName
+
+class ImageHtmlTag(HtmlTag):
+    def __init__(self, sSource, sTitle):
+        super().__init__('img', None)
+        self.addAttr('src', sSource)
+        self.addAttr('title', sTitle)
+        self.addAttr('alt', sTitle)
