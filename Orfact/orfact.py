@@ -12,6 +12,7 @@ from NameGen import *
 from Ortifact import *
 from OrtifactGen import *
 from Palette import *
+from ImageMask import *
 from HtmlPage import *
 
 def log(msg):
@@ -43,18 +44,18 @@ def testPalette():
 
 def testHtmlPage():
     log('Testing HtmlPage')
-    page = HtmlPage('Test', 'orfact.css')
+    page = HtmlPage('ImageMasks', 'orfact.css')
     page.addHeading(1, 'Image generation tests')
 
     page.addHeading(2, 'Palettes')
     aNames = ['HeatPalette', 'OraVioPalette', 'RandomPalette']
     aPalImgs = []
     for sName in aNames:
-        tImg = HtmlTag('img')
-        tImg.addAttr('src', sName + '.png')
-        tImg.addAttr('title', sName)
-        aPalImgs.append(tImg)
+        aPalImgs.append(ImageHtmlTag(sName + '.png', sName))
     page.addTable(aPalImgs, 1)
+
+    page.addHeading(2, 'Image Masks')
+    page.add(ImageHtmlTag('ImageMask.png', 'RandomImageMask'))
 
     page.addHeading(2, 'Random names')
     nameGen = NameGen(42)
@@ -65,10 +66,19 @@ def testHtmlPage():
 
     page.save('Images.html')
 
+def testImageMask():
+    log('Testing ImageMask')
+    size = 250
+    oPalette = RandomPalette()
+    oPalette.toColorScale('RandomPalette.png', 800, 50)
+    mask = ImageMask(size, size)
+    mask.toImage(oPalette, 'ImageMask.png')
+
 def main():
     log('Welcome to Orfact v' + __version__)
     #testOrtifactGen()
-    testPalette()
+    #testPalette()
+    testImageMask()
     testHtmlPage()
 
 main()
