@@ -44,8 +44,8 @@ class Palette:
 
 class RandomPalette(Palette):
     def __init__(self):
-        nameGen = NameGen(42)
-        super().__init__(nameGen.generate())
+        #nameGen = NameGen(42)
+        super().__init__('RandomPalette')
         self.sigma = random.random()
         self.muR = random.random()
         self.muG = random.random()
@@ -78,3 +78,10 @@ class OraVioPalette(Palette):
 
     def getColor(self, x):
         return [Palette.gauss(x, 1.035, 0.920), Palette.gauss(x, 0.619, 0.380), Palette.gauss(x, 0.370, 0.343)]
+
+class GrayScalePalette(Palette):
+    def __init__(self):
+        super().__init__("GrayScale")
+
+    def getColor(self, x):
+        return (int)(255. * x)
