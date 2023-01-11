@@ -67,3 +67,19 @@ class GaussImageMask(ImageMask):
 
     def gauss(x, mu, sig):
         return math.exp(-(x-mu)*(x-mu)/(sig*sig))
+
+class ManhattanImageMask(ImageMask):
+    def __init__(self, w, h):
+        super().__init__('ManhattanImageMask', w, h)
+
+    def generate(self):
+        print('Generating', self.__str__())
+        for x in range(self.w):
+            for y in range(self.h):
+                dx = abs(x - self.w/2)
+                dy = abs(y - self.h/2)
+                dist = dx + dy
+                self.aMask[x, y] = GaussImageMask.gauss(dist, 0.0, self.w/4.0)
+
+    def gauss(x, mu, sig):
+        return math.exp(-(x-mu)*(x-mu)/(sig*sig))
