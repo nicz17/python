@@ -63,6 +63,15 @@ class HeatPalette(Palette):
     def getColor(self, x):
         return [Palette.gauss(x, 0.72, self.sigma), Palette.gauss(x, 0.5, self.sigma), Palette.gauss(x, 0.28, self.sigma)]
 
+class LinesPalette(Palette):
+    sigma = 0.02
+
+    def __init__(self):
+        super().__init__("LinesPalette")
+
+    def getColor(self, x):
+        return [Palette.gauss(x, 0.25, self.sigma), Palette.gauss(x, 0.5, self.sigma), Palette.gauss(x, 0.75, self.sigma)]
+
 class OraVioPalette(Palette):
     def __init__(self):
         super().__init__("OraVioPalette")

@@ -37,8 +37,8 @@ def testPalette():
     log('Testing palette')
     pal = HeatPalette()
     pal.toColorScale('HeatPalette.png', 800, 50)
-    pal = OraVioPalette()
-    pal.toColorScale('OraVioPalette.png', 800, 50)
+    pal = LinesPalette()
+    pal.toColorScale('LinesPalette.png', 800, 50)
     pal = RandomPalette()
     pal.toColorScale('RandomPalette.png', 800, 50)
 
@@ -48,7 +48,7 @@ def testHtmlPage():
     page.addHeading(1, 'Image generation tests')
 
     page.addHeading(2, 'Palettes')
-    aNames = ['HeatPalette', 'OraVioPalette', 'RandomPalette']
+    aNames = ['HeatPalette', 'LinesPalette', 'RandomPalette']
     aPalImgs = []
     for sName in aNames:
         aPalImgs.append(ImageHtmlTag(sName + '.png', sName))
@@ -58,8 +58,9 @@ def testHtmlPage():
     aMaskImgs = []
     aMaskImgs.append(ImageHtmlTag('ImageMask-grayscale.png', 'Grayscale'))
     aMaskImgs.append(ImageHtmlTag('ImageMask-heat.png', 'Heat palette'))
+    aMaskImgs.append(ImageHtmlTag('ImageMask-lines.png', 'Lines palette'))
     aMaskImgs.append(ImageHtmlTag('ImageMask-random.png', 'Random palette'))
-    page.addTable(aMaskImgs, 3)
+    page.addTable(aMaskImgs, 4)
 
     page.addHeading(2, 'Random names')
     nameGen = NameGen(42)
@@ -86,11 +87,12 @@ def testImageMask():
     mask.toGrayScale('ImageMask-grayscale.png')
     mask.toImage(oPalette, 'ImageMask-random.png')
     mask.toImage(HeatPalette(), 'ImageMask-heat.png')
+    mask.toImage(LinesPalette(), 'ImageMask-lines.png')
 
 def main():
     log('Welcome to Orfact v' + __version__)
     #testOrtifactGen()
-    #testPalette()
+    testPalette()
     testImageMaskInternal()
     testImageMask()
     testHtmlPage()
