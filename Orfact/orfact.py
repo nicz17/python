@@ -55,7 +55,11 @@ def testHtmlPage():
     page.addTable(aPalImgs, 1)
 
     page.addHeading(2, 'Image Masks')
-    page.add(ImageHtmlTag('ImageMask.png', 'RandomImageMask'))
+    aMaskImgs = []
+    aMaskImgs.append(ImageHtmlTag('ImageMask-grayscale.png', 'Grayscale'))
+    aMaskImgs.append(ImageHtmlTag('ImageMask-heat.png', 'Heat palette'))
+    aMaskImgs.append(ImageHtmlTag('ImageMask-random.png', 'Random palette'))
+    page.addTable(aMaskImgs, 3)
 
     page.addHeading(2, 'Random names')
     nameGen = NameGen(42)
@@ -66,18 +70,28 @@ def testHtmlPage():
 
     page.save('Images.html')
 
+def testImageMaskInternal():
+    log('Testing ImageMask internals')
+    mask = GaussImageMask(5, 3)
+    mask.generate()
+    print(mask.aMask)
+
 def testImageMask():
     log('Testing ImageMask')
     size = 250
     oPalette = RandomPalette()
     oPalette.toColorScale('RandomPalette.png', 800, 50)
-    mask = ImageMask(size, size)
-    mask.toImage(oPalette, 'ImageMask.png')
+    mask = GaussImageMask(300, 200)
+    mask.generate()
+    mask.toGrayScale('ImageMask-grayscale.png')
+    mask.toImage(oPalette, 'ImageMask-random.png')
+    mask.toImage(HeatPalette(), 'ImageMask-heat.png')
 
 def main():
     log('Welcome to Orfact v' + __version__)
     #testOrtifactGen()
     #testPalette()
+    testImageMaskInternal()
     testImageMask()
     testHtmlPage()
 
