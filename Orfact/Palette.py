@@ -22,7 +22,7 @@ class Palette:
         self.sName = sName
 
     def toColorScale(self, sFilename, iWidth, iHeight):
-        print(self.sName, 'generating', iWidth, 'x', iHeight, 'color scale as', sFilename)
+        print('Saving', self.sName, iWidth, 'x', iHeight, 'color scale as', sFilename)
         rgbArray = np.zeros((iHeight, iWidth, 3), 'uint8')
         for x in range(iWidth):
             col = self.getColor(x/iWidth)
@@ -78,6 +78,13 @@ class OraVioPalette(Palette):
 
     def getColor(self, x):
         return [Palette.gauss(x, 1.035, 0.920), Palette.gauss(x, 0.619, 0.380), Palette.gauss(x, 0.370, 0.343)]
+
+class BlackHolePalette(Palette):
+    def __init__(self):
+        super().__init__("BlackHolePalette")
+
+    def getColor(self, x):
+        return [Palette.gauss(x, 0.4, 0.1), Palette.gauss(x, 0.4, 0.1), Palette.gauss(x, 0.2, 0.25)]
 
 class GrayScalePalette(Palette):
     def __init__(self):
