@@ -13,6 +13,7 @@ from Ortifact import *
 from OrtifactGen import *
 from Palette import *
 from ImageMask import *
+from DemoImageMask import *
 from HtmlPage import *
 
 def log(msg):
@@ -82,7 +83,7 @@ def testImageMask():
     size = 250
     oPalette = RandomPalette()
     oPalette.toColorScale('RandomPalette.png', 800, 50)
-    mask = GaussImageMask(300, 200)
+    mask = ManhattanImageMask(300, 200)
     mask.generate()
     mask.toGrayScale('ImageMask-grayscale.png')
     mask.toImage(oPalette, 'ImageMask-random.png')
@@ -92,9 +93,12 @@ def testImageMask():
 def main():
     log('Welcome to Orfact v' + __version__)
     #testOrtifactGen()
-    testPalette()
-    testImageMaskInternal()
-    testImageMask()
-    testHtmlPage()
+    #testPalette()
+    #testImageMaskInternal()
+    #testImageMask()
+    #testHtmlPage()
+
+    demo = DemoImageMask()
+    demo.run()
 
 main()
