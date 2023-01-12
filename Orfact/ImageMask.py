@@ -11,6 +11,7 @@ __version__ = "1.0.0"
 from PIL import Image
 import numpy as np
 import math
+import random
 
 class ImageMask:
     def __init__(self, sName, w, h):
@@ -37,6 +38,12 @@ class ImageMask:
         img = Image.fromarray(np.uint8(self.aMask * 255))
         img = img.rotate(270, expand=True)
         img.save(sFilename, 'PNG')
+
+    def gauss(x, mu, sig):
+        return math.exp(-(x-mu)*(x-mu)/(sig*sig))
+
+    def random(min, max):
+        return min + (max - min)*random.random()
 
     def __str__(self) -> str:
         return self.sName + ' ' + str(self.w) + 'x' + str(self.h)
@@ -70,10 +77,34 @@ class GaussImageMask(ImageMask):
                 dx = x - self.w/2
                 dy = y - self.h/2
                 dist = math.sqrt(dx*dx + dy*dy)
-                self.aMask[x, y] = GaussImageMask.gauss(dist, 0.0, self.w/4.0)
+                self.aMask[x, y] = ImageMask.gauss(dist, 0.0, self.w/4.0)
 
-    def gauss(x, mu, sig):
-        return math.exp(-(x-mu)*(x-mu)/(sig*sig))
+class MultiGaussImageMask(ImageMask):
+    def __init__(self, w, h):
+        super().__init__('MultiGaussImageMask', w, h)
+        self.nBlobs = random.randrange(6, 10)
+
+    def generate(self):
+        print('Generating', self.__str__())
+        cx  = []
+        cy  = []
+        sig = []
+        marginX = self.w/10
+        marginY = self.h/10
+        for i in range(self.nBlobs):
+            cx.append(random.randrange(marginX, self.w - marginX))
+            cy.append(random.randrange(marginY, self.h - marginY))
+            sig.append(ImageMask.random(self.w/20, self.w/10))
+
+        for x in range(self.w):
+            for y in range(self.h):
+                val = 0.0
+                for i in range(self.nBlobs):
+                    dx = x - cx[i]
+                    dy = y - cy[i]
+                    dist = math.sqrt(dx*dx + dy*dy)
+                    val += ImageMask.gauss(dist, 0.0, sig[i])
+                self.aMask[x, y] = min(1.0, val)
 
 class ManhattanImageMask(ImageMask):
     def __init__(self, w, h):
@@ -86,10 +117,7 @@ class ManhattanImageMask(ImageMask):
                 dx = abs(x - self.w/2)
                 dy = abs(y - self.h/2)
                 dist = dx + dy
-                self.aMask[x, y] = ManhattanImageMask.gauss(dist, 0.0, self.w/4.0)
-
-    def gauss(x, mu, sig):
-        return math.exp(-(x-mu)*(x-mu)/(sig*sig))
+                self.aMask[x, y] = ImageMask.gauss(dist, 0.0, self.w/4.0)
 
 class WaveImageMask(ImageMask):
     def __init__(self, freq, w, h):
@@ -102,3 +130,16 @@ class WaveImageMask(ImageMask):
             for y in range(self.h):
                 self.aMask[x, y] = 0.25*(2.0 + math.sin(self.freq*x) + math.cos(self.freq*y))
                 #self.aMask[x, y] = 0.5*(1.0 + math.sin(self.freq*(x+y)))  # diagonals
+
+class FMWaveImageMask(ImageMask):
+    def __init__(self, freq, w, h):
+        super().__init__('FMWaveImageMask', w, h)
+        self.freq = freq
+        self.fm = freq * (10.0 + 10.0*random.random())
+
+    def generate(self):
+        print('Generating', self.__str__())
+        for x in range(self.w):
+            for y in range(self.h):
+                self.aMask[x, y] = 0.25*(2.1 + math.sin(self.freq*x) + 0.03*math.cos(self.fm*x) + 
+                    math.cos(self.freq*y) + 0.03*math.sin(self.fm*y))
