@@ -54,14 +54,28 @@ class RandomPalette(Palette):
         return min + (max - min)*random.random()
 
     def getParams(self):
-        sParams  = 'sig=%.3f' % self.sigma
-        sParams += ' R=%.3f' % self.muR
-        sParams += ' G=%.3f' % self.muG
-        sParams += ' B=%.3f' % self.muB
+        sParams  = '%.3f, ' % self.sigma
+        sParams += '%.3f, ' % self.muR
+        sParams += '%.3f, ' % self.muG
+        sParams += '%.3f'   % self.muB
         return sParams
 
     def getColor(self, x):
         return [Palette.gauss(x, self.muR, self.sigma), Palette.gauss(x, self.muG, self.sigma), Palette.gauss(x, self.muB, self.sigma)]
+
+# A simple palette with 3 gaussians, one for RGB each, all having the same sigma
+class SimplePalette(Palette):
+    def __init__(self, sName, sigma, muR, muG, muB):
+        super().__init__(sName)
+        self.sigma = sigma
+        self.muR = muR
+        self.muG = muG
+        self.muB = muB
+
+    def getColor(self, x):
+        return [Palette.gauss(x, self.muR, self.sigma), 
+                Palette.gauss(x, self.muG, self.sigma), 
+                Palette.gauss(x, self.muB, self.sigma)]
 
 class HeatPalette(Palette):
     sigma = 0.32
@@ -115,24 +129,21 @@ class BlackHolePalette(Palette):
     def getColor(self, x):
         return [Palette.gauss(x, 0.4, 0.1), Palette.gauss(x, 0.4, 0.1), Palette.gauss(x, 0.2, 0.25)]
 
-class GhostPalette(Palette):
-    sigma = 0.42
+class GhostPalette(SimplePalette):
     def __init__(self):
-        super().__init__("GhostPalette")
-    def getColor(self, x):
-        return [Palette.gauss(x, 0.78, self.sigma), Palette.gauss(x, 0.81, self.sigma), Palette.gauss(x, 0.72, self.sigma)]
+        super().__init__("GhostPalette", 0.42, 0.78, 0.81, 0.72)
 
-# Qydobu: sig=0.686 R=0.962 G=0.749 B=0.021
-class BlueGoldPalette(Palette):
-    sigma = 0.686
+class BlueGoldPalette(SimplePalette):
     def __init__(self):
-        super().__init__("BlueGoldPalette")
-    def getColor(self, x):
-        return [Palette.gauss(x, 0.962, self.sigma), Palette.gauss(x, 0.749, self.sigma), Palette.gauss(x, 0.021, self.sigma)]
+        super().__init__("BlueGoldPalette", 0.686, 0.962, 0.749, 0.021)
+
+class SepiaPalette(SimplePalette):
+    def __init__(self):
+        super().__init__('SepiaPalette', 0.42, 0.668, 0.891, 0.974)
 
 class GrayScalePalette(Palette):
     def __init__(self):
         super().__init__("GrayScale")
 
     def getColor(self, x):
-        return (int)(255. * x)
+        return max(0, min(255, (int)(255. * x)))
