@@ -14,6 +14,7 @@ from OrtifactGen import *
 from Palette import *
 from ImageMask import *
 from DemoImageMask import *
+from DemoPalette import *
 from HtmlPage import *
 
 def log(msg):
@@ -90,15 +91,20 @@ def testImageMask():
     mask.toImage(HeatPalette(), 'ImageMask-heat.png')
     mask.toImage(LinesPalette(), 'ImageMask-lines.png')
 
+def runTests():
+    testOrtifactGen()
+    testPalette()
+    testImageMaskInternal()
+    testImageMask()
+    testHtmlPage()
+
+def runDemos():
+    DemoPalette().run()
+    DemoImageMask().run()
+
 def main():
     log('Welcome to Orfact v' + __version__)
-    #testOrtifactGen()
-    #testPalette()
-    #testImageMaskInternal()
-    #testImageMask()
-    #testHtmlPage()
-
-    demo = DemoImageMask()
-    demo.run()
+    #runTests()
+    runDemos()
 
 main()
