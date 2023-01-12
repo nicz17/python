@@ -48,6 +48,7 @@ class RandomPalette(Palette):
         self.muR = random.random()
         self.muG = random.random()
         self.muB = random.random()
+        print('RandomPalette params: ', self.getParams())
 
     def random(self, min, max):
         return min + (max - min)*random.random()
@@ -78,7 +79,9 @@ class LinesPalette(Palette):
         super().__init__("LinesPalette")
 
     def getColor(self, x):
-        return [Palette.gauss(x, 0.25, self.sigma), Palette.gauss(x, 0.5, self.sigma), Palette.gauss(x, 0.75, self.sigma)]
+        return [Palette.gauss(x, 0.9, self.sigma) + Palette.gauss(x, 0.7, self.sigma),
+                Palette.gauss(x, 0.7, self.sigma) + Palette.gauss(x, 0.5, self.sigma) + Palette.gauss(x, 0.3, self.sigma), 
+                Palette.gauss(x, 0.3, self.sigma) + Palette.gauss(x, 0.1, self.sigma)]
 
 class CombPalette(Palette):
     width = 0.005
