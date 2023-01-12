@@ -9,11 +9,9 @@ __version__ = "1.0.0"
 
 import random
 import math
-
 from PIL import Image
 import numpy as np
-
-from NameGen import *
+#from NameGen import *
 
 class Palette:
     sigma = 0.35
@@ -46,10 +44,20 @@ class RandomPalette(Palette):
     def __init__(self):
         #nameGen = NameGen(42)
         super().__init__('RandomPalette')
-        self.sigma = random.random()
+        self.sigma = self.random(0.1, 1.0)
         self.muR = random.random()
         self.muG = random.random()
         self.muB = random.random()
+
+    def random(self, min, max):
+        return min + (max - min)*random.random()
+
+    def getParams(self):
+        sParams  = 'sig=%.3f' % self.sigma
+        sParams += ' R=%.3f' % self.muR
+        sParams += ' G=%.3f' % self.muG
+        sParams += ' B=%.3f' % self.muB
+        return sParams
 
     def getColor(self, x):
         return [Palette.gauss(x, self.muR, self.sigma), Palette.gauss(x, self.muG, self.sigma), Palette.gauss(x, self.muB, self.sigma)]
@@ -72,6 +80,24 @@ class LinesPalette(Palette):
     def getColor(self, x):
         return [Palette.gauss(x, 0.25, self.sigma), Palette.gauss(x, 0.5, self.sigma), Palette.gauss(x, 0.75, self.sigma)]
 
+class CombPalette(Palette):
+    width = 0.005
+
+    def __init__(self):
+        super().__init__("CombPalette")
+
+    def getColor(self, x):
+        return [self.dirac(x, 0.9) + self.dirac(x, 0.7),
+                self.dirac(x, 0.7) + self.dirac(x, 0.5) + self.dirac(x, 0.3),
+                self.dirac(x, 0.3) + self.dirac(x, 0.1)]
+    
+    def dirac(self, x, mu):
+        if (abs(x - mu) <= self.width):
+            return 255
+        if (abs(x - mu) <= 2.0*self.width):
+            return 128
+        return 0
+
 class OraVioPalette(Palette):
     def __init__(self):
         super().__init__("OraVioPalette")
@@ -85,6 +111,21 @@ class BlackHolePalette(Palette):
 
     def getColor(self, x):
         return [Palette.gauss(x, 0.4, 0.1), Palette.gauss(x, 0.4, 0.1), Palette.gauss(x, 0.2, 0.25)]
+
+class GhostPalette(Palette):
+    sigma = 0.42
+    def __init__(self):
+        super().__init__("GhostPalette")
+    def getColor(self, x):
+        return [Palette.gauss(x, 0.78, self.sigma), Palette.gauss(x, 0.81, self.sigma), Palette.gauss(x, 0.72, self.sigma)]
+
+# Qydobu: sig=0.686 R=0.962 G=0.749 B=0.021
+class BlueGoldPalette(Palette):
+    sigma = 0.686
+    def __init__(self):
+        super().__init__("BlueGoldPalette")
+    def getColor(self, x):
+        return [Palette.gauss(x, 0.962, self.sigma), Palette.gauss(x, 0.749, self.sigma), Palette.gauss(x, 0.021, self.sigma)]
 
 class GrayScalePalette(Palette):
     def __init__(self):
