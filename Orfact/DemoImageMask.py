@@ -28,7 +28,7 @@ class DemoImageMask:
             os.makedirs(self.dir)
 
         # Define palettes and create their color scales
-        aPals = [GrayScalePalette(), LinesPalette(), HeatPalette(), GhostPalette(), RandomPalette()]
+        aPals = [GrayScalePalette(), LinesPalette(), HeatPalette(), SepiaPalette(), GhostPalette()]
         aPalImgs = []
         for oPal in aPals:
             sFilename = self.dir + oPal.sName + '.png'
@@ -37,8 +37,11 @@ class DemoImageMask:
 
         # Define ImageMasks and render them with each palette
         aMasks = [GaussImageMask(self.size, self.size), 
+                  MultiGaussImageMask(self.size, self.size),
                   ManhattanImageMask(self.size, self.size),
-                  WaveImageMask(0.0628, self.size, self.size)]
+                  WaveImageMask(0.0628, self.size, self.size),
+                  SineImageMask(0.0628, self.size, self.size)
+                  ]
         aMaskImgs = []
         for oMask in aMasks:
             oMask.generate()
