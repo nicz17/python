@@ -32,6 +32,35 @@ class SimulationMask(ImageMask):
         rMax = max(1.0, np.amax(self.aMask))
         self.aMask = self.aMask / rMax
 
+class LorenzAttractorMask(SimulationMask):
+    """An ImageMask based on the Lorenz Attractor.
+       See https://itp.uni-frankfurt.de/~gros/Vorlesungen/SO/simulation_example/
+    """
+    def __init__(self, w, h, sName = 'LorenzAttractorMask'):
+        super().__init__(sName, w, h)
+        self.beta = 8.0/3.0
+        self.sigma = 10.0
+        self.rho = 28.0
+        self.dt = 0.005
+
+    def runSimulation(self):
+        steps = 100000
+        self.x = 1.0
+        self.y = 1.0
+        self.z = 0.5
+        for step in range(steps):
+            self.lorenz()
+            self.aMask[int(6.0*self.x + self.w/2), int(self.h - 10 -5.0*self.z)] += 1
+            #print('step', step, 'x =', self.x, 'y =', self.y, 'z =', self.z)
+
+    def lorenz(self):
+        dx = self.sigma * (self.y - self.x)
+        dy = self.x * (self.rho - self.z) - self.y
+        dz = self.x * self.y - self.beta * self.z
+        self.x += dx * self.dt
+        self.y += dy * self.dt
+        self.z += dz * self.dt
+
 class RandomWalkMask(SimulationMask):
     """An ImageMask based on a random walk simulation."""
 
