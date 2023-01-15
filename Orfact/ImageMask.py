@@ -128,7 +128,7 @@ class WaveImageMask(ImageMask):
         print('Generating', self.__str__())
         for x in range(self.w):
             for y in range(self.h):
-                self.aMask[x, y] = 0.25*(2.0 + math.sin(self.freq*x) + math.cos(self.freq*y))
+                self.aMask[x, y] = 0.25*(2.0 + math.cos(self.freq*(x-self.w/2)) + math.cos(self.freq*(y-self.h/2)))
                 #self.aMask[x, y] = 0.5*(1.0 + math.sin(self.freq*(x+y)))  # diagonals
 
 class SineImageMask(ImageMask):
@@ -145,3 +145,5 @@ class SineImageMask(ImageMask):
                 dy = y - (self.h/2 + 20.0*math.sin(self.freq*x))
                 dist = math.sqrt(dx*dx + dy*dy)
                 self.aMask[x, y] = ImageMask.gauss(dist, 0.0, self.w/5.0)
+
+# TODO SpiralImageMask
