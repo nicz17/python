@@ -35,11 +35,15 @@ class SimulationMask(ImageMask):
 class RandomWalkMask(SimulationMask):
     """An ImageMask based on a random walk simulation."""
 
-    def __init__(self, w, h):
-        super().__init__('RandomWalkMask', w, h)
+    def __init__(self, w, h, sName = 'RandomWalkMask'):
+        super().__init__(sName, w, h)
 
     def runSimulation(self):
         steps = 8 * self.w * self.h
+        self.randomWalk(steps)
+
+    def randomWalk(self, steps):
+        """A random walk starting at a random position and walking the specified number of steps"""
         self.x = random.randrange(0, self.w)
         self.y = random.randrange(0, self.h)
 
@@ -68,3 +72,15 @@ class RandomWalkMask(SimulationMask):
             self.y += self.h
         elif (self.y >= self.h):
             self.y -= self.h
+
+class MultiRandomWalkMask(RandomWalkMask):
+    """An ImageMask based on multiple  random walks."""
+
+    def __init__(self, w, h, sName = 'MultiRandomWalkMask'):
+        super().__init__(w, h, sName)
+
+    def runSimulation(self):
+        walks = 5
+        steps = 4000
+        for walk in range(walks):
+            self.randomWalk(steps)
