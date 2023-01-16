@@ -29,6 +29,8 @@ class SimulationMask(ImageMask):
 
     def normalize(self):
         """Normalizes the density mask so that all values are between 0 and 1."""
+        rMin = np.amin(self.aMask)
+        self.aMask = self.aMask - rMin
         rMax = max(1.0, np.amax(self.aMask))
         self.aMask = self.aMask / rMax
 
@@ -40,7 +42,7 @@ class LorenzAttractorMask(SimulationMask):
         super().__init__(sName, w, h)
         self.beta = 8.0/3.0
         self.sigma = 10.0
-        self.rho = 28.0
+        self.rho = 27.0
         self.dt = 0.005
 
     def runSimulation(self):
@@ -50,7 +52,7 @@ class LorenzAttractorMask(SimulationMask):
         self.z = 0.5
         for step in range(steps):
             self.lorenz()
-            self.aMask[int(6.0*self.x + self.w/2), int(self.h - 10 -5.0*self.z)] += 1
+            self.aMask[int(6.0*self.x + self.w/2), int(self.h - 10 -5.0*self.z)] += self.y
             #print('step', step, 'x =', self.x, 'y =', self.y, 'z =', self.z)
 
     def lorenz(self):
