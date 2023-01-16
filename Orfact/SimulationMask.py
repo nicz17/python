@@ -9,6 +9,7 @@ __version__ = "1.0.0"
 import numpy as np
 import math
 import random
+from scipy.ndimage.filters import gaussian_filter
 from ImageMask import ImageMask
 
 class SimulationMask(ImageMask):
@@ -115,3 +116,19 @@ class MultiRandomWalkMask(RandomWalkMask):
         steps = 4000
         for walk in range(walks):
             self.randomWalk(steps)
+            
+class GaussianBlurMask(SimulationMask):
+    """An ImageMask based on gaussian blurring of several dots."""
+
+    def __init__(self, w, h):
+        super().__init__('GaussianBlurMask', w, h)
+
+    def runSimulation(self):
+        self.aMask[int(self.w/2), int(self.h/2)] = 1000.0
+        steps = 32
+        for step in range(steps):
+            x = random.randrange(10, self.w-10)
+            y = random.randrange(10, self.h-10)
+            self.aMask[x, y] = 200.0 + 800.0*random.random()
+
+        self.aMask = gaussian_filter(self.aMask, sigma=6)
