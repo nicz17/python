@@ -7,6 +7,7 @@ __copyright__ = "Copyright 2023 N. Zwahlen"
 __version__ = "1.0.0"
 
 import sys
+import logging
 
 from NameGen import *
 from Ortifact import *
@@ -17,26 +18,38 @@ from DemoImageMask import *
 from DemoPalette import *
 from HtmlPage import *
 
-def log(msg):
-    print(msg, file=sys.stdout, flush=True)
+
+def configureLogging():
+    """
+    Configures logging to have timestamped logs at INFO level
+    on stdout and in a log file.
+    """
+    
+    logging.basicConfig(
+        format='%(asctime)s %(levelname)s %(name)s: %(message)s',
+        level=logging.INFO,
+        handlers=[
+            logging.FileHandler("orfact.log"),
+            logging.StreamHandler()
+        ])
 
 def testNameGen():
     nGen = 8
-    log('Generating ' + str(nGen) + ' names')
+    log.info('Generating ' + str(nGen) + ' names')
     nameGen = NameGen(42)
     for i in range(nGen):
         log(nameGen.generate())
 
 def testOrtifactGen():
     nGen = 8
-    log('Generating ' + str(nGen) + ' ortifacts')
+    log.info('Generating ' + str(nGen) + ' ortifacts')
     ogen = OrtifactGen(42)
     for i in range(nGen):
         ortifact = ogen.generate()
         log(ortifact)
 
 def testPalette():
-    log('Testing palette')
+    log.info('Testing palette')
     pal = HeatPalette()
     pal.toColorScale('HeatPalette.png', 800, 50)
     pal = LinesPalette()
@@ -45,7 +58,7 @@ def testPalette():
     pal.toColorScale('RandomPalette.png', 800, 50)
 
 def testHtmlPage():
-    log('Testing HtmlPage')
+    log.info('Testing HtmlPage')
     page = HtmlPage('ImageMasks', 'orfact.css')
     page.addHeading(1, 'Image generation tests')
 
@@ -74,13 +87,13 @@ def testHtmlPage():
     page.save('Images.html')
 
 def testImageMaskInternal():
-    log('Testing ImageMask internals')
+    log.info('Testing ImageMask internals')
     mask = GaussImageMask(5, 3)
     mask.generate()
     print(mask.aMask)
 
 def testImageMask():
-    log('Testing ImageMask')
+    log.info('Testing ImageMask')
     size = 250
     oPalette = RandomPalette()
     oPalette.toColorScale('RandomPalette.png', 800, 50)
@@ -99,12 +112,14 @@ def runTests():
     testHtmlPage()
 
 def runDemos():
-    DemoPalette().run()
+    #DemoPalette().run()
     DemoImageMask().run()
 
 def main():
-    log('Welcome to Orfact v' + __version__)
+    log.info('Welcome to Orfact v' + __version__)
     #runTests()
     runDemos()
 
+configureLogging()
+log = logging.getLogger('Orfact')
 main()

@@ -9,19 +9,21 @@ __version__ = "1.0.0"
 
 import random
 import math
+import logging
 from PIL import Image
 import numpy as np
 #from NameGen import *
 
 class Palette:
     """A color gradient rendered using gaussian distributions"""
+    log = logging.getLogger('Palette')
     sigma = 0.35
 
     def __init__(self, sName):
         self.sName = sName
 
     def toColorScale(self, sFilename, iWidth, iHeight):
-        print('Saving', self.sName, iWidth, 'x', iHeight, 'color scale as', sFilename)
+        self.log.info('Saving %s to %ix%i color scale as %s', self.sName, iWidth, iHeight, sFilename)
         rgbArray = np.zeros((iHeight, iWidth, 3), 'uint8')
         for x in range(iWidth):
             col = self.getColor(x/iWidth)
@@ -49,7 +51,7 @@ class RandomPalette(Palette):
         self.muR = random.random()
         self.muG = random.random()
         self.muB = random.random()
-        print('RandomPalette params:', self.getParams())
+        self.log.info('RandomPalette params: %s', self.getParams())
 
     def random(self, min, max):
         return min + (max - min)*random.random()
