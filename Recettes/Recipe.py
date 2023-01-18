@@ -43,9 +43,11 @@ class Recipe:
         sText = ''
         oPatternRec      = re.compile('\\\\recette\{(.+)\}')
         oPatternIngr     = re.compile('(.+)\& (.+)\\\\\\\\')
+        oPatternIngrNQ   = re.compile('\& (.+)\\\\\\\\')
         oPatternSubtitle = re.compile('\\\\emph\{(.+)\}')
         oPatternIndex    = re.compile('\\\\index\{(.+)\}\{(.+)\}')
         oPatternIgnore   = re.compile('\\\\(label|begin|end|changelog|source)\{.+')
+        oPatternComment  = re.compile('%.+')
         while True:
             iLine += 1
             sLine = oFile.readline()
@@ -56,6 +58,9 @@ class Recipe:
 
             # Ignored some lines
             oMatch = re.match(oPatternIgnore, sLine)
+            if (oMatch):
+                continue
+            oMatch = re.match(oPatternComment, sLine)
             if (oMatch):
                 continue
 
@@ -89,6 +94,10 @@ class Recipe:
             if (oMatch):
                 self.aIngr.append(Ingredient(oMatch.group(1).strip(), oMatch.group(2)))
                 continue
+            oMatch = re.match(oPatternIngrNQ, sLine)
+            if (oMatch):
+                self.aIngr.append(Ingredient('', oMatch.group(1)))
+                continue
 
             # End paragraphs on empty lines
             if not sLine.strip():
@@ -109,6 +118,7 @@ class Recipe:
     def replace(self, str):
         str = re.sub(r"\\\`a", 'à', str)
         str = re.sub(r"\\\^a", 'â', str)
+        str = re.sub(r"\\\'E", '&Eacute;', str)
         str = re.sub(r"\\\^e", 'ê', str)
         str = re.sub(r"\\\'e", 'é', str)
         str = re.sub(r"\\\^i", 'î', str)
@@ -118,7 +128,7 @@ class Recipe:
         str = re.sub(r"\\undemi", '&frac12;', str)
         str = re.sub(r'\\emph\{(.+)\}', r'<i>\1</i>', str)
         str = re.sub(r'\\ingr\{(.+)\}', r'<a href="index.ingr.html">\1</a>', str)
-        str = re.sub(r'page~\\pageref\{rec:(.+)\}', r'<a href="\1.html">recette</a>', str)
+        str = re.sub(r'page.\\pageref\{rec:(.+)\}', r'<a href="\1.html">recette</a>', str)
         return str
 
     def getLink(self):
@@ -132,6 +142,10 @@ class Recipe:
     def getPhoto(self):
         """Returns the recipe photo filename."""
         return config.sDirPhotos + self.sName + '.jpg'
+
+    def getThumb(self):
+        """Returns the recipe thumbnail filename."""
+        return config.sDirThumbs + self.sName + '.jpg'
 
     def toHtml(self):
         """Builds the recipe HTML page."""
