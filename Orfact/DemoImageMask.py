@@ -8,6 +8,7 @@ __copyright__ = "Copyright 2023 N. Zwahlen"
 __version__ = "1.0.0"
 
 import os
+import logging
 from Palette import *
 from ImageMask import *
 from SimulationMask import *
@@ -15,13 +16,15 @@ from HtmlPage import *
 from Timer import Timer
 
 class DemoImageMask:
+    log = logging.getLogger('DemoImageMask')
+
     def __init__(self) -> None:
         self.sTitle = 'ImageMask Demo'
         self.size = 300
         self.dir = 'images/'
 
     def run(self):
-        print('Running', self.sTitle)
+        self.log.info('Running %s', self.sTitle)
         timerDemo = Timer()
         
         # Add dir if missing
@@ -38,7 +41,7 @@ class DemoImageMask:
 
         # Define ImageMasks and render them with each palette
         aMasks = [GaussImageMask(self.size, self.size), 
-                  MultiGaussImageMask(self.size, self.size),
+                  #MultiGaussImageMask(self.size, self.size),
                   GaussianBlurMask(self.size, self.size),
                   #ManhattanImageMask(self.size, self.size),
                   #WaveImageMask(0.0628, self.size, self.size),
@@ -55,7 +58,7 @@ class DemoImageMask:
                 oMask.toImage(oPal, sFilename)
                 aMaskImgs.append(ImageHtmlTag(sFilename, oMask.sName + ' rendered with ' + oPal.sName))
             timerMask.stop()
-            print('Generated and rendered', oMask.sName, 'in', timerMask.getElapsed())
+            self.log.info('Generated and rendered %s in %s', oMask.sName, timerMask.getElapsed())
 
         # Create HTML page for rendering
         oPage = HtmlPage(self.sTitle, 'orfact.css')
@@ -71,4 +74,4 @@ class DemoImageMask:
 
         # Done
         timerDemo.stop()
-        print(self.sTitle, 'done in', timerDemo.getElapsed())
+        self.log.info('%s done in %s', self.sTitle, timerDemo.getElapsed())
