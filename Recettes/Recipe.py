@@ -45,6 +45,7 @@ class Recipe:
         oPatternIngr     = re.compile('(.+)\& (.+)\\\\\\\\')
         oPatternIngrNQ   = re.compile('\& (.+)\\\\\\\\')
         oPatternSubtitle = re.compile('\\\\emph\{(.+)\}')
+        oPatternVariante = re.compile('\\\\variante\{(.+)\}')
         oPatternIndex    = re.compile('\\\\index\{(.+)\}\{(.+)\}')
         oPatternIgnore   = re.compile('\\\\(label|begin|end|changelog|source)\{.+')
         oPatternComment  = re.compile('%.+')
@@ -67,13 +68,14 @@ class Recipe:
             # Parse recipe title
             oMatch = re.match(oPatternRec, sLine)
             if (oMatch):
-                self.sTitle = oMatch.group(1)
+                self.sTitle = self.replace(oMatch.group(1))
                 continue
 
             # Parse recipe subtitle
             oMatch = re.match(oPatternSubtitle, sLine)
             if (oMatch):
-                self.sSubtitle = HtmlTag('i', oMatch.group(1))
+                self.sSubtitle = HtmlTag('p')
+                self.sSubtitle.addTag(HtmlTag('i', self.replace(oMatch.group(1))))
                 continue
 
             # Replace LaTeX stuff
@@ -99,6 +101,12 @@ class Recipe:
                 self.aIngr.append(Ingredient('', oMatch.group(1)))
                 continue
 
+            # Add variations
+            oMatch = re.match(oPatternVariante, sLine)
+            if (oMatch):
+                self.aText.append(HtmlTag('h2', 'Variante : ' + oMatch.group(1)))
+                continue
+
             # End paragraphs on empty lines
             if not sLine.strip():
                 if len(sText) > 0:
@@ -116,24 +124,37 @@ class Recipe:
             self.aText.append(HtmlTag('p', sText))
 
     def replace(self, str):
+        str = re.sub(r"\\\`A", '&Agrave;', str)
         str = re.sub(r"\\\`a", 'à', str)
         str = re.sub(r"\\\^a", 'â', str)
         str = re.sub(r"\\\'E", '&Eacute;', str)
         str = re.sub(r"\\\^e", 'ê', str)
         str = re.sub(r"\\\'e", 'é', str)
+        str = re.sub(r"\\\`e", 'è', str)
         str = re.sub(r"\\\^i", 'î', str)
         str = re.sub(r"\\\"i", 'ï', str)
+        str = re.sub(r"\\\^o", 'ô', str)
+        str = re.sub(r"\\\^u", 'û', str)
         str = re.sub(r"\\(-|noindent|bigskip|medskip|smallskip|pagebreak)", '', str)
         str = re.sub(r"\\oe ", '&oelig;', str)
+        str = re.sub(r"\\c\{c\}", '&ccedil;', str)
         str = re.sub(r"\\undemi", '&frac12;', str)
         str = re.sub(r'\\emph\{(.+)\}', r'<i>\1</i>', str)
         str = re.sub(r'\\ingr\{(.+)\}', r'<a href="index.ingr.html">\1</a>', str)
         str = re.sub(r'page.\\pageref\{rec:(.+)\}', r'<a href="\1.html">recette</a>', str)
         return str
 
+    def getCreatedAt(self):
+        oFile = config.sDirSources + self.sName + '.tex'
+        return os.path.getmtime(oFile)
+
     def getLink(self):
-        """Returns a HTML link to this recipe."""
+        """Returns a HTML link to this recipe in same dir."""
         return LinkHtmlTag(self.sName + '.html', self.sTitle)
+
+    def getSubLink(self):
+        """Returns a HTML link to this recipe under html/."""
+        return LinkHtmlTag(self.getFilename(), self.sTitle)
 
     def getFilename(self):
         """Returns the recipe HTML file name."""
@@ -142,6 +163,9 @@ class Recipe:
     def getPhoto(self):
         """Returns the recipe photo filename."""
         return config.sDirPhotos + self.sName + '.jpg'
+
+    def hasPhoto(self):
+        return os.path.exists(self.getPhoto())
 
     def getThumb(self):
         """Returns the recipe thumbnail filename."""
@@ -155,13 +179,19 @@ class Recipe:
         if self.sSubtitle:
             oPage.add(self.sSubtitle)
 
-        aTablePhoto = []
         tDivIngr = DivHtmlTag('ingr')
         tDivIngr.addAttr('align', 'center')
         tDivIngr.addTag(IngredientTableHtmlTag(self.aIngr))
-        aTablePhoto.append(tDivIngr)
-        aTablePhoto.append(ImageHtmlTag(self.getPhoto(), self.sTitle, 'Pas encore de photo'))
-        oPage.addTable(aTablePhoto, 2).addAttr('width', '100%')
+        tTable = HtmlTag('table').addAttr('width', '100%')
+        tRow = HtmlTag('tr')
+        tCellIngr = HtmlTag('td').addAttr('valign', 'top')
+        tCellIngr.addTag(tDivIngr)
+        tCellPhoto = HtmlTag('td').addAttr('width', '500px').addAttr('align', 'right')
+        tCellPhoto.addTag(ImageHtmlTag(self.getPhoto(), self.sTitle, 'Pas encore de photo'))
+        tRow.addTag(tCellIngr)
+        tRow.addTag(tCellPhoto)
+        tTable.addTag(tRow)
+        oPage.add(tTable)
 
         for oPar in self.aText:
             oPage.add(oPar)

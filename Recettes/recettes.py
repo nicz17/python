@@ -44,11 +44,10 @@ def readChapters(oBuilder):
     iLine = 0
     iChapter = 0
     oPatternChap = re.compile('\\\\chapitre\{(.+)\}')
-    oPatternRec  = re.compile('\\\\include\{(.+)\}')
+    oPatternRec  = re.compile('\\\\(include|input)\{(.+)\}')
     while True:
         iLine += 1
         sLine = oFile.readline()
-        #print('Line', iLine, sLine.strip())
 
         # Parse chapters
         oMatch = re.match(oPatternChap, sLine)
@@ -62,7 +61,7 @@ def readChapters(oBuilder):
         # Parse recipe includes
         oMatch = re.match(oPatternRec, sLine)
         if (oMatch):
-            sName = oMatch.group(1)
+            sName = oMatch.group(2)
             oRec = Recipe(sName)
             oChap.addRecipe(oRec)
             oBuilder.addRecipe(oRec)

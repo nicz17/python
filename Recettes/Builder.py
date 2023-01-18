@@ -1,6 +1,7 @@
 """A recipe website builder. Creates various HTML files."""
 
 import datetime
+import time
 import logging
 from HtmlPage import *
 
@@ -22,10 +23,12 @@ class Builder:
         self.aChapters.append(oChap)
 
     def buildAll(self):
+        """Build all HTML pages."""
         self.buildRecipes()
         self.buildChapters()
         self.buildHomePage()
         self.buildPhotosPage()
+        self.buildNewsPage()
 
     def buildRecipes(self):
         """Parse the recipes and create their HTML files."""
@@ -64,8 +67,32 @@ class Builder:
         oPage.addHeading(1, 'Photos des recettes')
         aTagsThumbs = []
         for oRec in self.aRecipes:
-            oTagLink = LinkHtmlTag(oRec.sName + '.html', None)
-            oTagLink.addTag(ImageHtmlTag(oRec.getThumb(), oRec.sTitle))
-            aTagsThumbs.append(oTagLink)
+            if oRec.hasPhoto():
+                oTagLink = LinkHtmlTag(oRec.sName + '.html', None)
+                oTagLink.addTag(ImageHtmlTag(oRec.getThumb(), oRec.sTitle))
+                aTagsThumbs.append(oTagLink)
         oPage.addTable(aTagsThumbs, 4).addAttr('width', '100%').addAttr('cellpadding', '20px')
         oPage.save(self.sDir + 'thumbs.html')
+
+    def buildNewsPage(self):
+        """Build the page of most recent recipes."""
+
+        # Sort recipes by file creation time
+        self.aRecipes.sort(key=lambda rec: rec.getCreatedAt())
+        tTableNews = HtmlTag('table')
+        for oRec in reversed(self.aRecipes[-10 : ]):
+            tRow = HtmlTag('tr')
+            sTime = time.strftime('%d.%m.%Y', time.gmtime(oRec.getCreatedAt()))
+            tCellDate = HtmlTag('td', sTime)
+            tCellRec = HtmlTag('td')
+            tCellRec.addTag(oRec.getSubLink())
+            tRow.addTag(tCellDate)
+            tRow.addTag(tCellRec)
+            tTableNews.addTag(tRow)
+
+        self.log.info('Building news page')
+        oPage = HtmlPage('Nouvelles recettes', 'html/style.css')
+        oPage.addHeading(1, 'Nouvelles recettes')
+        oPage.add(tTableNews)
+        oPage.save('news.html')
+
