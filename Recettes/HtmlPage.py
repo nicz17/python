@@ -6,7 +6,11 @@ __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2023 N. Zwahlen"
 __version__ = "1.0.0"
 
+import logging
+
 class HtmlPage:
+    log = logging.getLogger('HtmlPage')
+
     def __init__(self, sTitle, sStyle):
         self.sTitle = sTitle
         self.html = HtmlTag('html')
@@ -39,6 +43,7 @@ class HtmlPage:
         self.menu.addTag(HtmlTag('h3', '<a href="http://www.tf79.ch/nature/index.html">Nature</a>'))
         self.menu.addTag(HtmlTag('h1', '<a href="../index.html">Recettes</a>'))
         self.menu.addTag(HtmlTag('h3', '<a href="../news.html">Nouveautés</a>'))
+        self.menu.addTag(HtmlTag('h3', '<a href="thumbs.html">Photos</a>'))
         self.menu.addTag(HtmlTag('h3', '<a href="../readme.html">Aide</a>'))
 
         self.main = DivHtmlTag('main')
@@ -77,7 +82,7 @@ class HtmlPage:
         return tTable
 
     def save(self, sFilename):
-        print('Saving', self.__str__(), 'as', sFilename)
+        self.log.info('Saving %s as %s', self.__str__(), sFilename)
         oFile = open(sFilename, 'w')
         oFile.write('<!DOCTYPE html>\n' + self.html.getHtml())
 
@@ -114,6 +119,7 @@ class HtmlTag:
 
     def addAttr(self, sName, sValue):
         self.attrs[sName] = sValue
+        return self
 
     def getIndent(self, depth):
         return '  ' * depth
