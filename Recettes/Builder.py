@@ -7,7 +7,7 @@ from HtmlPage import *
 class Builder:
     """A recipe website builder. Creates various HTML files."""
     sDir = 'html/'
-    log = logging.Logger(__name__)
+    log = logging.getLogger(__name__)
 
     def __init__(self):
         self.aRecipes = []
@@ -64,6 +64,8 @@ class Builder:
         oPage.addHeading(1, 'Photos des recettes')
         aTagsThumbs = []
         for oRec in self.aRecipes:
-            aTagsThumbs.append(ImageHtmlTag(oRec.getThumb(), oRec.sTitle))
-        oPage.addTable(aTagsThumbs, 4)
+            oTagLink = LinkHtmlTag(oRec.sName + '.html', None)
+            oTagLink.addTag(ImageHtmlTag(oRec.getThumb(), oRec.sTitle))
+            aTagsThumbs.append(oTagLink)
+        oPage.addTable(aTagsThumbs, 4).addAttr('width', '100%').addAttr('cellpadding', '20px')
         oPage.save(self.sDir + 'thumbs.html')
