@@ -10,16 +10,34 @@ __version__ = "1.0.0"
 
 import re
 import config
+import logging
+from Builder import *
 from HtmlPage import *
 from Chapter import *
 from Recipe import *
 
 sFileChapters = config.sDirSources + 'chapitres.tex'
 
-def readChapters():
-    print('Reading', sFileChapters)
-    aRecipes = []
-    aChapters = []
+def configureLogging():
+    """
+    Configures logging to have timestamped logs at INFO level
+    on stdout and in a log file.
+    """
+    
+    logging.basicConfig(
+        format = '%(asctime)s %(levelname)s %(name)s: %(message)s',
+        datefmt = '%Y.%m.%d %H:%M:%S',
+        level = logging.INFO,
+        handlers = [
+            logging.FileHandler("recettes.log"),
+            logging.StreamHandler()
+        ])
+    return logging.getLogger('Recettes')
+
+def readChapters(oBuilder):
+    """Parse the main chapters LaTeX file."""
+
+    log.info('Reading %s', sFileChapters)
     oChap = None
 
     oFile = open(sFileChapters, 'r', encoding="ISO-8859-1")
@@ -39,43 +57,27 @@ def readChapters():
             sTitle = oMatch.group(1)
             #print('Line', iLine, 'new chapter:', sTitle)
             oChap = Chapter(iChapter, sTitle)
-            aChapters.append(oChap)
+            oBuilder.addChapter(oChap)
 
         # Parse recipe includes
         oMatch = re.match(oPatternRec, sLine)
         if (oMatch):
             sName = oMatch.group(1)
             oRec = Recipe(sName)
-            aRecipes.append(oRec)
             oChap.addRecipe(oRec)
+            oBuilder.addRecipe(oRec)
         
         # if sLine is empty, end of file is reached
         if not sLine:
             break
 
     oFile.close()
-    print('Found', len(aChapters), 'chapters and', len(aRecipes), 'recipes')
-
-    for oRec in aRecipes:
-        oRec.parseSource()
-        oRec.toHtml()
-
-    aChapLinks = []
-    for oChap in aChapters:
-        oChap.toHtml()
-        aChapLinks.append(LinkHtmlTag(oChap.getFilename(), oChap.sTitle))
-
-    # Build index.html
-    oPage = HtmlPage('Recettes', 'html/style.css')
-    oPage.addHeading(1, 'Les recettes du petit Nicolas')
-    oPage.addHeading(2, 'La carte')
-    oPage.addList(aChapLinks)
-    oPage.add(HtmlTag('p', str(len(aRecipes)) + ' recettes'))
-    oPage.save('index.html')
-
 
 def main():
     print('Welcome to Recettes v' + __version__)
-    readChapters()
+    builder = Builder()
+    readChapters(builder)
+    builder.buildAll()
 
+log = configureLogging()
 main()
