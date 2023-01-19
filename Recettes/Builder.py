@@ -13,16 +13,20 @@ class Builder:
     log = logging.getLogger(__name__)
 
     def __init__(self):
-        self.aRecipes = []
+        self.aRecipes  = []
         self.aChapters = []
+        self.dOrigins  = {}
 
     def addRecipe(self, oRec):
         """Add a recipe."""
         self.aRecipes.append(oRec)
-
+        
     def addChapter(self, oChap):
         """Add a chapter."""
         self.aChapters.append(oChap)
+
+    def addOrigin(self, sOrigin):
+        self.dOrigins[sOrigin] = ''
 
     def buildAll(self):
         """Build all HTML pages."""
@@ -31,6 +35,8 @@ class Builder:
         self.buildHomePage()
         self.buildPhotosPage()
         self.buildNewsPage()
+        self.buildOriginsPage()
+        self.buildIngredientsPage()
 
     def buildRecipes(self):
         """Parse the recipes and create their HTML files."""
@@ -38,6 +44,9 @@ class Builder:
         for oRec in self.aRecipes:
             oRec.parseSource()
             oRec.toHtml()
+            if oRec.sOrigin:
+                self.addOrigin(oRec.sOrigin)
+
 
     def buildChapters(self):
         """Create the chapter HTML files."""
@@ -78,6 +87,7 @@ class Builder:
 
     def buildNewsPage(self):
         """Build the page of most recent recipes."""
+        self.log.info('Building news page')
 
         # Sort recipes by file creation time
         self.aRecipes.sort(key=lambda rec: rec.getCreatedAt())
@@ -85,16 +95,32 @@ class Builder:
         for oRec in reversed(self.aRecipes[-10 : ]):
             tRow = HtmlTag('tr')
             sTime = time.strftime('%d.%m.%Y', time.gmtime(oRec.getCreatedAt()))
-            tCellDate = HtmlTag('td', sTime)
+            tCellDate = HtmlTag('td', sTime).addAttr('class', 'td-ingr-left')
             tCellRec = HtmlTag('td')
             tCellRec.addTag(oRec.getSubLink())
             tRow.addTag(tCellDate)
             tRow.addTag(tCellRec)
             tTableNews.addTag(tRow)
 
-        self.log.info('Building news page')
         oPage = RecettesHtmlPage('Nouvelles recettes')
         oPage.addHeading(1, 'Nouvelles recettes')
         oPage.add(tTableNews)
         oPage.save(config.sDirExport + 'news.html')
+
+    def buildOriginsPage(self):
+        """Build the recipe origins page."""
+        self.log.info('Building origins page')
+
+        oPage = RecettesHtmlPage('Origines des recettes')
+        oPage.addHeading(1, 'Origines des recettes')
+        oPage.addList(sorted(self.dOrigins.keys()))
+        oPage.save(config.sDirExport + 'origins.html')
+
+    def buildIngredientsPage(self):
+        """Build the ingredients page."""
+        self.log.info('Building ingredients page')
+
+        oPage = RecettesHtmlPage('Ingrédients')
+        oPage.addHeading(1, 'Ingrédients')
+        oPage.save(config.sDirExport + 'ingredients.html')
 
