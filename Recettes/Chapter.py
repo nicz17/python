@@ -1,10 +1,9 @@
 """A recipe chapter."""
 
+import config
 from HtmlPage import *
 
 class Chapter:
-    sDir = 'html/'
-
     def __init__(self, idx, sTitle):
         self.idx = idx
         self.sTitle = sTitle
@@ -14,15 +13,15 @@ class Chapter:
         self.aRecipes.append(oRec)
 
     def getFilename(self):
-        return self.sDir + 'chapter' + str(self.idx) + '.html'
+        return 'chapter' + str(self.idx) + '.html'
 
     def toHtml(self):
-        oPage = HtmlPage(self.sTitle, 'style.css')
+        oPage = HtmlPage(self.sTitle, '../scripts/style.css')
         oPage.addHeading(2, self.sTitle)
 
         aRecLinks = []
         for oRec in self.aRecipes:
-            aRecLinks.append(oRec.getLink())
+            aRecLinks.append(oRec.getSubLink())
         oPage.addList(aRecLinks)
 
-        oPage.save(self.getFilename())
+        oPage.save(config.sDirExport + self.getFilename())

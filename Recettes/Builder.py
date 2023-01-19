@@ -3,6 +3,7 @@
 import datetime
 import time
 import logging
+import config
 from HtmlPage import *
 
 class Builder:
@@ -50,7 +51,7 @@ class Builder:
         for oChap in self.aChapters:
             aChapLinks.append(LinkHtmlTag(oChap.getFilename(), oChap.sTitle))
 
-        oPage = HtmlPage('Recettes', 'html/style.css')
+        oPage = HtmlPage('Recettes', '../scripts/style.css')
         oPage.addHeading(1, 'Les recettes du petit Nicolas')
         oPage.addHeading(2, 'La carte')
         oPage.addList(aChapLinks)
@@ -58,21 +59,21 @@ class Builder:
         sNow = datetime.date.today().strftime("%d.%m.%Y")
         oPage.add(HtmlTag('small', 'Compilé le ' + sNow + ' avec ' + str(len(self.aRecipes)) + ' recettes'))
 
-        oPage.save('index.html')
+        oPage.save(config.sDirExport + 'index.html')
 
     def buildPhotosPage(self):
         """Build the recipe picture gallery"""
         self.log.info('Building photo gallery')
-        oPage = HtmlPage('Photos des recettes', 'style.css')
+        oPage = HtmlPage('Photos des recettes', '../scripts/style.css')
         oPage.addHeading(1, 'Photos des recettes')
         aTagsThumbs = []
         for oRec in self.aRecipes:
             if oRec.hasPhoto():
-                oTagLink = LinkHtmlTag(oRec.sName + '.html', None)
+                oTagLink = LinkHtmlTag('html/' + oRec.getFilename(), None)
                 oTagLink.addTag(ImageHtmlTag(oRec.getThumb(), oRec.sTitle))
                 aTagsThumbs.append(oTagLink)
         oPage.addTable(aTagsThumbs, 4).addAttr('width', '100%').addAttr('cellpadding', '20px')
-        oPage.save(self.sDir + 'thumbs.html')
+        oPage.save(config.sDirExport + 'thumbs.html')
 
     def buildNewsPage(self):
         """Build the page of most recent recipes."""
@@ -91,8 +92,8 @@ class Builder:
             tTableNews.addTag(tRow)
 
         self.log.info('Building news page')
-        oPage = HtmlPage('Nouvelles recettes', 'html/style.css')
+        oPage = HtmlPage('Nouvelles recettes', '../scripts/style.css')
         oPage.addHeading(1, 'Nouvelles recettes')
         oPage.add(tTableNews)
-        oPage.save('news.html')
+        oPage.save(config.sDirExport + 'news.html')
 

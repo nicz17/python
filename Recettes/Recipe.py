@@ -24,7 +24,6 @@ class IngredientTableHtmlTag(HtmlTag):
 
 class Recipe:
     log = logging.getLogger('Recipe')
-    sDir = 'html/'
 
     def __init__(self, sName):
         self.sName = sName
@@ -140,6 +139,7 @@ class Recipe:
         str = re.sub(r"\\\^u", 'û', str)
         str = re.sub(r"\\(-|noindent|bigskip|medskip|smallskip|pagebreak)", '', str)
         str = re.sub(r"\\oe ", '&oelig;', str)
+        str = re.sub(r"\\oe\{\}", '&oelig;', str)
         str = re.sub(r"\\c\{c\}", '&ccedil;', str)
         str = re.sub(r"\\undemi", '&frac12;', str)
         str = re.sub(r'\\emph\{(.+)\}', r'<i>\1</i>', str)
@@ -153,15 +153,15 @@ class Recipe:
 
     def getLink(self):
         """Returns a HTML link to this recipe in same dir."""
-        return LinkHtmlTag(self.sName + '.html', self.sTitle)
+        return LinkHtmlTag(self.getFilename(), self.sTitle)
 
     def getSubLink(self):
         """Returns a HTML link to this recipe under html/."""
-        return LinkHtmlTag(self.getFilename(), self.sTitle)
+        return LinkHtmlTag('html/' + self.getFilename(), self.sTitle)
 
     def getFilename(self):
         """Returns the recipe HTML file name."""
-        return self.sDir + self.sName + '.html'
+        return self.sName + '.html'
 
     def getPhoto(self):
         """Returns the recipe photo filename."""
@@ -176,7 +176,7 @@ class Recipe:
 
     def toHtml(self):
         """Builds the recipe HTML page."""
-        oPage = HtmlPage(self.sTitle, 'style.css')
+        oPage = HtmlPage(self.sTitle, '../../scripts/style.css')
         oPage.addHeading(1, self.sTitle)
 
         if self.sSubtitle:
@@ -204,4 +204,4 @@ class Recipe:
             tDivOrigin.addTag(LinkHtmlTag('index.pays.html', 'Origine : ' + self.sOrigin))
             oPage.add(tDivOrigin)
 
-        oPage.save(self.getFilename())
+        oPage.save(config.sDirPages + self.getFilename())

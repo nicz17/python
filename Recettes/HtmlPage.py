@@ -43,8 +43,9 @@ class HtmlPage:
         self.menu.addTag(HtmlTag('h3', '<a href="http://www.tf79.ch/nature/index.html">Nature</a>'))
         self.menu.addTag(HtmlTag('h1', '<a href="../index.html">Recettes</a>'))
         self.menu.addTag(HtmlTag('h3', '<a href="../news.html">Nouveautés</a>'))
-        self.menu.addTag(HtmlTag('h3', '<a href="thumbs.html">Photos</a>'))
+        self.menu.addTag(HtmlTag('h3', '<a href="../thumbs.html">Photos</a>'))
         self.menu.addTag(HtmlTag('h3', '<a href="../readme.html">Aide</a>'))
+        self.menu.addTag(HtmlTag('h3', '<a href="../biblio.html">Bibliographie</a>'))
 
         self.main = DivHtmlTag('main')
         self.body.addTag(self.main)
