@@ -71,7 +71,7 @@ def readChapters(oBuilder):
         if (oMatch):
             iChapter += 1
             sTitle = oMatch.group(1)
-            #print('Line', iLine, 'new chapter:', sTitle)
+            #log.debug('Line %d new chapter: %s', iLine, sTitle)
             oChap = Chapter(iChapter, sTitle)
             oBuilder.addChapter(oChap)
 

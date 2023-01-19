@@ -3,6 +3,7 @@
 import os
 import re
 import config
+import logging
 from HtmlPage import *
 
 class Ingredient:
@@ -22,6 +23,7 @@ class IngredientTableHtmlTag(HtmlTag):
             self.addTag(ingr.getTableRow())
 
 class Recipe:
+    log = logging.getLogger('Recipe')
     sDir = 'html/'
 
     def __init__(self, sName):
@@ -36,7 +38,8 @@ class Recipe:
         """Reads the recipe source LaTeX file."""
         sFile = config.sDirSources + self.sName + '.tex'
         if not os.path.exists(sFile):
-            print('ERROR: file not found', sFile)
+            self.log.error('File not found: %s', sFile)
+            exit('Aborted')
 
         oFile = open(sFile, 'r', encoding="ISO-8859-1")
         iLine = 0
