@@ -9,6 +9,7 @@ __version__ = "1.0.0"
 import logging
 
 class HtmlPage:
+    """An HTML page."""
     log = logging.getLogger('HtmlPage')
 
     def __init__(self, sTitle, sStyle):
@@ -23,6 +24,7 @@ class HtmlPage:
         self.buildBody()
 
     def buildHead(self, sStyle):
+        """Build the HTML head tag with CSS style, scripts etc."""
         self.head.addTag(HtmlTag('title', self.sTitle))
 
         tStyle = HtmlTag('link')
@@ -36,27 +38,25 @@ class HtmlPage:
         self.head.addTag(tScript)
 
     def buildBody(self):
+        """Build HTML body tag with main div and possible menu div."""
         self.menu = DivHtmlTag('menu')
-        self.body.addTag(self.menu)
-        self.menu.addTag(HtmlTag('h1', '<a href="http://www.tf79.ch/index.html">Accueil</a>'))
-        self.menu.addTag(HtmlTag('h3', '<a href="http://www.tf79.ch/bookmarks.html">Favoris</a>'))
-        self.menu.addTag(HtmlTag('h3', '<a href="http://www.tf79.ch/nature/index.html">Nature</a>'))
-        self.menu.addTag(HtmlTag('h1', '<a href="../index.html">Recettes</a>'))
-        self.menu.addTag(HtmlTag('h3', '<a href="../news.html">Nouveautés</a>'))
-        self.menu.addTag(HtmlTag('h3', '<a href="../thumbs.html">Photos</a>'))
-        self.menu.addTag(HtmlTag('h3', '<a href="../readme.html">Aide</a>'))
-        self.menu.addTag(HtmlTag('h3', '<a href="../biblio.html">Bibliographie</a>'))
+        self.buildMenu()
 
         self.main = DivHtmlTag('main')
         self.body.addTag(self.main)
 
         self.body.addTag(HtmlTag('script', 'createFooter();'))
 
+    def buildMenu(self):
+        """Build the HTML menu div on the left"""
+        pass
+
     def add(self, tag):
         """Adds the specified tag to the main div."""
         self.main.addTag(tag)
 
     def addHeading(self, iLevel, sTitle):
+        """Add a heading of the specified level, for example h1."""
         self.main.addTag(HtmlTag('h' + str(iLevel), sTitle))
 
     def addList(self, aItems):

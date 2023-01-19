@@ -5,6 +5,7 @@ import re
 import config
 import logging
 from HtmlPage import *
+from RecettesHtmlPage import *
 
 class Ingredient:
     """An ingredient quantity and name."""
@@ -176,7 +177,7 @@ class Recipe:
 
     def toHtml(self):
         """Builds the recipe HTML page."""
-        oPage = HtmlPage(self.sTitle, '../../scripts/style.css')
+        oPage = RecettesHtmlPage(self.sTitle, '../')
         oPage.addHeading(1, self.sTitle)
 
         if self.sSubtitle:

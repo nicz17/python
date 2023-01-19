@@ -2,6 +2,7 @@
 
 import config
 from HtmlPage import *
+from RecettesHtmlPage import *
 
 class Chapter:
     def __init__(self, idx, sTitle):
@@ -16,7 +17,7 @@ class Chapter:
         return 'chapter' + str(self.idx) + '.html'
 
     def toHtml(self):
-        oPage = HtmlPage(self.sTitle, '../scripts/style.css')
+        oPage = RecettesHtmlPage(self.sTitle)
         oPage.addHeading(2, self.sTitle)
 
         aRecLinks = []

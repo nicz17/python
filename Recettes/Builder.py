@@ -5,6 +5,7 @@ import time
 import logging
 import config
 from HtmlPage import *
+from RecettesHtmlPage import *
 
 class Builder:
     """A recipe website builder. Creates various HTML files."""
@@ -51,7 +52,7 @@ class Builder:
         for oChap in self.aChapters:
             aChapLinks.append(LinkHtmlTag(oChap.getFilename(), oChap.sTitle))
 
-        oPage = HtmlPage('Recettes', '../scripts/style.css')
+        oPage = RecettesHtmlPage('Recettes')
         oPage.addHeading(1, 'Les recettes du petit Nicolas')
         oPage.addHeading(2, 'La carte')
         oPage.addList(aChapLinks)
@@ -64,7 +65,7 @@ class Builder:
     def buildPhotosPage(self):
         """Build the recipe picture gallery"""
         self.log.info('Building photo gallery')
-        oPage = HtmlPage('Photos des recettes', '../scripts/style.css')
+        oPage = RecettesHtmlPage('Photos des recettes')
         oPage.addHeading(1, 'Photos des recettes')
         aTagsThumbs = []
         for oRec in self.aRecipes:
@@ -92,7 +93,7 @@ class Builder:
             tTableNews.addTag(tRow)
 
         self.log.info('Building news page')
-        oPage = HtmlPage('Nouvelles recettes', '../scripts/style.css')
+        oPage = RecettesHtmlPage('Nouvelles recettes')
         oPage.addHeading(1, 'Nouvelles recettes')
         oPage.add(tTableNews)
         oPage.save(config.sDirExport + 'news.html')
