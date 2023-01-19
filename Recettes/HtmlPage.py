@@ -63,7 +63,10 @@ class HtmlPage:
         tUl = HtmlTag('ul')
         for item in aItems:
             tLi = HtmlTag('li')
-            tLi.addTag(item)
+            if isinstance(item, str):
+                tLi = HtmlTag('li', item)
+            else:
+                tLi.addTag(item)
             tUl.addTag(tLi)
         self.main.addTag(tUl)
 
@@ -84,7 +87,7 @@ class HtmlPage:
 
     def save(self, sFilename):
         self.log.info('Saving %s as %s', self.__str__(), sFilename)
-        oFile = open(sFilename, 'w')
+        oFile = open(sFilename, 'w', encoding="ISO-8859-1")
         oFile.write('<!DOCTYPE html>\n' + self.html.getHtml())
 
     def __str__(self):
