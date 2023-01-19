@@ -63,10 +63,7 @@ class Recipe:
             if not sLine:
                 break
 
-            # Ignored some lines
-            oMatch = re.match(oPatternIgnore, sLine)
-            if (oMatch):
-                continue
+            # Ignore comments
             oMatch = re.match(oPatternComment, sLine)
             if (oMatch):
                 continue
@@ -86,6 +83,11 @@ class Recipe:
 
             # Replace LaTeX stuff
             sLine = self.replace(sLine)
+
+            # Ignore some lines
+            oMatch = re.match(oPatternIgnore, sLine)
+            if (oMatch):
+                continue
 
             # Parse index
             oMatch = re.match(oPatternIndex, sLine)
@@ -137,6 +139,7 @@ class Recipe:
         str = re.sub(r"\\\^e", 'ê', str)
         str = re.sub(r"\\\'e", 'é', str)
         str = re.sub(r"\\\`e", 'è', str)
+        str = re.sub(r"\\\"e", 'ë', str)
         str = re.sub(r"\\\^i", 'î', str)
         str = re.sub(r"\\\"i", 'ï', str)
         str = re.sub(r"\\\^o", 'ô', str)
@@ -146,8 +149,11 @@ class Recipe:
         str = re.sub(r"\\oe\{\}", '&oelig;', str)
         str = re.sub(r"\\c\{c\}", '&ccedil;', str)
         str = re.sub(r"\\undemi", '&frac12;', str)
+        str = re.sub(r"\\begin\{itemize\}", '<ul>', str)
+        str = re.sub(r"\\end\{itemize\}", '</ul>', str)
+        str = re.sub(r"\\item", '<li>', str)
         str = re.sub(r'\\emph\{(.+)\}', r'<i>\1</i>', str)
-        str = re.sub(r'\\ingr\{(.+)\}', r'<a href="index.ingr.html">\1</a>', str)
+        str = re.sub(r'\\ingr\{(.+)\}', r'<a href="../ingredients.html">\1</a>', str)
         str = re.sub(r'page.\\pageref\{rec:(.+)\}', r'<a href="\1.html">recette</a>', str)
         return str
 
@@ -177,6 +183,14 @@ class Recipe:
     def getThumb(self):
         """Returns the recipe thumbnail filename."""
         return config.sDirThumbs + self.sName + '.jpg'
+    
+    def getOrigin(self):
+        """Returns the recipe origin country, optionally with a region."""
+        if self.sOrigin and (self.sOrigin.find('!') > 0):
+            lOrig = self.sOrigin.split('!')
+            return lOrig[0] + ' (' + lOrig[1] + ')'
+        else:
+            return self.sOrigin
 
     def toHtml(self):
         """Builds the recipe HTML page."""
@@ -206,7 +220,7 @@ class Recipe:
 
         if self.sOrigin:
             tDivOrigin = DivHtmlTag('recPays')
-            tDivOrigin.addTag(LinkHtmlTag('index.pays.html', 'Origine : ' + self.sOrigin))
+            tDivOrigin.addTag(LinkHtmlTag('../origins.html', 'Origine : ' + self.getOrigin()))
             oPage.add(tDivOrigin)
 
         oPage.save(config.sDirPages + self.getFilename())
