@@ -27,3 +27,7 @@ class RecettesHtmlPage(HtmlPage):
         self.menu.addTag(HtmlTag('h3', '<a href="' + self.sPath + 'thumbs.html">Photos</a>'))
         self.menu.addTag(HtmlTag('h3', '<a href="' + self.sPath + 'readme.html">Aide</a>'))
         self.menu.addTag(HtmlTag('h3', '<a href="' + self.sPath + 'biblio.html">Bibliographie</a>'))
+
+    def addChapterLink(self, sLink, sName):
+        """Adds a chapter link to the menu."""
+        self.menu.addTag(HtmlTag('h3', '<a href="' + self.sPath + sLink + '">' + sName + '</a>'))

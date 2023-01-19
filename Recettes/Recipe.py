@@ -4,6 +4,7 @@ import os
 import re
 import config
 import logging
+from Chapter import *
 from HtmlPage import *
 from RecettesHtmlPage import *
 
@@ -24,13 +25,15 @@ class IngredientTableHtmlTag(HtmlTag):
             self.addTag(ingr.getTableRow())
 
 class Recipe:
+    """A recipe."""
     log = logging.getLogger('Recipe')
 
-    def __init__(self, sName):
+    def __init__(self, sName, oChap):
         self.sName = sName
         self.sTitle = 'Title not parsed'
         self.sSubtitle = None
         self.sOrigin = None
+        self.oChapter = oChap
         self.aIngr = []
         self.aText = []
 
@@ -179,6 +182,7 @@ class Recipe:
         """Builds the recipe HTML page."""
         oPage = RecettesHtmlPage(self.sTitle, '../')
         oPage.addHeading(1, self.sTitle)
+        oPage.addChapterLink(self.oChapter.getFilename(), self.oChapter.sTitle)
 
         if self.sSubtitle:
             oPage.add(self.sSubtitle)

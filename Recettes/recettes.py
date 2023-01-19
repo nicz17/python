@@ -79,7 +79,7 @@ def readChapters(oBuilder):
         oMatch = re.match(oPatternRec, sLine)
         if (oMatch):
             sName = oMatch.group(2)
-            oRec = Recipe(sName)
+            oRec = Recipe(sName, oChap)
             oChap.addRecipe(oRec)
             oBuilder.addRecipe(oRec)
         
