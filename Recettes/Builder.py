@@ -138,15 +138,26 @@ class Builder:
         oPage.save(config.sDirExport + 'origins.html')
 
     def buildIngredientsPage(self):
-        """Build the ingredients page."""
-        self.log.info('Building ingredients page')
-        self.log.info('Found %d ingredients', len(self.dIngreds))
+        """Build the ingredients page, separated by initial letter."""
+        self.log.info('Building ingredients page with %d ingredients', len(self.dIngreds))
 
         oPage = RecettesHtmlPage('Ingrédients')
         oPage.addHeading(1, 'Ingrédients')
 
+        def sortLowerCase(s):
+            return s.lower()
+
         aIngreds = []
-        for sIngr in sorted(self.dIngreds.keys()):
+        sLetterCurr = None
+        for sIngr in sorted(self.dIngreds.keys(), key=sortLowerCase):
+            sLetter = sIngr[0:1].upper()
+            if not sLetter == sLetterCurr:
+                if len(aIngreds) > 0:
+                    oPage.addList(aIngreds)
+                oPage.addHeading(2, '<a name="' + sLetter + '">' + sLetter + '</a>')
+                sLetterCurr = sLetter
+                aIngreds = []
+
             aRecLinks = []
             for oRec in self.dIngreds[sIngr]:
                 aRecLinks.append(oRec.getSubLink())

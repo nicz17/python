@@ -86,8 +86,11 @@ class Recipe:
             # Handle ingredient links
             oMatch = re.match(oPatternIngrLink, sLine)
             if (oMatch):
-                sIngrName = oMatch.group(1)
+                sIngrName = self.replace(oMatch.group(1))
                 self.aIngrLinks.append(sIngrName)
+                sLetter = sIngrName[0:1].upper()
+                sLink = '<a href="../ingredients.html#' + sLetter + '">' + sIngrName + '</a>'
+                sLine = re.sub(r'\\ingr\{(.+)\}', sLink, sLine)
 
             # Replace LaTeX stuff
             sLine = self.replace(sLine)
