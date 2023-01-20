@@ -12,7 +12,7 @@ class HtmlPage:
     """An HTML page."""
     log = logging.getLogger('HtmlPage')
 
-    def __init__(self, sTitle, sStyle):
+    def __init__(self, sTitle, sStyle = 'style.css'):
         self.sTitle = sTitle
         self.html = HtmlTag('html')
         self.head = HtmlTag('head')
@@ -100,7 +100,7 @@ class HtmlTag:
         self.tags = []
         self.attrs = {}
 
-    def getHtml(self, depth=0):
+    def getHtml(self, depth=0, bInline = False):
         html = self.getIndent(depth) + '<' + self.sName
         for attr in self.attrs:
             html += ' ' + attr + '="' + self.attrs[attr] + '"'
@@ -115,7 +115,9 @@ class HtmlTag:
         if (self.needEndTag()):
             if (self.sContent == None):
                 html += self.getIndent(depth)
-            html += '</' + self.sName + '>\n'
+            html += '</' + self.sName + '>'
+            if not bInline:
+                html += '\n'
         return html
 
     def addTag(self, tag):
@@ -169,3 +171,38 @@ class TableHtmlTag(HtmlTag):
             #tCell.addTag(item)
             nItemsInRow += 1
 
+class InlineHtmlTag(HtmlTag):
+    """An HTML tag displaying its contents on a single line."""
+    def __init__(self, aItems, sSeparator):
+        super().__init__('span', None)
+        self.aItems = aItems
+        self.sSeparator = sSeparator
+
+    def getHtml(self, depth=0, bInline = False):
+        html = self.getIndent(depth)
+        if (self.sContent):
+            html += self.sContent
+        bFirst = True
+        for oItem in self.aItems:
+            if bFirst:
+                bFirst = False
+            else:
+                html += self.sSeparator
+            if isinstance(oItem, str):
+                html += oItem
+            else:
+                html += oItem.getHtml(0, True)
+        if not bInline:
+            html += '\n'
+        return html
+
+def testInlineTag():
+    print('Testing InlineHtmlTag')
+    oPage = HtmlPage('Test inline')
+    aItems = ['one', 'two', LinkHtmlTag('google.com', 'Google'), 'three']
+    oPage.addHeading(1, 'Inline tag test')
+    oPage.add(InlineHtmlTag(aItems, ' - '))
+    oPage.save('test.html')
+
+if __name__ == '__main__':
+    testInlineTag()
