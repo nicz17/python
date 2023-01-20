@@ -142,6 +142,7 @@ class Recipe:
         str = re.sub(r"\\\"e", 'ë', str)
         str = re.sub(r"\\\^i", 'î', str)
         str = re.sub(r"\\\"i", 'ï', str)
+        str = re.sub(r"\\\'i", '&iacute;', str)
         str = re.sub(r"\\\^o", 'ô', str)
         str = re.sub(r"\\\^u", 'û', str)
         str = re.sub(r"\\(-|noindent|bigskip|medskip|smallskip|pagebreak)", '', str)
@@ -189,6 +190,14 @@ class Recipe:
         if self.sOrigin and (self.sOrigin.find('!') > 0):
             lOrig = self.sOrigin.split('!')
             return lOrig[0] + ' (' + lOrig[1] + ')'
+        else:
+            return self.sOrigin
+        
+    def getOriginCountry(self):
+        """Returns the recipe origin country, without region."""
+        if self.sOrigin and (self.sOrigin.find('!') > 0):
+            lOrig = self.sOrigin.split('!')
+            return lOrig[0]
         else:
             return self.sOrigin
 

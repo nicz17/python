@@ -25,8 +25,10 @@ class Builder:
         """Add a chapter."""
         self.aChapters.append(oChap)
 
-    def addOrigin(self, sOrigin):
-        self.dOrigins[sOrigin] = ''
+    def addOrigin(self, sOrigin, oRec):
+        if not sOrigin in self.dOrigins:
+            self.dOrigins[sOrigin] = []
+        self.dOrigins[sOrigin].append(oRec)
 
     def buildAll(self):
         """Build all HTML pages."""
@@ -45,8 +47,7 @@ class Builder:
             oRec.parseSource()
             oRec.toHtml()
             if oRec.sOrigin:
-                self.addOrigin(oRec.sOrigin)
-
+                self.addOrigin(oRec.getOriginCountry(), oRec)
 
     def buildChapters(self):
         """Create the chapter HTML files."""
@@ -113,7 +114,16 @@ class Builder:
 
         oPage = RecettesHtmlPage('Origines des recettes')
         oPage.addHeading(1, 'Origines des recettes')
-        oPage.addList(sorted(self.dOrigins.keys()))
+
+        aOrigins = []
+        for sOrigin in sorted(self.dOrigins.keys()):
+            aRecLinks = []
+            for oRec in self.dOrigins[sOrigin]:
+                aRecLinks.append(oRec.getSubLink())
+            tOrigin = InlineHtmlTag(sOrigin + ' : ', aRecLinks, ', ')
+            aOrigins.append(tOrigin)
+
+        oPage.addList(aOrigins)
         oPage.save(config.sDirExport + 'origins.html')
 
     def buildIngredientsPage(self):
