@@ -173,8 +173,8 @@ class TableHtmlTag(HtmlTag):
 
 class InlineHtmlTag(HtmlTag):
     """An HTML tag displaying its contents on a single line."""
-    def __init__(self, aItems, sSeparator):
-        super().__init__('span', None)
+    def __init__(self, sContent, aItems, sSeparator):
+        super().__init__('span', sContent)
         self.aItems = aItems
         self.sSeparator = sSeparator
 
@@ -201,7 +201,7 @@ def testInlineTag():
     oPage = HtmlPage('Test inline')
     aItems = ['one', 'two', LinkHtmlTag('google.com', 'Google'), 'three']
     oPage.addHeading(1, 'Inline tag test')
-    oPage.add(InlineHtmlTag(aItems, ' - '))
+    oPage.add(InlineHtmlTag('List: ', aItems, ' - '))
     oPage.save('test.html')
 
 if __name__ == '__main__':
