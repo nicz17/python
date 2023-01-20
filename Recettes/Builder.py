@@ -16,6 +16,7 @@ class Builder:
         self.aRecipes  = []
         self.aChapters = []
         self.dOrigins  = {}
+        self.dIngreds  = {}
 
     def addRecipe(self, oRec):
         """Add a recipe."""
@@ -26,9 +27,16 @@ class Builder:
         self.aChapters.append(oChap)
 
     def addOrigin(self, sOrigin, oRec):
+        """Add a recipe origin country."""
         if not sOrigin in self.dOrigins:
             self.dOrigins[sOrigin] = []
         self.dOrigins[sOrigin].append(oRec)
+
+    def addIngredient(self, sIngr, oRec):
+        """Add a recipe ingredient."""
+        if not sIngr in self.dIngreds:
+            self.dIngreds[sIngr] = []
+        self.dIngreds[sIngr].append(oRec)
 
     def buildAll(self):
         """Build all HTML pages."""
@@ -48,6 +56,8 @@ class Builder:
             oRec.toHtml()
             if oRec.sOrigin:
                 self.addOrigin(oRec.getOriginCountry(), oRec)
+            for sIngr in oRec.aIngrLinks:
+                self.addIngredient(sIngr, oRec)
 
     def buildChapters(self):
         """Create the chapter HTML files."""
@@ -116,6 +126,7 @@ class Builder:
         oPage.addHeading(1, 'Origines des recettes')
 
         aOrigins = []
+        self.log.info('Found %d origin countries', len(self.dOrigins))
         for sOrigin in sorted(self.dOrigins.keys()):
             aRecLinks = []
             for oRec in self.dOrigins[sOrigin]:
@@ -129,8 +140,19 @@ class Builder:
     def buildIngredientsPage(self):
         """Build the ingredients page."""
         self.log.info('Building ingredients page')
+        self.log.info('Found %d ingredients', len(self.dIngreds))
 
         oPage = RecettesHtmlPage('Ingrédients')
         oPage.addHeading(1, 'Ingrédients')
+
+        aIngreds = []
+        for sIngr in sorted(self.dIngreds.keys()):
+            aRecLinks = []
+            for oRec in self.dIngreds[sIngr]:
+                aRecLinks.append(oRec.getSubLink())
+            tIngr = InlineHtmlTag(sIngr + ' : ', aRecLinks, ', ')
+            aIngreds.append(tIngr)
+
+        oPage.addList(aIngreds)
         oPage.save(config.sDirExport + 'ingredients.html')
 

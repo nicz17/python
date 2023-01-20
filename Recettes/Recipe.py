@@ -34,6 +34,7 @@ class Recipe:
         self.sSubtitle = None
         self.sOrigin = None
         self.oChapter = oChap
+        self.aIngrLinks = []
         self.aIngr = []
         self.aText = []
 
@@ -50,6 +51,7 @@ class Recipe:
         oPatternRec      = re.compile('\\\\recette\{(.+)\}')
         oPatternIngr     = re.compile('(.+)\& (.+)\\\\\\\\')
         oPatternIngrNQ   = re.compile('\& (.+)\\\\\\\\')
+        oPatternIngrLink = re.compile('.*\\\\ingr\{(.+)\}.*')
         oPatternSubtitle = re.compile('\\\\emph\{(.+)\}')
         oPatternVariante = re.compile('\\\\variante\{(.+)\}')
         oPatternIndex    = re.compile('\\\\index\{(.+)\}\{(.+)\}')
@@ -80,6 +82,12 @@ class Recipe:
                 self.sSubtitle = HtmlTag('p')
                 self.sSubtitle.addTag(HtmlTag('i', self.replace(oMatch.group(1))))
                 continue
+
+            # Handle ingredient links
+            oMatch = re.match(oPatternIngrLink, sLine)
+            if (oMatch):
+                sIngrName = oMatch.group(1)
+                self.aIngrLinks.append(sIngrName)
 
             # Replace LaTeX stuff
             sLine = self.replace(sLine)
