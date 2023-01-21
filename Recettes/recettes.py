@@ -42,7 +42,7 @@ def getOptions():
     except getopt.GetoptError:
         print("Invalid options: %s", sys.argv[1:])
     for opt, arg in opts:
-        log.info("... Parsing option %s value %s", opt, arg)
+        log.info("Parsing option %s value %s", opt, arg)
         if opt in ('-h', '--help'):
             print('recettes.py --help --debug --upload')
             sys.exit()
@@ -72,7 +72,7 @@ def main():
 
     if (dOptions['upload']):
         uploader = Uploader()
-        uploader.upload()
+        uploader.test()
     else:
         builder = Builder()
         builder.parseChapters()
