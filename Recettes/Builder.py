@@ -4,6 +4,10 @@ import datetime
 import time
 import logging
 import config
+import os
+import re
+from Chapter import *
+from Recipe import *
 from HtmlPage import *
 from RecettesHtmlPage import *
 
@@ -17,6 +21,46 @@ class Builder:
         self.aChapters = []
         self.dOrigins  = {}
         self.dIngreds  = {}
+
+    def parseChapters(self):
+        """Parse the main chapters LaTeX file."""
+        sFileChapters = config.sDirSources + 'chapitres.tex'
+        self.log.info('Reading %s', sFileChapters)
+        if not os.path.exists(sFileChapters):
+            self.log.error('Missing chapters file %s, aborting', sFileChapters)
+            exit('Abort')
+
+        oFile = open(sFileChapters, 'r', encoding="ISO-8859-1")
+        iLine = 0
+        iChapter = 0
+        oChap = None
+        oPatternChap = re.compile('\\\\chapitre\{(.+)\}')
+        oPatternRec  = re.compile('\\\\(include|input)\{(.+)\}')
+        while True:
+            iLine += 1
+            sLine = oFile.readline()
+
+            # Parse chapters
+            oMatch = re.match(oPatternChap, sLine)
+            if (oMatch):
+                iChapter += 1
+                sTitle = oMatch.group(1)
+                #log.debug('Line %d new chapter: %s', iLine, sTitle)
+                oChap = Chapter(iChapter, sTitle)
+                self.addChapter(oChap)
+
+            # Parse recipe includes
+            oMatch = re.match(oPatternRec, sLine)
+            if (oMatch):
+                sName = oMatch.group(2)
+                oRec = Recipe(sName, oChap)
+                oChap.addRecipe(oRec)
+                self.addRecipe(oRec)
+            
+            # if sLine is empty, end of file is reached
+            if not sLine:
+                break
+        oFile.close()
 
     def addRecipe(self, oRec):
         """Add a recipe."""
@@ -85,15 +129,21 @@ class Builder:
     def buildPhotosPage(self):
         """Build the recipe picture gallery"""
         self.log.info('Building photo gallery')
-        oPage = RecettesHtmlPage('Photos des recettes')
-        oPage.addHeading(1, 'Photos des recettes')
         aTagsThumbs = []
+        aTagsNoPic = []
         for oRec in self.aRecipes:
             if oRec.hasPhoto():
                 oTagLink = LinkHtmlTag('html/' + oRec.getFilename(), None)
                 oTagLink.addTag(ImageHtmlTag(oRec.getThumb(), oRec.sTitle))
                 aTagsThumbs.append(oTagLink)
+            else:
+                aTagsNoPic.append(oRec.getSubLink())
+
+        oPage = RecettesHtmlPage('Photos des recettes')
+        oPage.addHeading(1, 'Photos des recettes')
         oPage.addTable(aTagsThumbs, 4).addAttr('width', '100%').addAttr('cellpadding', '20px')
+        oPage.addHeading(2, 'Recettes sans photo')
+        oPage.addList(aTagsNoPic)
         oPage.save(config.sDirExport + 'thumbs.html')
 
     def buildNewsPage(self):
@@ -120,13 +170,12 @@ class Builder:
 
     def buildOriginsPage(self):
         """Build the recipe origins page."""
-        self.log.info('Building origins page')
+        self.log.info('Building origins page with %d countries', len(self.dOrigins))
 
         oPage = RecettesHtmlPage('Origines des recettes')
         oPage.addHeading(1, 'Origines des recettes')
 
         aOrigins = []
-        self.log.info('Found %d origin countries', len(self.dOrigins))
         for sOrigin in sorted(self.dOrigins.keys()):
             aRecLinks = []
             for oRec in self.dOrigins[sOrigin]:
