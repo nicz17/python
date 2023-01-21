@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 """
- A recipe website generator
+ A recipe website generator.
+ This is the main entry point.
 """
 
 __author__ = "Nicolas Zwahlen"
@@ -9,13 +10,12 @@ __copyright__ = "Copyright 2023 N. Zwahlen"
 __version__ = "1.0.0"
 
 import os
-import re
+import sys
 import config
 import logging
+import getopt
 from Builder import *
-from HtmlPage import *
-from Chapter import *
-from Recipe import *
+from Uploader import *
 
 
 def configureLogging():
@@ -34,6 +34,24 @@ def configureLogging():
         ])
     return logging.getLogger('Recettes')
 
+def getOptions():
+    """Parse program arguments and store them in a dict."""
+    dOptions = {'debug': False, 'upload': False}
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "hdu", ["help", "debug", "upload"])
+    except getopt.GetoptError:
+        print("Invalid options: %s", sys.argv[1:])
+    for opt, arg in opts:
+        log.info("... Parsing option %s value %s", opt, arg)
+        if opt in ('-h', '--help'):
+            print('recettes.py --help --debug --upload')
+            sys.exit()
+        elif opt in ("-d", "--debug"):
+            dOptions['debug'] = True
+        elif opt in ("-u", "--upload"):
+            dOptions['upload'] = True
+    return dOptions
+
 def checkConfig():
     """Checks that config dirs exist."""
 
@@ -47,55 +65,19 @@ def checkConfig():
         log.error('Missing thumbs dir %s, aborting', config.sDirThumbs)
         exit('Abort')
 
-def readChapters(oBuilder):
-    """Parse the main chapters LaTeX file."""
-
-    sFileChapters = config.sDirSources + 'chapitres.tex'
-    log.info('Reading %s', sFileChapters)
-    if not os.path.exists(sFileChapters):
-        log.error('Missing chapters file %s, aborting', sFileChapters)
-        exit('Abort')
-
-    oFile = open(sFileChapters, 'r', encoding="ISO-8859-1")
-    iLine = 0
-    iChapter = 0
-    oChap = None
-    oPatternChap = re.compile('\\\\chapitre\{(.+)\}')
-    oPatternRec  = re.compile('\\\\(include|input)\{(.+)\}')
-    while True:
-        iLine += 1
-        sLine = oFile.readline()
-
-        # Parse chapters
-        oMatch = re.match(oPatternChap, sLine)
-        if (oMatch):
-            iChapter += 1
-            sTitle = oMatch.group(1)
-            #log.debug('Line %d new chapter: %s', iLine, sTitle)
-            oChap = Chapter(iChapter, sTitle)
-            oBuilder.addChapter(oChap)
-
-        # Parse recipe includes
-        oMatch = re.match(oPatternRec, sLine)
-        if (oMatch):
-            sName = oMatch.group(2)
-            oRec = Recipe(sName, oChap)
-            oChap.addRecipe(oRec)
-            oBuilder.addRecipe(oRec)
-        
-        # if sLine is empty, end of file is reached
-        if not sLine:
-            break
-
-    oFile.close()
-
 def main():
+    """Main function. Builds or uploads depending on options."""
     log.info('Welcome to Recettes v' + __version__)
     checkConfig()
 
-    builder = Builder()
-    readChapters(builder)
-    builder.buildAll()
+    if (dOptions['upload']):
+        uploader = Uploader()
+        uploader.upload()
+    else:
+        builder = Builder()
+        builder.parseChapters()
+        builder.buildAll()
 
 log = configureLogging()
+dOptions = getOptions()
 main()
