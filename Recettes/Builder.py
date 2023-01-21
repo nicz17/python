@@ -133,6 +133,7 @@ class Builder:
         aTagsNoPic = []
         for oRec in self.aRecipes:
             if oRec.hasPhoto():
+                oRec.createThumb()
                 oTagLink = LinkHtmlTag('html/' + oRec.getFilename(), None)
                 oTagLink.addTag(ImageHtmlTag(oRec.getThumb(), oRec.sTitle))
                 aTagsThumbs.append(oTagLink)

@@ -194,11 +194,23 @@ class Recipe:
         return config.sDirPhotos + self.sName + '.jpg'
 
     def hasPhoto(self):
+        """Checks if this recipe has a photo."""
         return os.path.exists(self.getPhoto())
 
     def getThumb(self):
         """Returns the recipe thumbnail filename."""
         return config.sDirThumbs + self.sName + '.jpg'
+    
+    def hasThumb(self):
+        """Checks if this recipe has a thumbnail image."""
+        return os.path.exists(self.getThumb())
+    
+    def createThumb(self):
+        """Creates a thumbnail of the photo if needed."""
+        if self.hasPhoto() and not self.hasThumb():
+            self.log.info('Creating thumbnail image %s', self.getThumb())
+            sCmd = 'convert ' + self.getPhoto() + ' -resize 180x180 ' + self.getThumb()
+            os.system(sCmd)
     
     def getOrigin(self):
         """Returns the recipe origin country, optionally with a region."""
