@@ -156,6 +156,7 @@ class Recipe:
         str = re.sub(r"\\\'i", '&iacute;', str)
         str = re.sub(r"\\\^o", 'ô', str)
         str = re.sub(r"\\\^u", 'û', str)
+        str = re.sub(r"%$", '', str)  # percent sign at end of line, for footnotes
         str = re.sub(r"\\(-|noindent|bigskip|medskip|smallskip|pagebreak)", '', str)
         str = re.sub(r"\\oe ", '&oelig;', str)
         str = re.sub(r"\\oe\{\}", '&oelig;', str)
@@ -164,7 +165,10 @@ class Recipe:
         str = re.sub(r"\\begin\{itemize\}", '<ul>', str)
         str = re.sub(r"\\end\{itemize\}", '</ul>', str)
         str = re.sub(r"\\item", '<li>', str)
+        str = re.sub(r"\\\\ \\indent", '', str)
+        str = re.sub(r"\\indent", '', str)
         str = re.sub(r'\\emph\{(.+)\}', r'<i>\1</i>', str)
+        str = re.sub(r'\\footnote\{(.+)\}', r' (\1)', str)
         str = re.sub(r'\\ingr\{(.+)\}', r'<a href="../ingredients.html">\1</a>', str)
         str = re.sub(r'page.\\pageref\{rec:(.+)\}', r'<a href="\1.html">recette</a>', str)
         return str
