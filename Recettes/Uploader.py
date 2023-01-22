@@ -20,23 +20,39 @@ class Uploader:
         self.tLastUpload = self.getLastUpload()
         self.log.info('Last upload at %s', self.timeToStr(self.tLastUpload))
 
+    def uploadAll(self):
+        """Upload base files, recipes, photos and thumbs more recent than last upload."""
+        self.log.info('Uploading all files as needed')
+        self.connect()
+        self.uploadBaseFiles()
+        self.uploadRecipes()
+        self.uploadPhotos()
+        self.uploadThumbs()
+        self.setLastUpload()
+        self.quit()
+
     def uploadBaseFiles(self):
-        """Uploads the base files like index, thanks, biblio etc."""
+        """Upload the base files like index, chapters, thanks, biblio etc."""
         self.log.info('Uploading base files')
-        aBaseFiles = ['index.html', 'biblio.html', 'ingredients.html',
-                      'news.html', 'readme.html', 'thanks.html', 'thumbs.html']
+        aBaseFiles = glob.glob(config.sDirExport + '*.html')
         for sName in aBaseFiles:
             sFile = config.sDirExport + sName
             if (self.needsUpload(sFile)):
                 self.log.info('  %s has been modified, will upload', sName)
                 self.upload(sFile)
 
-    def uploadChapters(self):
-        """Upload all the chapters HTML files."""
-        aChapters = glob.glob(config.sDirExport + 'chapter*.html')
-        self.log.info('Uploading %d chapters', len(aChapters))
-        for sChap in aChapters:
-            self.upload(sChap)
+    def uploadRecipes(self):
+        """Upload the recipe HTML files."""
+        aFiles = glob.glob(config.sDirPages + '*.html')
+        self.log.info('Uploading from %d recipes', len(aFiles))
+        if self.oSession:
+            self.oSession.cwd('pages/')
+        for sFile in aFiles:
+            if (self.needsUpload(sFile)):
+                #self.log.info('  %s has been modified, will upload', sFile)
+                self.upload(sFile)
+        if self.oSession:
+            self.oSession.cwd('../')
 
     def uploadPhotos(self):
         """Upload the recipe JPG files."""
@@ -66,20 +82,16 @@ class Uploader:
 
     def upload(self, sFilename):
         """Upload the specified file to FTP."""
-        self.log.info('Uploading %s to FTP server', sFilename)
-        oFile = open(sFilename, 'rb')
-        self.oSession.storbinary('STOR ' + os.path.basename(sFilename), oFile)
-        oFile.close() 
+        if self.oSession:
+            self.log.info('Uploading %s', sFilename)
+            oFile = open(sFilename, 'rb')
+            self.oSession.storbinary('STOR ' + os.path.basename(sFilename), oFile)
+            oFile.close() 
 
     def test(self):
-        self.log.info('Testing upload of thanks')
+        self.log.info('Testing upload of readme')
         self.connect()
-        #self.upload(config.sDirExport + 'thanks.html')
-        #self.uploadChapters()
-        #self.setLastUpload()
-        #self.uploadBaseFiles()
-        self.uploadPhotos()
-        self.uploadThumbs()
+        self.upload(config.sDirExport + 'readme.html')
         self.quit()
 
     def connect(self):
@@ -106,7 +118,7 @@ class Uploader:
 
     def setLastUpload(self):
         self.log.info('Setting last-upload timestamp file to now')
-        #os.system('touch last-upload')
+        os.system('touch last-upload')
 
     def getLastUpload(self):
         return self.getModifiedAt('last-upload')
