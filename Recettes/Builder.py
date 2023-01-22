@@ -112,17 +112,29 @@ class Builder:
     def buildHomePage(self):
         """Build the recipe home page index.html"""
         self.log.info('Building Home page')
-        aChapLinks = []
+
+        aChapters = []
         for oChap in self.aChapters:
-            aChapLinks.append(LinkHtmlTag(oChap.getFilename(), oChap.sTitle))
+            aChapters.append(LinkHtmlTag(oChap.getFilename(), oChap.sTitle))
+
+        aLinks = []
+        aLinks.append(LinkHtmlTag('readme.html', 'Quelques indications utiles'))
+        aLinks.append(LinkHtmlTag('thumbs.html', 'Photos'))
+        aLinks.append(LinkHtmlTag('ingredients.html', 'Ingrédients'))
+        aLinks.append(LinkHtmlTag('origins.html', 'Origines des recettes'))
+        aLinks.append(LinkHtmlTag('news.html', 'Nouveautés'))
+        aLinks.append(LinkHtmlTag('thanks.html', 'Remerciements'))
+        aLinks.append(LinkHtmlTag('biblio.html', 'Bibliographie'))
 
         oPage = RecettesHtmlPage('Recettes')
         oPage.addHeading(1, 'Les recettes du petit Nicolas')
-        oPage.addHeading(2, 'La carte')
-        oPage.addList(aChapLinks)
-
+        tDivCarte = BlueBoxHtmlTag('La carte')
+        tDivCarte.addTag(ListHtmlTag(aChapters))
+        tDivLinks = BlueBoxHtmlTag('Tables et liens')
+        tDivLinks.addTag(ListHtmlTag(aLinks))
         sNow = datetime.date.today().strftime("%d.%m.%Y")
-        oPage.add(HtmlTag('small', 'Compilé le ' + sNow + ' avec ' + str(len(self.aRecipes)) + ' recettes'))
+        tDivLinks.addTag(HtmlTag('p', 'Compilé le ' + sNow + ' avec ' + str(len(self.aRecipes)) + ' recettes'))
+        oPage.add(TableHtmlTag((tDivCarte, tDivLinks), 2).addAttr('width', '100%'))
 
         oPage.save(config.sDirExport + 'index.html')
 
@@ -142,7 +154,7 @@ class Builder:
 
         oPage = RecettesHtmlPage('Photos des recettes')
         oPage.addHeading(1, 'Photos des recettes')
-        oPage.addTable(aTagsThumbs, 4).addAttr('width', '100%').addAttr('cellpadding', '20px')
+        oPage.addTable(aTagsThumbs, 4, True).addAttr('width', '100%').addAttr('cellpadding', '20px')
         oPage.addHeading(2, 'Recettes sans photo')
         oPage.addList(aTagsNoPic)
         oPage.save(config.sDirExport + 'thumbs.html')
