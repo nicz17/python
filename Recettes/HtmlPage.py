@@ -89,6 +89,7 @@ class HtmlPage:
         self.log.info('Saving %s as %s', self.__str__(), sFilename)
         oFile = open(sFilename, 'w', encoding="ISO-8859-1")
         oFile.write('<!DOCTYPE html>\n' + self.html.getHtml())
+        oFile.close()
 
     def __str__(self):
         return 'HtmlPage ' + self.sTitle
