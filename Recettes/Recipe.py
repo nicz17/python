@@ -48,6 +48,7 @@ class Recipe:
         oFile = open(sFile, 'r', encoding="ISO-8859-1")
         iLine = 0
         sText = ''
+        bTableIngrOver = False
         oPatternRec      = re.compile('\\\\recette\{(.+)\}')
         oPatternIngr     = re.compile('(.+)\& (.+)\\\\\\\\')
         oPatternIngrNQ   = re.compile('\& (.+)\\\\\\\\')
@@ -55,6 +56,7 @@ class Recipe:
         oPatternSubtitle = re.compile('\\\\emph\{(.+)\}')
         oPatternVariante = re.compile('\\\\variante\{(.+)\}')
         oPatternIndex    = re.compile('\\\\index\{(.+)\}\{(.+)\}')
+        oPatternEndTable = re.compile('\\\\end\{table\}')
         oPatternIgnore   = re.compile('\\\\(label|begin|end|changelog|source)\{.+')
         oPatternComment  = re.compile('%.+')
         while True:
@@ -79,8 +81,17 @@ class Recipe:
             # Parse recipe subtitle
             oMatch = re.match(oPatternSubtitle, sLine)
             if (oMatch):
-                self.sSubtitle = HtmlTag('p')
-                self.sSubtitle.addTag(HtmlTag('i', self.replace(oMatch.group(1))))
+                if bTableIngrOver:
+                    sLine = re.sub(r'\\emph\{(.+)\}', r'<i>\1</i>', sLine)
+                else:
+                    self.sSubtitle = HtmlTag('p')
+                    self.sSubtitle.addTag(HtmlTag('i', self.replace(oMatch.group(1))))
+                    continue
+
+            # Detect end of ingredients table
+            oMatch = re.match(oPatternEndTable, sLine)
+            if (oMatch):
+                bTableIngrOver = True
                 continue
 
             # Handle ingredient links
@@ -174,8 +185,9 @@ class Recipe:
         return str
 
     def getCreatedAt(self):
-        oFile = config.sDirSources + self.sName + '.tex'
-        return os.path.getmtime(oFile)
+        """Returns the .tex file last modification timestamp."""
+        sFile = config.sDirSources + self.sName + '.tex'
+        return os.path.getmtime(sFile)
 
     def getLink(self):
         """Returns a HTML link to this recipe in same dir."""
@@ -244,7 +256,7 @@ class Recipe:
         tRow = HtmlTag('tr')
         tCellIngr = HtmlTag('td').addAttr('valign', 'top')
         tCellIngr.addTag(tDivIngr)
-        tCellPhoto = HtmlTag('td').addAttr('width', '500px').addAttr('align', 'right')
+        tCellPhoto = HtmlTag('td').addAttr('width', '500px').addAttr('align', 'center')
         tCellPhoto.addTag(ImageHtmlTag(self.getPhoto(), self.sTitle, 'Pas encore de photo'))
         tRow.addTag(tCellIngr)
         tRow.addTag(tCellPhoto)
