@@ -60,17 +60,10 @@ class HtmlPage:
         self.main.addTag(HtmlTag('h' + str(iLevel), sTitle))
 
     def addList(self, aItems):
-        tUl = HtmlTag('ul')
-        for item in aItems:
-            tLi = HtmlTag('li')
-            if isinstance(item, str):
-                tLi = HtmlTag('li', item)
-            else:
-                tLi.addTag(item)
-            tUl.addTag(tLi)
-        self.main.addTag(tUl)
+        """Add a UL list to the main div."""
+        self.main.addTag(ListHtmlTag(aItems))
 
-    def addTable(self, aItems, nItemsByRow = 4):
+    def addTable(self, aItems, nItemsByRow = 4, bCenterCells = False):
         tTable = HtmlTag('table')
         tRow = None
         nItemsInRow = 0
@@ -81,6 +74,8 @@ class HtmlPage:
             tCell = HtmlTag('td')
             tRow.addTag(tCell)
             tCell.addTag(item)
+            if (bCenterCells):
+                tCell.addAttr('align', 'center')
             nItemsInRow += 1
         self.main.addTag(tTable)
         return tTable
@@ -145,6 +140,12 @@ class DivHtmlTag(HtmlTag):
         if sClass:
             self.addAttr('class', sClass)
 
+class BlueBoxHtmlTag(DivHtmlTag):
+    """A div tag with myBox class."""
+    def __init__(self, sTitle, sId=None):
+        super().__init__(sId, 'blueBox')
+        self.addTag(HtmlTag('h2', sTitle))
+
 class ImageHtmlTag(HtmlTag):
     def __init__(self, sSource, sTitle, sAlt = None):
         super().__init__('img', None)
@@ -167,10 +168,24 @@ class TableHtmlTag(HtmlTag):
             if (nItemsInRow % nItemsByRow == 0):
                 tRow = HtmlTag('tr')
                 self.addTag(tRow)
-            tCell = HtmlTag('td', item)
+            tCell = HtmlTag('td')
+            if isinstance(item, str):
+                tCell = HtmlTag('td', item)
+            else:
+                tCell.addTag(item)
             tRow.addTag(tCell)
-            #tCell.addTag(item)
             nItemsInRow += 1
+
+class ListHtmlTag(HtmlTag):
+    def __init__(self, aItems):
+        super().__init__('ul')
+        for item in aItems:
+            tLi = HtmlTag('li')
+            if isinstance(item, str):
+                tLi = HtmlTag('li', item)
+            else:
+                tLi.addTag(item)
+            self.addTag(tLi)
 
 class InlineHtmlTag(HtmlTag):
     """An HTML tag displaying its contents on a single line."""
