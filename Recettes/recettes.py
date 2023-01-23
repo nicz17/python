@@ -38,7 +38,7 @@ def getOptions():
     """Parse program arguments and store them in a dict."""
     dOptions = {'debug': False, 'upload': False}
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hdu", ["help", "debug", "upload"])
+        opts, args = getopt.getopt(sys.argv[1:], "hduo", ["help", "debug", "upload", 'open'])
     except getopt.GetoptError:
         print("Invalid options: %s", sys.argv[1:])
     for opt, arg in opts:
@@ -50,6 +50,8 @@ def getOptions():
             dOptions['debug'] = True
         elif opt in ("-u", "--upload"):
             dOptions['upload'] = True
+        elif opt in ("-o", "--open"):
+            dOptions['open'] = True
     return dOptions
 
 def checkConfig():
@@ -73,10 +75,15 @@ def main():
     if (dOptions['upload']):
         uploader = Uploader()
         uploader.test()
+        #uploader.uploadAll()
     else:
         builder = Builder()
         builder.parseChapters()
         builder.buildAll()
+
+    if dOptions['open']:
+        # Display home page in browser
+        os.system('firefox ' + config.sDirExport + 'index.html')
 
 log = configureLogging()
 dOptions = getOptions()
