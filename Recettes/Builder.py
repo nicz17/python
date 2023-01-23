@@ -123,6 +123,7 @@ class Builder:
         aLinks.append(LinkHtmlTag('ingredients.html', 'Ingrédients'))
         aLinks.append(LinkHtmlTag('origins.html', 'Origines des recettes'))
         aLinks.append(LinkHtmlTag('news.html', 'Nouveautés'))
+        aLinks.append(LinkHtmlTag('liens.html', 'Liens culinaires'))
         aLinks.append(LinkHtmlTag('thanks.html', 'Remerciements'))
         aLinks.append(LinkHtmlTag('biblio.html', 'Bibliographie'))
 
