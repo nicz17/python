@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
  A random artifact factory
 """
@@ -32,6 +34,7 @@ def configureLogging():
             logging.FileHandler("orfact.log"),
             logging.StreamHandler()
         ])
+    return logging.getLogger('Orfact')
 
 def testNameGen():
     nGen = 8
@@ -112,7 +115,7 @@ def runTests():
     testHtmlPage()
 
 def runDemos():
-    #DemoPalette().run()
+    DemoPalette().run()
     DemoImageMask().run()
 
 def main():
@@ -120,6 +123,5 @@ def main():
     #runTests()
     runDemos()
 
-configureLogging()
-log = logging.getLogger('Orfact')
+log = configureLogging()
 main()

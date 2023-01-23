@@ -20,7 +20,7 @@ class SimulationMask(ImageMask):
         self.aMask = np.zeros((w, h))
 
     def generate(self):
-        print('Generating', self.__str__())
+        self.log.info('Generating %s', self.__str__())
         self.runSimulation()
         self.normalize()
 

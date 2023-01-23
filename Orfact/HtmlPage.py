@@ -6,7 +6,11 @@ __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2023 N. Zwahlen"
 __version__ = "1.0.0"
 
+import logging
+
 class HtmlPage:
+    log = logging.getLogger('HtmlPage')
+
     def __init__(self, sTitle, sStyle):
         self.sTitle = sTitle
         self.html = HtmlTag('html')
@@ -55,9 +59,10 @@ class HtmlPage:
         self.main.addTag(tTable)
 
     def save(self, sFilename):
-        print('Saving', self.__str__(), 'as', sFilename)
+        self.log.info('Saving %s as %s', self.__str__(), sFilename)
         oFile = open(sFilename, 'w')
         oFile.write('<!DOCTYPE html>\n' + self.html.getHtml())
+        oFile.close()
 
     def __str__(self):
         return 'HtmlPage ' + self.sTitle

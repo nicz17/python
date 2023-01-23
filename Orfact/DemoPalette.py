@@ -13,16 +13,19 @@ import time
 from Palette import *
 from NameGen import *
 from HtmlPage import *
+from Timer import *
 
 class DemoPalette:
+    log = logging.getLogger('DemoPalette')
+
     def __init__(self) -> None:
         self.sTitle = 'Palette Demo'
-        self.size = 300
+        self.size = 600
         self.dir = 'palettes/'
 
     def run(self):
-        print('Running', self.sTitle)
-        tStart = time.time()
+        self.log.info('Running %s', self.sTitle)
+        timer = Timer()
         
         # Add dir if missing
         if not os.path.exists(self.dir):
@@ -32,7 +35,7 @@ class DemoPalette:
         aPalImgs = []
         oPal = HeatPalette()
         sFilename = self.dir + oPal.sName + '.png'
-        oPal.toColorScale(sFilename, self.size, 20)
+        oPal.toColorScale(sFilename, self.size, 25)
         aPalImgs.append(ImageHtmlTag(sFilename, oPal.sName))
         aPalImgs.append(HtmlTag('p', oPal.sName))
 
@@ -54,5 +57,5 @@ class DemoPalette:
         oPage.save('PaletteDemo.html')
 
         # Done
-        tEnd = time.time()
-        print(self.sTitle, 'done in %.3fs' % (tEnd-tStart))
+        timer.stop()
+        self.log.info('%s done in %s', self.sTitle, timer.getElapsed())
