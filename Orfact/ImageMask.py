@@ -24,7 +24,12 @@ class ImageMask:
         self.aMask = np.zeros((w, h))
 
     def generate(self):
+        """Generate the density mask."""
         self.log.info('Generating %s', self.__str__())
+
+    def randomize(self):
+        """Randomize the mask parameters."""
+        self.log.info('Randomizing %s', self.__str__())
 
     def toImage(self, oPalette, sFilename):
         self.log.info('Saving %s as %s with palette %s', self.__str__(), sFilename, oPalette.sName)
