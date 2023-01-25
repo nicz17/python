@@ -149,6 +149,10 @@ class SepiaPalette(SimplePalette):
     def __init__(self):
         super().__init__('SepiaPalette', 0.42, 0.668, 0.891, 0.974)
 
+class FluoPalette(SimplePalette):
+    def __init__(self):
+        super().__init__('FluoPalette', 0.246, 0.747, 0.559, 0.820)
+
 # Gold to light blue:     0.686, 0.090, 0.391, 0.853
 
 class GrayScalePalette(Palette):
