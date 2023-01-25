@@ -80,4 +80,27 @@ class StarFishImageMask(PolarImageMask):
             for y in range(self.h):
                 rho = self.getRho(x, y)
                 phi = self.getPhi(x, y)
-                self.aMask[x, y] = math.sin(self.nBranches*phi) * ImageMask.gauss(rho, self.mu, 0.5)
+                self.aMask[x, y] = math.sin(self.nBranches*phi) * ImageMask.gauss(rho, self.mu, 0.4)
+
+class RoseWindowImageMask(PolarImageMask):
+    """A rose-window style image."""
+    def __init__(self, w, h):
+        super().__init__('RoseWindowImageMask', w, h)
+        self.nBranches = 5
+        self.mu = 0.5
+
+    def randomize(self):
+        super().randomize()
+        self.nBranches = random.randrange(4, 8)
+        self.mu = random.random()/2.0
+
+    def runSimulation(self):
+        for x in range(self.w):
+            for y in range(self.h):
+                rho = self.getRho(x, y)
+                phi = self.getPhi(x, y)
+                v1 = math.sin(self.nBranches*phi) * ImageMask.gauss(rho, self.mu, 0.4)
+                v2 = math.sin(-2.0*self.nBranches*phi) * ImageMask.gauss(rho, 0.4 + self.mu, 0.3)
+                v3 = math.sin(4.0*self.nBranches*phi) * ImageMask.gauss(rho, 0.8 + self.mu, 0.25)
+                v4 = math.sin(-8.0*self.nBranches*phi) * ImageMask.gauss(rho, 1.2 + self.mu, 0.2)
+                self.aMask[x, y] = v1 + v2 + v3 + v4
