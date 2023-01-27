@@ -160,7 +160,7 @@ class LinkHtmlTag(HtmlTag):
         self.addAttr('href', sRef)
 
 class TableHtmlTag(HtmlTag):
-    def __init__(self, aItems, nItemsByRow = 4):
+    def __init__(self, aItems, nItemsByRow = 4, valign = None):
         super().__init__('table', None)
         tRow = None
         nItemsInRow = 0
@@ -169,6 +169,8 @@ class TableHtmlTag(HtmlTag):
                 tRow = HtmlTag('tr')
                 self.addTag(tRow)
             tCell = HtmlTag('td')
+            if valign:
+                tCell.addAttr('valign', valign)
             if isinstance(item, str):
                 tCell = HtmlTag('td', item)
             else:
