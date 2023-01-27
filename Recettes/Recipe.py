@@ -140,7 +140,10 @@ class Recipe:
             # End paragraphs on empty lines
             if not sLine.strip():
                 if len(sText) > 0:
-                    self.aText.append(HtmlTag('p', sText))
+                    if bTableIngrOver:
+                        self.aText.append(HtmlTag('p', sText))
+                    else:
+                        self.sSubtitle = HtmlTag('p', sText)
                     sText = ''
                 continue
 
@@ -178,6 +181,8 @@ class Recipe:
         str = re.sub(r"\\item", '<li>', str)
         str = re.sub(r"\\\\ \\indent", '', str)
         str = re.sub(r"\\indent", '', str)
+        str = re.sub(r"\\begin\{em\}", '<i>', str)
+        str = re.sub(r"\\end\{em\}", '</i>', str)
         str = re.sub(r'\\emph\{(.+)\}', r'<i>\1</i>', str)
         str = re.sub(r'\\footnote\{(.+)\}', r' (\1)', str)
         str = re.sub(r'\\ingr\{(.+)\}', r'<a href="../ingredients.html">\1</a>', str)
