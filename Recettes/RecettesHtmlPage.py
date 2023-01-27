@@ -16,6 +16,11 @@ class RecettesHtmlPage(HtmlPage):
         self.sPath = sPath
         super().__init__(sTitle, sPath + '../scripts/style.css')
 
+    def buildHeader(self):
+        tDivHeader = DivHtmlTag('header')
+        tDivHeader.addTag(HtmlTag('small', 'Recettes par Nicolas Zwahlen'))
+        self.body.addTag(tDivHeader)
+
     def buildMenu(self):
         self.menu = DivHtmlTag('menu')
         self.body.addTag(self.menu)

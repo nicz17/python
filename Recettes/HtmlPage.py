@@ -39,6 +39,7 @@ class HtmlPage:
 
     def buildBody(self):
         """Build HTML body tag with main div and possible menu div."""
+        self.buildHeader()
         self.menu = DivHtmlTag('menu')
         self.buildMenu()
 
@@ -46,6 +47,10 @@ class HtmlPage:
         self.body.addTag(self.main)
 
         self.body.addTag(HtmlTag('script', 'createFooter();'))
+
+    def buildHeader(self):
+        """Build the HTML header div on top"""
+        pass
 
     def buildMenu(self):
         """Build the HTML menu div on the left"""
