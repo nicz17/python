@@ -209,6 +209,10 @@ class Recipe:
     def getPhoto(self):
         """Returns the recipe photo filename."""
         return config.sDirPhotos + self.sName + '.jpg'
+    
+    def getPhotoLink(self):
+        """Returns the HTML ref to the photo."""
+        return '../photos/' + self.sName + '.jpg'
 
     def hasPhoto(self):
         """Checks if this recipe has a photo."""
@@ -217,6 +221,10 @@ class Recipe:
     def getThumb(self):
         """Returns the recipe thumbnail filename."""
         return config.sDirThumbs + self.sName + '.jpg'
+
+    def getThumbLink(self):
+        """Returns the HTML ref to the thumbnail."""
+        return 'thumbs/' + self.sName + '.jpg'
     
     def hasThumb(self):
         """Checks if this recipe has a thumbnail image."""
@@ -262,7 +270,7 @@ class Recipe:
         tCellLeft = HtmlTag('td').addAttr('valign', 'top')
         tCellLeft.addTag(tDivIngr)
         tCellPhoto = HtmlTag('td').addAttr('width', '500px').addAttr('align', 'center').addAttr('valign', 'top')
-        tCellPhoto.addTag(ImageHtmlTag(self.getPhoto(), self.sTitle, 'Pas encore de photo'))
+        tCellPhoto.addTag(ImageHtmlTag(self.getPhotoLink(), self.sTitle, 'Pas encore de photo'))
         tRow.addTag(tCellLeft)
         tRow.addTag(tCellPhoto)
         tTable.addTag(tRow)
