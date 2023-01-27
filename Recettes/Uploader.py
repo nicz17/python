@@ -35,10 +35,9 @@ class Uploader:
         """Upload the base files like index, chapters, thanks, biblio etc."""
         self.log.info('Uploading base files')
         aBaseFiles = glob.glob(config.sDirExport + '*.html')
-        for sName in aBaseFiles:
-            sFile = config.sDirExport + sName
+        for sFile in aBaseFiles:
             if (self.needsUpload(sFile)):
-                self.log.info('  %s has been modified, will upload', sName)
+                self.log.info('  %s has been modified, will upload', sFile)
                 self.upload(sFile)
 
     def uploadRecipes(self):
@@ -46,7 +45,7 @@ class Uploader:
         aFiles = glob.glob(config.sDirPages + '*.html')
         self.log.info('Uploading from %d recipes', len(aFiles))
         if self.oSession:
-            self.oSession.cwd('pages/')
+            self.oSession.cwd('html/')
         for sFile in aFiles:
             if (self.needsUpload(sFile)):
                 #self.log.info('  %s has been modified, will upload', sFile)
