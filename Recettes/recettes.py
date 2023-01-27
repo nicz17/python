@@ -36,18 +36,18 @@ def configureLogging():
 
 def getOptions():
     """Parse program arguments and store them in a dict."""
-    dOptions = {'debug': False, 'upload': False, 'open': False}
+    dOptions = {'dryrun': False, 'upload': False, 'open': False}
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hduo", ["help", "debug", "upload", 'open'])
+        opts, args = getopt.getopt(sys.argv[1:], "hduo", ["help", "dry", "upload", 'open'])
     except getopt.GetoptError:
         print("Invalid options: %s", sys.argv[1:])
     for opt, arg in opts:
         log.info("Parsing option %s value %s", opt, arg)
         if opt in ('-h', '--help'):
-            print('recettes.py --help --debug --upload')
+            print('recettes.py -h (help) -u (upload) -d (upload dry run) -o (open in browser)')
             sys.exit()
-        elif opt in ("-d", "--debug"):
-            dOptions['debug'] = True
+        elif opt in ("-d", "--dry"):
+            dOptions['dryrun'] = True
         elif opt in ("-u", "--upload"):
             dOptions['upload'] = True
         elif opt in ("-o", "--open"):
@@ -73,7 +73,7 @@ def main():
     checkConfig()
 
     if (dOptions['upload']):
-        uploader = Uploader()
+        uploader = Uploader(dOptions['dryrun'])
         uploader.uploadAll()
     else:
         builder = Builder()

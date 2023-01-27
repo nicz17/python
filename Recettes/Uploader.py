@@ -15,9 +15,10 @@ class Uploader:
     """Upload files to website using FTP."""
     log = logging.getLogger('Uploader')
 
-    def __init__(self) -> None:
+    def __init__(self, bDryRun = False) -> None:
         self.oSession = None
         self.tLastUpload = self.getLastUpload()
+        self.bDryRun = bDryRun
         self.log.info('Last upload at %s', self.timeToStr(self.tLastUpload))
 
     def uploadAll(self):
@@ -47,8 +48,9 @@ class Uploader:
         if self.oSession:
             self.oSession.cwd('html/')
         for sFile in aFiles:
-            if (self.needsUpload(sFile)):
-                #self.log.info('  %s has been modified, will upload', sFile)
+            sTexFile = config.sDirSources + os.path.basename(sFile).replace('.html', '.tex')
+            if (self.needsUpload(sTexFile) and self.needsUpload(sFile) ):
+                self.log.info('  %s has been modified, will upload recipe', sTexFile)
                 self.upload(sFile)
         if self.oSession:
             self.oSession.cwd('../')
@@ -95,15 +97,16 @@ class Uploader:
 
     def connect(self):
         """Connect to FTP server. Ask user for password."""
-        self.log.info('Connecting to FTP %s as %s', config.sFtpAddress, config.sFtpUser)
-        sFtpPasswd = getpass.getpass(prompt = 'FTP password: ')
-        try:
-            self.oSession = ftplib.FTP(config.sFtpAddress, config.sFtpUser, sFtpPasswd)
-            self.log.info('Connected to FTP: %s', self.oSession.getwelcome())
-            self.oSession.cwd('httpdocs/recettes/')
-        except ftplib.error_perm:
-            self.log.error('Failed to connect or cwd')
-            self.quit()
+        if not self.bDryRun:
+            self.log.info('Connecting to FTP %s as %s', config.sFtpAddress, config.sFtpUser)
+            sFtpPasswd = getpass.getpass(prompt = 'FTP password: ')
+            try:
+                self.oSession = ftplib.FTP(config.sFtpAddress, config.sFtpUser, sFtpPasswd)
+                self.log.info('Connected to FTP: %s', self.oSession.getwelcome())
+                self.oSession.cwd('httpdocs/recettes/')
+            except ftplib.error_perm:
+                self.log.error('Failed to connect or cwd')
+                self.quit()
 
     def quit(self):
         """Close the connection if it is still open."""
@@ -116,8 +119,9 @@ class Uploader:
         return self.getModifiedAt(sFile) > self.tLastUpload
 
     def setLastUpload(self):
-        self.log.info('Setting last-upload timestamp file to now')
-        os.system('touch last-upload')
+        if not self.bDryRun:
+            self.log.info('Setting last-upload timestamp file to now')
+            os.system('touch last-upload')
 
     def getLastUpload(self):
         return self.getModifiedAt('last-upload')
