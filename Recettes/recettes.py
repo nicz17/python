@@ -36,7 +36,7 @@ def configureLogging():
 
 def getOptions():
     """Parse program arguments and store them in a dict."""
-    dOptions = {'debug': False, 'upload': False}
+    dOptions = {'debug': False, 'upload': False, 'open': False}
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hduo", ["help", "debug", "upload", 'open'])
     except getopt.GetoptError:
