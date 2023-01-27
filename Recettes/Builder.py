@@ -150,7 +150,7 @@ class Builder:
             if oRec.hasPhoto():
                 oRec.createThumb()
                 oTagLink = LinkHtmlTag('html/' + oRec.getFilename(), None)
-                oTagLink.addTag(ImageHtmlTag(oRec.getThumb(), oRec.sTitle))
+                oTagLink.addTag(ImageHtmlTag(oRec.getThumbLink(), oRec.sTitle))
                 aTagsThumbs.append(oTagLink)
             else:
                 aTagsNoPic.append(oRec.getSubLink())
