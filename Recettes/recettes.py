@@ -74,8 +74,7 @@ def main():
 
     if (dOptions['upload']):
         uploader = Uploader()
-        uploader.test()
-        #uploader.uploadAll()
+        uploader.uploadAll()
     else:
         builder = Builder()
         builder.parseChapters()
