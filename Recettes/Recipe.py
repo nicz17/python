@@ -33,6 +33,7 @@ class Recipe:
         self.sTitle = 'Title not parsed'
         self.sSubtitle = None
         self.sOrigin = None
+        self.sChangeLog = 'Création'
         self.oChapter = oChap
         self.aIngrLinks = []
         self.aIngr = []
@@ -49,6 +50,7 @@ class Recipe:
         iLine = 0
         sText = ''
         bTableIngrOver = False
+
         oPatternRec      = re.compile('\\\\recette\{(.+)\}')
         oPatternIngr     = re.compile('(.+)\& (.+)\\\\\\\\')
         oPatternIngrNQ   = re.compile('\& (.+)\\\\\\\\')
@@ -57,8 +59,10 @@ class Recipe:
         oPatternVariante = re.compile('\\\\variante\{(.+)\}')
         oPatternIndex    = re.compile('\\\\index\{(.+)\}\{(.+)\}')
         oPatternEndTable = re.compile('\\\\end\{table\}')
-        oPatternIgnore   = re.compile('\\\\(label|begin|end|changelog|source)\{.+')
+        oPatternChange   = re.compile('\\\\changelog\{(.+)\}')
+        oPatternIgnore   = re.compile('\\\\(label|begin|end|source)\{.+')
         oPatternComment  = re.compile('%.+')
+
         while True:
             iLine += 1
             sLine = oFile.readline()
@@ -76,6 +80,13 @@ class Recipe:
             oMatch = re.match(oPatternRec, sLine)
             if (oMatch):
                 self.sTitle = self.replace(oMatch.group(1))
+                continue
+
+            # Parse changelog
+            oMatch = re.match(oPatternChange, sLine)
+            if (oMatch):
+                self.sChangeLog = self.replace(oMatch.group(1))
+                self.sChangeLog = self.sChangeLog.replace('creation', 'Création')
                 continue
 
             # Parse recipe subtitle

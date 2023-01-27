@@ -172,15 +172,18 @@ class Builder:
         for oRec in reversed(self.aRecipes[-6 : ]):
             tRow = HtmlTag('tr')
             sTime = time.strftime('%d.%m.%Y', time.gmtime(oRec.getCreatedAt()))
-            tCellDate = HtmlTag('td', sTime).addAttr('class', 'td-ingr-left')
-            tCellRec = HtmlTag('td')
+            tCellDate = HtmlTag('td', sTime).addAttr('class', 'td-pad-r')
+            tCellRec = HtmlTag('td').addAttr('class', 'td-pad-r')
             tCellRec.addTag(oRec.getSubLink())
+            tCellChange = HtmlTag('td')
+            tCellChange.addTag(HtmlTag('font', oRec.sChangeLog).addAttr('color', 'grey'))
             tRow.addTag(tCellDate)
             tRow.addTag(tCellRec)
+            tRow.addTag(tCellChange)
             tTableNews.addTag(tRow)
 
-        oPage = RecettesHtmlPage('Nouvelles recettes')
-        oPage.addHeading(1, 'Nouvelles recettes')
+        oPage = RecettesHtmlPage('Recettes - Derniers changements')
+        oPage.addHeading(1, 'Derniers changements')
         oPage.add(tTableNews)
         oPage.save(config.sDirExport + 'news.html')
 
