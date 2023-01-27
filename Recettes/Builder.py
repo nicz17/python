@@ -131,11 +131,13 @@ class Builder:
         oPage.addHeading(1, 'Les recettes du petit Nicolas')
         tDivCarte = BlueBoxHtmlTag('La carte')
         tDivCarte.addTag(ListHtmlTag(aChapters))
+        tDivRight = DivHtmlTag()
         tDivLinks = BlueBoxHtmlTag('Tables et liens')
         tDivLinks.addTag(ListHtmlTag(aLinks))
+        tDivRight.addTag(tDivLinks)
         sNow = datetime.date.today().strftime("%d.%m.%Y")
-        tDivLinks.addTag(HtmlTag('p', 'Compilé le ' + sNow + ' avec ' + str(len(self.aRecipes)) + ' recettes'))
-        oPage.add(TableHtmlTag((tDivCarte, tDivLinks), 2).addAttr('width', '100%'))
+        tDivRight.addTag(HtmlTag('p', '<br><br>Compilé le ' + sNow + ' avec ' + str(len(self.aRecipes)) + ' recettes'))
+        oPage.add(TableHtmlTag((tDivCarte, tDivRight), 2, 'top').addAttr('width', '1050px'))
 
         oPage.save(config.sDirExport + 'index.html')
 
