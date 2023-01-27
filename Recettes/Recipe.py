@@ -259,17 +259,18 @@ class Recipe:
         tDivIngr.addTag(IngredientTableHtmlTag(self.aIngr))
         tTable = HtmlTag('table').addAttr('width', '100%')
         tRow = HtmlTag('tr')
-        tCellIngr = HtmlTag('td').addAttr('valign', 'top')
-        tCellIngr.addTag(tDivIngr)
-        tCellPhoto = HtmlTag('td').addAttr('width', '500px').addAttr('align', 'center')
+        tCellLeft = HtmlTag('td').addAttr('valign', 'top')
+        tCellLeft.addTag(tDivIngr)
+        tCellPhoto = HtmlTag('td').addAttr('width', '500px').addAttr('align', 'center').addAttr('valign', 'top')
         tCellPhoto.addTag(ImageHtmlTag(self.getPhoto(), self.sTitle, 'Pas encore de photo'))
-        tRow.addTag(tCellIngr)
+        tRow.addTag(tCellLeft)
         tRow.addTag(tCellPhoto)
         tTable.addTag(tRow)
         oPage.add(tTable)
 
         for oPar in self.aText:
-            oPage.add(oPar)
+            #oPage.add(oPar)
+            tCellLeft.addTag(oPar)
 
         if self.sOrigin:
             tDivOrigin = DivHtmlTag('recPays')
