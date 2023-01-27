@@ -169,7 +169,7 @@ class Builder:
         # Sort recipes by file creation time
         self.aRecipes.sort(key=lambda rec: rec.getCreatedAt())
         tTableNews = HtmlTag('table')
-        for oRec in reversed(self.aRecipes[-10 : ]):
+        for oRec in reversed(self.aRecipes[-6 : ]):
             tRow = HtmlTag('tr')
             sTime = time.strftime('%d.%m.%Y', time.gmtime(oRec.getCreatedAt()))
             tCellDate = HtmlTag('td', sTime).addAttr('class', 'td-ingr-left')
