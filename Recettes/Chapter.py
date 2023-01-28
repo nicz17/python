@@ -17,6 +17,7 @@ class Chapter:
         return 'chapter' + str(self.idx) + '.html'
 
     def toHtml(self):
+        """Exports the chapter as an HTML file with a simple list of links."""
         oPage = RecettesHtmlPage(self.sTitle)
         oPage.addHeading(2, self.sTitle)
 
@@ -24,5 +25,24 @@ class Chapter:
         for oRec in self.aRecipes:
             aRecLinks.append(oRec.getSubLink())
         oPage.addList(aRecLinks)
+
+        oPage.save(config.sDirExport + self.getFilename())
+
+    def toHtmlGallery(self):
+        """Exports the chapter as an HTML file with a gallery of thumbnails."""
+        oPage = RecettesHtmlPage(self.sTitle)
+        oPage.addHeading(2, self.sTitle)
+
+        aRecLinks = []
+        for oRec in self.aRecipes:
+            tImg = ImageHtmlTag(oRec.getThumbLink(), oRec.sTitle)
+            if not oRec.hasThumb():
+                tImg = ImageHtmlTag('thumbs/' + config.sDefThumb, oRec.sTitle)
+            tName = HtmlTag('p', oRec.sTitle)
+            tLink = HtmlTag('a').addAttr('href', 'html/' + oRec.getFilename())
+            tLink.addTag(tImg)
+            tLink.addTag(tName)
+            aRecLinks.append(tLink)
+        oPage.addTable(aRecLinks, 4, True).addAttr('width', '800px').addAttr('cellpadding', '20px')
 
         oPage.save(config.sDirExport + self.getFilename())

@@ -107,7 +107,8 @@ class Builder:
         """Create the chapter HTML files."""
         self.log.info('Building %d chapers', len(self.aChapters))
         for oChap in self.aChapters:
-            oChap.toHtml()
+            #oChap.toHtml()
+            oChap.toHtmlGallery()
 
     def buildHomePage(self):
         """Build the recipe home page index.html"""
