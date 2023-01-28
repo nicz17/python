@@ -9,6 +9,9 @@ sDirPages   = '/home/nicz/www/pyrecs/html/'
 sDirPhotos  = '/home/nicz/www/pyrecs/photos/'
 sDirThumbs  = '/home/nicz/www/pyrecs/thumbs/'
 
+# Default pics
+sDefThumb = 'default.png'
+
 # FTP server
 sFtpUser    = 'nzwahlen'
 sFtpAddress = 'ftp.tf79.ch'
