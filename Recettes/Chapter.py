@@ -35,6 +35,8 @@ class Chapter:
 
         aRecLinks = []
         for oRec in self.aRecipes:
+            if oRec.hasPhoto():
+                oRec.createThumb()
             tImg = ImageHtmlTag(oRec.getThumbLink(), oRec.sTitle)
             if not oRec.hasThumb():
                 tImg = ImageHtmlTag('thumbs/' + config.sDefThumb, oRec.sTitle)
