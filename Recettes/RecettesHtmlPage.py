@@ -15,6 +15,7 @@ class RecettesHtmlPage(HtmlPage):
     def __init__(self, sTitle, sPath = ''):
         self.sPath = sPath
         super().__init__(sTitle, sPath + '../scripts/style.css')
+        self.includeScript('http://www.tf79.ch/scripts/tf79.js')
 
     def buildHeader(self):
         tDivHeader = DivHtmlTag('header')

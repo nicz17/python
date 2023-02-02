@@ -33,10 +33,6 @@ class HtmlPage:
         tStyle.addAttr('href', sStyle)
         self.head.addTag(tStyle)
 
-        tScript = HtmlTag('script')
-        tScript.addAttr('src', 'http://www.tf79.ch/scripts/tf79.js')
-        self.head.addTag(tScript)
-
     def buildBody(self):
         """Build HTML body tag with main div and possible menu div."""
         self.buildHeader()
@@ -59,6 +55,10 @@ class HtmlPage:
     def add(self, tag):
         """Adds the specified tag to the main div."""
         self.main.addTag(tag)
+
+    def includeScript(self, sUrl):
+        tScript = HtmlTag('script').addAttr('src', sUrl)
+        self.head.addTag(tScript)
 
     def addHeading(self, iLevel, sTitle):
         """Add a heading of the specified level, for example h1."""
@@ -149,6 +149,12 @@ class BlueBoxHtmlTag(DivHtmlTag):
     """A div tag with myBox class."""
     def __init__(self, sTitle, sId=None):
         super().__init__(sId, 'blueBox')
+        self.addTag(HtmlTag('h2', sTitle))
+
+class BlueBoxWideHtmlTag(DivHtmlTag):
+    """A div tag with myBox class."""
+    def __init__(self, sTitle, sId=None):
+        super().__init__(sId, 'blueBox blueBox-wide')
         self.addTag(HtmlTag('h2', sTitle))
 
 class ImageHtmlTag(HtmlTag):
