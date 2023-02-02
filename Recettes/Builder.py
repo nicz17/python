@@ -6,6 +6,7 @@ import logging
 import config
 import os
 import re
+import json
 from Chapter import *
 from Recipe import *
 from HtmlPage import *
@@ -91,6 +92,7 @@ class Builder:
         self.buildNewsPage()
         self.buildOriginsPage()
         self.buildIngredientsPage()
+        self.buildJson()
 
     def buildRecipes(self):
         """Parse the recipes and create their HTML files."""
@@ -129,6 +131,7 @@ class Builder:
         aLinks.append(LinkHtmlTag('biblio.html', 'Bibliographie'))
 
         oPage = RecettesHtmlPage('Recettes')
+        oPage.includeScript('http://www.tf79.ch/recettes/recs.js')
         oPage.addHeading(1, 'Les recettes du petit Nicolas')
         tDivCarte = BlueBoxHtmlTag('La carte')
         tDivCarte.addTag(ListHtmlTag(aChapters))
@@ -140,6 +143,15 @@ class Builder:
         tDivRight.addTag(HtmlTag('p', '<br><br>Compilé le ' + sNow + ' avec ' + str(len(self.aRecipes)) + ' recettes'))
         oPage.add(TableHtmlTag((tDivCarte, tDivRight), 2, 'top').addAttr('width', '1050px'))
 
+        # Random recipes
+        tDivRandom = BlueBoxWideHtmlTag('Quelques recettes')
+        tTableRandom = HtmlTag('table').addAttr('width', '800px').addAttr('cellpadding', '20px')
+        tRowRandom = HtmlTag('tr')
+        tRowRandom.addTag(HtmlTag('script', 'randomRecs()'))
+        tTableRandom.addTag(tRowRandom)
+        tDivRandom.addTag(tTableRandom)
+        oPage.add(tDivRandom)
+
         oPage.save(config.sDirExport + 'index.html')
 
     def buildPhotosPage(self):
@@ -149,7 +161,7 @@ class Builder:
         aTagsNoPic = []
         for oRec in self.aRecipes:
             if oRec.hasPhoto():
-                oRec.createThumb()
+                #oRec.createThumb()
                 oTagLink = LinkHtmlTag('html/' + oRec.getFilename(), None)
                 oTagLink.addTag(ImageHtmlTag(oRec.getThumbLink(), oRec.sTitle))
                 aTagsThumbs.append(oTagLink)
@@ -235,4 +247,19 @@ class Builder:
 
         oPage.addList(aIngreds)
         oPage.save(config.sDirExport + 'ingredients.html')
+
+    def buildJson(self):
+        self.log.info('Exporting recipes to Json')
+        aRecs = []
+        for oRec in self.aRecipes:
+            if oRec.hasPhoto():
+                dRecipe = {}
+                dRecipe['sName']  = oRec.sName
+                dRecipe['sTitle'] = oRec.sTitle
+                aRecs.append(dRecipe)
+        sJson = json.dumps(aRecs, indent=2)
+        oFile = open('recs.json', 'w', encoding="ISO-8859-1")
+        oFile.write(sJson)
+        oFile.close()
+
 
