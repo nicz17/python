@@ -35,8 +35,11 @@ class Uploader:
     def uploadBaseFiles(self):
         """Upload the base files like index, chapters, thanks, biblio etc."""
         self.log.info('Uploading base files')
-        aBaseFiles = glob.glob(config.sDirExport + '*.html')
-        for sFile in aBaseFiles:
+        aTypes = ['*.html', '*.js']
+        aFiles = []
+        for sType in aTypes:
+            aFiles.extend(glob.glob(config.sDirExport + sType))
+        for sFile in aFiles:
             if (self.needsUpload(sFile)):
                 self.log.info('  %s has been modified, will upload', sFile)
                 self.upload(sFile)
