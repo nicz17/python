@@ -187,6 +187,7 @@ class Recipe:
         str = re.sub(r"\\oe\{\}", '&oelig;', str)
         str = re.sub(r"\\c\{c\}", '&ccedil;', str)
         str = re.sub(r"\\undemi", '&frac12;', str)
+        str = re.sub(r"\\degres ", '&deg;', str)
         str = re.sub(r"\\begin\{itemize\}", '<ul>', str)
         str = re.sub(r"\\end\{itemize\}", '</ul>', str)
         str = re.sub(r"\\item", '<li>', str)
