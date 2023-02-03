@@ -10,6 +10,7 @@ __version__ = "1.0.0"
 
 import sys
 import logging
+import getopt
 
 from NameGen import *
 from Ortifact import *
@@ -17,6 +18,7 @@ from OrtifactGen import *
 from Palette import *
 from ImageMask import *
 from DemoImageMask import *
+from DemoImageGen import *
 from DemoPalette import *
 from HtmlPage import *
 
@@ -35,6 +37,22 @@ def configureLogging():
             logging.StreamHandler()
         ])
     return logging.getLogger('Orfact')
+
+def getOptions():
+    """Parse program arguments and store them in a dict."""
+    dOptions = {'open': False}
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "ho", ["help", 'open'])
+    except getopt.GetoptError:
+        print("Invalid options: %s", sys.argv[1:])
+    for opt, arg in opts:
+        log.info("Parsing option %s value %s", opt, arg)
+        if opt in ('-h', '--help'):
+            print('orfact.py -h (help) -o (open in browser)')
+            sys.exit()
+        elif opt in ("-o", "--open"):
+            dOptions['open'] = True
+    return dOptions
 
 def testNameGen():
     nGen = 8
@@ -115,8 +133,11 @@ def runTests():
     testHtmlPage()
 
 def runDemos():
-    DemoPalette().run()
-    DemoImageMask().run()
+    #DemoPalette().run()
+    #DemoImageMask().run()
+    DemoImageGen().run()
+    if dOptions['open']:
+        os.system('firefox ImageGenDemo.html')
 
 def main():
     log.info('Welcome to Orfact v' + __version__)
@@ -124,4 +145,5 @@ def main():
     runDemos()
 
 log = configureLogging()
+dOptions = getOptions()
 main()
