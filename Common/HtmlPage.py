@@ -92,43 +92,57 @@ class HtmlPage:
     def save(self, sFilename):
         self.log.info('Saving %s as %s', self.__str__(), sFilename)
         oFile = open(sFilename, 'w', encoding="ISO-8859-1")
-        oFile.write('<!DOCTYPE html>\n' + self.html.getHtml())
+        oFile.write('<!DOCTYPE html>' + self.html.getHtml())
         oFile.close()
 
     def __str__(self):
         return 'HtmlPage ' + self.sTitle
 
 class HtmlTag:
+    """A generic HTML tag, with attributes, content and child tags."""
     def __init__(self, sName, sContent = None):
+        """Constructor with tag name and optional content."""
         self.sName = sName
         self.sContent = sContent
         self.tags = []
         self.attrs = {}
 
     def getHtml(self, depth=0, bInline = False):
-        html = self.getIndent(depth) + '<' + self.sName
+        """Build this tag's HTML string."""
+        html = ''
+        # newline and indent
+        if not bInline:
+            html += '\n' + self.getIndent(depth)
+
+        # open tag and attributes
+        html += '<' + self.sName
         for attr in self.attrs:
             html += ' ' + attr + '="' + self.attrs[attr] + '"'
         html += '>'
+
+        # own content
         if self.sContent:
             html += self.sContent
-        elif len(self.tags) > 0:
-            html += '\n'
+
+        # children tags
+        nChildren = self.countChildren()
         for tag in self.tags:
-            html += tag.getHtml(depth+1)
+            html += tag.getHtml(depth+1, nChildren < 2)
         
+        # end tag
         if self.needEndTag():
-            if self.sContent == None and len(self.tags) > 0:
-                html += self.getIndent(depth)
+            if self.sContent == None and nChildren > 1:
+                html += '\n' + self.getIndent(depth)
             html += '</' + self.sName + '>'
-        if not bInline:
-            html += '\n'
+
         return html
 
     def addTag(self, tag):
+        """Add a child tag."""
         self.tags.append(tag)
 
     def addAttr(self, sName, sValue):
+        """Add an attribute and its value."""
         self.attrs[sName] = sValue
         return self
 
@@ -142,6 +156,7 @@ class HtmlTag:
         count = len(self.tags)
         for tag in self.tags:
             count += tag.countChildren()
+        return count
 
     def __str__(self):
         return 'HtmlTag ' + self.sName
@@ -222,8 +237,10 @@ class InlineHtmlTag(HtmlTag):
         self.sSeparator = sSeparator
 
     def getHtml(self, depth=0, bInline = False):
-        html = self.getIndent(depth)
-        if (self.sContent):
+        html = ''
+        if not bInline:
+            html += self.getIndent(depth)
+        if self.sContent:
             html += self.sContent
         bFirst = True
         for oItem in self.aItems:
@@ -244,8 +261,8 @@ class HtmlComment(HtmlTag):
         super().__init__('c', None)
         self.sComment = sComment
     def getHtml(self, depth=0, bInline = False):
-        html = self.getIndent(depth)
-        html += '<!-- ' + self.sComment + ' -->\n'
+        html = '\n' + self.getIndent(depth)
+        html += '<!-- ' + self.sComment + ' -->'
         return html
 
 def testInlineTag():
