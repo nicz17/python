@@ -12,6 +12,7 @@ import logging
 from Palette import *
 from ImageMask import *
 from SimulationMask import *
+from PolarMask import *
 from HtmlPage import *
 from Timer import Timer
 
@@ -47,7 +48,8 @@ class DemoImageMask:
                   #WaveImageMask(0.0628, self.size, self.size),
                   #SineImageMask(0.0628, self.size, self.size),
                   RandomWalkMask(self.size, self.size),
-                  LorenzAttractorMask(self.size, self.size)
+                  LorenzAttractorMask(self.size, self.size),
+                  RoseWindowImageMask(self.size, self.size)
                   ]
         aMaskImgs = []
         for oMask in aMasks:
