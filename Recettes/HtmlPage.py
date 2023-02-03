@@ -42,7 +42,7 @@ class HtmlPage:
         self.main = DivHtmlTag('main')
         self.body.addTag(self.main)
 
-        self.body.addTag(HtmlTag('script', 'createFooter();'))
+        self.body.addTag(ScriptHtmlTag('createFooter();'))
 
     def buildHeader(self):
         """Build the HTML header div on top"""
@@ -106,19 +106,19 @@ class HtmlTag:
         for attr in self.attrs:
             html += ' ' + attr + '="' + self.attrs[attr] + '"'
         html += '>'
-        if (self.sContent):
+        if self.sContent:
             html += self.sContent
-        else:
+        elif len(self.tags) > 0:
             html += '\n'
         for tag in self.tags:
             html += tag.getHtml(depth+1)
         
-        if (self.needEndTag()):
-            if (self.sContent == None):
+        if self.needEndTag():
+            if self.sContent == None and len(self.tags) > 0:
                 html += self.getIndent(depth)
             html += '</' + self.sName + '>'
-            if not bInline:
-                html += '\n'
+        if not bInline:
+            html += '\n'
         return html
 
     def addTag(self, tag):
@@ -199,6 +199,11 @@ class ListHtmlTag(HtmlTag):
             else:
                 tLi.addTag(item)
             self.addTag(tLi)
+
+class ScriptHtmlTag(HtmlTag):
+    """A JavaScript tag with its code."""
+    def __init__(self, sCode):
+        super().__init__('script', sCode)
 
 class InlineHtmlTag(HtmlTag):
     """An HTML tag displaying its contents on a single line."""
