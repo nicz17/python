@@ -42,7 +42,7 @@ class HtmlPage:
         self.main = DivHtmlTag('main')
         self.body.addTag(self.main)
 
-        self.body.addTag(ScriptHtmlTag('createFooter();'))
+        self.buildFooter()
 
     def buildHeader(self):
         """Build the HTML header div on top"""
@@ -50,6 +50,10 @@ class HtmlPage:
 
     def buildMenu(self):
         """Build the HTML menu div on the left"""
+        pass
+
+    def buildFooter(self):
+        """Build the HTML footer div at the bottom"""
         pass
 
     def add(self, tag):
@@ -133,6 +137,11 @@ class HtmlTag:
 
     def needEndTag(self):
         return self.sName != 'link' and self.sName != 'img'
+    
+    def countChildren(self):
+        count = len(self.tags)
+        for tag in self.tags:
+            count += tag.countChildren()
 
     def __str__(self):
         return 'HtmlTag ' + self.sName
@@ -228,6 +237,15 @@ class InlineHtmlTag(HtmlTag):
                 html += oItem.getHtml(0, True)
         if not bInline:
             html += '\n'
+        return html
+    
+class HtmlComment(HtmlTag):
+    def __init__(self, sComment):
+        super().__init__('c', None)
+        self.sComment = sComment
+    def getHtml(self, depth=0, bInline = False):
+        html = self.getIndent(depth)
+        html += '<!-- ' + self.sComment + ' -->\n'
         return html
 
 def testInlineTag():
