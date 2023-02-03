@@ -10,6 +10,7 @@ import getpass
 import glob
 import os
 import time
+from Timer import *
 
 class Uploader:
     """Upload files to website using FTP."""
@@ -19,6 +20,7 @@ class Uploader:
         self.oSession = None
         self.tLastUpload = self.getLastUpload()
         self.bDryRun = bDryRun
+        self.oTimer = Timer()
         self.log.info('Last upload at %s', self.timeToStr(self.tLastUpload))
 
     def uploadAll(self):
@@ -31,6 +33,7 @@ class Uploader:
         self.uploadThumbs()
         self.setLastUpload()
         self.quit()
+        self.log.info('Done uploading in %s', self.oTimer.getElapsed())
 
     def uploadBaseFiles(self):
         """Upload the base files like index, chapters, thanks, biblio etc."""

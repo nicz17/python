@@ -11,6 +11,7 @@ from Chapter import *
 from Recipe import *
 from HtmlPage import *
 from RecettesHtmlPage import *
+from Timer import *
 
 class Builder:
     """A recipe website builder. Creates various HTML files."""
@@ -22,6 +23,7 @@ class Builder:
         self.aChapters = []
         self.dOrigins  = {}
         self.dIngreds  = {}
+        self.oTimer = Timer()
 
     def parseChapters(self):
         """Parse the main chapters LaTeX file."""
@@ -93,6 +95,7 @@ class Builder:
         self.buildOriginsPage()
         self.buildIngredientsPage()
         self.buildJson()
+        self.log.info('Done building in %s', self.oTimer.getElapsed())
 
     def buildRecipes(self):
         """Parse the recipes and create their HTML files."""
