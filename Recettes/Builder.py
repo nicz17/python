@@ -147,7 +147,7 @@ class Builder:
         tDivRandom = BlueBoxWideHtmlTag('Quelques recettes')
         tTableRandom = HtmlTag('table').addAttr('width', '800px').addAttr('cellpadding', '20px')
         tRowRandom = HtmlTag('tr')
-        tRowRandom.addTag(HtmlTag('script', 'randomRecs()'))
+        tRowRandom.addTag(ScriptHtmlTag('randomRecs();'))
         tTableRandom.addTag(tRowRandom)
         tDivRandom.addTag(tTableRandom)
         oPage.add(tDivRandom)
@@ -182,7 +182,7 @@ class Builder:
         # Sort recipes by file creation time
         self.aRecipes.sort(key=lambda rec: rec.getCreatedAt())
         tTableNews = HtmlTag('table')
-        for oRec in reversed(self.aRecipes[-6 : ]):
+        for oRec in reversed(self.aRecipes[-8 : ]):
             tRow = HtmlTag('tr')
             sTime = time.strftime('%d.%m.%Y', time.gmtime(oRec.getCreatedAt()))
             tCellDate = HtmlTag('td', sTime).addAttr('class', 'td-pad-r')
