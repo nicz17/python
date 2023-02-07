@@ -21,6 +21,7 @@ from DemoImageMask import *
 from DemoImageGen import *
 from DemoPalette import *
 from HtmlPage import *
+from Module import *
 
 
 def configureLogging():
@@ -40,9 +41,9 @@ def configureLogging():
 
 def getOptions():
     """Parse program arguments and store them in a dict."""
-    dOptions = {'open': False}
+    dOptions = {'open': False, 'gui': False}
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "ho", ["help", 'open'])
+        opts, args = getopt.getopt(sys.argv[1:], "hox", ["help", 'open', 'gui'])
     except getopt.GetoptError:
         print("Invalid options: %s", sys.argv[1:])
     for opt, arg in opts:
@@ -52,6 +53,8 @@ def getOptions():
             sys.exit()
         elif opt in ("-o", "--open"):
             dOptions['open'] = True
+        elif opt in ("-x", "--gui"):
+            dOptions['gui'] = True
     return dOptions
 
 def testNameGen():
@@ -139,10 +142,16 @@ def runDemos():
     if dOptions['open']:
         os.system('firefox ImageGenDemo.html')
 
+def runGUI():
+    module = Module('ImageGen')
+
 def main():
     log.info('Welcome to Orfact v' + __version__)
     #runTests()
-    runDemos()
+    if dOptions['gui']:
+        runGUI()
+    else:
+        runDemos()
 
 log = configureLogging()
 dOptions = getOptions()
