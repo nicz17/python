@@ -224,6 +224,11 @@ class ListHtmlTag(HtmlTag):
                 tLi.addTag(item)
             self.addTag(tLi)
 
+class GrayFontHtmlTag(HtmlTag):
+    def __init__(self, sContent):
+        super().__init__('font', sContent)
+        self.addAttr('color', 'gray')
+
 class ScriptHtmlTag(HtmlTag):
     """A JavaScript tag with its code."""
     def __init__(self, sCode):
