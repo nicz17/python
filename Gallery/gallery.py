@@ -14,6 +14,7 @@ import sys
 import logging
 import getopt
 from Gallery import *
+from MultiGallery import *
 
 
 def configureLogging():
@@ -33,9 +34,9 @@ def configureLogging():
 
 def getOptions():
     """Parse program arguments and store them in a dict."""
-    dOptions = {'dir': '.', 'resize': False, 'open': False}
+    dOptions = {'dir': '.', 'resize': False, 'open': False, 'all': False}
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hd:or", ["help", "dir=", "resize", 'open'])
+        opts, args = getopt.getopt(sys.argv[1:], "hd:ora", ["help", "dir=", "resize", 'open', 'all'])
     except getopt.GetoptError:
         print("Invalid options: %s", sys.argv[1:])
     for opt, arg in opts:
@@ -49,14 +50,20 @@ def getOptions():
             dOptions['resize'] = True
         elif opt in ("-o", "--open"):
             dOptions['open'] = True
+        elif opt in ("-a", "--all"):
+            dOptions['all'] = True
     return dOptions
 
 def main():
     """Main function. Builds or uploads depending on options."""
     log.info('Welcome to Gallery v%s', __version__)
     
-    gal = Gallery(dOptions['dir'])
-    gal.build()
+    if dOptions['all']:
+        multiGal = MultiGallery(dOptions['dir'])
+        multiGal.build()
+    else:
+        gal = Gallery(dOptions['dir'])
+        gal.build()
 
 log = configureLogging()
 dOptions = getOptions()
