@@ -193,6 +193,7 @@ class Recipe:
         str = re.sub(r"\\item", '<li>', str)
         str = re.sub(r"\\\\ \\indent", '', str)
         str = re.sub(r"\\indent", '', str)
+        str = re.sub(r"\\vfill", '', str)
         str = re.sub(r"\\begin\{em\}", '<i>', str)
         str = re.sub(r"\\end\{em\}", '</i>', str)
         str = re.sub(r'\\emph\{(.+)\}', r'<i>\1</i>', str)
