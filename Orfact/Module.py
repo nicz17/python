@@ -16,7 +16,7 @@ class Module:
     log = logging.getLogger('Module')
 
     def __init__(self, sTitle) -> None:
-        self.log.info('Creating top-level frame %s', sTitle)
+        self.log.info('Creating window %s', sTitle)
         self.window = tk.Tk()
         self.window.title(sTitle)
         self.window.geometry('800x500')
@@ -25,10 +25,13 @@ class Module:
         self.window.mainloop()
         self.log.info('Goodbye!')
 
-    def onClick(self):
+    def regenerate(self):
         self.log.info('Generating random image')
+        self.window.configure(cursor='watch')
+        self.window.update()
         self.generateImage()
         self.displayImage()
+        self.window.configure(cursor='')
 
     def close(self):
         self.window.destroy()
@@ -52,11 +55,11 @@ class Module:
         frame2 = tk.Frame(master=self.window, width=700, bg="black")
         frame2.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
 
-        btnGen = tk.Button(master=frame1, text='Generate', command=self.onClick)
+        btnGen = tk.Button(master=frame1, text='Generate', command=self.regenerate)
         btnGen.pack()
         btnExit = tk.Button(master=frame1, text='Exit', command=self.close)
-        btnExit.pack()
-        self.lblImage = tk.Label(master=frame2, text='Image')
+        btnExit.pack(fill=tk.X)
+        self.lblImage = tk.Label(master=frame2, borderwidth=20, relief='solid', text='Image')
         self.lblImage.pack()
 
 
