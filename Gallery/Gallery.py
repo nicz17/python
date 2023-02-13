@@ -7,7 +7,7 @@ __copyright__ = "Copyright 2023 N. Zwahlen"
 __version__ = "1.0.0"
 
 import os
-import sys
+import re
 import logging
 import glob
 from HtmlPage import *
@@ -47,6 +47,7 @@ class Gallery:
             sFile = os.path.basename(sImg)
             sThumb = dirThumbs + sFile
             sCaption = self.getCaption(sFile)
+            #self.log.info("Caption of %s is %s", sFile, sCaption)
             tLink = LinkHtmlTag(sFile, None)
             tLink.addTag(ImageHtmlTag(sThumb, sThumb))
             tLink.addTag(GrayFontHtmlTag('<br>' + sCaption))
@@ -64,8 +65,8 @@ class Gallery:
 
     def getCaption(self, sFile):
         sCaption = sFile.replace('.jpg', '')
+        sCaption = re.sub(r'(\d+)$', r' \1', sCaption)
         sCaption = sCaption.replace('-', ' ')
-        sCaption = sCaption.replace('0', ' 0')
         return sCaption.capitalize()
     
     def getSingleImage(self):

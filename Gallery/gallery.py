@@ -42,7 +42,7 @@ def getOptions():
     for opt, arg in opts:
         log.info("Parsing option %s value %s", opt, arg)
         if opt in ('-h', '--help'):
-            print('gallery.py -h (help) -r (resize) -d (dir) -o (open in browser)')
+            print('gallery.py -h (help) -r (resize) -d (dir) -a (all galleries in dir) -o (open in browser)')
             sys.exit()
         elif opt in ("-d", "--dir"):
             dOptions['dir'] = arg
