@@ -19,9 +19,11 @@ class BaseApp:
         self.window.title(sTitle)
         self.window.geometry(sGeometry)
         self.createFrames()
-        self.createWidgets()
         self.createBaseWidgets()
+        self.createWidgets()
         self.displayData()
+
+    def run(self):
         self.window.mainloop()
         self.log.info('Goodbye!')
 
