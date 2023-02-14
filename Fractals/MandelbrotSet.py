@@ -24,3 +24,6 @@ class MandelbrotSet:
             if abs(z) > self.rBailout:
                 return i
         return self.iMaxIter
+    
+    def __str__(self):
+        return 'Mandelbrot set with ' + str(self.iMaxIter) + ' iterations'
