@@ -23,6 +23,7 @@ class Palette:
         self.sName = sName
 
     def toColorScale(self, sFilename, iWidth, iHeight):
+        """Save a color scale PNG of this palette with the specified size."""
         self.log.info('Saving %s to %ix%i color scale as %s', self.sName, iWidth, iHeight, sFilename)
         rgbArray = np.zeros((iHeight, iWidth, 3), 'uint8')
         for x in range(iWidth):
@@ -33,6 +34,7 @@ class Palette:
         img.save(sFilename, 'PNG')
 
     def getColor(self, x):
+        """Get the RGB color for the specified value between 0 and 1."""
         return [Palette.gauss(x, 0.75, self.sigma), Palette.gauss(x, 0.5, self.sigma), Palette.gauss(x, 0.25, self.sigma)]
     
     def gauss(x, mu, sig):
