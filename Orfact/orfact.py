@@ -144,6 +144,7 @@ def runDemos():
 
 def runGUI():
     module = Module('ImageGen')
+    module.run()
 
 def main():
     log.info('Welcome to Orfact v' + __version__)

@@ -10,6 +10,7 @@ import tkinter as tk
 import logging
 from Palette import *
 from ImageMask import *
+from SimulationMask import *
 from PolarMask import *
 from TabsApp import *
 
@@ -17,9 +18,32 @@ class Module(TabsApp):
     log = logging.getLogger('Module')
 
     def __init__(self, sTitle) -> None:
+        self.iImgWidth  = 600
+        self.iImgHeight = 400
+        self.sFilename = 'images/RandomImage00.png'
         super().__init__(sTitle, '800x500')
 
+    def getMask(self):
+        """Choose an image mask at random."""
+        aMasks = [MultiGaussImageMask(self.iImgWidth, self.iImgHeight),
+                  GaussianBlurMask(self.iImgWidth, self.iImgHeight),
+                  RandomWalkMask(self.iImgWidth, self.iImgHeight),
+                  StarFishImageMask(self.iImgWidth, self.iImgHeight),
+                  RoseWindowImageMask(self.iImgWidth, self.iImgHeight)]
+        oMask = random.choice(aMasks)
+        return oMask
+    
+    def getPalette(self):
+        """Choose a palette at random."""
+        aPalettes = [RandomPalette(),
+                     HeatPalette(),
+                     GhostPalette(),
+                     SepiaPalette()]
+        oPalette = random.choice(aPalettes)
+        return oPalette
+
     def regenerate(self):
+        """Regenerate an image and display it."""
         self.log.info('Generating random image')
         self.window.configure(cursor='watch')
         self.window.update()
@@ -28,15 +52,17 @@ class Module(TabsApp):
         self.window.configure(cursor='')
 
     def generateImage(self):
-        oPal = RandomPalette()
-        oMask = RoseWindowImageMask(600, 400)
+        """Generates a random image."""
+        oPal  = self.getPalette()
+        oMask = self.getMask()
+        sMsg = oMask.__str__() + ' rendered with ' + oPal.sName
+        self.setStatus(sMsg)
         oMask.randomize()
         oMask.generate()
-        sFilename = 'images/RandomImage00.png'
-        oMask.toImage(oPal, sFilename)
+        oMask.toImage(oPal, self.sFilename)
 
     def displayImage(self):
-        imgRandom = tk.PhotoImage(file="images/RandomImage00.png")
+        imgRandom = tk.PhotoImage(file=self.sFilename)
         self.lblImage.configure(image=imgRandom)
         self.lblImage.image = imgRandom
 
@@ -67,9 +93,4 @@ class Module(TabsApp):
             chkPal.pack(fill=tk.X, anchor="w")
         
         self.displayImage()
-        self.setStatus('Test status')
-
-
-
-    
-
+        self.setStatus('Welcome to ' + self.sTitle)
