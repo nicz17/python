@@ -8,22 +8,54 @@ __version__ = "1.0.0"
 
 import tkinter as tk
 import logging
+from PIL import Image
+import numpy as np
 from BaseApp import *
 from MandelbrotSet import *
+from Palette import *
+from Timer import *
 
 class FractalsApp(BaseApp):
     log = logging.getLogger('FractalsApp')
 
-    def __init__(self, sTitle, sGeometry = '1200x800') -> None:
-        self.oFractal = MandelbrotSet(100, 2.0)
+    def __init__(self, sTitle, sGeometry = '1200x700') -> None:
         self.iSize = 600
+        self.width = 3.0
+        self.iMaxIter = 200
+        self.oFractal = MandelbrotSet(self.iMaxIter, 2.0)
+        self.oPalette = HeatPalette()
+        self.center = complex(-0.75, 0.0)
         super().__init__(sTitle, sGeometry)
 
     def plot(self):
-        self.setStatus('plot: Not implemented yet!')
-        self.oImage = tk.PhotoImage(file = "../Orfact/palettes/HeatPalette.png")
-        self.canPalette.create_image(self.iSize, 25, anchor=tk.CENTER, image=self.oImage)
+        self.setStatus('Plotting ' + self.oFractal.__str__())
+        self.window.configure(cursor='watch')
+        self.window.update()
+        self.oPalette.toColorScale("images/palette.png", self.iSize, 50)
+        self.oImgPal = tk.PhotoImage(file = "images/palette.png")
+        self.canPalette.create_image(self.iSize - 50, 25, anchor=tk.CENTER, image=self.oImgPal)
 
+        timer = Timer()
+        dx = self.width/self.iSize
+        bl = self.center - complex(self.width/2.0, self.width/2.0)
+        rgbArray = np.zeros((self.iSize, self.iSize, 3), 'uint8')
+        for x in range(self.iSize):
+            for y in range(self.iSize):
+                c = bl + complex(x*dx, y*dx)
+                iter = self.oFractal.iter(c)
+                color = self.oPalette.getColor(iter/self.iMaxIter)
+                rgbArray[y, x, :] = color
+                #self.image.putpixel((x, size-1-y), color)
+            #if (x%16==0):
+                #self.updateDisplay()
+        #self.updateDisplay()
+
+        img = Image.fromarray(rgbArray)
+        img.save('images/fractal.png', 'PNG')
+        self.oImgFract = tk.PhotoImage(file = "images/fractal.png")
+        self.canFractal.create_image(0, 0, anchor=tk.NW, image=self.oImgFract)
+        self.window.configure(cursor='')
+        self.setStatus('Plotted ' + self.oFractal.__str__() + ' in ' + timer.getElapsed())
     
 
     def reset(self):
