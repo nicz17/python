@@ -11,19 +11,13 @@ import logging
 from Palette import *
 from ImageMask import *
 from PolarMask import *
+from TabsApp import *
 
-class Module:
+class Module(TabsApp):
     log = logging.getLogger('Module')
 
     def __init__(self, sTitle) -> None:
-        self.log.info('Creating window %s', sTitle)
-        self.window = tk.Tk()
-        self.window.title(sTitle)
-        self.window.geometry('800x500')
-        self.createWidgets()
-        self.displayImage()
-        self.window.mainloop()
-        self.log.info('Goodbye!')
+        super().__init__(sTitle, '800x500')
 
     def regenerate(self):
         self.log.info('Generating random image')
@@ -32,9 +26,6 @@ class Module:
         self.generateImage()
         self.displayImage()
         self.window.configure(cursor='')
-
-    def close(self):
-        self.window.destroy()
 
     def generateImage(self):
         oPal = RandomPalette()
@@ -50,9 +41,13 @@ class Module:
         self.lblImage.image = imgRandom
 
     def createWidgets(self):
-        frame1 = tk.Frame(master=self.window, width=100, height=100, bg="black")
+        tabImg = self.addTab('Image')
+        tabSet = self.addTab('Settings')
+        
+        # Image tab
+        frame1 = tk.Frame(master=tabImg, width=100, height=100, bg="black")
         frame1.pack(fill=tk.Y, side=tk.LEFT)
-        frame2 = tk.Frame(master=self.window, width=700, bg="black")
+        frame2 = tk.Frame(master=tabImg, width=700, bg="black")
         frame2.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
 
         btnGen = tk.Button(master=frame1, text='Generate', command=self.regenerate)
@@ -61,6 +56,18 @@ class Module:
         btnExit.pack(fill=tk.X)
         self.lblImage = tk.Label(master=frame2, borderwidth=20, relief='solid', text='Image')
         self.lblImage.pack()
+        
+        # Settings tab 
+        lfPalettes = ttk.LabelFrame(tabSet, text='Palettes')
+        lfPalettes.pack(side=tk.LEFT, pady=20)
+        
+        aPalettes = ['RandomPalette', 'HeatPalette', 'GhostPalette', 'SepiaPalette']
+        for sPal in aPalettes:
+            chkPal = tk.Checkbutton(lfPalettes, text=sPal)
+            chkPal.pack(fill=tk.X, anchor="w")
+        
+        self.displayImage()
+        self.setStatus('Test status')
 
 
 
