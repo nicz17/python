@@ -16,12 +16,15 @@ class FractalsApp(BaseApp):
 
     def __init__(self, sTitle, sGeometry = '1200x800') -> None:
         self.oFractal = MandelbrotSet(100, 2.0)
+        self.iSize = 600
         super().__init__(sTitle, sGeometry)
 
     def plot(self):
         self.setStatus('plot: Not implemented yet!')
         self.oImage = tk.PhotoImage(file = "../Orfact/palettes/HeatPalette.png")
-        self.canPalette.create_image(600, 25, anchor=tk.CENTER, image=self.oImage)
+        self.canPalette.create_image(self.iSize, 25, anchor=tk.CENTER, image=self.oImage)
+
+    
 
     def reset(self):
         self.setStatus('reset: Not implemented yet!')
@@ -33,5 +36,10 @@ class FractalsApp(BaseApp):
         btnReset = tk.Button(master=self.frmButtons, text='Reset', command=self.reset)
         btnReset.pack(fill=tk.X)
 
-        self.canPalette = tk.Canvas(master=self.frmMain, bg='black', height=50, width=800)
-        self.canPalette.pack(fill=tk.X)
+        self.frmMain.configure(bg='black')
+        self.canPalette = tk.Canvas(master=self.frmMain, bg='black', bd=0, 
+                                    height=50, width=1100, highlightthickness=0)
+        self.canPalette.pack()
+        self.canFractal = tk.Canvas(master=self.frmMain, bg='red', bd=0, 
+                                    height=self.iSize, width=self.iSize, highlightthickness=0)
+        self.canFractal.pack()

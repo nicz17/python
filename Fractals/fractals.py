@@ -38,6 +38,7 @@ def main():
     log.info('Welcome to %s v%s', sAppName, __version__)
     
     app = FractalsApp(sAppName + ' v' + __version__)
+    app.run()
 
 log = configureLogging()
 #dOptions = getOptions()
