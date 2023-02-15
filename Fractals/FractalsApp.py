@@ -19,10 +19,11 @@ class FractalsApp(BaseApp):
     def __init__(self, sTitle, sGeometry = '1200x700') -> None:
         self.iSize = 600
         self.iMaxIter = 200
-        #self.oFractal = MandelbrotSet(self.iMaxIter, 2.0)
+        self.oFractal = MandelbrotSet(self.iMaxIter, 2.0)
         #self.oFractal = JuliaSet(self.iMaxIter, 2.0)
-        self.oFractal = BurningShip(self.iMaxIter, 2.0)
-        self.oPalette = HeatPalette()
+        #self.oFractal = BurningShip(self.iMaxIter, 2.0)
+        #self.oPalette = HeatPalette()
+        self.oPalette = DarkHeatPalette()
         self.center = self.oFractal.getDefaultCenter()
         self.width  = self.oFractal.getDefaultWidth()
         super().__init__(sTitle, sGeometry)
@@ -67,18 +68,26 @@ class FractalsApp(BaseApp):
         self.center = self.oFractal.getDefaultCenter()
         self.width  = self.oFractal.getDefaultWidth()
 
+    def setPalette(self):
+        self.setStatus('Set palette: not implemented yet')
+
     def createWidgets(self):
         """Create user widgets"""
         btnPlot = tk.Button(master=self.frmButtons, text='Plot', command=self.plot)
         btnPlot.pack(fill=tk.X)
         btnReset = tk.Button(master=self.frmButtons, text='Reset', command=self.reset)
         btnReset.pack(fill=tk.X)
+        self.addButton('Palette', self.setPalette)
 
         self.frmMain.configure(bg='black')
         self.canPalette = tk.Canvas(master=self.frmMain, bg='black', bd=0, 
                                     height=50, width=1100, highlightthickness=0)
         self.canPalette.pack()
-        self.canFractal = tk.Canvas(master=self.frmMain, bg='red', bd=0, 
+        self.canFractal = tk.Canvas(master=self.frmMain, bg='#101010', bd=0, 
                                     height=self.iSize, width=self.iSize, highlightthickness=0)
         self.canFractal.bind("<Button-1>", self.onCanvasClick)
         self.canFractal.pack()
+
+    def addButton(self, sText, fnCmd):
+        btn = tk.Button(master=self.frmButtons, text=sText, command=fnCmd)
+        btn.pack(fill=tk.X)
