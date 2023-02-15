@@ -12,7 +12,6 @@ import math
 import logging
 from PIL import Image
 import numpy as np
-#from NameGen import *
 
 class Palette:
     """A color gradient rendered using gaussian distributions"""
@@ -34,8 +33,13 @@ class Palette:
         img.save(sFilename, 'PNG')
 
     def getColor(self, x):
-        """Get the RGB color for the specified value between 0 and 1."""
+        """Get the RGB color array for the specified value between 0 and 1."""
         return [Palette.gauss(x, 0.75, self.sigma), Palette.gauss(x, 0.5, self.sigma), Palette.gauss(x, 0.25, self.sigma)]
+
+    def getColorHex(self, x):
+        """Get the RGB color hex code for the specified value between 0 and 1."""
+        aColor = self.getColor(x)
+        return '#%02x%02x%02x' % (aColor[0], aColor[1], aColor[2])
     
     def gauss(x, mu, sig):
         return (int)(255. * math.exp(-(x-mu)*(x-mu)/(sig*sig)))
