@@ -22,9 +22,11 @@ class FractalsApp(BaseApp):
         self.iSize = 600
         self.width = 3.0
         self.iMaxIter = 200
-        self.oFractal = MandelbrotSet(self.iMaxIter, 2.0)
+        #self.oFractal = MandelbrotSet(self.iMaxIter, 2.0)
+        #self.oFractal = JuliaSet(self.iMaxIter, 2.0)
+        self.oFractal = BurningShip(self.iMaxIter, 2.0)
         self.oPalette = HeatPalette()
-        self.center = complex(-0.75, 0.0)
+        self.center = self.oFractal.getDefaultCenter()
         super().__init__(sTitle, sGeometry)
 
     def plot(self):
@@ -35,6 +37,9 @@ class FractalsApp(BaseApp):
         self.oImgPal = tk.PhotoImage(file = "images/palette.png")
         self.canPalette.create_image(self.iSize - 50, 25, anchor=tk.CENTER, image=self.oImgPal)
 
+        # try to draw live
+        self.oImgFract = tk.PhotoImage(width=self.iSize, height=self.iSize)
+        self.canFractal.create_image(0, 0, anchor=tk.NW, image=self.oImgFract)
         timer = Timer()
         dx = self.width/self.iSize
         bl = self.center - complex(self.width/2.0, self.width/2.0)
@@ -44,22 +49,34 @@ class FractalsApp(BaseApp):
                 c = bl + complex(x*dx, y*dx)
                 iter = self.oFractal.iter(c)
                 color = self.oPalette.getColor(iter/self.iMaxIter)
-                rgbArray[y, x, :] = color
+                sColor = '#%02x%02x%02x' % (color[0], color[1], color[2])
+                #rgbArray[y, x, :] = color
+                self.oImgFract.put(sColor, (x, y))
                 #self.image.putpixel((x, size-1-y), color)
-            #if (x%16==0):
-                #self.updateDisplay()
+            if (x % 20 == 0):
+                self.window.update()
         #self.updateDisplay()
 
-        img = Image.fromarray(rgbArray)
-        img.save('images/fractal.png', 'PNG')
-        self.oImgFract = tk.PhotoImage(file = "images/fractal.png")
-        self.canFractal.create_image(0, 0, anchor=tk.NW, image=self.oImgFract)
+        #img = Image.fromarray(rgbArray)
+        #img.save('images/fractal.png', 'PNG')
+        #self.oImgFract = tk.PhotoImage(file = "images/fractal.png")
+        #self.canFractal.create_image(0, 0, anchor=tk.NW, image=self.oImgFract)
         self.window.configure(cursor='')
         self.setStatus('Plotted ' + self.oFractal.__str__() + ' in ' + timer.getElapsed())
     
-
+    def onCanvasClick(self, event):
+        self.log.info('Canvas clicked at %d:%d', event.x, event.y)
+        bl = self.center - complex(self.width/2.0, self.width/2.0)
+        at = bl + complex(event.x*self.width/self.iSize, event.y*self.width/self.iSize)
+        self.log.info('Canvas clicked at %s', at.__str__())
+        self.center = at
+        self.width = 0.25*self.width
+        self.plot()
+        
     def reset(self):
-        self.setStatus('reset: Not implemented yet!')
+        self.setStatus('Resetting ' + self.oFractal.__str__())
+        self.center = self.oFractal.getDefaultCenter()
+        self.width = 3.0
 
     def createWidgets(self):
         """Create user widgets"""
@@ -74,4 +91,5 @@ class FractalsApp(BaseApp):
         self.canPalette.pack()
         self.canFractal = tk.Canvas(master=self.frmMain, bg='red', bd=0, 
                                     height=self.iSize, width=self.iSize, highlightthickness=0)
+        self.canFractal.bind("<Button-1>", self.onCanvasClick)
         self.canFractal.pack()
