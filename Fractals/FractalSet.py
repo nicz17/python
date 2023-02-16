@@ -8,6 +8,7 @@ __copyright__ = "Copyright 2023 N. Zwahlen"
 __version__ = "1.0.0"
 
 import logging
+from cmath import sin
 
 class FractalSet:
     """A fractal set interface."""
@@ -109,3 +110,23 @@ class FishFractal(FractalSet):
             if abs(z) > self.rBailout:
                 return i
         return self.iMaxIter
+
+
+class SineFractal(FractalSet):
+    """Sine fractal."""
+    log = logging.getLogger('SineFractal')
+
+    def __init__(self, iMaxIter, rBailout = 31.415):
+        super().__init__('Sine fractal', iMaxIter, rBailout)
+
+    def iter(self, z):
+        """Compute the iterations required to bailout at complex number z."""
+        c = z
+        for i in range(self.iMaxIter):
+            z = sin(z) + c
+            if abs(z) > self.rBailout:
+                return i
+        return self.iMaxIter
+    
+    def getDefaultWidth(self) -> float:
+        return 6.3
