@@ -95,12 +95,12 @@ class BurningShip(FractalSet):
         return 4.0
 
 
-class FishFractal(FractalSet):
-    """The Fish fractal (cz(1 - z))."""
-    log = logging.getLogger('FishFractal')
+class LogisticMap(FractalSet):
+    """The logistic map fractal, or fish fractal."""
+    log = logging.getLogger('LogisticMap')
 
     def __init__(self, iMaxIter, rBailout = 2.0):
-        super().__init__('Fish fractal', iMaxIter, rBailout)
+        super().__init__('Logistic map', iMaxIter, rBailout)
 
     def iter(self, z):
         """Compute the iterations required to bailout at complex number z."""
