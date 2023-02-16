@@ -142,6 +142,10 @@ class BlackHolePalette(Palette):
 
     def getColor(self, x):
         return [Palette.gauss(x, 0.4, 0.1), Palette.gauss(x, 0.4, 0.1), Palette.gauss(x, 0.2, 0.25)]
+    
+class FractalPalette(SimplePalette):
+    def __init__(self):
+        super().__init__("FractalPalette", 0.24, 0.3, 0.5, 0.72)
 
 class GhostPalette(SimplePalette):
     def __init__(self):
