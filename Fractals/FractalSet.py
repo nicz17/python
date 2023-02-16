@@ -37,7 +37,7 @@ class MandelbrotSet(FractalSet):
     """The Mandelbrot set fractal."""
     log = logging.getLogger('MandelbrotSet')
 
-    def __init__(self, iMaxIter, rBailout):
+    def __init__(self, iMaxIter, rBailout = 2.0):
         super().__init__('Mandelbrot set', iMaxIter, rBailout)
 
     def iter(self, z):
@@ -57,7 +57,7 @@ class JuliaSet(FractalSet):
     """The Julia set fractal."""
     log = logging.getLogger('JuliaSet')
 
-    def __init__(self, iMaxIter, rBailout):
+    def __init__(self, iMaxIter, rBailout = 2.0):
         super().__init__('Julia set', iMaxIter, rBailout)
         self.c = complex(-0.73756, -0.16869)
 
@@ -74,7 +74,7 @@ class BurningShip(FractalSet):
     """The Burning Ship fractal."""
     log = logging.getLogger('BurningShip')
 
-    def __init__(self, iMaxIter, rBailout):
+    def __init__(self, iMaxIter, rBailout = 2.0):
         super().__init__('Burning Ship', iMaxIter, rBailout)
 
     def iter(self, z):
@@ -92,3 +92,20 @@ class BurningShip(FractalSet):
     
     def getDefaultWidth(self) -> float:
         return 4.0
+
+
+class FishFractal(FractalSet):
+    """The Fish fractal (cz(1 - z))."""
+    log = logging.getLogger('FishFractal')
+
+    def __init__(self, iMaxIter, rBailout = 2.0):
+        super().__init__('Fish fractal', iMaxIter, rBailout)
+
+    def iter(self, z):
+        """Compute the iterations required to bailout at complex number z."""
+        c = z
+        for i in range(self.iMaxIter):
+            z = c*z*(1.0 - z)
+            if abs(z) > self.rBailout:
+                return i
+        return self.iMaxIter
