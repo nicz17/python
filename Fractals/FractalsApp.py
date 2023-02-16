@@ -8,6 +8,7 @@ __version__ = "1.0.0"
 
 import tkinter as tk
 from tkinter import ttk
+from tkinter.filedialog import asksaveasfile
 import logging
 from BaseApp import *
 from FractalSet import *
@@ -23,7 +24,7 @@ class FractalsApp(BaseApp):
         self.aFractals = [MandelbrotSet(self.iMaxIter), 
                           JuliaSet(self.iMaxIter), 
                           BurningShip(self.iMaxIter), 
-                          FishFractal(self.iMaxIter),
+                          LogisticMap(self.iMaxIter),
                           SineFractal(self.iMaxIter)]
         self.oFractal = self.aFractals[0]
         self.aPalettes = [FractalPalette(), FluoPalette(),
@@ -36,6 +37,7 @@ class FractalsApp(BaseApp):
         self.plotPalette()
 
     def plot(self):
+        """Compute the fractal and draw it live on the canvas."""
         self.setStatus('Plotting ' + self.oFractal.__str__())
         self.window.configure(cursor='watch')
         self.window.update()
@@ -70,6 +72,7 @@ class FractalsApp(BaseApp):
         self.window.update()
     
     def onCanvasClick(self, event):
+        """Zoom in on the point that was clicked."""
         self.log.info('Canvas clicked at %d:%d', event.x, event.y)
         bl = self.center - complex(self.width/2.0, self.width/2.0)
         at = bl + complex(event.x*self.width/self.iSize, event.y*self.width/self.iSize)
@@ -79,24 +82,36 @@ class FractalsApp(BaseApp):
         self.plot()
 
     def onZoomOut(self):
+        """Zoom back out."""
         self.width = 4.0*self.width
         self.plot()
+
+    def onSaveImage(self):
+        """Save the current image as PNG file."""
+        sFilename = 'fractal.png'
+        dicTypes = [('PNG images', '*.png')]
+        oFile = asksaveasfile(initialfile = sFilename, 
+                              filetypes = dicTypes, 
+                              defaultextension = '*.png')
+        if (oFile):
+            sFilename = oFile.name
+            self.setStatus('Saving image as ' + sFilename)
+            oFile.close()
+            self.oImgFract.write(sFilename, 'PNG')
         
     def reset(self):
+        """Reset the current fractal to its default center and width."""
         self.setStatus('Resetting ' + self.oFractal.__str__())
         self.center = self.oFractal.getDefaultCenter()
         self.width  = self.oFractal.getDefaultWidth()
         self.plot()
-
-    def setPalette(self):
-        self.setStatus('Set palette: not implemented yet')
-        self.plotPalette()
 
     def createWidgets(self):
         """Create user widgets"""
         self.addButton('Plot', self.plot)
         self.addButton('Zoom out', self.onZoomOut)
         self.addButton('Reset', self.reset)
+        self.addButton('Save image', self.onSaveImage)
 
         self.frmMain.configure(bg='black')
         self.canPalette = tk.Canvas(master=self.frmMain, bg='red', bd=0, 
@@ -111,6 +126,7 @@ class FractalsApp(BaseApp):
         self.addPaletteSelector()
 
     def onFractalSelect(self, event):
+        """Select the fractal that was chosen in the selector."""
         sName = self.varFractal.get()
         self.setStatus('Fractal selected: ' + sName)
         for oFractal in self.aFractals:
@@ -120,6 +136,7 @@ class FractalsApp(BaseApp):
                 break
 
     def onPaletteSelect(self, event):
+        """Select the palette that was chosen in the selector."""
         sName = self.varPalette.get()
         self.setStatus('Palette selected: ' + sName)
         for oPalette in self.aPalettes:
@@ -129,6 +146,7 @@ class FractalsApp(BaseApp):
                 break
 
     def addFractalSelector(self):
+        """Add a Ttk ComboBox for selecting a fractal."""
         aNames = []
         for oFractal in self.aFractals:
             aNames.append(oFractal.sName)
@@ -141,6 +159,7 @@ class FractalsApp(BaseApp):
         cboFractal.pack(fill=tk.X, padx=4, pady=2)
 
     def addPaletteSelector(self):
+        """Add a Ttk ComboBox for selecting a palette."""
         aNames = []
         for oPalette in self.aPalettes:
             aNames.append(oPalette.sName)
@@ -153,5 +172,6 @@ class FractalsApp(BaseApp):
         cboPalette.pack(fill=tk.X, padx=4, pady=2)
 
     def addButton(self, sText, fnCmd):
+        """Add a button with the specified label and callback."""
         btn = tk.Button(master=self.frmButtons, text=sText, command=fnCmd)
         btn.pack(fill=tk.X, padx=4, pady=2)
