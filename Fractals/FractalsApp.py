@@ -23,9 +23,11 @@ class FractalsApp(BaseApp):
         self.aFractals = [MandelbrotSet(self.iMaxIter), 
                           JuliaSet(self.iMaxIter), 
                           BurningShip(self.iMaxIter), 
-                          FishFractal(self.iMaxIter)]
+                          FishFractal(self.iMaxIter),
+                          SineFractal(self.iMaxIter)]
         self.oFractal = self.aFractals[0]
-        self.aPalettes = [HeatPalette(), DarkHeatPalette(), 
+        self.aPalettes = [FractalPalette(), FluoPalette(),
+                          HeatPalette(), DarkHeatPalette(), 
                           SepiaPalette(), GhostPalette()]
         self.oPalette = self.aPalettes[0]
         self.center = self.oFractal.getDefaultCenter()
@@ -84,6 +86,7 @@ class FractalsApp(BaseApp):
         self.setStatus('Resetting ' + self.oFractal.__str__())
         self.center = self.oFractal.getDefaultCenter()
         self.width  = self.oFractal.getDefaultWidth()
+        self.plot()
 
     def setPalette(self):
         self.setStatus('Set palette: not implemented yet')
