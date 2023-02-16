@@ -35,7 +35,7 @@ class BaseApp:
         """Create base widgets"""
 
         btnExit = tk.Button(master=self.frmButtons, text='Exit', command=self.close)
-        btnExit.pack(fill=tk.X)
+        btnExit.pack(fill=tk.X, padx=4, pady=2)
 
         self.lblStatus = tk.Label(master=self.frmBottom)
         self.lblStatus.pack(fill=tk.X) 
