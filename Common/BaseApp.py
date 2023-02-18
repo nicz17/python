@@ -38,13 +38,13 @@ class BaseApp:
         btnExit.pack(fill=tk.X, padx=4, pady=2)
 
         self.lblStatus = tk.Label(master=self.frmBottom)
-        self.lblStatus.pack(fill=tk.X) 
+        self.lblStatus.pack(fill=tk.X, side=tk.LEFT) 
 
     def createFrames(self):
         """Create basic frames for the widgets"""
         self.frmTop = tk.Frame(master=self.window, width=1200, height=100)
         self.frmTop.pack(fill=tk.X, side=tk.TOP)
-        self.frmBottom = tk.Frame(master=self.window, width=1200, height=50, bg='red')
+        self.frmBottom = tk.Frame(master=self.window, width=1200, height=50)
         self.frmBottom.pack(fill=tk.X, side=tk.BOTTOM)
 
         self.frmButtons = tk.Frame(master=self.frmTop, width=100, height=100)
