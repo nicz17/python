@@ -77,9 +77,18 @@ class FractalsApp(BaseApp):
         bl = self.center - complex(self.width/2.0, self.width/2.0)
         at = bl + complex(event.x*self.width/self.iSize, event.y*self.width/self.iSize)
         self.log.info('Canvas clicked at %s', at.__str__())
+        self.lblCoords.configure(text=at.__str__())
         self.center = at
         self.width = 0.25*self.width
         self.plot()
+
+    def onCanvasMove(self, event):
+        bl = self.center - complex(self.width/2, self.width/2)
+        z = bl + complex(event.x*self.width/self.iSize, (self.iSize-1-event.y)*self.width/self.iSize)
+        self.lblCoords.configure(text='%s' % z)
+
+    def onCanvasLeave(self, event):
+        self.lblCoords.configure(text='')
 
     def onZoomOut(self):
         """Zoom back out."""
@@ -88,7 +97,7 @@ class FractalsApp(BaseApp):
 
     def onSaveImage(self):
         """Save the current image as PNG file."""
-        sFilename = 'fractal.png'
+        sFilename = self.oFractal.__class__.__name__ + '01.png'
         dicTypes = [('PNG images', '*.png')]
         oFile = asksaveasfile(initialfile = sFilename, 
                               filetypes = dicTypes, 
@@ -113,13 +122,18 @@ class FractalsApp(BaseApp):
         self.addButton('Reset', self.reset)
         self.addButton('Save image', self.onSaveImage)
 
+        self.lblCoords = tk.Label(master=self.frmBottom, text='Ready')
+        self.lblCoords.pack(fill=tk.X, side=tk.RIGHT) 
+
         self.frmMain.configure(bg='black')
-        self.canPalette = tk.Canvas(master=self.frmMain, bg='red', bd=0, 
+        self.canPalette = tk.Canvas(master=self.frmMain, bg='black', bd=0, 
                                     height=self.iSize, width=50, highlightthickness=0)
         self.canPalette.pack(side=tk.LEFT)
         self.canFractal = tk.Canvas(master=self.frmMain, bg='#101010', bd=0, 
                                     height=self.iSize, width=self.iSize, highlightthickness=0)
         self.canFractal.bind("<Button-1>", self.onCanvasClick)
+        self.canFractal.bind("<Motion>",   self.onCanvasMove)
+        self.canFractal.bind("<Leave>",    self.onCanvasLeave)
         self.canFractal.pack()
 
         self.addFractalSelector()
