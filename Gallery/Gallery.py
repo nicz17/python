@@ -53,9 +53,9 @@ class Gallery:
             tLink.addTag(GrayFontHtmlTag('<br>' + sCaption))
             aImgLinks.append(tLink)
 
-        page = HtmlPage('Gallery - ' + sTitle, '../style.css')
+        page = HtmlPage('Gallery - ' + sTitle, self.getStyle())
         page.addHeading(1, sTitle)
-        page.addTable(aImgLinks, 4, True).addAttr('width', '100%')
+        page.addTable(aImgLinks, self.getPicsPerRow(), True).addAttr('width', '100%')
         page.add(LinkHtmlTag('../index.html', 'Retour'))
         page.save(self.sPath + 'index.html')
 
@@ -64,10 +64,19 @@ class Gallery:
         return sTitle
 
     def getCaption(self, sFile):
+        """Return the caption for the specified photo."""
         sCaption = sFile.replace('.jpg', '')
         sCaption = re.sub(r'(\d+)$', r' \1', sCaption)
         sCaption = sCaption.replace('-', ' ')
         return sCaption.capitalize()
+    
+    def getStyle(self):
+        """Get the CSS stylesheet path"""
+        return '../style.css'
+    
+    def getPicsPerRow(self):
+        """Number of pictures per row in index page"""
+        return 4
     
     def getSingleImage(self):
         if len(self.aImgs) > 0:
