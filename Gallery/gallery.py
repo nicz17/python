@@ -14,6 +14,7 @@ import sys
 import logging
 import getopt
 from Gallery import *
+from TF79Gallery import *
 from MultiGallery import *
 
 
@@ -34,15 +35,15 @@ def configureLogging():
 
 def getOptions():
     """Parse program arguments and store them in a dict."""
-    dOptions = {'dir': '.', 'resize': False, 'open': False, 'all': False}
+    dOptions = {'dir': '.', 'resize': False, 'open': False, 'all': False, 'tf79': False}
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hd:ora", ["help", "dir=", "resize", 'open', 'all'])
+        opts, args = getopt.getopt(sys.argv[1:], "hd:orat", ["help", "dir=", "resize", 'open', 'all', 'tf79'])
     except getopt.GetoptError:
         print("Invalid options: %s", sys.argv[1:])
     for opt, arg in opts:
         log.info("Parsing option %s value %s", opt, arg)
         if opt in ('-h', '--help'):
-            print('gallery.py -h (help) -r (resize) -d (dir) -a (all galleries in dir) -o (open in browser)')
+            print('gallery.py -h (help) -r (resize) -d (dir) -a (all galleries in dir) -o (open in browser) -t (TF79 style)')
             sys.exit()
         elif opt in ("-d", "--dir"):
             dOptions['dir'] = arg
@@ -52,6 +53,8 @@ def getOptions():
             dOptions['open'] = True
         elif opt in ("-a", "--all"):
             dOptions['all'] = True
+        elif opt in ("-t", "--tf79"):
+            dOptions['tf79'] = True
     return dOptions
 
 def main():
@@ -62,8 +65,15 @@ def main():
         multiGal = MultiGallery(dOptions['dir'])
         multiGal.build()
     else:
-        gal = Gallery(dOptions['dir'])
+        gal = None
+        if (dOptions['tf79']):
+            gal = TF79Gallery(dOptions['dir'])
+        else:
+            gal = Gallery(dOptions['dir'])
         gal.build()
+
+    if dOptions['open']:
+        os.system('firefox ' + dOptions['dir'] + 'index.html')
 
 log = configureLogging()
 dOptions = getOptions()
