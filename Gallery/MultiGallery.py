@@ -7,20 +7,24 @@ __copyright__ = "Copyright 2023 N. Zwahlen"
 __version__ = "1.0.0"
 
 import os
-import sys
 import logging
-import glob
 from Gallery import *
+from TF79Gallery import *
 from HtmlPage import *
 
 class MultiGallery:
     log = logging.getLogger('MultiGallery')
     
-    def __init__(self, sPath):
+    def __init__(self, sPath, bRecursive=False):
         self.sPath = sPath
+        self.bRecursive = bRecursive
         self.aGals = []
 
     def build(self):
+        if (self.bRecursive):
+            self.log.info('Building recursive galleries from %s', self.sPath)
+            return self.buildRecursive(self.sPath)
+        
         aDirs = sorted(os.listdir(self.sPath))
         self.log.info('Building galleries from %d dirs', len(aDirs))
         for sDir in aDirs:
@@ -30,6 +34,24 @@ class MultiGallery:
             if gal.size() > 0:
                 self.aGals.append(gal)
         self.createIndex()
+
+    def buildRecursive(self, sPath):
+        aNodes = sorted(os.listdir(sPath))
+        for sNode in aNodes:
+            if os.path.isdir(sPath + sNode):
+                sDir = sPath + sNode + '/'
+                if self.hasPhotoDir(sDir):
+                    self.log.info('%s has photos, will build index', sDir)
+                    gal = TF79Gallery(sDir)
+                    gal.build()
+                else:
+                    self.log.info('%s has no photos dir, recursing', sDir)
+                    self.buildRecursive(sDir)
+            #else:
+                #self.log.info('%s is not a directory, skipping', sPath + sNode)
+
+    def hasPhotoDir(self, sDir):
+        return os.path.isdir(sDir + 'photos')
     
     def createIndex(self):
         sTitle = 'Galleries'
