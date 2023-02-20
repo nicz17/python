@@ -51,7 +51,7 @@ class TF79Gallery(Gallery):
 
     def createIndex(self):
         sTitle = self.getTitle()
-        dirThumbs = self.sPath + 'thumbs/'
+        dirThumbs = 'thumbs/'
         aImgLinks = []
         for sImg in self.aImgs:
             sFile = os.path.basename(sImg)
@@ -65,6 +65,9 @@ class TF79Gallery(Gallery):
         page = GalleryHtmlPage(sTitle)
         page.addHeading(1, sTitle)
         page.addTable(aImgLinks, self.getPicsPerRow(), True).addAttr('width', '100%').addAttr('cellpadding', '10px')
+        sComments = self.readCommentsFile()
+        if len(sComments) > 0:
+            page.add(HtmlTag('div', sComments))
         page.save(self.sPath + 'index.html')
 
 
@@ -88,6 +91,23 @@ class TF79Gallery(Gallery):
                 if not sLine:
                     break
             oFile.close()
+
+    def readCommentsFile(self):
+        """If a comments file is found, parse it"""
+        sCommentsFile = self.sPath + 'comments.html'
+        sComments = ''
+        if (os.path.exists(sCommentsFile)):
+            self.log.info('Adding comments from %s', sCommentsFile)
+            oFile = open(sCommentsFile, 'r')  #, encoding="ISO-8859-1")
+            while True:
+                sLine = oFile.readline()
+                sComments += sLine
+                
+                # if sLine is empty, end of file is reached
+                if not sLine:
+                    break
+            oFile.close()
+        return sComments
 
     def getCaption(self, sFile):
         if self.dicCaptions:
