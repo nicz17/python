@@ -150,7 +150,7 @@ class HtmlTag:
         return '  ' * depth
 
     def needEndTag(self):
-        return self.sName != 'link' and self.sName != 'img'
+        return self.sName != 'link' and self.sName != 'img' and self.sName != 'meta'
     
     def countChildren(self):
         count = len(self.tags)
@@ -233,6 +233,13 @@ class ScriptHtmlTag(HtmlTag):
     """A JavaScript tag with its code."""
     def __init__(self, sCode):
         super().__init__('script', sCode)
+
+class MetaHtmlTag(HtmlTag):
+    """A meta tag with name and content"""
+    def __init__(self, sName, sContent):
+        super().__init__('meta', None)
+        self.addAttr('name', sName)
+        self.addAttr('content', sContent)
 
 class InlineHtmlTag(HtmlTag):
     """An HTML tag displaying its contents on a single line."""
