@@ -62,7 +62,7 @@ def main():
     log.info('Welcome to Gallery v%s', __version__)
     
     if dOptions['all']:
-        multiGal = MultiGallery(dOptions['dir'])
+        multiGal = MultiGallery(dOptions['dir'], dOptions['tf79'])
         multiGal.build()
     else:
         gal = None
