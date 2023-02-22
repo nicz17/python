@@ -25,11 +25,12 @@ class Module(TabsApp):
 
     def getMask(self):
         """Choose an image mask at random."""
-        aMasks = [MultiGaussImageMask(self.iImgWidth, self.iImgHeight),
-                  GaussianBlurMask(self.iImgWidth, self.iImgHeight),
-                  RandomWalkMask(self.iImgWidth, self.iImgHeight),
-                  StarFishImageMask(self.iImgWidth, self.iImgHeight),
-                  RoseWindowImageMask(self.iImgWidth, self.iImgHeight)]
+        aMasks = [#MultiGaussImageMask(self.iImgWidth, self.iImgHeight),
+                  #GaussianBlurMask(self.iImgWidth, self.iImgHeight),
+                  #RandomWalkMask(self.iImgWidth, self.iImgHeight),
+                  #StarFishImageMask(self.iImgWidth, self.iImgHeight),
+                  #RoseWindowImageMask(self.iImgWidth, self.iImgHeight),
+                  FractalMask(self.iImgWidth, self.iImgHeight)]
         oMask = random.choice(aMasks)
         return oMask
     
@@ -37,6 +38,7 @@ class Module(TabsApp):
         """Choose a palette at random."""
         aPalettes = [RandomPalette(),
                      HeatPalette(),
+                     FractalPalette(),
                      GhostPalette(),
                      SepiaPalette()]
         oPalette = random.choice(aPalettes)
@@ -71,16 +73,14 @@ class Module(TabsApp):
         tabSet = self.addTab('Settings')
         
         # Image tab
-        frame1 = tk.Frame(master=tabImg, width=100, height=100, bg="black")
-        frame1.pack(fill=tk.Y, side=tk.LEFT)
-        frame2 = tk.Frame(master=tabImg, width=700, bg="black")
-        frame2.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
+        self.frmButtons = tk.Frame(master=tabImg, width=100, height=100)
+        self.frmButtons.pack(fill=tk.Y, side=tk.LEFT)
+        self.frmMain = tk.Frame(master=tabImg, width=700, bg='black')
+        self.frmMain.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
 
-        btnGen = tk.Button(master=frame1, text='Generate', command=self.regenerate)
-        btnGen.pack()
-        btnExit = tk.Button(master=frame1, text='Exit', command=self.close)
-        btnExit.pack(fill=tk.X)
-        self.lblImage = tk.Label(master=frame2, borderwidth=20, relief='solid', text='Image')
+        self.addButton('Generate', self.regenerate)
+        self.addButton('Exit', self.close)
+        self.lblImage = tk.Label(master=self.frmMain, borderwidth=20, relief='solid', text='Image')
         self.lblImage.pack()
         
         # Settings tab 
@@ -94,3 +94,8 @@ class Module(TabsApp):
         
         self.displayImage()
         self.setStatus('Welcome to ' + self.sTitle)
+
+    def addButton(self, sLabel, fnCmd):
+        """Add a button with the specified label and callback."""
+        btn = tk.Button(master=self.frmButtons, text=sLabel, command=fnCmd)
+        btn.pack(fill=tk.X, padx=4, pady=2)
