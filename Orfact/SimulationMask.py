@@ -132,3 +132,37 @@ class GaussianBlurMask(SimulationMask):
             self.aMask[x, y] = 200.0 + 800.0*random.random()
 
         self.aMask = gaussian_filter(self.aMask, sigma=6)
+
+class FractalMask(SimulationMask):
+    """An ImageMask based on the Julia set fractal."""
+
+    def __init__(self, w, h):
+        super().__init__('FractalMask', w, h)
+        self.cParam = complex(-0.73756, 0.16869)
+        self.rWidth = 3.1
+        self.iMaxIter = 200
+        self.rBailout = 2.0
+
+    def randomize(self):
+        self.cParam = complex(-0.73756 + 0.002*random.random(), 0.16869 + 0.001*random.random())
+
+    def runSimulation(self):
+        for x in range(self.w):
+            for y in range(self.h):
+                self.aMask[x, y] = self.iter(self.getZ(x, y))
+
+    def getZ(self, x, y):
+        """Get the complex number corresponding to the image pixel x,y"""
+        rw = self.rWidth
+        rh = rw*self.h/self.w
+        zr = x*rw/self.w - rw/2.0
+        zi = y*rh/self.h - rh/2.0
+        return complex(zr, zi)
+
+    def iter(self, z):
+        """Compute the iterations required to bailout at complex number z."""
+        for i in range(self.iMaxIter):
+            z = z*z + self.cParam
+            if abs(z) > self.rBailout:
+                return i
+        return self.iMaxIter
