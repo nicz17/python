@@ -16,12 +16,13 @@ from Palette import *
 from Timer import *
 
 class QomboApp(BaseApp):
+    """Qombo App window."""
     log = logging.getLogger('QomboApp')
+    iSize = 100
+    gridW = 8
+    gridH = 6
 
     def __init__(self, sGeometry = '1100x650') -> None:
-        self.iSize = 100
-        self.gridW = 8
-        self.gridH = 6
         self.iHeight = self.gridH*self.iSize
         self.iWidth  = self.gridW*self.iSize
         self.grid = Grid(self.gridW, self.gridH)
@@ -34,9 +35,7 @@ class QomboApp(BaseApp):
             for y in range(self.gridH):
                 qombit = self.qombitGen.generate()
                 self.grid.put(x, y, qombit)
-                tx = x*self.iSize + 50
-                ty = y*self.iSize + 20
-                self.canGrid.create_text(tx, ty, text=qombit.sName)
+                self.drawQombit(x, y, qombit)
     
     def onGridClick(self, event):
         """Handle grid click event."""
@@ -44,6 +43,15 @@ class QomboApp(BaseApp):
         gx = int(event.x/self.iSize)
         gy = int(event.y/self.iSize)
         self.setStatus('Select cell ' + str(gx) + ':' + str(gy) + ' ' + self.grid.valueAsStr(gx, gy))
+
+    def drawQombit(self, x, y, qombit: Qombit):
+        """Draw the Qombit on the grid canvas."""
+        r = 36
+        tx = x*self.iSize + 50
+        ty = y*self.iSize + 50
+        self.canGrid.create_oval(tx-r, ty-r, tx+r, ty+r, outline='#a0d0d0', fill=qombit.getColor())
+        self.canGrid.create_text(tx, ty, text=qombit.oKind)
+
 
     def drawGrid(self):
         for x in range(self.gridW):
@@ -57,7 +65,7 @@ class QomboApp(BaseApp):
 
     def createWidgets(self):
         """Create user widgets"""
-        self.addButton('Generate', self.generate)
+        self.addButton('New Game', self.generate)
 
         #self.frmMain.configure(bg='black')
         self.canGrid = tk.Canvas(master=self.frmMain, bg='#c0f0f0', bd=0, 
