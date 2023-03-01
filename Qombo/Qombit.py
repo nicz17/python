@@ -38,14 +38,20 @@ class OrRarity(Enum):
         return self.name
 
 class Qombit:
-    def __init__(self, sName, oKind, iLevel, oRarity):
+    aColors = ['#c0c0c0', '#a0a0ff', 'yellow', 'orange']
+
+    def __init__(self, sName: str, oKind: OrKind, iLevel: int, oRarity: OrRarity):
         self.sName = sName
         self.oKind = oKind
         self.iLevel = iLevel
         self.oRarity = oRarity
 
+    def getColor(self):
+        """Get this Qombit's color based on its rarity."""
+        return self.aColors[self.oRarity.value]
+
     def __str__(self):
-        return self.sName + ' is a level ' + str(self.iLevel) + ' ' + str(self.oRarity) + ' ' + str(self.oKind)
+        return self.sName + ' level ' + str(self.iLevel) + ' ' + str(self.oRarity) + ' ' + str(self.oKind)
     
 class QombitGen:
     def __init__(self, seed):
