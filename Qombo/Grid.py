@@ -1,5 +1,5 @@
 """
- A 2D grid.
+ A simple 2D grid containing objects in cells.
 """
 
 __author__ = "Nicolas Zwahlen"
@@ -9,10 +9,10 @@ __version__ = "1.0.0"
 import logging
 
 class Grid:
+    """A simple 2D grid containing objects in cells."""
     log = logging.getLogger('Grid')
 
-    """A simple 2D grid."""
-    def __init__(self, w, h):
+    def __init__(self, w: int, h: int):
         """Constructor with width and height."""
         self.w = w 
         self.h = h
@@ -26,6 +26,17 @@ class Grid:
     def get(self, x: int, y: int):
         """Get the value in the x,y cell."""
         return self.cells[x][y]
+    
+    def remove(self, val):
+        """Removes the specified value, if it can be found. Returns removed object or None."""
+        if val:
+            for y in range(self.h):
+                for x in range(self.w):
+                    if self.get(x, y) == val:
+                        self.log.info('Deleting at %d:%d %s', x, y, val.__str__())
+                        self.put(x, y, None)
+                        return val
+        return None
     
     def isEmptyCell(self, x: int, y: int) -> bool:
         """Checks if the x,y cell is empty."""
