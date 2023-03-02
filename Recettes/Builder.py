@@ -65,21 +65,21 @@ class Builder:
                 break
         oFile.close()
 
-    def addRecipe(self, oRec):
+    def addRecipe(self, oRec: Recipe):
         """Add a recipe."""
         self.aRecipes.append(oRec)
         
-    def addChapter(self, oChap):
+    def addChapter(self, oChap: Chapter):
         """Add a chapter."""
         self.aChapters.append(oChap)
 
-    def addOrigin(self, sOrigin, oRec):
+    def addOrigin(self, sOrigin: str, oRec: Recipe):
         """Add a recipe origin country."""
         if not sOrigin in self.dOrigins:
             self.dOrigins[sOrigin] = []
         self.dOrigins[sOrigin].append(oRec)
 
-    def addIngredient(self, sIngr, oRec):
+    def addIngredient(self, sIngr: str, oRec: Recipe):
         """Add a recipe ingredient."""
         if not sIngr in self.dIngreds:
             self.dIngreds[sIngr] = []

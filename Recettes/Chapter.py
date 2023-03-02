@@ -1,6 +1,7 @@
 """A recipe chapter."""
 
 import config
+from Recipe import *
 from HtmlPage import *
 from RecettesHtmlPage import *
 
@@ -10,7 +11,7 @@ class Chapter:
         self.sTitle = sTitle
         self.aRecipes = []
 
-    def addRecipe(self, oRec):
+    def addRecipe(self, oRec: Recipe):
         self.aRecipes.append(oRec)
 
     def getFilename(self):
