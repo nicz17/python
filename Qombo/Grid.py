@@ -19,17 +19,33 @@ class Grid:
         self.cells = [[None for i in range(h)] for j in range(w)]
         self.log.info('Constructed %s', self.__str__())
 
-    def put(self, x, y, val):
+    def put(self, x: int, y: int, val):
         """Put the value in the x,y cell."""
         self.cells[x][y] = val
 
-    def get(self, x, y):
+    def get(self, x: int, y: int):
         """Get the value in the x,y cell."""
         return self.cells[x][y]
     
-    def isEmpty(self, x, y):
+    def isEmptyCell(self, x: int, y: int) -> bool:
         """Checks if the x,y cell is empty."""
         return self.get(x, y) is None
+    
+    def isFull(self) -> bool:
+        """Checks if this grid is full."""
+        for y in range(self.h):
+            for x in range(self.w):
+                if self.isEmptyCell(x, y):
+                    return False
+        return True
+    
+    def isEmpty(self) -> bool:
+        """Checks if this grid is empty."""
+        for y in range(self.h):
+            for x in range(self.w):
+                if not self.isEmptyCell(x, y):
+                    return False
+        return True
     
     def clear(self):
         """Clears all cells."""
