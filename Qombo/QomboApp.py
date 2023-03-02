@@ -19,6 +19,7 @@ class QomboApp(BaseApp):
     """Qombo App window."""
     log = logging.getLogger('QomboApp')
     selection: Qombit
+    grid: Grid
     iSize = 100
     gridW = 8
     gridH = 6
@@ -46,16 +47,22 @@ class QomboApp(BaseApp):
 
     def sellQombit(self):
         """Sells the selected qombit."""
-        self.setStatus('Selling')
+        sold = self.grid.remove(self.selection)
+        if sold:
+            self.log.info('Sold %s', sold.__str__())
+            self.selection = None
+            self.drawSelection()
+            self.enableWidgets()
+            self.drawGrid()
+            self.setStatus('Sold ' + sold.__str__())
     
     def onGridClick(self, event):
         """Handle grid click event."""
-        self.log.info('Grid clicked at %d:%d', event.x, event.y)
+        #self.log.info('Grid clicked at %d:%d', event.x, event.y)
         gx = int(event.x/self.iSize)
         gy = int(event.y/self.iSize)
-        #self.setStatus('Select cell ' + str(gx) + ':' + str(gy) + ' ' + self.grid.valueAsStr(gx, gy))
-        qombit = self.grid.get(gx, gy)
-        self.selection = qombit
+        self.log.info('Grid selection [%d:%d] %s', gx, gy, self.grid.valueAsStr(gx, gy))
+        self.selection = self.grid.get(gx, gy)
         self.enableWidgets()
         self.drawSelection()
 
@@ -84,6 +91,15 @@ class QomboApp(BaseApp):
             self.canSelection.create_text(100, 20, text = 'Ready')
 
     def drawGrid(self):
+        """Draw grid lines and qombits on the grid canvas"""
+        self.canGrid.delete('all')
+        self.drawGridLines()
+        for x in range(self.gridW):
+            for y in range(self.gridH):
+                qombit = self.grid.get(x, y)
+                self.drawQombit(x, y, qombit)
+
+    def drawGridLines(self):
         """Draw lines on the grid canvas"""
         for x in range(self.gridW):
             gx = x*self.iSize
