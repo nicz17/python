@@ -7,7 +7,7 @@ __copyright__ = "Copyright 2023 N. Zwahlen"
 __version__ = "1.0.0"
 
 import tkinter as tk
-from tkinter import ttk
+from tkinter import font as tkfont
 import logging
 from BaseApp import *
 from Grid import *
@@ -22,7 +22,7 @@ class QomboApp(BaseApp):
     gridW = 8
     gridH = 6
 
-    def __init__(self, sGeometry = '1100x650') -> None:
+    def __init__(self, sGeometry = '1120x650') -> None:
         self.iHeight = self.gridH*self.iSize
         self.iWidth  = self.gridW*self.iSize
         self.grid = Grid(self.gridW, self.gridH)
@@ -30,6 +30,7 @@ class QomboApp(BaseApp):
         super().__init__('Qombo', sGeometry)
 
     def generate(self):
+        """Generate new game state"""
         self.log.info('Generating Qombits')
         for x in range(self.gridW):
             for y in range(self.gridH):
@@ -42,7 +43,9 @@ class QomboApp(BaseApp):
         self.log.info('Grid clicked at %d:%d', event.x, event.y)
         gx = int(event.x/self.iSize)
         gy = int(event.y/self.iSize)
-        self.setStatus('Select cell ' + str(gx) + ':' + str(gy) + ' ' + self.grid.valueAsStr(gx, gy))
+        #self.setStatus('Select cell ' + str(gx) + ':' + str(gy) + ' ' + self.grid.valueAsStr(gx, gy))
+        qombit = self.grid.get(gx, gy)
+        self.drawSelection(qombit)
 
     def drawQombit(self, x, y, qombit: Qombit):
         """Draw the Qombit on the grid canvas."""
@@ -50,10 +53,22 @@ class QomboApp(BaseApp):
         tx = x*self.iSize + 50
         ty = y*self.iSize + 50
         self.canGrid.create_oval(tx-r, ty-r, tx+r, ty+r, outline='#a0d0d0', fill=qombit.getColor())
-        self.canGrid.create_text(tx, ty, text=qombit.oKind)
+        self.canGrid.create_text(tx, ty, text = qombit.oKind)
 
+    def drawSelection(self, qombit: Qombit):
+        """Update the selection canvas"""
+        self.canSelection.delete('all')
+        fontBold = tkfont.Font(family="Helvetica", size=12, weight='bold')
+        self.canSelection.create_text(100, 20, text = qombit.sName, font = fontBold)
+        r = 64
+        tx = 100
+        ty = 120
+        self.canSelection.create_oval(tx-r, ty-r, tx+r, ty+r, outline='#a0d0d0', fill=qombit.getColor())
+        self.canSelection.create_text(100, 220, text = str(qombit.oRarity) + ' ' + str(qombit.oKind))
+        self.canSelection.create_text(100, 240, text = 'Level ' + str(qombit.iLevel))
 
     def drawGrid(self):
+        """Draw lines on the grid canvas"""
         for x in range(self.gridW):
             gx = x*self.iSize
             gy = self.iHeight
@@ -72,13 +87,12 @@ class QomboApp(BaseApp):
                                     height=self.iHeight, width=self.iWidth, highlightthickness=0)
         self.canGrid.pack(side=tk.LEFT)
         self.canGrid.bind("<Button-1>", self.onGridClick)
-        self.frmSelection = tk.Frame(master=self.frmMain, bg='#f0f0c0', bd=0, 
+        self.canSelection = tk.Canvas(master=self.frmMain, bg='#f0f0c0', bd=0, 
                                     height=self.iHeight, width=200, highlightthickness=0)
-        self.frmSelection.pack(side=tk.RIGHT)
-        #tk.Label(master=self.frmSelection, text='Selection', height=2).pack(side=tk.TOP)
+        self.canSelection.pack(side=tk.RIGHT)
         self.drawGrid()
 
-    def addButton(self, sText, fnCmd):
+    def addButton(self, sLabel: str, fnCmd):
         """Add a button with the specified label and callback."""
-        btn = tk.Button(master=self.frmButtons, text=sText, command=fnCmd)
+        btn = tk.Button(master=self.frmButtons, text=sLabel, command=fnCmd)
         btn.pack(fill=tk.X, padx=4, pady=2)
