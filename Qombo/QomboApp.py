@@ -12,8 +12,8 @@ import logging
 from BaseApp import *
 from Grid import *
 from Qombit import *
-from Palette import *
 from Timer import *
+from Renderer import *
 
 class QomboApp(BaseApp):
     """Qombo App window."""
@@ -31,29 +31,27 @@ class QomboApp(BaseApp):
         self.qombitGen = QombitGen(42)
         self.selection = None
         super().__init__('Qombo', sGeometry)
-        self.fontBold = tkfont.Font(family="Helvetica", size=12, weight='bold')
-        self.enableWidgets()
+        self.renderer = Renderer(self.grid, self.canGrid, self.canSelection)
+        self.renderer.drawGrid()
+        self.setSelection(None)
 
-    def generate(self):
+    def newGame(self):
         """Generate new game state"""
         self.log.info('Generating Qombits')
         for x in range(self.gridW):
             for y in range(self.gridH):
                 qombit = self.qombitGen.generate()
                 self.grid.put(x, y, qombit)
-                self.drawQombit(x, y, qombit)
-        self.drawSelection()
-        self.enableWidgets()
+                self.renderer.drawQombit(x, y, qombit)
+        self.setSelection(None)
 
     def sellQombit(self):
         """Sells the selected qombit."""
         sold = self.grid.remove(self.selection)
         if sold:
             self.log.info('Sold %s', sold.__str__())
-            self.selection = None
-            self.drawSelection()
-            self.enableWidgets()
-            self.drawGrid()
+            self.setSelection(None)
+            self.renderer.drawGrid()
             self.setStatus('Sold ' + sold.__str__())
     
     def onGridClick(self, event):
@@ -62,58 +60,18 @@ class QomboApp(BaseApp):
         gx = int(event.x/self.iSize)
         gy = int(event.y/self.iSize)
         self.log.info('Grid selection [%d:%d] %s', gx, gy, self.grid.valueAsStr(gx, gy))
-        self.selection = self.grid.get(gx, gy)
+        self.setSelection(self.grid.get(gx, gy))
+
+    def setSelection(self, qombit: Qombit):
+        """Set the specified qombit as selected and update widgets"""
+        self.selection = qombit
+        self.renderer.drawSelection(self.selection)
         self.enableWidgets()
-        self.drawSelection()
-
-    def drawQombit(self, x, y, qombit: Qombit):
-        """Draw the Qombit on the grid canvas."""
-        if qombit:
-            r = 36
-            tx = x*self.iSize + 50
-            ty = y*self.iSize + 50
-            self.canGrid.create_oval(tx-r, ty-r, tx+r, ty+r, outline='#a0d0d0', fill=qombit.getColor())
-            self.canGrid.create_text(tx, ty, text = qombit.oKind)
-
-    def drawSelection(self):
-        """Update the selection canvas"""
-        self.canSelection.delete('all')
-        if self.selection:
-            qombit = self.selection
-            self.canSelection.create_text(100, 20, text = qombit.sName, font = self.fontBold)
-            r = 64
-            tx = 100
-            ty = 120
-            self.canSelection.create_oval(tx-r, ty-r, tx+r, ty+r, outline='#a0d0d0', fill=qombit.getColor())
-            self.canSelection.create_text(100, 220, text = str(qombit.oRarity) + ' ' + str(qombit.oKind))
-            self.canSelection.create_text(100, 240, text = 'Level ' + str(qombit.iLevel))
-        else:
-            self.canSelection.create_text(100, 20, text = 'Ready')
-
-    def drawGrid(self):
-        """Draw grid lines and qombits on the grid canvas"""
-        self.canGrid.delete('all')
-        self.drawGridLines()
-        for x in range(self.gridW):
-            for y in range(self.gridH):
-                qombit = self.grid.get(x, y)
-                self.drawQombit(x, y, qombit)
-
-    def drawGridLines(self):
-        """Draw lines on the grid canvas"""
-        for x in range(self.gridW):
-            gx = x*self.iSize
-            gy = self.iHeight
-            self.canGrid.create_line(gx, 0, gx, gy, fill="#b0e0e0", width=1)
-        for y in range(self.gridH):
-            gx = self.iWidth
-            gy = y*self.iSize
-            self.canGrid.create_line(0, gy, gx, gy, fill="#b0e0e0", width=1)
 
     def createWidgets(self):
         """Create user widgets"""
-        self.btnGenerate = self.addButton('New Game', self.generate)
-        self.btnSell     = self.addButton('Sell', self.sellQombit)
+        self.btnStart = self.addButton('New Game', self.newGame)
+        self.btnSell  = self.addButton('Sell', self.sellQombit)
 
         #self.frmMain.configure(bg='black')
         self.canGrid = tk.Canvas(master=self.frmMain, bg='#c0f0f0', bd=0, 
@@ -123,7 +81,6 @@ class QomboApp(BaseApp):
         self.canSelection = tk.Canvas(master=self.frmMain, bg='#f0f0c0', bd=0, 
                                     height=self.iHeight, width=200, highlightthickness=0)
         self.canSelection.pack(side=tk.RIGHT)
-        self.drawGrid()
 
     def addButton(self, sLabel: str, fnCmd):
         """Add a button with the specified label and callback."""
@@ -133,8 +90,8 @@ class QomboApp(BaseApp):
     
     def enableWidgets(self):
         """Enable or disable buttons based on state"""
-        self.enableButton(self.btnGenerate, self.grid.isEmpty())
-        self.enableButton(self.btnSell, self.selection is not None)
+        self.enableButton(self.btnStart, self.grid.isEmpty())
+        self.enableButton(self.btnSell,  self.selection is not None)
         
     def enableButton(self, btn, bEnabled: bool):
         """Enable the specified button if bEnabled is true."""
