@@ -23,7 +23,7 @@ class Grid:
         self.w = w 
         self.h = h
         self.cells = [[None for i in range(h)] for j in range(w)]
-        self.log.info('Constructed %s', self.__str__())
+        self.log.info('Constructed %s', self)
 
     def put(self, x: int, y: int, val):
         """Put the value in the x,y cell."""
@@ -39,7 +39,7 @@ class Grid:
             for y in range(self.h):
                 for x in range(self.w):
                     if self.get(x, y) == val:
-                        self.log.info('Deleting at %d:%d %s', x, y, val.__str__())
+                        self.log.info('Deleting at %d:%d %s', x, y, val)
                         self.put(x, y, None)
                         return val
         return None
