@@ -18,6 +18,8 @@ class Renderer:
     gridW = 8
     gridH = 6
     iSize = 100
+    iRadiusGrid = 36
+    iRadiusSel  = 64
 
     """Rendering methods for Qombo."""
     log = logging.getLogger('Renderer')
@@ -45,8 +47,7 @@ class Renderer:
             r = 36
             tx = x*self.iSize + 50
             ty = y*self.iSize + 50
-            #self.canGrid.create_oval(tx-r, ty-r, tx+r, ty+r, outline='#a0d0d0', fill=qombit.getColor())
-            self.drawCircle(self.canGrid, tx, ty, r, '#a0d0d0', qombit.getColor())
+            self.drawCircle(self.canGrid, tx, ty, self.iRadiusGrid, '#a0d0d0', qombit.getColor())
             self.canGrid.create_text(tx, ty, text = qombit.oKind)
 
     def drawGridLines(self):
@@ -64,10 +65,9 @@ class Renderer:
         """Update the selection canvas"""
         self.canSelection.delete('all')
         if qombit:
-            r, tx, ty = 64, 100, 120
+            tx, ty = 100, 120
             self.canSelection.create_text(tx, 20, text = qombit.sName, font = self.fontBold)
-            #self.canSelection.create_oval(tx-r, ty-r, tx+r, ty+r, outline='#d0d0a0', fill=qombit.getColor())
-            self.drawCircle(self.canSelection, tx, ty, r, '#d0d0a0', qombit.getColor())
+            self.drawCircle(self.canSelection, tx, ty, self.iRadiusSel, '#d0d0a0', qombit.getColor())
             self.canSelection.create_text(tx, 220, text = str(qombit.oRarity) + ' ' + str(qombit.oKind))
             self.canSelection.create_text(tx, 240, text = 'Level ' + str(qombit.iLevel))
         else:
