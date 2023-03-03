@@ -89,7 +89,15 @@ class QomboApp(BaseApp):
         gx = int(event.x/self.iSize)
         gy = int(event.y/self.iSize)
         self.log.info('Grid selection [%d:%d] %s', gx, gy, self.grid.valueAsStr(gx, gy))
-        self.setSelection(self.grid.get(gx, gy))
+        qombit = self.grid.get(gx, gy)
+
+        # Reselection
+        if qombit and qombit == self.selection:
+            if self.canGenerate():
+                self.generate()
+        # New selection
+        else:
+            self.setSelection(qombit)
 
     def setSelection(self, qombit: Qombit):
         """Set the specified qombit as selected and update widgets"""
