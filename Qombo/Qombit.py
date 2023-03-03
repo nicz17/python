@@ -11,11 +11,10 @@ import random
 from NameGen import *
 
 class OrKind(Enum):
-    Food = 0
-    Source = 1
+    Generator  = 0
+    Food       = 1
     Duplicator = 2
-    Combiner = 3
-    Objective = 4
+    Objective  = 3
 
     def __str__(self):
         return self.name
@@ -48,7 +47,7 @@ class Qombit:
 
     def getColor(self):
         """Get this Qombit's color based on its rarity."""
-        return self.aColors[self.oRarity.value]
+        return self.aColors[self.oKind.value]
 
     def __str__(self):
         return self.sName + ' level ' + str(self.iLevel) + ' ' + str(self.oRarity) + ' ' + str(self.oKind)
@@ -58,9 +57,10 @@ class QombitGen:
         self.seed = seed
         self.nameGen = NameGen(seed)
 
-    def generate(self):
+    def generate(self, oKind = None):
         sName = self.nameGen.generate()
-        oKind = random.choice(list(OrKind))
+        if oKind is None:
+            oKind = random.choice(list(OrKind))
         iLevel = random.randrange(6)
         qombit = Qombit(sName, oKind, iLevel, OrRarity.random())
         return qombit
