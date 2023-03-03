@@ -37,7 +37,7 @@ class OrRarity(Enum):
         return self.name
 
 class Qombit:
-    aColors = ['#c0c0c0', '#a0a0ff', 'yellow', 'orange']
+    aColors = ['yellow', '#c0c0c0', '#a0a0ff', 'orange']
 
     def __init__(self, sName: str, oKind: OrKind, iLevel: int, oRarity: OrRarity):
         self.sName = sName
@@ -46,7 +46,7 @@ class Qombit:
         self.oRarity = oRarity
 
     def getColor(self):
-        """Get this Qombit's color based on its rarity."""
+        """Get this Qombit's color based on its kind."""
         return self.aColors[self.oKind.value]
 
     def __str__(self):
