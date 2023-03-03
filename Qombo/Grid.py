@@ -8,6 +8,12 @@ __version__ = "1.0.0"
 
 import logging
 
+class Position:
+    """A simple 2D position."""
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+
 class Grid:
     """A simple 2D grid containing objects in cells."""
     log = logging.getLogger('Grid')
@@ -57,6 +63,14 @@ class Grid:
                 if not self.isEmptyCell(x, y):
                     return False
         return True
+    
+    def nextEmptyCell(self) -> Position:
+        """Returns an empty cell position, or None if all full."""
+        for y in range(self.h):
+            for x in range(self.w):
+                if self.isEmptyCell(x, y):
+                    return Position(x, y)
+        return None
     
     def clear(self):
         """Clears all cells."""
