@@ -37,22 +37,51 @@ class QomboApp(BaseApp):
 
     def newGame(self):
         """Generate new game state"""
-        self.log.info('Generating Qombits')
-        for x in range(self.gridW):
-            for y in range(self.gridH):
-                qombit = self.qombitGen.generate()
+        self.log.info('Starting new game')
+        pos = self.grid.nextEmptyCell()
+        if pos:
+            qombit = self.qombitGen.generate(OrKind.Generator)
+            x, y = pos.x, pos.y
+            self.grid.put(x, y, qombit)
+            self.renderer.drawQombit(x, y, qombit)
+        self.setSelection(None)
+
+    def generate(self):
+        """Generate a new qombit if the selection is a generator."""
+        if self.canGenerate():
+            pos = self.grid.nextEmptyCell()
+            if pos:
+                qombit = self.qombitGen.generate(OrKind.Food)
+                x, y = pos.x, pos.y
+                self.log.info('Generated %s at [%d:%d]', qombit, x, y)
                 self.grid.put(x, y, qombit)
                 self.renderer.drawQombit(x, y, qombit)
-        self.setSelection(None)
+                self.enableWidgets()
+
+    def canGenerate(self) -> bool:
+        """Check if it is possible to generate a new qombit."""
+        if self.selection:
+            if self.selection.oKind == OrKind.Generator:
+                return not self.grid.isFull()
+        return False
 
     def sellQombit(self):
         """Sells the selected qombit."""
-        sold = self.grid.remove(self.selection)
-        if sold:
-            self.log.info('Sold %s', sold.__str__())
-            self.setSelection(None)
-            self.renderer.drawGrid()
-            self.setStatus('Sold ' + sold.__str__())
+        if self.canSell():
+            sold = self.grid.remove(self.selection)
+            if sold:
+                self.log.info('Sold %s', sold)
+                self.setSelection(None)
+                self.renderer.drawGrid()
+                self.setStatus('Sold ' + str(sold))
+
+    def canSell(self):
+        """Check if it is possible to sell the current selection."""
+        if self.selection:
+            if self.selection.oKind == OrKind.Generator:
+                return False
+            return True
+        return False
     
     def onGridClick(self, event):
         """Handle grid click event."""
@@ -72,6 +101,7 @@ class QomboApp(BaseApp):
         """Create user widgets"""
         self.btnStart = self.addButton('New Game', self.newGame)
         self.btnSell  = self.addButton('Sell', self.sellQombit)
+        self.btnGen   = self.addButton('Generate', self.generate)
 
         #self.frmMain.configure(bg='black')
         self.canGrid = tk.Canvas(master=self.frmMain, bg='#c0f0f0', bd=0, 
@@ -91,9 +121,10 @@ class QomboApp(BaseApp):
     def enableWidgets(self):
         """Enable or disable buttons based on state"""
         self.enableButton(self.btnStart, self.grid.isEmpty())
-        self.enableButton(self.btnSell,  self.selection is not None)
+        self.enableButton(self.btnSell,  self.canSell())
+        self.enableButton(self.btnGen,   self.canGenerate())
         
-    def enableButton(self, btn, bEnabled: bool):
+    def enableButton(self, btn: tk.Button, bEnabled: bool):
         """Enable the specified button if bEnabled is true."""
         if btn:
             if bEnabled:
