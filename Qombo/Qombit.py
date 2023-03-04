@@ -37,7 +37,8 @@ class OrRarity(Enum):
         return self.name
 
 class Qombit:
-    aColors = ['yellow', '#c0c0c0', '#a0a0ff', 'orange']
+    """An item that can be combined with another to make a better item"""
+    aColors = ['#c0c0c0', '#a0a0ff', 'yellow', 'orange']
 
     def __init__(self, sName: str, oKind: OrKind, iLevel: int, oRarity: OrRarity):
         self.sName = sName
@@ -46,11 +47,33 @@ class Qombit:
         self.oRarity = oRarity
 
     def getColor(self):
-        """Get this Qombit's color based on its kind."""
-        return self.aColors[self.oKind.value]
+        """Get this Qombit's color based on its rarity."""
+        return self.aColors[self.oRarity.value]
+
+    def generate(self):
+        """Generate a new Qombit. Most Qombits can't do this."""
+        return None
 
     def __str__(self):
         return self.sName + ' level ' + str(self.iLevel) + ' ' + str(self.oRarity) + ' ' + str(self.oKind)
+    
+class GeneratorQombit(Qombit):
+    """A Qombit that can generate other Qombits"""
+
+    def __init__(self, sName: str, iLevel: int, oRarity: OrRarity):
+        super().__init__(sName, OrKind.Generator, iLevel, oRarity)
+        self.nameGen = NameGen(42)
+        self.generatedKind = OrKind.Food
+
+    def getColor(self):
+        return '#a0f0a0'
+
+    def generate(self):
+        """Generate a new Qombit."""
+        sName = self.nameGen.generate()
+        iLevel = 1
+        qombit = Qombit(sName, self.generatedKind, iLevel, OrRarity.random())
+        return qombit
     
 class QombitGen:
     def __init__(self, seed):
