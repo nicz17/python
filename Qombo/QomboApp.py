@@ -21,14 +21,13 @@ class QomboApp(BaseApp):
     selection: Qombit
     grid: Grid
     iSize = 100
-    gridW = 8
-    gridH = 6
+    gridW = 9
+    gridH = 7
 
-    def __init__(self, sGeometry = '1120x650') -> None:
+    def __init__(self, sGeometry = '1220x750') -> None:
         self.iHeight = self.gridH*self.iSize
         self.iWidth  = self.gridW*self.iSize
         self.grid = Grid(self.gridW, self.gridH)
-        #self.qombitGen = QombitGen(42)
         self.selection = None
         super().__init__('Qombo', sGeometry)
         self.renderer = Renderer(self.grid, self.canGrid, self.canSelection)
@@ -38,10 +37,10 @@ class QomboApp(BaseApp):
     def newGame(self):
         """Generate new game state"""
         self.log.info('Starting new game')
-        pos = self.grid.nextEmptyCell()
+        #pos = self.grid.nextEmptyCell()
+        pos = self.grid.getCenter()
         if pos:
-            #qombit = self.qombitGen.generate(OrKind.Generator)
-            qombit = GeneratorQombit('Testuno', 1, OrRarity.Common)
+            qombit = GeneratorQombit(1, OrRarity.Common)
             x, y = pos.x, pos.y
             self.grid.put(x, y, qombit)
             self.renderer.drawQombit(x, y, qombit)
@@ -50,9 +49,9 @@ class QomboApp(BaseApp):
     def generate(self):
         """Generate a new qombit if the selection is a generator."""
         if self.canGenerate():
-            pos = self.grid.nextEmptyCell()
+            at = self.grid.getCenter()
+            pos = self.grid.closestEmptyCell(at)
             if pos:
-                #qombit = self.qombitGen.generate(OrKind.Food)
                 qombit = self.selection.generate()
                 x, y = pos.x, pos.y
                 self.log.info('Generated %s at [%d:%d]', qombit, x, y)
