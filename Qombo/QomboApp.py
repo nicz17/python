@@ -39,7 +39,6 @@ class QomboApp(BaseApp):
     def newGame(self):
         """Generate new game state"""
         self.log.info('Starting new game')
-        #pos = self.grid.nextEmptyCell()
         pos = self.grid.getCenter()
         if pos:
             qombit = GeneratorQombit(1, OrRarity.Common)
@@ -58,7 +57,6 @@ class QomboApp(BaseApp):
                 x, y = pos.x, pos.y
                 self.log.info('Generated %s at %s', qombit, pos)
                 self.grid.put(x, y, qombit)
-                self.renderer.drawQombit(x, y, qombit)
                 self.enableWidgets()
 
     def canGenerate(self) -> bool:
@@ -88,7 +86,6 @@ class QomboApp(BaseApp):
     
     def onGridClick(self, at: Position):
         """Handle grid click event."""
-        #self.log.info('Grid clicked at %d:%d', event.x, event.y)
         self.log.info('Grid selection %s %s', at, self.grid.valueAsStr(at.x, at.y))
         qombit = self.grid.get(at.x, at.y)
 
@@ -99,6 +96,9 @@ class QomboApp(BaseApp):
         # New selection
         else:
             self.setSelection(qombit)
+
+        # Redraw grid in any case
+        self.renderer.drawGrid()
 
     def onDragStart(self, event: tk.Event):
         self.oDragFrom = self.getGridPos(event.x, event.y)
