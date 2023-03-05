@@ -15,8 +15,6 @@ from Qombit import *
 from Palette import *
 
 class Renderer:
-    gridW = 8
-    gridH = 6
     iSize = 100
     iRadiusGrid = 36
     iRadiusSel  = 64
@@ -29,15 +27,15 @@ class Renderer:
         self.canGrid = canGrid
         self.canSelection = canSelection
         self.fontBold = tkfont.Font(family="Helvetica", size=12, weight='bold')
-        self.iHeight = self.gridH*self.iSize
-        self.iWidth  = self.gridW*self.iSize
+        self.iHeight = self.grid.h*self.iSize
+        self.iWidth  = self.grid.w*self.iSize
 
     def drawGrid(self):
         """Draw grid lines and qombits on the grid canvas"""
         self.canGrid.delete('all')
         self.drawGridLines()
-        for x in range(self.gridW):
-            for y in range(self.gridH):
+        for x in range(self.grid.w):
+            for y in range(self.grid.h):
                 qombit = self.grid.get(x, y)
                 self.drawQombit(x, y, qombit)
 
@@ -48,15 +46,15 @@ class Renderer:
             tx = x*self.iSize + 50
             ty = y*self.iSize + 50
             self.drawCircle(self.canGrid, tx, ty, self.iRadiusGrid, '#a0d0d0', qombit.getColor())
-            self.canGrid.create_text(tx, ty, text = qombit.oKind)
+            self.canGrid.create_text(tx, ty, text = qombit.sName)
 
     def drawGridLines(self):
         """Draw lines on the grid canvas"""
-        for x in range(self.gridW):
+        for x in range(self.grid.w):
             gx = x*self.iSize
             gy = self.iHeight
             self.canGrid.create_line(gx, 0, gx, gy, fill="#b0e0e0", width=1)
-        for y in range(self.gridH):
+        for y in range(self.grid.h):
             gx = self.iWidth
             gy = y*self.iSize
             self.canGrid.create_line(0, gy, gx, gy, fill="#b0e0e0", width=1)
@@ -70,6 +68,7 @@ class Renderer:
             self.drawCircle(self.canSelection, tx, ty, self.iRadiusSel, '#d0d0a0', qombit.getColor())
             self.canSelection.create_text(tx, 220, text = str(qombit.oRarity) + ' ' + str(qombit.oKind))
             self.canSelection.create_text(tx, 240, text = 'Level ' + str(qombit.iLevel))
+            self.canSelection.create_text(tx, 300, text = qombit.getDescription())
         else:
             self.canSelection.create_text(100, 20, text = 'Ready')
 
