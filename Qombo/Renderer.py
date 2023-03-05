@@ -46,7 +46,7 @@ class Renderer:
             tx = x*self.iSize + 50
             ty = y*self.iSize + 50
             self.drawCircle(self.canGrid, tx, ty, self.iRadiusGrid, '#a0d0d0', qombit.getColor())
-            self.canGrid.create_text(tx, ty, text = qombit.sName)
+            #self.canGrid.create_text(tx, ty, text = qombit.sName)
 
     def drawGridLines(self):
         """Draw lines on the grid canvas"""
