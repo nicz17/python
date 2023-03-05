@@ -7,12 +7,19 @@ __copyright__ = "Copyright 2023 N. Zwahlen"
 __version__ = "1.0.0"
 
 import logging
+from math import sqrt
 
 class Position:
     """A simple 2D position."""
     def __init__(self, x: int, y: int):
         self.x = x
         self.y = y
+
+    def getDistance(self, pos):
+        """Compute the distance to the specified position."""
+        dx = self.x - pos.x
+        dy = self.y - pos.y
+        return sqrt(dx*dx + dy*dy)
 
 class Grid:
     """A simple 2D grid containing objects in cells."""
@@ -71,6 +78,23 @@ class Grid:
                 if self.isEmptyCell(x, y):
                     return Position(x, y)
         return None
+    
+    def closestEmptyCell(self, pos: Position):
+        """Return the closest empty cell to the sepcified position"""
+        rMinDist = self.w + self.h
+        closest = None
+        for y in range(self.h):
+            for x in range(self.w):
+                if self.isEmptyCell(x, y):
+                    rDist = pos.getDistance(Position(x, y))
+                    if rDist < rMinDist:
+                        rMinDist = rDist
+                        closest = Position(x, y)
+        return closest
+    
+    def getCenter(self) -> Position:
+        """Returns the center of the grid"""
+        return Position(int(self.w/2), int(self.h/2))
     
     def clear(self):
         """Clears all cells."""
