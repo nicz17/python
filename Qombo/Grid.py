@@ -49,6 +49,15 @@ class Grid:
         """Get the value in the x,y cell."""
         return self.cells[x][y]
     
+    def find(self, val):
+        """Return the location in this grid of the specified value, or None."""
+        if val:
+            for y in range(self.h):
+                for x in range(self.w):
+                    if self.get(x, y) == val:
+                        return Position(x, y)
+        return None
+    
     def swap(self, pos1: Position, pos2: Position):
         """Swap the objects at pos1 and pos2"""
         self.log.info('Swapping %s and %s', pos1, pos2)
