@@ -49,6 +49,10 @@ class Qombit:
     def getColor(self):
         """Get this Qombit's color based on its rarity."""
         return self.aColors[self.oRarity.value]
+    
+    def combine(self):
+        """Result of combining this qombit with another one."""
+        self.iLevel += 1
 
     def generate(self):
         """Generate a new Qombit. Most Qombits can't do this."""
@@ -56,10 +60,16 @@ class Qombit:
     
     def getDescription(self) -> str:
         """Get a short text describing what to do with this qombit."""
-        return 'Combine with an \nidentical object to \nget a better object'
+        return 'Combine with an \nidentical object to \nupgrade level'
 
     def __str__(self):
         return self.sName + ' level ' + str(self.iLevel) + ' ' + str(self.oRarity) + ' ' + str(self.oKind)
+        
+    def __eq__(self, other): 
+        if not isinstance(other, Qombit):
+            # don't attempt to compare against unrelated types
+            return NotImplemented
+        return self.oKind.value == other.oKind.value and self.oRarity.value == other.oRarity.value and self.iLevel == other.iLevel
     
 class GeneratorQombit(Qombit):
     """A Qombit that can generate other Qombits"""

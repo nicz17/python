@@ -30,6 +30,7 @@ class QomboApp(BaseApp):
         self.iWidth  = self.gridW*self.iSize
         self.grid = Grid(self.gridW, self.gridH)
         self.oDragFrom = None
+        self.dragdroptag = None
         super().__init__('Qombo', sGeometry)
         self.renderer = Renderer(self.grid, self.canGrid, self.canSelection)
         self.renderer.drawGrid()
@@ -50,12 +51,12 @@ class QomboApp(BaseApp):
     def generate(self):
         """Generate a new qombit if the selection is a generator."""
         if self.canGenerate():
-            at = self.grid.getCenter()
+            at = self.grid.find(self.selection)
             pos = self.grid.closestEmptyCell(at)
             if pos:
                 qombit = self.selection.generate()
                 x, y = pos.x, pos.y
-                self.log.info('Generated %s at [%d:%d]', qombit, x, y)
+                self.log.info('Generated %s at %s', qombit, pos)
                 self.grid.put(x, y, qombit)
                 self.renderer.drawQombit(x, y, qombit)
                 self.enableWidgets()
@@ -101,17 +102,19 @@ class QomboApp(BaseApp):
 
     def onDragStart(self, event: tk.Event):
         self.oDragFrom = self.getGridPos(event.x, event.y)
-        self.log.info('Grid drag start %s %s', self.oDragFrom, self.grid.valueAsStr(self.oDragFrom.x, self.oDragFrom.y))
+        #self.log.info('Grid drag start %s %s', self.oDragFrom, self.grid.valueAsStr(self.oDragFrom.x, self.oDragFrom.y))
         self.canGrid.bind('<Motion>', self.onDragMove)
         self.canGrid.bind('<ButtonRelease-1>', self.onDragEnd)
+        self.canGrid.addtag_withtag('dragdroptag', tk.CURRENT)
 
     def onDragMove(self, event: tk.Event):
-        pass
+        x, y, r = event.x, event.y, self.renderer.iRadiusGrid
+        self.canGrid.coords('dragdroptag', x-r, y-r, x+r, y+r)
 
     def onDragEnd(self, event: tk.Event):
         oDragTo = self.getGridPos(event.x, event.y)
-        self.log.info('Grid drag end %s %s', oDragTo, self.grid.valueAsStr(oDragTo.x, oDragTo.y))
-        #self.canGrid.dtag('selected')    # removes the 'selected' tag
+        #self.log.info('Grid drag end %s %s', oDragTo, self.grid.valueAsStr(oDragTo.x, oDragTo.y))
+        self.canGrid.dtag('dragdroptag')    # removes the 'dragdroptag' tag
         self.canGrid.unbind('<Motion>')
 
         if oDragTo == self.oDragFrom:
@@ -121,8 +124,18 @@ class QomboApp(BaseApp):
         self.oDragFrom = None
 
     def doDragDrop(self, oFrom: Position, oTo: Position):
-        self.grid.swap(oFrom, oTo)
-        self.setSelection(self.grid.get(oTo.x, oTo.y))
+        qom1 = self.grid.get(oFrom.x, oFrom.y)
+        qom2 = self.grid.get(oTo.x, oTo.y)
+        if qom1 == qom2:
+            # Combine
+            self.log.info('Combining %s and %s', oFrom, oTo)
+            qom1.combine()
+            self.grid.put(oTo.x, oTo.y, qom1)
+            self.grid.put(oFrom.x, oFrom.y, None)
+        else:
+            self.log.info('Swapping %s and %s', oFrom, oTo)
+            self.grid.swap(oFrom, oTo)
+        self.setSelection(qom1)
         self.renderer.drawGrid()
 
     def setSelection(self, qombit: Qombit):
