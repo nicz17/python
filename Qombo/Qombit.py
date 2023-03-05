@@ -53,6 +53,10 @@ class Qombit:
     def generate(self):
         """Generate a new Qombit. Most Qombits can't do this."""
         return None
+    
+    def getDescription(self) -> str:
+        """Get a short text describing what to do with this qombit."""
+        return 'Combine with an \nidentical object to \nget a better object'
 
     def __str__(self):
         return self.sName + ' level ' + str(self.iLevel) + ' ' + str(self.oRarity) + ' ' + str(self.oKind)
@@ -60,20 +64,27 @@ class Qombit:
 class GeneratorQombit(Qombit):
     """A Qombit that can generate other Qombits"""
 
-    def __init__(self, sName: str, iLevel: int, oRarity: OrRarity):
-        super().__init__(sName, OrKind.Generator, iLevel, oRarity)
+    def __init__(self, iLevel: int, oRarity: OrRarity):
         self.nameGen = NameGen(42)
+        super().__init__(self.nameGen.generate(), OrKind.Generator, iLevel, oRarity)
         self.generatedKind = OrKind.Food
+        self.aNames = []
+        for i in range(4):
+            self.aNames.append(self.nameGen.generate())
 
     def getColor(self):
         return '#a0f0a0'
 
     def generate(self):
         """Generate a new Qombit."""
-        sName = self.nameGen.generate()
         iLevel = 1
-        qombit = Qombit(sName, self.generatedKind, iLevel, OrRarity.random())
+        oRarity = OrRarity.random()
+        sName = self.aNames[oRarity.value]
+        qombit = Qombit(sName, self.generatedKind, iLevel, oRarity)
         return qombit
+    
+    def getDescription(self) -> str:
+        return 'Click to create an object'
     
 class QombitGen:
     def __init__(self, seed):
