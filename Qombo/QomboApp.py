@@ -19,6 +19,7 @@ class QomboApp(BaseApp):
     """Qombo App window."""
     log = logging.getLogger('QomboApp')
     selection: Qombit
+    oDragFrom: Position
     grid: Grid
     iSize = 100
     gridW = 9
@@ -28,7 +29,7 @@ class QomboApp(BaseApp):
         self.iHeight = self.gridH*self.iSize
         self.iWidth  = self.gridW*self.iSize
         self.grid = Grid(self.gridW, self.gridH)
-        self.selection = None
+        self.oDragFrom = None
         super().__init__('Qombo', sGeometry)
         self.renderer = Renderer(self.grid, self.canGrid, self.canSelection)
         self.renderer.drawGrid()
@@ -84,13 +85,11 @@ class QomboApp(BaseApp):
             return True
         return False
     
-    def onGridClick(self, event):
+    def onGridClick(self, at: Position):
         """Handle grid click event."""
         #self.log.info('Grid clicked at %d:%d', event.x, event.y)
-        gx = int(event.x/self.iSize)
-        gy = int(event.y/self.iSize)
-        self.log.info('Grid selection [%d:%d] %s', gx, gy, self.grid.valueAsStr(gx, gy))
-        qombit = self.grid.get(gx, gy)
+        self.log.info('Grid selection %s %s', at, self.grid.valueAsStr(at.x, at.y))
+        qombit = self.grid.get(at.x, at.y)
 
         # Reselection
         if qombit and qombit == self.selection:
@@ -99,6 +98,32 @@ class QomboApp(BaseApp):
         # New selection
         else:
             self.setSelection(qombit)
+
+    def onDragStart(self, event: tk.Event):
+        self.oDragFrom = self.getGridPos(event.x, event.y)
+        self.log.info('Grid drag start %s %s', self.oDragFrom, self.grid.valueAsStr(self.oDragFrom.x, self.oDragFrom.y))
+        self.canGrid.bind('<Motion>', self.onDragMove)
+        self.canGrid.bind('<ButtonRelease-1>', self.onDragEnd)
+
+    def onDragMove(self, event: tk.Event):
+        pass
+
+    def onDragEnd(self, event: tk.Event):
+        oDragTo = self.getGridPos(event.x, event.y)
+        self.log.info('Grid drag end %s %s', oDragTo, self.grid.valueAsStr(oDragTo.x, oDragTo.y))
+        #self.canGrid.dtag('selected')    # removes the 'selected' tag
+        self.canGrid.unbind('<Motion>')
+
+        if oDragTo == self.oDragFrom:
+            self.onGridClick(oDragTo)
+        else:
+            self.doDragDrop(self.oDragFrom, oDragTo)
+        self.oDragFrom = None
+
+    def doDragDrop(self, oFrom: Position, oTo: Position):
+        self.grid.swap(oFrom, oTo)
+        self.setSelection(self.grid.get(oTo.x, oTo.y))
+        self.renderer.drawGrid()
 
     def setSelection(self, qombit: Qombit):
         """Set the specified qombit as selected and update widgets"""
@@ -112,11 +137,10 @@ class QomboApp(BaseApp):
         self.btnSell  = self.addButton('Sell', self.sellQombit)
         self.btnGen   = self.addButton('Generate', self.generate)
 
-        #self.frmMain.configure(bg='black')
         self.canGrid = tk.Canvas(master=self.frmMain, bg='#c0f0f0', bd=0, 
                                     height=self.iHeight, width=self.iWidth, highlightthickness=0)
         self.canGrid.pack(side=tk.LEFT)
-        self.canGrid.bind("<Button-1>", self.onGridClick)
+        self.canGrid.bind('<1>', self.onDragStart)
         self.canSelection = tk.Canvas(master=self.frmMain, bg='#f0f0c0', bd=0, 
                                     height=self.iHeight, width=200, highlightthickness=0)
         self.canSelection.pack(side=tk.RIGHT)
@@ -140,3 +164,9 @@ class QomboApp(BaseApp):
                 btn['state'] = tk.NORMAL
             else:
                 btn['state'] = tk.DISABLED
+
+    def getGridPos(self, x: int, y: int) -> Position:
+        """Return the grid cell corresponding to the x,y grid canvas pixel"""
+        gx = int(x/self.iSize)
+        gy = int(y/self.iSize)
+        return Position(gx, gy)
