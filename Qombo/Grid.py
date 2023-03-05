@@ -20,6 +20,15 @@ class Position:
         dx = self.x - pos.x
         dy = self.y - pos.y
         return sqrt(dx*dx + dy*dy)
+    
+    def __str__(self):
+        return '[' + str(self.x) + ':' + str(self.y) + ']'
+        
+    def __eq__(self, other): 
+        if not isinstance(other, Position):
+            # don't attempt to compare against unrelated types
+            return NotImplemented
+        return self.x == other.x and self.y == other.y
 
 class Grid:
     """A simple 2D grid containing objects in cells."""
@@ -39,6 +48,14 @@ class Grid:
     def get(self, x: int, y: int):
         """Get the value in the x,y cell."""
         return self.cells[x][y]
+    
+    def swap(self, pos1: Position, pos2: Position):
+        """Swap the objects at pos1 and pos2"""
+        self.log.info('Swapping %s and %s', pos1, pos2)
+        obj1 = self.get(pos1.x, pos1.y)
+        obj2 = self.get(pos2.x, pos2.y)
+        self.put(pos1.x, pos1.y, obj2)
+        self.put(pos2.x, pos2.y, obj1)
     
     def remove(self, val):
         """Removes the specified value, if it can be found. Returns removed object or None."""
