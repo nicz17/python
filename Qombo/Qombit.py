@@ -9,6 +9,7 @@ __version__ = "1.0.0"
 from enum import Enum
 import random
 from NameGen import *
+from Palette import *
 
 class OrKind(Enum):
     Generator  = 0
@@ -38,17 +39,20 @@ class OrRarity(Enum):
 
 class Qombit:
     """An item that can be combined with another to make a better item"""
-    aColors = ['#c0c0c0', '#a0a0ff', 'yellow', 'orange']
+    #aColors = ['#c0c0c0', '#a0a0ff', 'yellow', 'orange']
 
     def __init__(self, sName: str, oKind: OrKind, iLevel: int, oRarity: OrRarity):
         self.sName = sName
         self.oKind = oKind
         self.iLevel = iLevel
         self.oRarity = oRarity
+        self.oPalette = HeatPalette()
 
     def getColor(self):
-        """Get this Qombit's color based on its rarity."""
-        return self.aColors[self.oRarity.value]
+        """Get this Qombit's color based on its rarity and level."""
+        rValue = 0.25*self.oRarity.value + 0.04*(self.iLevel-1)
+        return self.oPalette.getColorHex(rValue)
+        #return self.aColors[self.oRarity.value]
     
     def combine(self):
         """Result of combining this qombit with another one."""
@@ -83,7 +87,7 @@ class GeneratorQombit(Qombit):
             self.aNames.append(self.nameGen.generate())
 
     def getColor(self):
-        return '#a0f0a0'
+        return 'yellow'
 
     def generate(self):
         """Generate a new Qombit."""
