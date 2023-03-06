@@ -58,7 +58,7 @@ class QomboImage:
         return self.sName + ' lvl' + str(self.iLevel) + ' ' + str(self.w) + 'x' + str(self.h)
 
 
-class DiceImageMask(QomboImage):
+class DiceQomboImage(QomboImage):
     """A QomboImage imitating dice faces, but 1 to 9."""
 
     def __init__(self, w, h):
@@ -89,7 +89,7 @@ class DiceImageMask(QomboImage):
 def testQomboImage():
     """Unit Test case."""
     nLevels = 10
-    mask = DiceImageMask(100, 100)
+    mask = DiceQomboImage(100, 100)
     for iLevel in range(nLevels):
         mask.generate(iLevel)
         mask.toImage(PinkGreenPalette(), 'images/test0' + str(iLevel) + '.png')
