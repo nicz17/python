@@ -7,9 +7,12 @@ __copyright__ = "Copyright 2023 N. Zwahlen"
 __version__ = "1.0.0"
 
 from enum import Enum
+import os
 import random
+from tkinter import PhotoImage
 from NameGen import *
 from Palette import *
+from QomboImage import *
 
 class OrKind(Enum):
     Generator  = 0
@@ -40,13 +43,20 @@ class OrRarity(Enum):
 class Qombit:
     """An item that can be combined with another to make a better item"""
     #aColors = ['#c0c0c0', '#a0a0ff', 'yellow', 'orange']
+    oImage: PhotoImage
 
     def __init__(self, sName: str, oKind: OrKind, iLevel: int, oRarity: OrRarity):
         self.sName = sName
         self.oKind = oKind
         self.iLevel = iLevel
         self.oRarity = oRarity
+        self.oImage = None
+        self.oMask = DiceQomboImage(100, 100)
         self.oPalette = HeatPalette()
+        self.aPalettes = [HeatPalette(), BlueGoldPalette(), PinkGreenPalette(), GhostPalette()]
+
+    def getPalette(self) -> Palette:
+        return self.aPalettes[self.oRarity.value]
 
     def getColor(self):
         """Get this Qombit's color based on its rarity and level."""
@@ -57,6 +67,7 @@ class Qombit:
     def combine(self):
         """Result of combining this qombit with another one."""
         self.iLevel += 1
+        self.oImage = None
 
     def generate(self):
         """Generate a new Qombit. Most Qombits can't do this."""
@@ -65,6 +76,19 @@ class Qombit:
     def getDescription(self) -> str:
         """Get a short text describing what to do with this qombit."""
         return 'Combine with an \nidentical object to \nupgrade level'
+    
+    def getImageName(self) -> str:
+        """Get the image filename for this qombit."""
+        return 'images/dice-r0' + str(self.oRarity.value) + '-l0' + str(self.iLevel) + '.png'
+    
+    def getImage(self) -> PhotoImage:
+        """Get the PhotoImage for this qombit."""
+        if self.oImage is None:
+            if not os.path.exists(self.getImageName()):
+                self.oMask.generate(self.iLevel)
+                self.oMask.toImage(self.getPalette(), self.getImageName())
+            self.oImage = PhotoImage(file = self.getImageName())
+        return self.oImage
 
     def __str__(self):
         return self.sName + ' level ' + str(self.iLevel) + ' ' + str(self.oRarity) + ' ' + str(self.oKind)
@@ -96,6 +120,10 @@ class GeneratorQombit(Qombit):
         sName = self.aNames[oRarity.value]
         qombit = Qombit(sName, self.generatedKind, iLevel, oRarity)
         return qombit
+    
+    def getImageName(self) -> str:
+        """get the image filename for this qombit."""
+        return 'images/test00.png'
     
     def getDescription(self) -> str:
         return 'Click to create an object'
