@@ -15,14 +15,14 @@ from Qombit import *
 from Palette import *
 
 class Renderer:
-    iSize = 100
     iRadiusGrid = 36
     iRadiusSel  = 64
 
     """Rendering methods for Qombo."""
     log = logging.getLogger('Renderer')
 
-    def __init__(self, grid: Grid, canGrid: tk.Canvas, canSelection: tk.Canvas):
+    def __init__(self, grid: Grid, canGrid: tk.Canvas, canSelection: tk.Canvas, iSize: int):
+        self.iSize = iSize
         self.grid = grid
         self.canGrid = canGrid
         self.canSelection = canSelection
@@ -42,11 +42,13 @@ class Renderer:
     def drawQombit(self, x, y, qombit: Qombit):
         """Draw the Qombit on the grid canvas."""
         if qombit:
-            r = 36
-            tx = x*self.iSize + 50
-            ty = y*self.iSize + 50
-            self.drawCircle(self.canGrid, tx, ty, self.iRadiusGrid, '#a0d0d0', qombit.getColor())
+            #tx = x*self.iSize + 50
+            #ty = y*self.iSize + 50
+            tx = x*self.iSize + 5
+            ty = y*self.iSize + 5
+            #self.drawCircle(self.canGrid, tx, ty, self.iRadiusGrid, '#a0d0d0', qombit.getColor())
             #self.canGrid.create_text(tx, ty, text = qombit.sName)
+            self.canGrid.create_image(tx, ty, anchor = tk.NW, image = qombit.getImage())
 
     def drawGridLines(self):
         """Draw lines on the grid canvas"""
@@ -66,6 +68,7 @@ class Renderer:
             tx, ty = 100, 120
             self.canSelection.create_text(tx, 20, text = qombit.sName, font = self.fontBold)
             self.drawCircle(self.canSelection, tx, ty, self.iRadiusSel, '#d0d0a0', qombit.getColor())
+            #self.canGrid.create_image(tx-50, ty-50, anchor = tk.NW, image = self.getImage(qombit))
             self.canSelection.create_text(tx, 220, text = str(qombit.oRarity) + ' ' + str(qombit.oKind))
             self.canSelection.create_text(tx, 240, text = 'Level ' + str(qombit.iLevel))
             self.canSelection.create_text(tx, 300, text = qombit.getDescription())
