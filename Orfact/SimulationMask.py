@@ -9,7 +9,7 @@ __version__ = "1.0.0"
 import numpy as np
 import math
 import random
-from scipy.ndimage.filters import gaussian_filter
+from scipy.ndimage import gaussian_filter
 from ImageMask import ImageMask
 
 class SimulationMask(ImageMask):
