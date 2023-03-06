@@ -13,11 +13,12 @@ import numpy as np
 import math
 import random
 import logging
+from Palette import *
 
 class ImageMask:
     log = logging.getLogger('ImageMask')
 
-    def __init__(self, sName, w, h):
+    def __init__(self, sName: str, w: int, h: int):
         self.sName = sName
         self.w = w
         self.h = h
@@ -25,14 +26,14 @@ class ImageMask:
 
     def generate(self):
         """Generate the density mask."""
-        self.log.info('Generating %s', self.__str__())
+        self.log.info('Generating %s', str(self))
 
     def randomize(self):
         """Randomize the mask parameters."""
-        self.log.info('Randomizing %s', self.__str__())
+        self.log.info('Randomizing %s', str(self))
 
-    def toImage(self, oPalette, sFilename):
-        self.log.info('Saving %s as %s with palette %s', self.__str__(), sFilename, oPalette.sName)
+    def toImage(self, oPalette: Palette, sFilename: str):
+        self.log.info('Saving %s as %s with palette %s', str(self), sFilename, oPalette.sName)
         rgbArray = np.zeros((self.h, self.w, 3), 'uint8')
         for x in range(self.w):
             for y in range(self.h):
@@ -42,7 +43,7 @@ class ImageMask:
         img.save(sFilename, 'PNG')
 
     def toGrayScale(self, sFilename):
-        self.log.info('Saving %s as %s grayscale', self.__str__(), sFilename)
+        self.log.info('Saving %s as %s grayscale', str(self), sFilename)
         img = Image.fromarray(np.uint8(self.aMask * 255))
         img = img.rotate(270, expand=True)
         img.save(sFilename, 'PNG')
@@ -61,7 +62,7 @@ class RandomImageMask(ImageMask):
         super().__init__('RandomImageMask', w, h)
 
     def generate(self):
-        self.log.info('Generating %s', self.__str__())
+        self.log.info('Generating %s', str(self))
         self.aMask = np.random.rand(self.w, self.h)
 
 class LinearImageMask(ImageMask):
@@ -69,7 +70,7 @@ class LinearImageMask(ImageMask):
         super().__init__('LinearImageMask', w, h)
 
     def generate(self):
-        self.log.info('Generating %s', self.__str__())
+        self.log.info('Generating %s', str(self))
         for x in range(self.w):
             for y in range(self.h):
                 self.aMask[x, y] = (x + self.w * y)/(self.w * self.h)
@@ -79,7 +80,7 @@ class GaussImageMask(ImageMask):
         super().__init__('GaussImageMask', w, h)
 
     def generate(self):
-        self.log.info('Generating %s', self.__str__())
+        self.log.info('Generating %s', str(self))
         for x in range(self.w):
             for y in range(self.h):
                 dx = x - self.w/2
@@ -93,7 +94,7 @@ class MultiGaussImageMask(ImageMask):
 
     def generate(self):
         nBlobs = random.randrange(6, 10)
-        self.log.info('Generating %s with %d gaussians', self.__str__(), nBlobs)
+        self.log.info('Generating %s with %d gaussians', str(self), nBlobs)
         cx  = []
         cy  = []
         sig = []
@@ -119,7 +120,7 @@ class ManhattanImageMask(ImageMask):
         super().__init__('ManhattanImageMask', w, h)
 
     def generate(self):
-        self.log.info('Generating %s', self.__str__())
+        self.log.info('Generating %s', str(self))
         for x in range(self.w):
             for y in range(self.h):
                 dx = abs(x - self.w/2)
@@ -133,7 +134,7 @@ class WaveImageMask(ImageMask):
         self.freq = freq
 
     def generate(self):
-        self.log.info('Generating %s', self.__str__())
+        self.log.info('Generating %s', str(self))
         for x in range(self.w):
             for y in range(self.h):
                 self.aMask[x, y] = 0.25*(2.0 + math.cos(self.freq*(x-self.w/2)) + math.cos(self.freq*(y-self.h/2)))
@@ -146,12 +147,10 @@ class SineImageMask(ImageMask):
         self.fm = freq * (10.0 + 10.0*random.random())
 
     def generate(self):
-        self.log.info('Generating %s', self.__str__())
+        self.log.info('Generating %s', str(self))
         for x in range(self.w):
             for y in range(self.h):
                 dx = 0.0
                 dy = y - (self.h/2 + 20.0*math.sin(self.freq*x))
                 dist = math.sqrt(dx*dx + dy*dy)
                 self.aMask[x, y] = ImageMask.gauss(dist, 0.0, self.w/5.0)
-
-# TODO SpiralImageMask
