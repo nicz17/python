@@ -133,6 +133,40 @@ class GaussianBlurMask(SimulationMask):
 
         self.aMask = gaussian_filter(self.aMask, sigma=6)
 
+class DiceImageMask(SimulationMask):
+    """An ImageMask imitating dice faces."""
+
+    def __init__(self, w, h):
+        super().__init__('DiceImageMask', w, h)
+        self.iValue = 5
+
+    def randomize(self):
+        self.iValue = random.randint(1, 9)
+    
+    def runSimulation(self):
+        self.aMask = np.zeros((self.w, self.h))
+        if self.iValue %2 == 1:
+            self.addDot(0.50, 0.50)
+        if self.iValue >= 2:
+            self.addDot(0.22, 0.22)
+            self.addDot(0.78, 0.78)
+        if self.iValue >= 4:
+            self.addDot(0.78, 0.22)
+            self.addDot(0.22, 0.78)
+        if self.iValue >= 6:
+            self.addDot(0.22, 0.50)
+            self.addDot(0.78, 0.50)
+        if self.iValue >= 8:
+            self.addDot(0.50, 0.22)
+            self.addDot(0.50, 0.78)
+        self.aMask = gaussian_filter(self.aMask, self.w/16)
+
+    def addDot(self, x, y):
+        self.aMask[int(x*self.w), int(y*self.h)] = 10000.0
+
+    def __str__(self) -> str:
+        return self.sName + ' ' + str(self.w) + 'x' + str(self.h) + ' ' + str(self.iValue)
+
 class FractalMask(SimulationMask):
     """An ImageMask based on the Julia set fractal."""
 
