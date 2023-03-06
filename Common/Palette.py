@@ -163,6 +163,10 @@ class FluoPalette(SimplePalette):
     def __init__(self):
         super().__init__('FluoPalette', 0.246, 0.747, 0.559, 0.820)
 
+class PinkGreenPalette(SimplePalette):
+    def __init__(self):
+        super().__init__('PinkGreenPalette', 0.357, 0.349, 0.043, 0.283)
+
 # Gold to light blue:     0.686, 0.090, 0.391, 0.853
 
 class GrayScalePalette(Palette):
