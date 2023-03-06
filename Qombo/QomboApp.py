@@ -21,18 +21,18 @@ class QomboApp(BaseApp):
     selection: Qombit
     oDragFrom: Position
     grid: Grid
-    iSize = 100
+    iSize = 110
     gridW = 9
     gridH = 7
 
-    def __init__(self, sGeometry = '1220x750') -> None:
+    def __init__(self, sGeometry = '1300x800') -> None:
         self.iHeight = self.gridH*self.iSize
         self.iWidth  = self.gridW*self.iSize
         self.grid = Grid(self.gridW, self.gridH)
         self.oDragFrom = None
         self.dragdroptag = None
         super().__init__('Qombo', sGeometry)
-        self.renderer = Renderer(self.grid, self.canGrid, self.canSelection)
+        self.renderer = Renderer(self.grid, self.canGrid, self.canSelection, self.iSize)
         self.renderer.drawGrid()
         self.setSelection(None)
 
@@ -108,8 +108,10 @@ class QomboApp(BaseApp):
         self.canGrid.addtag_withtag('dragdroptag', tk.CURRENT)
 
     def onDragMove(self, event: tk.Event):
-        x, y, r = event.x, event.y, self.renderer.iRadiusGrid
-        self.canGrid.coords('dragdroptag', x-r, y-r, x+r, y+r)
+        #x, y, r = event.x, event.y, self.renderer.iRadiusGrid
+        #self.canGrid.coords('dragdroptag', x-r, y-r, x+r, y+r)
+        x, y = event.x - 50, event.y - 50
+        self.canGrid.coords('dragdroptag', x, y)
 
     def onDragEnd(self, event: tk.Event):
         oDragTo = self.getGridPos(event.x, event.y)
