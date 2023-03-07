@@ -7,7 +7,6 @@ __copyright__ = "Copyright 2023 N. Zwahlen"
 __version__ = "1.0.0"
 
 import tkinter as tk
-from tkinter import font as tkfont
 import logging
 from BaseApp import *
 from Grid import *
