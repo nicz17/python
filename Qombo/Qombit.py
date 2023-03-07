@@ -44,6 +44,7 @@ class Qombit:
     """An item that can be combined with another to make a better item"""
     #aColors = ['#c0c0c0', '#a0a0ff', 'yellow', 'orange']
     oImage: PhotoImage
+    oImageLarge: PhotoImage
 
     def __init__(self, sName: str, oKind: OrKind, iLevel: int, oRarity: OrRarity):
         self.sName = sName
@@ -51,7 +52,8 @@ class Qombit:
         self.iLevel = iLevel
         self.oRarity = oRarity
         self.oImage = None
-        self.oMask = DiceQomboImage(100, 100)
+        self.oImageLarge = None
+        self.oMask = DiceQomboImage()
         self.oPalette = HeatPalette()
         self.aPalettes = [HeatPalette(), FluoPalette(), PinkGreenPalette(), FractalPalette()]
 
@@ -68,6 +70,7 @@ class Qombit:
         """Result of combining this qombit with another one."""
         self.iLevel += 1
         self.oImage = None
+        self.oImageLarge = None
 
     def generate(self):
         """Generate a new Qombit. Most Qombits can't do this."""
@@ -81,14 +84,27 @@ class Qombit:
         """Get the image filename for this qombit."""
         return 'images/dice-r0' + str(self.oRarity.value) + '-l0' + str(self.iLevel) + '.png'
     
+    def getImageLargeName(self) -> str:
+        """Get the image filename for this qombit."""
+        return 'images/dice-large-r0' + str(self.oRarity.value) + '-l0' + str(self.iLevel) + '.png'
+    
     def getImage(self) -> PhotoImage:
         """Get the PhotoImage for this qombit."""
         if self.oImage is None:
             if not os.path.exists(self.getImageName()):
-                self.oMask.generate(self.iLevel)
+                self.oMask.generate(self.iLevel, 100, 100)
                 self.oMask.toImage(self.getPalette(), self.getImageName())
             self.oImage = PhotoImage(file = self.getImageName())
         return self.oImage
+    
+    def getImageLarge(self) -> PhotoImage:
+        """Get a larger PhotoImage for this qombit."""
+        if self.oImageLarge is None:
+            if not os.path.exists(self.getImageLargeName()):
+                self.oMask.generate(self.iLevel, 160, 160)
+                self.oMask.toImage(self.getPalette(), self.getImageLargeName())
+            self.oImageLarge = PhotoImage(file = self.getImageLargeName())
+        return self.oImageLarge
 
     def __str__(self):
         return self.sName + ' level ' + str(self.iLevel) + ' ' + str(self.oRarity) + ' ' + str(self.oKind)
@@ -127,6 +143,9 @@ class GeneratorQombit(Qombit):
     
     def getImageName(self) -> str:
         return 'images/generator-r0' + str(self.oRarity.value) + '-l0' + str(self.iLevel) + '.png'
+    
+    def getImageLargeName(self) -> str:
+        return 'images/generator-large-r0' + str(self.oRarity.value) + '-l0' + str(self.iLevel) + '.png'
     
     def getDescription(self) -> str:
         return 'Click to create an object'

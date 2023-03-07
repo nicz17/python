@@ -67,8 +67,8 @@ class Renderer:
         if qombit:
             tx, ty = 100, 120
             self.canSelection.create_text(tx, 20, text = qombit.sName, font = self.fontBold)
-            self.drawCircle(self.canSelection, tx, ty, self.iRadiusSel, '#d0d0a0', qombit.getColor())
-            #self.canGrid.create_image(tx-50, ty-50, anchor = tk.NW, image = self.getImage(qombit))
+            #self.drawCircle(self.canSelection, tx, ty, self.iRadiusSel, '#d0d0a0', qombit.getColor())
+            self.canSelection.create_image(tx-80, ty-80, anchor = tk.NW, image = qombit.getImageLarge())
             self.canSelection.create_text(tx, 220, text = str(qombit.oRarity) + ' ' + str(qombit.oKind))
             self.canSelection.create_text(tx, 240, text = 'Level ' + str(qombit.iLevel))
             self.canSelection.create_text(tx, 300, text = qombit.getDescription())
