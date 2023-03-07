@@ -10,7 +10,6 @@ __version__ = "1.0.0"
 
 from PIL import Image
 import numpy as np
-import math
 import logging
 from Palette import *
 from scipy.ndimage import gaussian_filter
@@ -18,16 +17,16 @@ from scipy.ndimage import gaussian_filter
 class QomboImage:
     log = logging.getLogger('QomboImage')
 
-    def __init__(self, sName: str, w: int, h: int):
+    def __init__(self, sName: str):
         self.sName = sName
-        self.w = w
-        self.h = h
         self.iLevel = 1
-        self.aMask = np.zeros((w, h))
+        self.aMask = None
 
-    def generate(self, iLevel: int):
+    def generate(self, iLevel: int, w: int, h: int):
         """Generate the density mask."""
         self.iLevel = iLevel
+        self.w = w
+        self.h = h
         self.log.info('Generating %s', str(self))
         self.aMask = np.zeros((self.w, self.h))
         self.computeMask()
@@ -61,8 +60,8 @@ class QomboImage:
 class DiceQomboImage(QomboImage):
     """A QomboImage imitating dice faces, but 1 to 9."""
 
-    def __init__(self, w, h):
-        super().__init__('DiceQomboImage', w, h)
+    def __init__(self):
+        super().__init__('DiceQomboImage')
     
     def computeMask(self):
         self.aMask = np.zeros((self.w, self.h))
@@ -89,9 +88,9 @@ class DiceQomboImage(QomboImage):
 def testQomboImage():
     """Unit Test case."""
     nLevels = 10
-    mask = DiceQomboImage(100, 100)
+    mask = DiceQomboImage()
     for iLevel in range(nLevels):
-        mask.generate(iLevel)
+        mask.generate(iLevel, 100, 100)
         mask.toImage(PinkGreenPalette(), 'images/test0' + str(iLevel) + '.png')
 
 if __name__ == '__main__':
