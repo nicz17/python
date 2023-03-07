@@ -23,24 +23,25 @@ class Module(TabsApp):
         self.sFilename = 'images/RandomImage00.png'
         super().__init__(sTitle, '800x500')
 
-    def getMask(self):
+    def getMask(self) -> ImageMask:
         """Choose an image mask at random."""
         aMasks = [#MultiGaussImageMask(self.iImgWidth, self.iImgHeight),
                   #GaussianBlurMask(self.iImgWidth, self.iImgHeight),
                   #RandomWalkMask(self.iImgWidth, self.iImgHeight),
-                  #StarFishImageMask(self.iImgWidth, self.iImgHeight),
+                  StarFishImageMask(self.iImgWidth, self.iImgHeight),
                   #RoseWindowImageMask(self.iImgWidth, self.iImgHeight),
                   FractalMask(self.iImgWidth, self.iImgHeight)]
         oMask = random.choice(aMasks)
         return oMask
     
-    def getPalette(self):
+    def getPalette(self) -> Palette:
         """Choose a palette at random."""
         aPalettes = [RandomPalette(),
                      HeatPalette(),
                      FractalPalette(),
                      GhostPalette(),
-                     SepiaPalette()]
+                     SepiaPalette(),
+                     PinkGreenPalette()]
         oPalette = random.choice(aPalettes)
         return oPalette
 
