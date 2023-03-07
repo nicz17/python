@@ -159,12 +159,6 @@ class QomboApp(BaseApp):
         self.canSelection = tk.Canvas(master=self.frmMain, bg='#f0f0c0', bd=0, 
                                     height=self.iHeight, width=200, highlightthickness=0)
         self.canSelection.pack(side=tk.RIGHT)
-
-    def addButton(self, sLabel: str, fnCmd):
-        """Add a button with the specified label and callback."""
-        btn = tk.Button(master=self.frmButtons, text=sLabel, command=fnCmd)
-        btn.pack(fill=tk.X, padx=4, pady=2)
-        return btn
     
     def enableWidgets(self):
         """Enable or disable buttons based on state"""

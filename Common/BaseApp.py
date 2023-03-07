@@ -7,6 +7,7 @@ __copyright__ = "Copyright 2023 N. Zwahlen"
 __version__ = "1.0.0"
 
 import tkinter as tk
+from tkinter import messagebox
 import logging
 
 class BaseApp:
@@ -34,8 +35,8 @@ class BaseApp:
     def createBaseWidgets(self):
         """Create base widgets"""
 
-        btnExit = tk.Button(master=self.frmButtons, text='Exit', command=self.close)
-        btnExit.pack(fill=tk.X, padx=4, pady=2)
+        self.btnExit  = self.addButton('Exit',  self.close)
+        self.btnAbout = self.addButton('About', self.showAboutMsg)
 
         self.lblStatus = tk.Label(master=self.frmBottom)
         self.lblStatus.pack(fill=tk.X, side=tk.LEFT) 
@@ -52,6 +53,12 @@ class BaseApp:
         self.frmMain = tk.Frame(master=self.frmTop, width=700)
         self.frmMain.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
 
+    def addButton(self, sLabel: str, fnCmd) -> tk.Button:
+        """Add a button with the specified label and callback."""
+        btn = tk.Button(master=self.frmButtons, text=sLabel, command=fnCmd)
+        btn.pack(fill=tk.X, padx=4, pady=2)
+        return btn
+
     def displayData(self):
         """Display user data in the widgets"""
         self.setStatus('Welcome to ' + self.sTitle)
@@ -64,3 +71,10 @@ class BaseApp:
     def close(self):
         """Destroy the base window"""
         self.window.destroy()
+
+    def showAboutMsg(self):
+        """Display a tk info message about this app."""
+        sMsg = self.sTitle + ' by ' + __author__ + '\n'
+        sMsg += 'Version ' + __version__ + '\n'
+        sMsg += __copyright__
+        messagebox.showinfo(title='About', message=sMsg)

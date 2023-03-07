@@ -17,6 +17,8 @@ from Timer import *
 
 class FractalsApp(BaseApp):
     log = logging.getLogger('FractalsApp')
+    oFractal: FractalSet
+    oPalette: Palette
 
     def __init__(self, sTitle, sGeometry = '1000x650') -> None:
         self.iSize = 600
@@ -184,8 +186,3 @@ class FractalsApp(BaseApp):
         cboPalette.current(0)
         cboPalette.bind('<<ComboboxSelected>>', self.onPaletteSelect)
         cboPalette.pack(fill=tk.X, padx=4, pady=2)
-
-    def addButton(self, sText, fnCmd):
-        """Add a button with the specified label and callback."""
-        btn = tk.Button(master=self.frmButtons, text=sText, command=fnCmd)
-        btn.pack(fill=tk.X, padx=4, pady=2)
