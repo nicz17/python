@@ -53,7 +53,7 @@ class Qombit:
         self.oImage = None
         self.oMask = DiceQomboImage(100, 100)
         self.oPalette = HeatPalette()
-        self.aPalettes = [HeatPalette(), BlueGoldPalette(), PinkGreenPalette(), GhostPalette()]
+        self.aPalettes = [HeatPalette(), FluoPalette(), PinkGreenPalette(), FractalPalette()]
 
     def getPalette(self) -> Palette:
         return self.aPalettes[self.oRarity.value]
@@ -106,12 +106,16 @@ class GeneratorQombit(Qombit):
         self.nameGen = NameGen(42)
         super().__init__(self.nameGen.generate(), OrKind.Generator, iLevel, oRarity)
         self.generatedKind = OrKind.Food
+        self.oPalette = GoldBluePalette()
         self.aNames = []
         for i in range(4):
             self.aNames.append(self.nameGen.generate())
 
     def getColor(self):
         return 'yellow'
+    
+    def getPalette(self) -> Palette:
+        return self.oPalette
 
     def generate(self):
         """Generate a new Qombit."""
@@ -122,8 +126,7 @@ class GeneratorQombit(Qombit):
         return qombit
     
     def getImageName(self) -> str:
-        """get the image filename for this qombit."""
-        return 'images/test00.png'
+        return 'images/generator-r0' + str(self.oRarity.value) + '-l0' + str(self.iLevel) + '.png'
     
     def getDescription(self) -> str:
         return 'Click to create an object'
