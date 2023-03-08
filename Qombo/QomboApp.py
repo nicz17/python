@@ -9,6 +9,7 @@ __version__ = "1.0.0"
 import tkinter as tk
 import logging
 from BaseApp import *
+from GameSave import *
 from Grid import *
 from Qombit import *
 from Timer import *
@@ -145,11 +146,20 @@ class QomboApp(BaseApp):
         self.renderer.drawSelection(self.selection)
         self.enableWidgets()
 
+    def saveGame(self):
+        """Save the game state to json file."""
+        saver = GameSave()
+        saver.save('autosave.json', self.grid)
+
+    def onBeforeClose(self):
+        self.saveGame()
+
     def createWidgets(self):
         """Create user widgets"""
         self.btnStart = self.addButton('New Game', self.newGame)
         self.btnSell  = self.addButton('Sell', self.sellQombit)
         self.btnGen   = self.addButton('Generate', self.generate)
+        self.btnSave  = self.addButton('Save', self.saveGame)
 
         self.canGrid = tk.Canvas(master=self.frmMain, bg='#c0f0f0', bd=0, 
                                     height=self.iHeight, width=self.iWidth, highlightthickness=0)

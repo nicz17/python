@@ -99,6 +99,15 @@ class Qombit:
             self.oMask.generate(self.iLevel, iSize, iSize)
             self.oMask.toImage(self.getPalette(), sFilename)
         return PhotoImage(file = sFilename)
+    
+    def toJson(self):
+        """Create a dict of this qombit for json export."""
+        data = {}
+        data['name'] = self.sName
+        data['kind'] = self.oKind.name
+        data['rarity'] = self.oRarity.name
+        data['level'] = self.iLevel
+        return data
 
     def __str__(self):
         return self.sName + ' level ' + str(self.iLevel) + ' ' + str(self.oRarity) + ' ' + str(self.oKind)

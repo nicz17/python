@@ -147,6 +147,24 @@ class Grid:
                 sRow += self.valueAsStr(x, y).ljust(6)
             self.log.info(sRow)
 
+    def toJson(self):
+        """Create a dict of this grid for json export."""
+        data = {}
+        data['width']  = self.w
+        data['height'] = self.h
+        aCells = []
+        for x in range(self.w):
+            for y in range(self.h):
+                val = self.get(x, y)
+                if val is not None:
+                    dCell = {}
+                    dCell['x'] = x
+                    dCell['y'] = y
+                    dCell['value'] = val.toJson()
+                    aCells.append(dCell)
+        data['cells'] = aCells
+        return data
+
     def __str__(self):
         return 'Grid ' + str(self.w) + 'x' + str(self.h)
 
