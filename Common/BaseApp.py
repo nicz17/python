@@ -68,8 +68,13 @@ class BaseApp:
         self.log.info('Setting status to %s', sStatus)
         self.lblStatus.configure(text = sStatus)
 
+    def onBeforeClose(self):
+        """Any last wishes?"""
+        pass
+
     def close(self):
         """Destroy the base window"""
+        self.onBeforeClose()
         self.window.destroy()
 
     def showAboutMsg(self):
