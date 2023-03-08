@@ -54,8 +54,8 @@ class Qombit:
         self.oRarity = oRarity
         self.oImage = None
         self.oImageLarge = None
-        self.oMask = DiceQomboImage()
-        self.oPalette = HeatPalette()
+        self.oMask = StarQomboImage()
+        #self.oPalette = HeatPalette()
         self.aPalettes = [HeatPalette(), FluoPalette(), PinkGreenPalette(), FractalPalette()]
 
     def getPalette(self) -> Palette:
@@ -115,7 +115,7 @@ class GeneratorQombit(Qombit):
     def __init__(self, iLevel: int, oRarity: OrRarity):
         self.nameGen = NameGen(42)
         super().__init__(self.nameGen.generate(), OrKind.Generator, iLevel, oRarity)
-        self.generatedKind = OrKind.Dice
+        self.generatedKind = OrKind.Star
         self.oPalette = GoldBluePalette()
         self.aNames = []
         for i in range(4):

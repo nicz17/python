@@ -53,6 +53,22 @@ class QomboImage:
         img = Image.fromarray(rgbArray)
         img.save(sFilename, 'PNG')
 
+    def gauss(x: float, mu: float, sig: float) -> float:
+        """Gaussian distribution"""
+        return math.exp(-(x-mu)*(x-mu)/(sig*sig))
+
+    def getRho(self, x, y):
+        """Get the normalized distance from image center."""
+        dx = x - self.w/2
+        dy = y - self.h/2
+        return math.sqrt(dx*dx + dy*dy)/(float(self.h/2))
+
+    def getPhi(self, x, y):
+        """Get the angle from image center."""
+        dx = x - self.w/2
+        dy = y - self.h/2
+        return math.atan2(dy, dx)
+
     def __str__(self) -> str:
         return self.sName + ' lvl' + str(self.iLevel) + ' ' + str(self.w) + 'x' + str(self.h)
 
@@ -83,6 +99,19 @@ class DiceQomboImage(QomboImage):
 
     def addDot(self, x, y):
         self.aMask[int(x*self.w), int(y*self.h)] = 10000.0
+
+class StarQomboImage(QomboImage):
+    """A polar star image."""
+    def __init__(self):
+        super().__init__('StarQomboImage')
+        self.mu = 0.5
+
+    def computeMask(self):
+        for x in range(self.w):
+            for y in range(self.h):
+                rho = self.getRho(x, y)
+                phi = self.getPhi(x, y)
+                self.aMask[x, y] = math.sin(self.iLevel*phi) * QomboImage.gauss(rho, self.mu, 0.4)
     
 
 def testQomboImage():
