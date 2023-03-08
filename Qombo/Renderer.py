@@ -29,6 +29,10 @@ class Renderer:
         self.fontBold = tkfont.Font(family="Helvetica", size=12, weight='bold')
         self.iHeight = self.grid.h*self.iSize
         self.iWidth  = self.grid.w*self.iSize
+        
+        # Add image dir if missing
+        if not os.path.exists(Qombit.sImageDir):
+            os.makedirs(Qombit.sImageDir)
 
     def drawGrid(self):
         """Draw grid lines and qombits on the grid canvas"""
@@ -42,12 +46,8 @@ class Renderer:
     def drawQombit(self, x, y, qombit: Qombit):
         """Draw the Qombit on the grid canvas."""
         if qombit:
-            #tx = x*self.iSize + 50
-            #ty = y*self.iSize + 50
             tx = x*self.iSize + 5
             ty = y*self.iSize + 5
-            #self.drawCircle(self.canGrid, tx, ty, self.iRadiusGrid, '#a0d0d0', qombit.getColor())
-            #self.canGrid.create_text(tx, ty, text = qombit.sName)
             self.canGrid.create_image(tx, ty, anchor = tk.NW, image = qombit.getImage())
 
     def drawGridLines(self):
@@ -67,7 +67,6 @@ class Renderer:
         if qombit:
             tx, ty = 100, 120
             self.canSelection.create_text(tx, 20, text = qombit.sName, font = self.fontBold)
-            #self.drawCircle(self.canSelection, tx, ty, self.iRadiusSel, '#d0d0a0', qombit.getColor())
             self.canSelection.create_image(tx-80, ty-80, anchor = tk.NW, image = qombit.getImageLarge())
             self.canSelection.create_text(tx, 220, text = str(qombit.oRarity) + ' ' + str(qombit.oKind))
             self.canSelection.create_text(tx, 240, text = 'Level ' + str(qombit.iLevel))
