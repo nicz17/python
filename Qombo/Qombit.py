@@ -16,8 +16,8 @@ from QomboImage import *
 
 class OrKind(Enum):
     Generator  = 0
-    Food       = 1
-    Duplicator = 2
+    Dice       = 1
+    Star       = 2
     Objective  = 3
 
     def __str__(self):
@@ -43,6 +43,7 @@ class OrRarity(Enum):
 class Qombit:
     """An item that can be combined with another to make a better item"""
     #aColors = ['#c0c0c0', '#a0a0ff', 'yellow', 'orange']
+    sImageDir = 'images/'
     oImage: PhotoImage
     oImageLarge: PhotoImage
 
@@ -59,12 +60,6 @@ class Qombit:
 
     def getPalette(self) -> Palette:
         return self.aPalettes[self.oRarity.value]
-
-    def getColor(self):
-        """Get this Qombit's color based on its rarity and level."""
-        rValue = 0.25*self.oRarity.value + 0.04*(self.iLevel-1)
-        return self.oPalette.getColorHex(rValue)
-        #return self.aColors[self.oRarity.value]
     
     def combine(self):
         """Result of combining this qombit with another one."""
@@ -80,31 +75,30 @@ class Qombit:
         """Get a short text describing what to do with this qombit."""
         return 'Combine with an \nidentical object to \nupgrade level'
     
-    def getImageName(self) -> str:
+    def getImageName(self, sPrefix = '') -> str:
         """Get the image filename for this qombit."""
-        return 'images/dice-r0' + str(self.oRarity.value) + '-l0' + str(self.iLevel) + '.png'
-    
-    def getImageLargeName(self) -> str:
-        """Get the image filename for this qombit."""
-        return 'images/dice-large-r0' + str(self.oRarity.value) + '-l0' + str(self.iLevel) + '.png'
+        return self.sImageDir + self.oKind.name.lower() + sPrefix + '-r0' + str(self.oRarity.value) + '-l0' + str(self.iLevel) + '.png'
     
     def getImage(self) -> PhotoImage:
         """Get the PhotoImage for this qombit."""
         if self.oImage is None:
-            if not os.path.exists(self.getImageName()):
-                self.oMask.generate(self.iLevel, 100, 100)
-                self.oMask.toImage(self.getPalette(), self.getImageName())
-            self.oImage = PhotoImage(file = self.getImageName())
+            sFilename = self.getImageName()
+            self.oImage = self.generateImage(sFilename, 100)
         return self.oImage
     
     def getImageLarge(self) -> PhotoImage:
         """Get a larger PhotoImage for this qombit."""
         if self.oImageLarge is None:
-            if not os.path.exists(self.getImageLargeName()):
-                self.oMask.generate(self.iLevel, 160, 160)
-                self.oMask.toImage(self.getPalette(), self.getImageLargeName())
-            self.oImageLarge = PhotoImage(file = self.getImageLargeName())
+            sFilename = self.getImageName('-large')
+            self.oImageLarge = self.generateImage(sFilename, 160)
         return self.oImageLarge
+    
+    def generateImage(self, sFilename: str, iSize: int) -> PhotoImage:
+        """Create a PhotoImage for this qombit with the specified filename and size."""
+        if not os.path.exists(sFilename):
+            self.oMask.generate(self.iLevel, iSize, iSize)
+            self.oMask.toImage(self.getPalette(), sFilename)
+        return PhotoImage(file = sFilename)
 
     def __str__(self):
         return self.sName + ' level ' + str(self.iLevel) + ' ' + str(self.oRarity) + ' ' + str(self.oKind)
@@ -121,14 +115,11 @@ class GeneratorQombit(Qombit):
     def __init__(self, iLevel: int, oRarity: OrRarity):
         self.nameGen = NameGen(42)
         super().__init__(self.nameGen.generate(), OrKind.Generator, iLevel, oRarity)
-        self.generatedKind = OrKind.Food
+        self.generatedKind = OrKind.Dice
         self.oPalette = GoldBluePalette()
         self.aNames = []
         for i in range(4):
             self.aNames.append(self.nameGen.generate())
-
-    def getColor(self):
-        return 'yellow'
     
     def getPalette(self) -> Palette:
         return self.oPalette
@@ -140,12 +131,6 @@ class GeneratorQombit(Qombit):
         sName = self.aNames[oRarity.value]
         qombit = Qombit(sName, self.generatedKind, iLevel, oRarity)
         return qombit
-    
-    def getImageName(self) -> str:
-        return 'images/generator-r0' + str(self.oRarity.value) + '-l0' + str(self.iLevel) + '.png'
-    
-    def getImageLargeName(self) -> str:
-        return 'images/generator-large-r0' + str(self.oRarity.value) + '-l0' + str(self.iLevel) + '.png'
     
     def getDescription(self) -> str:
         return 'Click to create an object'
