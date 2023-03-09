@@ -18,7 +18,8 @@ from Renderer import *
 class QomboApp(BaseApp):
     """Qombo App window."""
     log = logging.getLogger('QomboApp')
-    selection: Qombit
+    #selection: Qombit
+    selpos: Position
     oDragFrom: Position
     grid: Grid
     iSize = 110
@@ -34,7 +35,8 @@ class QomboApp(BaseApp):
         super().__init__('Qombo', sGeometry)
         self.renderer = Renderer(self.grid, self.canGrid, self.canSelection, self.iSize)
         self.renderer.drawGrid()
-        self.setSelection(None)
+        self.selpos = None
+        self.setSelection(None, None)
 
     def newGame(self):
         """Generate new game state"""
@@ -44,42 +46,45 @@ class QomboApp(BaseApp):
             qombit = GeneratorQombit(1, OrRarity.Common)
             x, y = pos.x, pos.y
             self.grid.put(x, y, qombit)
-            self.renderer.drawQombit(x, y, qombit)
-        self.setSelection(None)
+            self.renderer.drawGrid()
+        self.setSelection(None, None)
 
     def generate(self):
         """Generate a new qombit if the selection is a generator."""
         if self.canGenerate():
-            at = self.grid.find(self.selection)
-            pos = self.grid.closestEmptyCell(at)
+            #at = self.grid.find(self.selection)
+            pos = self.grid.closestEmptyCell(self.selpos)
             if pos:
-                qombit = self.selection.generate()
-                x, y = pos.x, pos.y
+                qombit = self.getSelectedQombit().generate()
                 self.log.info('Generated %s at %s', qombit, pos)
-                self.grid.put(x, y, qombit)
+                self.grid.put(pos.x, pos.y, qombit)
                 self.enableWidgets()
+        else:
+            self.log.info('Cannot generate')
 
     def canGenerate(self) -> bool:
         """Check if it is possible to generate a new qombit."""
-        if self.selection:
-            if self.selection.oKind == OrKind.Generator:
+        qombit = self.getSelectedQombit()
+        if qombit:
+            if qombit.oKind == OrKind.Generator:
                 return not self.grid.isFull()
         return False
 
     def sellQombit(self):
         """Sells the selected qombit."""
         if self.canSell():
-            sold = self.grid.remove(self.selection)
+            sold = self.grid.remove(self.getSelectedQombit())
             if sold:
                 self.log.info('Sold %s', sold)
-                self.setSelection(None)
+                self.setSelection(None, None)
                 self.renderer.drawGrid()
                 self.setStatus('Sold ' + str(sold))
 
     def canSell(self):
         """Check if it is possible to sell the current selection."""
-        if self.selection:
-            if self.selection.oKind == OrKind.Generator:
+        qombit = self.getSelectedQombit()
+        if qombit:
+            if qombit.oKind == OrKind.Generator:
                 return False
             return True
         return False
@@ -87,15 +92,17 @@ class QomboApp(BaseApp):
     def onGridClick(self, at: Position):
         """Handle grid click event."""
         self.log.info('Grid selection %s %s', at, self.grid.valueAsStr(at.x, at.y))
-        qombit = self.grid.get(at.x, at.y)
 
         # Reselection
-        if qombit and qombit == self.selection:
+        if at is not None and at == self.selpos:
+            #self.log.info('Reselection at %s', str(at))
             if self.canGenerate():
                 self.generate()
         # New selection
         else:
-            self.setSelection(qombit)
+            #self.log.info('New selection at %s', str(at))
+            qombit = self.grid.get(at.x, at.y)
+            self.setSelection(qombit, at)
 
         # Redraw grid in any case
         self.renderer.drawGrid()
@@ -137,15 +144,22 @@ class QomboApp(BaseApp):
         else:
             self.log.info('Swapping %s and %s', oFrom, oTo)
             self.grid.swap(oFrom, oTo)
-        self.setSelection(qom1)
+        self.setSelection(qom1, oTo)
         self.renderer.drawGrid()
 
-    def setSelection(self, qombit: Qombit):
+    def setSelection(self, qombit: Qombit, pos: Position):
         """Set the specified qombit as selected and update widgets"""
-        self.selection = qombit
-        self.renderer.drawSelection(self.selection)
+        #self.selection = qombit
+        self.selpos = pos
+        self.renderer.selpos = pos
+        self.renderer.drawSelection()
         self.enableWidgets()
 
+    def getSelectedQombit(self) -> Qombit:
+        if self.selpos:
+            return self.grid.get(self.selpos.x, self.selpos.y)
+        return None
+    
     def saveGame(self):
         """Save the game state to json file."""
         saver = GameSave()

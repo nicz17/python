@@ -17,6 +17,7 @@ from Palette import *
 class Renderer:
     iRadiusGrid = 36
     iRadiusSel  = 64
+    selpos: Position
 
     """Rendering methods for Qombo."""
     log = logging.getLogger('Renderer')
@@ -29,6 +30,7 @@ class Renderer:
         self.fontBold = tkfont.Font(family="Helvetica", size=12, weight='bold')
         self.iHeight = self.grid.h*self.iSize
         self.iWidth  = self.grid.w*self.iSize
+        self.selpos = None
         
         # Add image dir if missing
         if not os.path.exists(Qombit.sImageDir):
@@ -42,6 +44,8 @@ class Renderer:
             for y in range(self.grid.h):
                 qombit = self.grid.get(x, y)
                 self.drawQombit(x, y, qombit)
+        if self.getSelectedQombit() is not None:
+            self.drawHighlight(self.selpos, 'yellow')
 
     def drawQombit(self, x, y, qombit: Qombit):
         """Draw the Qombit on the grid canvas."""
@@ -61,9 +65,10 @@ class Renderer:
             gy = y*self.iSize
             self.canGrid.create_line(0, gy, gx, gy, fill="#b0e0e0", width=1)
 
-    def drawSelection(self, qombit: Qombit):
+    def drawSelection(self):
         """Update the selection canvas"""
         self.canSelection.delete('all')
+        qombit = self.getSelectedQombit()
         if qombit:
             tx, ty = 100, 120
             self.canSelection.create_text(tx, 20, text = qombit.sName, font = self.fontBold)
@@ -74,5 +79,24 @@ class Renderer:
         else:
             self.canSelection.create_text(100, 20, text = 'Ready')
 
+    def drawHighlight(self, pos: Position, color: str):
+        """Draw a highlight square at the specified grid position."""
+        #self.log.info('Highlight at %s', pos)
+        if pos:
+            w = 3
+            x0 = pos.x * self.iSize + 1
+            y0 = pos.y * self.iSize + 1
+            x1 = x0 + self.iSize - w
+            y1 = y0 + self.iSize - w
+            self.canGrid.create_line(x0, y0, x1, y0, fill=color, width=w)
+            self.canGrid.create_line(x0, y0, x0, y1, fill=color, width=w)
+            self.canGrid.create_line(x0, y1, x1, y1, fill=color, width=w)
+            self.canGrid.create_line(x1, y0, x1, y1, fill=color, width=w)
+
     def drawCircle(self, canvas: tk.Canvas, x:int, y: int, r: int, outline: str, fill: str):
         canvas.create_oval(x-r, y-r, x+r, y+r, outline=outline, fill=fill)
+
+    def getSelectedQombit(self) -> Qombit:
+        if self.selpos:
+            return self.grid.get(self.selpos.x, self.selpos.y)
+        return None
