@@ -14,6 +14,7 @@ from Grid import *
 from Qombit import *
 from Timer import *
 from Renderer import *
+from HintProvider import *
 
 class QomboApp(BaseApp):
     """Qombo App window."""
@@ -34,6 +35,7 @@ class QomboApp(BaseApp):
         self.dragdroptag = None
         super().__init__('Qombo', sGeometry)
         self.renderer = Renderer(self.grid, self.canGrid, self.canSelection, self.iSize)
+        self.hinter = HintProvider(self.grid)
         self.renderer.drawGrid()
         self.setSelection(None)
 
@@ -161,6 +163,11 @@ class QomboApp(BaseApp):
         saver = GameSave()
         saver.save('autosave.json', self.grid)
 
+    def getHint(self):
+        hint = self.hinter.getHint()
+        if hint is not None:
+            self.renderer.drawHighlight(hint, 'red')
+
     def onBeforeClose(self):
         self.saveGame()
 
@@ -170,6 +177,7 @@ class QomboApp(BaseApp):
         self.btnSell  = self.addButton('Sell', self.sellQombit)
         self.btnGen   = self.addButton('Generate', self.generate)
         self.btnSave  = self.addButton('Save', self.saveGame)
+        self.btnHint  = self.addButton('Hint', self.getHint)
 
         self.canGrid = tk.Canvas(master=self.frmMain, bg='#c0f0f0', bd=0, 
                                     height=self.iHeight, width=self.iWidth, highlightthickness=0)
@@ -184,6 +192,8 @@ class QomboApp(BaseApp):
         self.enableButton(self.btnStart, self.grid.isEmpty())
         self.enableButton(self.btnSell,  self.canSell())
         self.enableButton(self.btnGen,   self.canGenerate())
+        self.enableButton(self.btnSave,  not self.grid.isEmpty())
+        self.enableButton(self.btnHint,  not self.grid.isEmpty())
         
     def enableButton(self, btn: tk.Button, bEnabled: bool):
         """Enable the specified button if bEnabled is true."""
