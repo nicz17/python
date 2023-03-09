@@ -35,8 +35,7 @@ class QomboApp(BaseApp):
         super().__init__('Qombo', sGeometry)
         self.renderer = Renderer(self.grid, self.canGrid, self.canSelection, self.iSize)
         self.renderer.drawGrid()
-        self.selpos = None
-        self.setSelection(None, None)
+        self.setSelection(None)
 
     def newGame(self):
         """Generate new game state"""
@@ -47,7 +46,7 @@ class QomboApp(BaseApp):
             x, y = pos.x, pos.y
             self.grid.put(x, y, qombit)
             self.renderer.drawGrid()
-        self.setSelection(None, None)
+        self.setSelection(None)
 
     def generate(self):
         """Generate a new qombit if the selection is a generator."""
@@ -76,7 +75,7 @@ class QomboApp(BaseApp):
             sold = self.grid.remove(self.getSelectedQombit())
             if sold:
                 self.log.info('Sold %s', sold)
-                self.setSelection(None, None)
+                self.setSelection(None)
                 self.renderer.drawGrid()
                 self.setStatus('Sold ' + str(sold))
 
@@ -101,8 +100,7 @@ class QomboApp(BaseApp):
         # New selection
         else:
             #self.log.info('New selection at %s', str(at))
-            qombit = self.grid.get(at.x, at.y)
-            self.setSelection(qombit, at)
+            self.setSelection(at)
 
         # Redraw grid in any case
         self.renderer.drawGrid()
@@ -144,15 +142,13 @@ class QomboApp(BaseApp):
         else:
             self.log.info('Swapping %s and %s', oFrom, oTo)
             self.grid.swap(oFrom, oTo)
-        self.setSelection(qom1, oTo)
+        self.setSelection(oTo)
         self.renderer.drawGrid()
 
-    def setSelection(self, qombit: Qombit, pos: Position):
-        """Set the specified qombit as selected and update widgets"""
-        #self.selection = qombit
+    def setSelection(self, pos: Position):
+        """Set the specified position as selected and update widgets"""
         self.selpos = pos
-        self.renderer.selpos = pos
-        self.renderer.drawSelection()
+        self.renderer.drawSelection(pos)
         self.enableWidgets()
 
     def getSelectedQombit(self) -> Qombit:

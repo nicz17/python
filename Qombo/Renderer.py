@@ -65,9 +65,10 @@ class Renderer:
             gy = y*self.iSize
             self.canGrid.create_line(0, gy, gx, gy, fill="#b0e0e0", width=1)
 
-    def drawSelection(self):
+    def drawSelection(self, pos: Position):
         """Update the selection canvas"""
         self.canSelection.delete('all')
+        self.selpos = pos
         qombit = self.getSelectedQombit()
         if qombit:
             tx, ty = 100, 120
