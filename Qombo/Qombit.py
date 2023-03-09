@@ -41,7 +41,7 @@ class OrRarity(Enum):
         return self.name
 
 class Qombit:
-    """An item that can be combined with another to make a better item"""
+    """An item that can be combined with another to evolve"""
     #aColors = ['#c0c0c0', '#a0a0ff', 'yellow', 'orange']
     sImageDir = 'images/'
     oImage: PhotoImage
@@ -73,7 +73,7 @@ class Qombit:
     
     def getDescription(self) -> str:
         """Get a short text describing what to do with this qombit."""
-        return 'Combine with an \nidentical object to \nupgrade level'
+        return 'Combine with an \nidentical object to \nevolve'
     
     def getImageName(self, sPrefix = '') -> str:
         """Get the image filename for this qombit."""
