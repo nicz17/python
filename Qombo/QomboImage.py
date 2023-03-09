@@ -11,7 +11,9 @@ __version__ = "1.0.0"
 from PIL import Image
 import numpy as np
 import logging
+import os
 from Palette import *
+from HtmlPage import *
 from scipy.ndimage import gaussian_filter
 
 class QomboImage:
@@ -67,7 +69,7 @@ class QomboImage:
         """Get the angle from image center."""
         dx = x - self.w/2
         dy = y - self.h/2
-        return math.atan2(dy, dx)
+        return math.atan2(-dx, dy)
 
     def __str__(self) -> str:
         return self.sName + ' lvl' + str(self.iLevel) + ' ' + str(self.w) + 'x' + str(self.h)
@@ -81,6 +83,11 @@ class DiceQomboImage(QomboImage):
     
     def computeMask(self):
         self.aMask = np.zeros((self.w, self.h))
+        #self.aMask[0, 0] = -1000.0
+        #self.aMask[0, self.h-1] = -1000.0
+        #self.aMask[self.w-1, 0] = -1000.0
+        #self.aMask[self.w-1, self.h-1] = -1000.0
+
         if self.iLevel %2 == 1:
             self.addDot(0.50, 0.50)
         if self.iLevel >= 2:
@@ -104,23 +111,76 @@ class StarQomboImage(QomboImage):
     """A polar star image."""
     def __init__(self):
         super().__init__('StarQomboImage')
-        self.mu = 0.5
+
+    def computeMask(self):
+        for x in range(self.w):
+            for y in range(self.h):
+                rho = self.getRho(x, y)
+                phi = self.getPhi(x, y) - 3.0*math.pi/4.0
+                self.aMask[x, y] = math.sin(self.iLevel*phi) * QomboImage.gauss(rho, 0.5, 0.4)
+
+class SpiralQomboImage(QomboImage):
+    """A spiral image."""
+    def __init__(self):
+        super().__init__('SpiralQomboImage')
 
     def computeMask(self):
         for x in range(self.w):
             for y in range(self.h):
                 rho = self.getRho(x, y)
                 phi = self.getPhi(x, y)
-                self.aMask[x, y] = math.sin(self.iLevel*phi) * QomboImage.gauss(rho, self.mu, 0.4)
+                self.aMask[x, y] = math.sin(self.iLevel*phi + (self.iLevel+1)*rho) * QomboImage.gauss(rho, 0.5, 0.4)
+
+class TargetQomboImage(QomboImage):
+    """A target image."""
+    def __init__(self):
+        super().__init__('TargetQomboImage')
+
+    def computeMask(self):
+        for x in range(self.w):
+            for y in range(self.h):
+                rho = self.getRho(x, y)
+                self.aMask[x, y] = math.sin(4*(self.iLevel+1)*rho)
+
+class QuadrantQomboImage(QomboImage):
+    """A quadrant image."""
+    def __init__(self):
+        super().__init__('QuadrantQomboImage')
+
+    def computeMask(self):
+        for x in range(self.w):
+            for y in range(self.h):
+                #rho = self.getRho(x, y)
+                phi = self.getPhi(x, y) + math.pi
+                if phi < self.iLevel*math.pi/4.0:
+                    self.aMask[x, y] = phi
     
 
 def testQomboImage():
     """Unit Test case."""
     nLevels = 10
-    mask = DiceQomboImage()
-    for iLevel in range(nLevels):
-        mask.generate(iLevel, 100, 100)
-        mask.toImage(PinkGreenPalette(), 'images/test0' + str(iLevel) + '.png')
+    dir = 'test/'
+    aMasks = [DiceQomboImage(), StarQomboImage(), SpiralQomboImage(), QuadrantQomboImage()]
+    oPalette = HeatPalette()
+        
+    # Add save dir if missing
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+
+    aMaskImgs = []
+    for oMask in aMasks:
+        for iLevel in range(nLevels):
+            sFilename = dir + oMask.sName + '0' + str(iLevel) + '.png'
+            oMask.generate(iLevel, 160, 160)
+            oMask.toImage(oPalette, sFilename)
+            aMaskImgs.append(ImageHtmlTag(sFilename, oMask.sName + ' level ' + str(iLevel)))
+
+    # Create HTML page for rendering
+    oPage = HtmlPage('QomboImage Test')
+    oPage.addHeading(1, 'QomboImage Test')
+    oPage.addTable(aMaskImgs, nLevels)
+    oPage.save('QomboImageTest.html')
+    os.system('firefox QomboImageTest.html')
 
 if __name__ == '__main__':
     logging.basicConfig(format="[%(levelname)s] %(message)s", 
