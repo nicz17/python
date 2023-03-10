@@ -19,7 +19,6 @@ from HintProvider import *
 class QomboApp(BaseApp):
     """Qombo App window."""
     log = logging.getLogger('QomboApp')
-    #selection: Qombit
     selpos: Position
     oDragFrom: Position
     grid: Grid
@@ -27,15 +26,17 @@ class QomboApp(BaseApp):
     gridW = 9
     gridH = 7
 
-    def __init__(self, sGeometry = '1300x800') -> None:
+    def __init__(self) -> None:
         self.iHeight = self.gridH*self.iSize
         self.iWidth  = self.gridW*self.iSize
         self.grid = Grid(self.gridW, self.gridH)
         self.oDragFrom = None
         self.dragdroptag = None
+        sGeometry = str(self.iWidth + 310) + 'x' + str(self.iHeight + 30)
         super().__init__('Qombo', sGeometry)
+        self.window.resizable(width=False, height=False)
         self.renderer = Renderer(self.grid, self.canGrid, self.canSelection, self.iSize)
-        self.hinter = HintProvider(self.grid)
+        self.hintProvider = HintProvider(self.grid)
         self.renderer.drawGrid()
         self.setSelection(None)
 
@@ -164,9 +165,12 @@ class QomboApp(BaseApp):
         saver.save('autosave.json', self.grid)
 
     def getHint(self):
-        hint = self.hinter.getHint()
+        """Display a hint on what to do next."""
+        hint = self.hintProvider.getHint()
         if hint is not None:
-            self.renderer.drawHighlight(hint, 'red')
+            self.setStatus('Hint: ' + hint.sText)
+            for pos in hint.aPositions:
+                self.renderer.drawHighlight(pos, 'red')
 
     def onBeforeClose(self):
         self.saveGame()
@@ -175,7 +179,6 @@ class QomboApp(BaseApp):
         """Create user widgets"""
         self.btnStart = self.addButton('New Game', self.newGame)
         self.btnSell  = self.addButton('Sell', self.sellQombit)
-        self.btnGen   = self.addButton('Generate', self.generate)
         self.btnSave  = self.addButton('Save', self.saveGame)
         self.btnHint  = self.addButton('Hint', self.getHint)
 
@@ -191,7 +194,6 @@ class QomboApp(BaseApp):
         """Enable or disable buttons based on state"""
         self.enableButton(self.btnStart, self.grid.isEmpty())
         self.enableButton(self.btnSell,  self.canSell())
-        self.enableButton(self.btnGen,   self.canGenerate())
         self.enableButton(self.btnSave,  not self.grid.isEmpty())
         self.enableButton(self.btnHint,  not self.grid.isEmpty())
         
