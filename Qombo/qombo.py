@@ -37,7 +37,7 @@ def getOptions():
     for opt, arg in opts:
         log.info("Parsing option %s value %s", opt, arg)
         if opt in ('-h', '--help'):
-            print('orfact.py -h (help) -o (open in browser)')
+            print('qombo.py -h (help)')
             sys.exit()
         elif opt in ("-o", "--open"):
             dOptions['open'] = True
