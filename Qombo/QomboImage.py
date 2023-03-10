@@ -154,13 +154,27 @@ class QuadrantQomboImage(QomboImage):
                 phi = self.getPhi(x, y) + math.pi
                 if phi < self.iLevel*math.pi/4.0:
                     self.aMask[x, y] = phi
-    
+
+class RingQomboImage(QomboImage):
+    """An image with 8 dots in a circle. The dot of our level is in a different color."""
+    def __init__(self):
+        super().__init__('RingQomboImage')
+
+    def computeMask(self):
+        self.aMask = np.zeros((self.w, self.h))
+        for iOctant in range(8):
+            x = int(0.5*self.w + 0.36*self.w*math.sin(iOctant*math.pi/4.0))
+            y = int(0.5*self.h - 0.36*self.w*math.cos(iOctant*math.pi/4.0))
+            self.aMask[x, y] = -10000
+            if iOctant <= self.iLevel-1:
+                self.aMask[x, y] = 10000
+        self.aMask = gaussian_filter(self.aMask, self.w/16)
 
 def testQomboImage():
     """Unit Test case."""
     nLevels = 10
     dir = 'test/'
-    aMasks = [DiceQomboImage(), StarQomboImage(), SpiralQomboImage(), QuadrantQomboImage()]
+    aMasks = [DiceQomboImage(), StarQomboImage(), SpiralQomboImage(), RingQomboImage()]
     oPalette = HeatPalette()
         
     # Add save dir if missing
