@@ -42,7 +42,6 @@ class OrRarity(Enum):
 
 class Qombit:
     """An item that can be combined with another to evolve"""
-    #aColors = ['#c0c0c0', '#a0a0ff', 'yellow', 'orange']
     sImageDir = 'images/'
     oImage: PhotoImage
     oImageLarge: PhotoImage
@@ -55,13 +54,12 @@ class Qombit:
         self.oImage = None
         self.oImageLarge = None
         self.oMask = StarQomboImage()
-        #self.oPalette = HeatPalette()
-        self.aPalettes = [HeatPalette(), FluoPalette(), PinkGreenPalette(), FractalPalette()]
+        self.aPalettes = [HeatPalette(), FluoPalette(), PinkGreenPalette(), SepiaPalette()]
 
     def getPalette(self) -> Palette:
         return self.aPalettes[self.oRarity.value]
     
-    def combine(self):
+    def evolve(self):
         """Result of combining this qombit with another one."""
         self.iLevel += 1
         self.oImage = None
@@ -143,16 +141,3 @@ class GeneratorQombit(Qombit):
     
     def getDescription(self) -> str:
         return 'Click to create an object'
-    
-class QombitGen:
-    def __init__(self, seed):
-        self.seed = seed
-        self.nameGen = NameGen(seed)
-
-    def generate(self, oKind = None):
-        sName = self.nameGen.generate()
-        if oKind is None:
-            oKind = random.choice(list(OrKind))
-        iLevel = random.randrange(6)
-        qombit = Qombit(sName, oKind, iLevel, OrRarity.random())
-        return qombit
