@@ -32,7 +32,7 @@ class QomboApp(BaseApp):
         self.grid = Grid(self.gridW, self.gridH)
         self.oDragFrom = None
         self.dragdroptag = None
-        sGeometry = str(self.iWidth + 310) + 'x' + str(self.iHeight + 30)
+        sGeometry = str(self.iWidth + 320) + 'x' + str(self.iHeight + 30)
         super().__init__('Qombo', sGeometry)
         self.window.resizable(width=False, height=False)
         self.renderer = Renderer(self.grid, self.canGrid, self.canSelection, self.iSize)
@@ -151,7 +151,7 @@ class QomboApp(BaseApp):
         if qom1 == qom2:
             # Combine
             self.log.info('Combining %s and %s', oFrom, oTo)
-            qom1.combine()
+            qom1.evolve()
             self.grid.put(oTo.x, oTo.y, qom1)
             self.grid.put(oFrom.x, oFrom.y, None)
         else:
