@@ -1,4 +1,7 @@
-Orfact/__pycache__/*
+Common/*.css
+Common/*.html
+Common/palettes/*
+
 Orfact/images/*.png
 Orfact/palettes/*.png
 Orfact/*.html

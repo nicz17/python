@@ -10,8 +10,10 @@ __version__ = "1.0.0"
 import random
 import math
 import logging
+import os
 from PIL import Image
 import numpy as np
+from HtmlPage import *
 
 class Palette:
     """A color gradient rendered using gaussian distributions"""
@@ -166,11 +168,14 @@ class FluoPalette(SimplePalette):
 class PinkGreenPalette(SimplePalette):
     def __init__(self):
         super().__init__('PinkGreenPalette', 0.357, 0.349, 0.043, 0.283)
-
-# Gold to light blue:     
+  
 class GoldBluePalette(SimplePalette):
     def __init__(self):
         super().__init__('GoldBluePalette', 0.686, 0.090, 0.391, 0.853)
+
+class NightPalette(SimplePalette):
+    def __init__(self):
+        super().__init__('NightPalette', 0.25, 1.0, 1.1, 0.0)
 
 class GrayScalePalette(Palette):
     def __init__(self):
@@ -178,3 +183,39 @@ class GrayScalePalette(Palette):
 
     def getColor(self, x):
         return max(0, min(255, (int)(255. * x)))
+
+
+def testPalette():
+    """Palette unit test. Create a HTML page with palette renderings."""
+    aPalettes = [HeatPalette(),
+                 AlgaePalette(), 
+                 SepiaPalette(), 
+                 FractalPalette(), 
+                 GhostPalette(), 
+                 FluoPalette(),
+                 PinkGreenPalette(),
+                 GoldBluePalette(),
+                 NightPalette()]
+
+    dir = 'palettes/'
+    if not os.path.exists(dir):
+            os.makedirs(dir)
+
+    aPalImgs = []
+    for oPal in aPalettes:
+        sFilename = dir + oPal.sName + '.png'
+        oPal.toColorScale(sFilename, 600, 25)
+        aPalImgs.append(ImageHtmlTag(sFilename, oPal.sName))
+        aPalImgs.append(HtmlTag('p', oPal.sName))
+
+    # Create HTML page for rendering
+    oPage = HtmlPage('Palette test')
+    oPage.addHeading(1, oPage.sTitle)
+    oPage.addTable(aPalImgs, 2)
+    oPage.save('PaletteTest.html')
+    os.system('firefox PaletteTest.html')
+
+if __name__ == '__main__':
+    logging.basicConfig(format="[%(levelname)s] %(message)s", 
+        level=logging.DEBUG, handlers=[logging.StreamHandler()])
+    testPalette()
