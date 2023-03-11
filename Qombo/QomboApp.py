@@ -37,6 +37,7 @@ class QomboApp(BaseApp):
         self.window.resizable(width=False, height=False)
         self.renderer = Renderer(self.grid, self.canGrid, self.canSelection, self.iSize)
         self.hintProvider = HintProvider(self.grid)
+        self.gameSave = GameSave()
         self.renderer.drawGrid()
         self.setSelection(None)
 
@@ -50,6 +51,17 @@ class QomboApp(BaseApp):
             self.grid.put(x, y, qombit)
             self.renderer.drawGrid()
         self.setSelection(None)
+
+    def resumeGame(self):
+        """Resume a saved game"""
+        self.log.info('Resuming saved game')
+        self.gameSave.load('autosave.json', self.grid)
+        self.renderer.drawGrid()
+        self.setSelection(None)
+    
+    def saveGame(self):
+        """Save the game state to json file."""
+        self.gameSave.save('autosave.json', self.grid)
 
     def generate(self):
         """Generate a new qombit if the selection is a generator."""
@@ -158,11 +170,6 @@ class QomboApp(BaseApp):
         if self.selpos:
             return self.grid.get(self.selpos.x, self.selpos.y)
         return None
-    
-    def saveGame(self):
-        """Save the game state to json file."""
-        saver = GameSave()
-        saver.save('autosave.json', self.grid)
 
     def getHint(self):
         """Display a hint on what to do next."""
@@ -177,10 +184,11 @@ class QomboApp(BaseApp):
 
     def createWidgets(self):
         """Create user widgets"""
-        self.btnStart = self.addButton('New Game', self.newGame)
-        self.btnSell  = self.addButton('Sell', self.sellQombit)
-        self.btnSave  = self.addButton('Save', self.saveGame)
-        self.btnHint  = self.addButton('Hint', self.getHint)
+        self.btnStart  = self.addButton('New Game', self.newGame)
+        self.btnResume = self.addButton('Resume', self.resumeGame)
+        self.btnSell   = self.addButton('Sell', self.sellQombit)
+        self.btnSave   = self.addButton('Save', self.saveGame)
+        self.btnHint   = self.addButton('Hint', self.getHint)
 
         self.canGrid = tk.Canvas(master=self.frmMain, bg='#c0f0f0', bd=0, 
                                     height=self.iHeight, width=self.iWidth, highlightthickness=0)
@@ -192,10 +200,11 @@ class QomboApp(BaseApp):
     
     def enableWidgets(self):
         """Enable or disable buttons based on state"""
-        self.enableButton(self.btnStart, self.grid.isEmpty())
-        self.enableButton(self.btnSell,  self.canSell())
-        self.enableButton(self.btnSave,  not self.grid.isEmpty())
-        self.enableButton(self.btnHint,  not self.grid.isEmpty())
+        self.enableButton(self.btnStart,  self.grid.isEmpty())
+        self.enableButton(self.btnResume, self.grid.isEmpty())
+        self.enableButton(self.btnSell,   self.canSell())
+        self.enableButton(self.btnSave,   not self.grid.isEmpty())
+        self.enableButton(self.btnHint,   not self.grid.isEmpty())
         
     def enableButton(self, btn: tk.Button, bEnabled: bool):
         """Enable the specified button if bEnabled is true."""

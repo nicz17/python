@@ -12,6 +12,7 @@ import logging
 import os
 import time
 from Grid import *
+from Qombit import *
 
 class GameSave():
     log = logging.getLogger(__name__)
@@ -39,6 +40,25 @@ class GameSave():
         oFile.write(sJson)
         oFile.close()
 
-    def load(self, filename: str):
+    def load(self, filename: str, grid: Grid):
         self.log.info('Loading game from %s%s', self.dir, filename)
-        self.log.error('Not implemented yet!')
+        if not os.path.exists(self.dir + filename):
+            self.log.error('No such file: %s', self.dir + filename)
+            return
+        
+        oFile = open(self.dir + filename, 'r')
+        dData = json.load(oFile)
+        dGrid = dData['grid']
+        for dCell in dGrid['cells']:
+            x = dCell['x']
+            y = dCell['y']
+            dQombit = dCell['value']
+            oKind = OrKind[dQombit['kind']]
+            oRarity = OrRarity[dQombit['rarity']]
+            qombit = Qombit(dQombit['name'], oKind, dQombit['level'], oRarity)
+            if oKind == OrKind.Generator:
+                qombit = GeneratorQombit(dQombit['level'], oRarity)
+            self.log.info('Adding %s at [%d:%d]', str(qombit), x, y)
+            grid.put(x, y, qombit)
+
+        oFile.close()
