@@ -140,7 +140,7 @@ class TargetQomboImage(QomboImage):
         for x in range(self.w):
             for y in range(self.h):
                 rho = self.getRho(x, y)
-                self.aMask[x, y] = math.sin(4*(self.iLevel+1)*rho)
+                self.aMask[x, y] = math.sin(2*(self.iLevel+1)*rho)
 
 class QuadrantQomboImage(QomboImage):
     """A quadrant image."""
@@ -174,8 +174,10 @@ def testQomboImage():
     """Unit Test case."""
     nLevels = 10
     dir = 'test/'
-    aMasks = [DiceQomboImage(), StarQomboImage(), SpiralQomboImage(), RingQomboImage()]
+    aMasks = [DiceQomboImage(), StarQomboImage(), SpiralQomboImage(), RingQomboImage(), TargetQomboImage()]
     oPalette = HeatPalette()
+    #oPalette = NightPalette()
+    #oPalette = FractalPalette()
         
     # Add save dir if missing
     if not os.path.exists(dir):
