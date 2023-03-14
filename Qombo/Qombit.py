@@ -16,8 +16,8 @@ from QomboImage import *
 
 class OrKind(Enum):
     Generator  = 0
-    Dice       = 1
-    Star       = 2
+    Star       = 1
+    Dice       = 2
     Spiral     = 3
     Ring       = 4
     Julia      = 5

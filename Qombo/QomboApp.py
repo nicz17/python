@@ -128,8 +128,6 @@ class QomboApp(BaseApp):
         self.canGrid.addtag_withtag('dragdroptag', tk.CURRENT)
 
     def onDragMove(self, event: tk.Event):
-        #x, y, r = event.x, event.y, self.renderer.iRadiusGrid
-        #self.canGrid.coords('dragdroptag', x-r, y-r, x+r, y+r)
         x, y = event.x - 50, event.y - 50
         self.canGrid.coords('dragdroptag', x, y)
 
@@ -189,6 +187,17 @@ class QomboApp(BaseApp):
         if self.canGenerate():
             self.generate()
             self.renderer.drawGrid()
+        else:
+            hint = self.hintProvider.findGenerator()
+            if hint is not None:
+                self.setSelection(hint.aPositions[0])
+                self.generate()
+                self.renderer.drawGrid()
+
+    def onKeyMerge(self, event):
+        pair = self.hintProvider.findPair()
+        if pair is not None:
+            self.doDragDrop(pair.aPositions[0], pair.aPositions[1])
 
     def createWidgets(self):
         """Create user widgets"""
@@ -212,6 +221,7 @@ class QomboApp(BaseApp):
         # Keyboard shortcuts
         self.window.bind('h', self.onKeyHint)
         self.window.bind('g', self.onKeyGenerate)
+        self.window.bind('m', self.onKeyMerge)
     
     def enableWidgets(self):
         """Enable or disable buttons based on state"""
