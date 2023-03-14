@@ -56,8 +56,8 @@ class GameSave():
             oKind = OrKind[dQombit['kind']]
             oRarity = OrRarity[dQombit['rarity']]
             qombit = Qombit(dQombit['name'], oKind, dQombit['level'], oRarity)
-            if oKind == OrKind.Generator:
-                qombit = GeneratorQombit(dQombit['level'], oRarity)
+            #if oKind == OrKind.Generator:
+            #    qombit = GeneratorQombit(dQombit['level'], oRarity)
             self.log.info('Adding %s at [%d:%d]', str(qombit), x, y)
             grid.put(x, y, qombit)
 

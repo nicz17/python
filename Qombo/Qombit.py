@@ -20,7 +20,8 @@ class OrKind(Enum):
     Star       = 2
     Spiral     = 3
     Ring       = 4
-    Objective  = 5
+    Julia      = 5
+    Objective  = 6
 
     def __str__(self):
         return self.name
@@ -55,11 +56,26 @@ class Qombit:
         self.oRarity = oRarity
         self.oImage = None
         self.oImageLarge = None
-        self.oMask = StarQomboImage()
+        self.oMask = None
         self.aPalettes = [HeatPalette(), FluoPalette(), PinkGreenPalette(), SepiaPalette()]
+        self.nameGen = NameGen(42)
+        self.aNames = []
+        for i in range(4):
+            self.aNames.append(self.nameGen.generate())
 
     def getPalette(self) -> Palette:
         return self.aPalettes[self.oRarity.value]
+    
+    def getMask(self) -> QomboImage:
+        if self.oMask is None:
+            match self.oKind:
+                case OrKind.Generator: self.oMask = TargetQomboImage()
+                case OrKind.Star:      self.oMask = StarQomboImage()
+                case OrKind.Dice:      self.oMask = DiceQomboImage()
+                case OrKind.Spiral:    self.oMask = SpiralQomboImage()
+                case OrKind.Ring:      self.oMask = RingQomboImage()
+                case OrKind.Julia:     self.oMask = JuliaQomboImage()
+        return self.oMask
     
     def evolve(self):
         """Result of combining this qombit with another one."""
@@ -82,14 +98,25 @@ class Qombit:
             case OrKind.Star:      return OrKind.Dice
             case OrKind.Dice:      return OrKind.Spiral
             case OrKind.Spiral:    return OrKind.Ring
+            case OrKind.Ring:      return OrKind.Julia
+        return None
 
     def generate(self):
         """Generate a new Qombit. Most Qombits can't do this."""
+        if self.canGenerate():
+            iLevel = 1
+            oRarity = OrRarity.random()
+            sName = self.aNames[oRarity.value]
+            qombit = Qombit(sName, self.getGeneratedKind(), iLevel, oRarity)
+            return qombit
         return None
     
     def getDescription(self) -> str:
         """Get a short text describing what to do with this qombit."""
-        return 'Combine with an \nidentical object to \nevolve'
+        sDesc = 'Combine to evolve'
+        if self.canGenerate():
+            sDesc += '\nClick to create'
+        return sDesc
     
     def getImageName(self, sPrefix = '') -> str:
         """Get the image filename for this qombit."""
@@ -112,8 +139,9 @@ class Qombit:
     def generateImage(self, sFilename: str, iSize: int) -> PhotoImage:
         """Create a PhotoImage for this qombit with the specified filename and size."""
         if not os.path.exists(sFilename):
-            self.oMask.generate(self.iLevel, iSize, iSize)
-            self.oMask.toImage(self.getPalette(), sFilename)
+            oMask = self.getMask()
+            oMask.generate(self.iLevel, iSize, iSize)
+            oMask.toImage(self.getPalette(), sFilename)
         return PhotoImage(file = sFilename)
     
     def toJson(self):
@@ -134,28 +162,3 @@ class Qombit:
             return NotImplemented
         return self.oKind.value == other.oKind.value and self.oRarity.value == other.oRarity.value and self.iLevel == other.iLevel
     
-class GeneratorQombit(Qombit):
-    """A Qombit that can generate other Qombits"""
-
-    def __init__(self, iLevel: int, oRarity: OrRarity):
-        self.nameGen = NameGen(42)
-        super().__init__(self.nameGen.generate(), OrKind.Generator, iLevel, oRarity)
-        self.generatedKind = OrKind.Star
-        self.oPalette = GoldBluePalette()
-        self.aNames = []
-        for i in range(4):
-            self.aNames.append(self.nameGen.generate())
-    
-    def getPalette(self) -> Palette:
-        return self.oPalette
-
-    def generate(self) -> Qombit:
-        """Generate a new Qombit."""
-        iLevel = 1
-        oRarity = OrRarity.random()
-        sName = self.aNames[oRarity.value]
-        qombit = Qombit(sName, self.generatedKind, iLevel, oRarity)
-        return qombit
-    
-    def getDescription(self) -> str:
-        return 'Click to create an object'

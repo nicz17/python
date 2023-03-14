@@ -46,7 +46,8 @@ class QomboApp(BaseApp):
         self.log.info('Starting new game')
         pos = self.grid.getCenter()
         if pos:
-            qombit = GeneratorQombit(1, OrRarity.Common)
+            #qombit = GeneratorQombit(1, OrRarity.Common)
+            qombit = Qombit('Premier', OrKind.Generator, 1, OrRarity.Common)
             x, y = pos.x, pos.y
             self.grid.put(x, y, qombit)
             self.renderer.drawGrid()
@@ -79,9 +80,8 @@ class QomboApp(BaseApp):
     def canGenerate(self) -> bool:
         """Check if it is possible to generate a new qombit."""
         qombit = self.getSelectedQombit()
-        if qombit:
-            if qombit.oKind == OrKind.Generator:
-                return not self.grid.isFull()
+        if qombit is not None and qombit.canGenerate():
+            return not self.grid.isFull()
         return False
 
     def sellQombit(self):
