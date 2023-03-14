@@ -44,7 +44,7 @@ class HintProvider():
         for x in range(self.grid.w):
             for y in range(self.grid.h):
                 qombit = self.grid.get(x, y)
-                if qombit is not None and qombit.oKind != OrKind.Generator:
+                if qombit is not None:
                     pos1 = Position(x, y)
                     pos2 = self.findOther(qombit, pos1)
                     if pos2 is not None:
@@ -66,13 +66,15 @@ class HintProvider():
         return None
 
     def findGenerator(self) -> Hint:
-        """Look for a generator on the grid."""
+        """Look for the most advanced generator on the grid."""
+        hint = None
+        iBestGen = -1
         for x in range(self.grid.w):
             for y in range(self.grid.h):
                 qombit = self.grid.get(x, y)
-                if qombit is not None and qombit.oKind == OrKind.Generator:
-                    pos = Position(x, y)
-                    hint = Hint('Generate more objects!')
-                    hint.addPosition(pos)
-                    return hint
-        return None
+                if qombit is not None and qombit.canGenerate():
+                    if qombit.oKind.value > iBestGen:
+                        iBestGen = qombit.oKind.value
+                        hint = Hint('Generate more objects!')
+                        hint.addPosition(Position(x, y))
+        return hint
