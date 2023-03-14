@@ -182,14 +182,25 @@ class QomboApp(BaseApp):
     def onBeforeClose(self):
         self.saveGame()
 
+    def onKeyHint(self, event):
+        self.getHint()
+
+    def onKeyGenerate(self, event):
+        if self.canGenerate():
+            self.generate()
+            self.renderer.drawGrid()
+
     def createWidgets(self):
         """Create user widgets"""
+
+        # Buttons
         self.btnStart  = self.addButton('New Game', self.newGame)
         self.btnResume = self.addButton('Resume', self.resumeGame)
         self.btnSell   = self.addButton('Sell', self.sellQombit)
         self.btnSave   = self.addButton('Save', self.saveGame)
         self.btnHint   = self.addButton('Hint', self.getHint)
 
+        # Canvas
         self.canGrid = tk.Canvas(master=self.frmMain, bg='#c0f0f0', bd=0, 
                                     height=self.iHeight, width=self.iWidth, highlightthickness=0)
         self.canGrid.pack(side=tk.LEFT)
@@ -197,6 +208,10 @@ class QomboApp(BaseApp):
         self.canSelection = tk.Canvas(master=self.frmMain, bg='#f0f0c0', bd=0, 
                                     height=self.iHeight, width=200, highlightthickness=0)
         self.canSelection.pack(side=tk.RIGHT)
+
+        # Keyboard shortcuts
+        self.window.bind('h', self.onKeyHint)
+        self.window.bind('g', self.onKeyGenerate)
     
     def enableWidgets(self):
         """Enable or disable buttons based on state"""
