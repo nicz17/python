@@ -170,11 +170,44 @@ class RingQomboImage(QomboImage):
                 self.aMask[x, y] = 10000
         self.aMask = gaussian_filter(self.aMask, self.w/16)
 
+class JuliaQomboImage(QomboImage):
+    """An image based on the Julia set fractal, with increasing precision."""
+
+    def __init__(self):
+        super().__init__('JuliaQomboImage')
+        self.cParam = complex(-0.194, 0.6557)
+        self.rWidth = 3.1
+        self.iMaxIter = 200
+        self.rBailout = 2.0
+
+    def computeMask(self):
+        self.iMaxIter = 10*self.iLevel
+        for x in range(self.w):
+            for y in range(self.h):
+                self.aMask[x, y] = self.iter(self.getZ(x, y))
+
+    def getZ(self, x, y):
+        """Get the complex number corresponding to the image pixel x,y"""
+        rw = self.rWidth
+        rh = rw*self.h/self.w
+        zr = x*rw/self.w - rw/2.0
+        zi = y*rh/self.h - rh/2.0
+        return complex(zr, zi)
+
+    def iter(self, z):
+        """Compute the iterations required to bailout at complex number z."""
+        for i in range(self.iMaxIter):
+            z = z*z + self.cParam
+            if abs(z) > self.rBailout:
+                return i
+        return self.iMaxIter
+    
+
 def testQomboImage():
     """Unit Test case."""
     nLevels = 10
     dir = 'test/'
-    aMasks = [DiceQomboImage(), StarQomboImage(), SpiralQomboImage(), RingQomboImage(), TargetQomboImage()]
+    aMasks = [DiceQomboImage(), StarQomboImage(), SpiralQomboImage(), RingQomboImage(), JuliaQomboImage()]
     oPalette = HeatPalette()
     #oPalette = NightPalette()
     #oPalette = FractalPalette()
