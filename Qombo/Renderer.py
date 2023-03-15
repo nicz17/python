@@ -31,6 +31,7 @@ class Renderer:
         self.iHeight = self.grid.h*self.iSize
         self.iWidth  = self.grid.w*self.iSize
         self.selpos = None
+        self.child = None
         
         # Add image dir if missing
         if not os.path.exists(Qombit.sImageDir):
@@ -77,6 +78,11 @@ class Renderer:
             self.canSelection.create_text(tx, 220, text = str(qombit.oRarity) + ' ' + str(qombit.oKind))
             self.canSelection.create_text(tx, 240, text = 'Level ' + str(qombit.iLevel))
             self.canSelection.create_text(tx, 300, text = qombit.getDescription())
+            if qombit.canGenerate():
+                self.canSelection.create_text(tx, 400, text = 'Generates', font = self.fontBold)
+                self.child = Qombit('Sample', qombit.getGeneratedKind(), 1, OrRarity.Common)
+                self.canSelection.create_image(tx-50, 420, anchor = tk.NW, image = self.child.getImage())
+                self.canSelection.create_text(tx, 540, text = qombit.getGeneratedKind().name + ' level 1')
         else:
             self.canSelection.create_text(100, 20, text = 'Ready')
 
