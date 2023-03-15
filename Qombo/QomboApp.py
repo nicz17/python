@@ -94,7 +94,9 @@ class QomboApp(BaseApp):
         if self.canSell():
             sold = self.grid.remove(self.getSelectedQombit())
             if sold:
-                self.log.info('Sold %s', sold)
+                iPoints = sold.getPoints()
+                self.game.incScore(iPoints)
+                self.log.info('Sold %s for %d points', sold, iPoints)
                 self.setSelection(None)
                 self.renderer.drawGrid()
                 self.setStatus('Sold ' + str(sold))
@@ -102,10 +104,8 @@ class QomboApp(BaseApp):
     def canSell(self):
         """Check if it is possible to sell the current selection."""
         qombit = self.getSelectedQombit()
-        if qombit:
-            if qombit.oKind == OrKind.Generator:
-                return False
-            return True
+        if qombit is not None:
+            return qombit.canSell()
         return False
     
     def onGridClick(self, at: Position):

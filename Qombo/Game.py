@@ -21,6 +21,10 @@ class Game:
         else:
             self.tStart = tStart
 
+    def incScore(self, iPoints: int):
+        """Increment the score by the specified points."""
+        self.iScore += iPoints
+
     def toJson(self):
         """Create a dict of this game for json export."""
         data = {}
