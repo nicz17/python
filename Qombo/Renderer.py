@@ -32,6 +32,7 @@ class Renderer:
         self.iWidth  = self.grid.w*self.iSize
         self.selpos = None
         self.child = None
+        self.aHighlightIds = []
         
         # Add image dir if missing
         if not os.path.exists(Qombit.sImageDir):
@@ -40,6 +41,7 @@ class Renderer:
     def drawGrid(self):
         """Draw grid lines and qombits on the grid canvas"""
         self.canGrid.delete('all')
+        self.aHighlightIds = []
         self.drawGridLines()
         for x in range(self.grid.w):
             for y in range(self.grid.h):
@@ -83,6 +85,8 @@ class Renderer:
                 self.child = Qombit('Sample', qombit.getGeneratedKind(), 1, OrRarity.Common)
                 self.canSelection.create_image(tx-50, 420, anchor = tk.NW, image = self.child.getImage())
                 self.canSelection.create_text(tx, 540, text = qombit.getGeneratedKind().name + ' level 1')
+            else:
+                self.child = None
         else:
             self.canSelection.create_text(100, 20, text = 'Ready')
 
@@ -95,10 +99,15 @@ class Renderer:
             y0 = pos.y * self.iSize + 1
             x1 = x0 + self.iSize - w
             y1 = y0 + self.iSize - w
-            self.canGrid.create_line(x0, y0, x1, y0, fill=color, width=w)
-            self.canGrid.create_line(x0, y0, x0, y1, fill=color, width=w)
-            self.canGrid.create_line(x0, y1, x1, y1, fill=color, width=w)
-            self.canGrid.create_line(x1, y0, x1, y1, fill=color, width=w)
+            self.aHighlightIds.append(self.canGrid.create_line(x0, y0, x1, y0, fill=color, width=w))
+            self.aHighlightIds.append(self.canGrid.create_line(x0, y0, x0, y1, fill=color, width=w))
+            self.aHighlightIds.append(self.canGrid.create_line(x0, y1, x1, y1, fill=color, width=w))
+            self.aHighlightIds.append(self.canGrid.create_line(x1, y0, x1, y1, fill=color, width=w))
+
+    def hideHighlights(self):
+        """Hide the highlights on the grid canvas."""
+        for id in self.aHighlightIds:
+            self.canGrid.itemconfigure(id, state='hidden')
 
     def drawCircle(self, canvas: tk.Canvas, x:int, y: int, r: int, outline: str, fill: str):
         canvas.create_oval(x-r, y-r, x+r, y+r, outline=outline, fill=fill)

@@ -64,7 +64,7 @@ class QomboApp(BaseApp):
         self.log.info('Resuming saved game %s', str(self.game))
         self.renderer.drawGrid()
         self.setSelection(None)
-        self.setStatus('Welcome to ' + self.sTitle + ', ' + self.game.sPlayer)
+        self.setStatus('Welcome to ' + self.sTitle + ', ' + self.game.sPlayer + ' !')
     
     def saveGame(self):
         """Save the game state to json file."""
@@ -135,6 +135,7 @@ class QomboApp(BaseApp):
     def onDragMove(self, event: tk.Event):
         x, y = event.x - 50, event.y - 50
         self.canGrid.coords('dragdroptag', x, y)
+        self.renderer.hideHighlights()
 
     def onDragEnd(self, event: tk.Event):
         oDragTo = self.getGridPos(event.x, event.y)
