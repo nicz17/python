@@ -8,7 +8,9 @@ __version__ = "1.0.0"
 
 import tkinter as tk
 import logging
+import getpass
 from BaseApp import *
+from Game import *
 from GameSave import *
 from Grid import *
 from Qombit import *
@@ -21,6 +23,7 @@ class QomboApp(BaseApp):
     log = logging.getLogger('QomboApp')
     selpos: Position
     oDragFrom: Position
+    game: Game
     grid: Grid
     iSize = 110
     gridW = 9
@@ -37,6 +40,7 @@ class QomboApp(BaseApp):
         self.window.resizable(width=False, height=False)
         self.renderer = Renderer(self.grid, self.canGrid, self.canSelection, self.iSize)
         self.hintProvider = HintProvider(self.grid)
+        self.game = None
         self.gameSave = GameSave()
         self.renderer.drawGrid()
         self.setSelection(None)
@@ -44,9 +48,10 @@ class QomboApp(BaseApp):
     def newGame(self):
         """Generate new game state"""
         self.log.info('Starting new game')
+        sPlayer = getpass.getuser()
+        self.game = Game(self.sTitle, sPlayer, 0)
         pos = self.grid.getCenter()
         if pos:
-            #qombit = GeneratorQombit(1, OrRarity.Common)
             qombit = Qombit('Premier', OrKind.Generator, 1, OrRarity.Common)
             x, y = pos.x, pos.y
             self.grid.put(x, y, qombit)
@@ -55,19 +60,19 @@ class QomboApp(BaseApp):
 
     def resumeGame(self):
         """Resume a saved game"""
-        self.log.info('Resuming saved game')
-        self.gameSave.load('autosave.json', self.grid)
+        self.game = self.gameSave.load('autosave.json', self.grid)
+        self.log.info('Resuming saved game %s', str(self.game))
         self.renderer.drawGrid()
         self.setSelection(None)
+        self.setStatus('Welcome to ' + self.sTitle + ', ' + self.game.sPlayer)
     
     def saveGame(self):
         """Save the game state to json file."""
-        self.gameSave.save('autosave.json', self.grid)
+        self.gameSave.save('autosave.json', self.game, self.grid)
 
     def generate(self):
         """Generate a new qombit if the selection is a generator."""
         if self.canGenerate():
-            #at = self.grid.find(self.selection)
             pos = self.grid.closestEmptyCell(self.selpos)
             if pos:
                 qombit = self.getSelectedQombit().generate()
