@@ -245,7 +245,9 @@ class Builder:
             aRecLinks = []
             for oRec in self.dIngreds[sIngr]:
                 aRecLinks.append(oRec.getSubLink())
-            tIngr = InlineHtmlTag(sIngr + ' : ', aRecLinks, ', ')
+            sWikiLink = '<a href="http://fr.wikipedia.org/wiki/' + sIngr + '" target="_blank">'
+            sWikiLink += sIngr + '</a>'
+            tIngr = InlineHtmlTag(sWikiLink + ' : ', aRecLinks, ', ')
             aIngreds.append(tIngr)
 
         oPage.addList(aIngreds)
