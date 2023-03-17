@@ -8,7 +8,7 @@ __copyright__ = "Copyright 2023 N. Zwahlen"
 __version__ = "1.0.0"
 
 import logging
-from cmath import sin
+import cmath
 
 class FractalSet:
     """A fractal set interface."""
@@ -123,10 +123,37 @@ class SineFractal(FractalSet):
         """Compute the iterations required to bailout at complex number z."""
         c = z
         for i in range(self.iMaxIter):
-            z = sin(z) + c
+            z = cmath.sin(z) + c
             if abs(z) > self.rBailout:
                 return i
         return self.iMaxIter
     
     def getDefaultWidth(self) -> float:
         return 6.3
+
+
+class DucksFractal(FractalSet):
+    """The Ducks fractal. See http://www.algorithmic-worlds.net/blog/blog.php?Post=20110227"""
+    log = logging.getLogger('DucksFractal')
+
+    def __init__(self, iMaxIter, rBailout = 2.0):
+        super().__init__('Ducks fractal', iMaxIter, rBailout)
+
+    def iter(self, z):
+        #c = z
+        c = complex(0.0001, 0.0001)
+        try:
+            for i in range(self.iMaxIter):
+                az = complex(z.real, abs(z.imag))
+                z = cmath.log(az + c)
+                if abs(z) > self.rBailout:
+                    return i
+        except:
+            pass
+        return self.iMaxIter
+    
+    def getDefaultCenter(self):
+        return complex(0.0, 0.0)
+    
+    def getDefaultWidth(self) -> float:
+        return 4.0

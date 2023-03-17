@@ -27,7 +27,8 @@ class FractalsApp(BaseApp):
                           JuliaSet(self.iMaxIter), 
                           BurningShip(self.iMaxIter), 
                           LogisticMap(self.iMaxIter),
-                          SineFractal(self.iMaxIter)]
+                          SineFractal(self.iMaxIter),
+                          DucksFractal(self.iMaxIter)]
         self.oFractal = self.aFractals[0]
         self.aPalettes = [FractalPalette(), FluoPalette(),
                           HeatPalette(), DarkHeatPalette(), 
