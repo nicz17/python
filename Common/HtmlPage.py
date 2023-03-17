@@ -32,6 +32,7 @@ class HtmlPage:
         tStyle.addAttr('type', "text/css")
         tStyle.addAttr('href', sStyle)
         self.head.addTag(tStyle)
+        self.head.addTag(HtmlTag('meta').addAttr('charset', 'utf-8'))
 
     def buildBody(self):
         """Build HTML body tag with main div and possible menu div."""
@@ -91,7 +92,7 @@ class HtmlPage:
 
     def save(self, sFilename):
         self.log.info('Saving %s as %s', self.__str__(), sFilename)
-        oFile = open(sFilename, 'w', encoding="ISO-8859-1")
+        oFile = open(sFilename, 'w')
         oFile.write('<!DOCTYPE html>' + self.html.getHtml())
         oFile.close()
 
