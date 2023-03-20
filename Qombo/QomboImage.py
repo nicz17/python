@@ -201,13 +201,36 @@ class JuliaQomboImage(QomboImage):
             if abs(z) > self.rBailout:
                 return i
         return self.iMaxIter
+	
+class CellQomboImage(QomboImage):
+    """An image based on a living cell."""
+
+    def __init__(self):
+        super().__init__('CellQomboImage')
+
+    def computeMask(self):
+        self.shell(int(self.w/2), int(self.h/2), 0.8*self.w/2)
+		
+    def shell(self, cx: int, cy: int, r: float):
+        for x in range(self.w):
+            for y in range(self.h):
+                ur = math.sqrt((x-cx)*(x-cx) + (y-cy)*(y-cy))/r
+                if ur < 0.98:
+                    self.aMask[x, y] = QomboImage.gauss(ur, 0.98, 0.25) + 2.0*QomboImage.gauss(ur, 0.0, 0.15)
+                else:
+                    self.aMask[x, y] = QomboImage.gauss(ur, 0.98, 0.05)
     
 
 def testQomboImage():
     """Unit Test case."""
     nLevels = 10
     dir = 'test/'
-    aMasks = [DiceQomboImage(), StarQomboImage(), SpiralQomboImage(), RingQomboImage(), JuliaQomboImage()]
+    aMasks = [DiceQomboImage(), 
+			  #StarQomboImage(), 
+			  #SpiralQomboImage(), 
+			  RingQomboImage(), 
+			  #JuliaQomboImage(),
+			  CellQomboImage()]
     oPalette = HeatPalette()
     #oPalette = NightPalette()
     #oPalette = FractalPalette()
