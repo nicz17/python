@@ -161,14 +161,35 @@ class RingQomboImage(QomboImage):
         super().__init__('RingQomboImage')
 
     def computeMask(self):
+        iValue = 1000
         self.aMask = np.zeros((self.w, self.h))
         for iOctant in range(8):
             x = int(0.5*self.w + 0.36*self.w*math.sin(iOctant*math.pi/4.0))
             y = int(0.5*self.h - 0.36*self.w*math.cos(iOctant*math.pi/4.0))
-            self.aMask[x, y] = -10000
+            self.aMask[x, y] = -1 * (self.iLevel+1) * iValue
             if iOctant <= self.iLevel-1:
-                self.aMask[x, y] = 10000
+                self.aMask[x, y] = (iOctant+2) * iValue
         self.aMask = gaussian_filter(self.aMask, self.w/16)
+
+class ClusterQomboImage(QomboImage):
+    """An image with as many dots as our level, forming a cluster."""
+    def __init__(self):
+        super().__init__('ClusterQomboImage')
+
+    def computeMask(self):
+        nDots = self.iLevel
+        #if self.iLevel %2 == 1:
+        #    self.addDot(0.50, 0.50, 1000)
+        #    nDots = self.iLevel - 1
+        for iDot in range(nDots):
+            x = 0.5 + 0.36*math.sin(iDot*2.0*math.pi/nDots)
+            y = 0.5 - 0.36*math.cos(iDot*2.0*math.pi/nDots)
+            self.addDot(x, y, 1000)
+        self.aMask = gaussian_filter(self.aMask, self.w/16)
+
+    def addDot(self, x: float, y: float, iVal: int):
+        self.aMask[int(x*self.w), int(y*self.h)] = iVal
+
 
 class JuliaQomboImage(QomboImage):
     """An image based on the Julia set fractal, with increasing precision."""
@@ -230,7 +251,8 @@ def testQomboImage():
 			  #SpiralQomboImage(), 
 			  RingQomboImage(), 
 			  #JuliaQomboImage(),
-			  CellQomboImage()]
+			  ClusterQomboImage()
+              ]
     oPalette = HeatPalette()
     #oPalette = NightPalette()
     #oPalette = FractalPalette()
