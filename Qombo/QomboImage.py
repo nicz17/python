@@ -278,7 +278,7 @@ def testQomboImage():
 
     # Create HTML page for rendering
     oPage = HtmlPage('QomboImage Test')
-    oPage.addHeading(1, 'QomboImage Test')
+    oPage.addHeading(1, oPage.sTitle)
     oPage.addTable(aMaskImgs, nLevels)
     oPage.save('QomboImageTest.html')
     os.system('firefox QomboImageTest.html')
