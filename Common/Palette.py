@@ -149,6 +149,10 @@ class FractalPalette(SimplePalette):
     def __init__(self):
         super().__init__("FractalPalette", 0.24, 0.3, 0.5, 0.72)
 
+class GreenRedPalette(SimplePalette):
+    def __init__(self):
+        super().__init__("GreenRedPalette", 0.65, 0.9, 0.1, 3.0)
+
 class GhostPalette(SimplePalette):
     def __init__(self):
         super().__init__("GhostPalette", 0.42, 0.78, 0.81, 0.72)
@@ -195,7 +199,8 @@ def testPalette():
                  FluoPalette(),
                  PinkGreenPalette(),
                  GoldBluePalette(),
-                 NightPalette()]
+                 NightPalette(),
+                 GreenRedPalette()]
 
     dir = 'palettes/'
     if not os.path.exists(dir):
