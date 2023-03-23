@@ -68,7 +68,8 @@ class QomboApp(BaseApp):
     
     def saveGame(self):
         """Save the game state to json file."""
-        self.gameSave.save('autosave.json', self.game, self.grid)
+        if self.game is not None:
+            self.gameSave.save('autosave.json', self.game, self.grid)
 
     def generate(self):
         """Generate a new qombit if the selection is a generator."""
@@ -169,11 +170,20 @@ class QomboApp(BaseApp):
         self.selpos = pos
         self.renderer.drawSelection(pos)
         self.enableWidgets()
+        self.updateScore()
 
     def getSelectedQombit(self) -> Qombit:
+        """Get the Qombit at the selected grid cell."""
         if self.selpos:
             return self.grid.get(self.selpos.x, self.selpos.y)
         return None
+    
+    def updateScore(self):
+        """Display the current game score."""
+        sScore = 'No Score'
+        if self.game is not None:
+            sScore = 'Score: ' + str(self.game.iScore)
+        self.lblScore.configure(text = sScore)
 
     def getHint(self):
         """Display a hint on what to do next."""
@@ -214,6 +224,10 @@ class QomboApp(BaseApp):
         self.btnSell   = self.addButton('Sell', self.sellQombit)
         self.btnSave   = self.addButton('Save', self.saveGame)
         self.btnHint   = self.addButton('Hint', self.getHint)
+
+        # Score label
+        self.lblScore = tk.Label(self.frmButtons, text='Score: 0')
+        self.lblScore.pack(fill=tk.X, pady=6)
 
         # Canvas
         self.canGrid = tk.Canvas(master=self.frmMain, bg='#c0f0f0', bd=0, 
