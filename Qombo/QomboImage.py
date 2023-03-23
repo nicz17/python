@@ -178,14 +178,21 @@ class ClusterQomboImage(QomboImage):
 
     def computeMask(self):
         nDots = self.iLevel
-        #if self.iLevel %2 == 1:
-        #    self.addDot(0.50, 0.50, 1000)
-        #    nDots = self.iLevel - 1
+        rPhi0 = math.pi/8.0 + math.pi/2.0*(self.iLevel-1)
+        rRad  = 0.34
+        self.addRing(rRad, 10)
         for iDot in range(nDots):
-            x = 0.5 + 0.36*math.sin(iDot*2.0*math.pi/nDots)
-            y = 0.5 - 0.36*math.cos(iDot*2.0*math.pi/nDots)
+            x = 0.5 + rRad*math.sin(rPhi0 + iDot*2.0*math.pi/nDots)
+            y = 0.5 - rRad*math.cos(rPhi0 + iDot*2.0*math.pi/nDots)
             self.addDot(x, y, 1000)
         self.aMask = gaussian_filter(self.aMask, self.w/16)
+
+    def addRing(self, rRadius: float, iVal: int):
+        iResol = self.w*4
+        for iDot in range(iResol):
+            x = 0.5 + rRadius*math.sin(iDot*2.0*math.pi/iResol)
+            y = 0.5 - rRadius*math.cos(iDot*2.0*math.pi/iResol)
+            self.addDot(x, y, iVal)
 
     def addDot(self, x: float, y: float, iVal: int):
         self.aMask[int(x*self.w), int(y*self.h)] = iVal
@@ -247,10 +254,10 @@ def testQomboImage():
     nLevels = 10
     dir = 'test/'
     aMasks = [DiceQomboImage(), 
-			  #StarQomboImage(), 
-			  #SpiralQomboImage(), 
+			  StarQomboImage(), 
+			  SpiralQomboImage(), 
 			  RingQomboImage(), 
-			  #JuliaQomboImage(),
+			  JuliaQomboImage(),
 			  ClusterQomboImage()
               ]
     oPalette = HeatPalette()
