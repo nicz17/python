@@ -132,6 +132,15 @@ class Grid:
         """Returns the grid size (width x height)."""
         return self.w * self.h
     
+    def count(self):
+        """Counts non-empty cells."""
+        iCount = 0
+        for y in range(self.h):
+            for x in range(self.w):
+                if not self.isEmptyCell(x, y):
+                    iCount += 1
+        return iCount
+    
     def valueAsStr(self, x, y):
         """Get a string representation of the value at x,y."""
         if self.get(x, y):
