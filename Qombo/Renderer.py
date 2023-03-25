@@ -13,13 +13,14 @@ from BaseApp import *
 from Grid import *
 from Qombit import *
 from Palette import *
+from ProgressBar import *
 
 class Renderer:
+    """Rendering methods for Qombo."""
     iRadiusGrid = 36
     iRadiusSel  = 64
     selpos: Position
 
-    """Rendering methods for Qombo."""
     log = logging.getLogger('Renderer')
 
     def __init__(self, grid: Grid, canGrid: tk.Canvas, canSelection: tk.Canvas, iSize: int):
@@ -33,6 +34,7 @@ class Renderer:
         self.selpos = None
         self.child = None
         self.aHighlightIds = []
+        self.progressBar = ProgressBar(grid.size())
         
         # Add image dir if missing
         if not os.path.exists(Qombit.sImageDir):
@@ -49,6 +51,7 @@ class Renderer:
                 self.drawQombit(x, y, qombit)
         if self.getSelectedQombit() is not None:
             self.drawHighlight(self.selpos, 'yellow')
+        self.drawGridProgress()
 
     def drawQombit(self, x, y, qombit: Qombit):
         """Draw the Qombit on the grid canvas."""
@@ -67,6 +70,13 @@ class Renderer:
             gx = self.iWidth
             gy = y*self.iSize
             self.canGrid.create_line(0, gy, gx, gy, fill="#b0e0e0", width=1)
+
+    def drawGridProgress(self):
+        """Draw a progress bar showing grid fill"""
+        px, py = 10, self.iHeight - 35
+        self.progressBar.setAt(self.grid.count())
+        self.canSelection.create_rectangle(px, py, px+180, py+25, fill=self.progressBar.getColor())
+        self.canSelection.create_text(px+90, py+12, text = 'Board ' + self.progressBar.getTextPercent() + ' full')
 
     def drawSelection(self, pos: Position):
         """Update the selection canvas"""
@@ -89,6 +99,7 @@ class Renderer:
                 self.child = None
         else:
             self.canSelection.create_text(100, 20, text = 'Ready')
+        self.drawGridProgress()
 
     def drawHighlight(self, pos: Position, color: str):
         """Draw a highlight square at the specified grid position."""
