@@ -34,7 +34,7 @@ class ProgressBar:
     
     def getTextPercent(self) -> str:
         rPercent = 100.0*float(self.iAt)/float(self.iTotal)
-        return f'{rPercent}%'
+        return f'{rPercent:.1f}%'
 
 
 def testProgressBar():
