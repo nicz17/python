@@ -20,7 +20,13 @@ class Hint():
         self.aPositions.append(pos)
 
 class HintProvider():
-    """Provide hints for game progression."""
+    """
+    Provide hints for game progression.
+    First look if there is a completed objective.
+    Otherwise, find a pair of identical qombos to merge.
+    Otherwise, find the best generator.
+    """
+    
     log = logging.getLogger(__name__)
 
     def __init__(self, grid: Grid) -> None:
@@ -44,7 +50,7 @@ class HintProvider():
         for x in range(self.grid.w):
             for y in range(self.grid.h):
                 qombit = self.grid.get(x, y)
-                if qombit is not None:
+                if qombit is not None and qombit.canEvolve():
                     pos1 = Position(x, y)
                     pos2 = self.findOther(qombit, pos1)
                     if pos2 is not None:

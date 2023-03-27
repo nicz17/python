@@ -77,11 +77,20 @@ class Qombit:
                 case OrKind.Julia:     self.oMask = JuliaQomboImage()
         return self.oMask
     
+    def canEvolve(self):
+        """Check if this Qombit can evolve to the next level."""
+        if self.oKind == OrKind.Objective:
+            return False
+        if self.iLevel >= 8:
+            return False
+        return True
+    
     def evolve(self):
         """Result of combining this qombit with another one."""
-        self.iLevel += 1
-        self.oImage = None
-        self.oImageLarge = None
+        if self.canEvolve():
+            self.iLevel += 1
+            self.oImage = None
+            self.oImageLarge = None
 
     def canGenerate(self):
         """Check if this Qombit can generate others."""
@@ -117,8 +126,10 @@ class Qombit:
         return None
     
     def getDescription(self) -> str:
-        """Get a short text describing what to do with this qombit."""
-        sDesc = 'Combine to evolve'
+        """Get a short text describing possible actions of this qombit."""
+        sDesc = ''
+        if self.canEvolve():
+            sDesc += 'Combine to evolve'
         if self.canGenerate():
             sDesc += '\nClick to create'
         if self.canSell():
