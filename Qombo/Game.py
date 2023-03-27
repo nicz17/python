@@ -10,6 +10,7 @@ import logging
 import time
 
 class Game:
+    """Game with player name and score"""
     log = logging.getLogger(__name__)
 
     def __init__(self, sName: str, sPlayer: str, iScore: int, tStart = None):

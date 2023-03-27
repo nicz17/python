@@ -46,6 +46,7 @@ def getOptions():
     return dOptions
 
 def main():
+    """Main routine."""
     log.info('Welcome to Qombo v' + __version__)
     app = QomboApp()
     app.run()
