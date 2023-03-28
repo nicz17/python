@@ -13,10 +13,7 @@ from Qombit import *
 class QombitFactory():
     log = logging.getLogger(__name__)
 
-    def __init__(self) -> None:
-        """Constructor."""
-        self.log.info('Create QombitFactory')
-
+    @staticmethod
     def fromValues(sName: str, oKind: OrKind, iLevel: int, oRarity: OrRarity) -> Qombit:
         """Creates a new Qombit from the specified values."""
         qombit = Qombit(sName, oKind, iLevel, oRarity)
@@ -28,6 +25,7 @@ class QombitFactory():
             pass
         return qombit
 
+    @staticmethod
     def fromJson(oData: dict) -> Qombit:
         """Creates a new Qombit from the specified dict."""
         oKind = OrKind[oData['kind']]

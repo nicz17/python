@@ -1,5 +1,5 @@
 """
-Save and load game state to and from JSOn files. 
+Save and load game state to and from JSON files. 
 """
 
 __author__ = "Nicolas Zwahlen"
@@ -13,13 +13,16 @@ import time
 from Game import *
 from Grid import *
 from Qombit import *
+from QombitFactory import *
 
 class GameSave():
+    """Save and load game state to and from JSON files."""
     log = logging.getLogger(__name__)
     dir = 'saves/'
 
     def __init__(self) -> None:
         self.log.info('GameSave to/from json in %s', self.dir)
+        self.qombitFactory = QombitFactory()
         
         # Add save dir if missing
         if not os.path.exists(self.dir):
@@ -53,10 +56,7 @@ class GameSave():
         for dCell in dGrid['cells']:
             x = dCell['x']
             y = dCell['y']
-            dQombit = dCell['value']
-            oKind = OrKind[dQombit['kind']]
-            oRarity = OrRarity[dQombit['rarity']]
-            qombit = Qombit(dQombit['name'], oKind, dQombit['level'], oRarity)
+            qombit = QombitFactory.fromJson(dCell['value'])
             self.log.info('Adding %s at [%d:%d]', str(qombit), x, y)
             grid.put(x, y, qombit)
 
