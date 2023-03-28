@@ -1,5 +1,6 @@
 """
  A simple 2D grid containing objects in cells.
+ A 2D Position class for the grid coordinates.
 """
 
 __author__ = "Nicolas Zwahlen"
@@ -105,7 +106,7 @@ class Grid:
                     return Position(x, y)
         return None
     
-    def closestEmptyCell(self, pos: Position):
+    def closestEmptyCell(self, pos: Position) -> Position:
         """Return the closest empty cell to the sepcified position"""
         rMinDist = self.w + self.h
         closest = None
@@ -143,7 +144,7 @@ class Grid:
     
     def valueAsStr(self, x, y):
         """Get a string representation of the value at x,y."""
-        if self.get(x, y):
+        if self.get(x, y) is not None:
             return str(self.get(x, y))
         return 'None'
 
@@ -169,7 +170,11 @@ class Grid:
                     dCell = {}
                     dCell['x'] = x
                     dCell['y'] = y
-                    dCell['value'] = val.toJson()
+                    opToJson = getattr(val, 'toJson', None)
+                    if callable(opToJson):
+                        dCell['value'] = val.toJson()
+                    else:
+                        dCell['value'] = val
                     aCells.append(dCell)
         data['cells'] = aCells
         return data
@@ -181,8 +186,10 @@ def testGrid():
     grid = Grid(5, 4)
     grid.put(0, 0, '0:0')
     grid.put(1, 2, '1:2')
-    grid.put(4, 3, '4:3')
+    grid.put(4, 3,  4.3)
+    grid.put(4, 0,  4==0)
     grid.dump()
+    grid.log.info('JSON: %s', grid.toJson())
     
 if __name__ == '__main__':
     logging.basicConfig(format="[%(levelname)s] %(message)s", 

@@ -28,10 +28,15 @@ class TestGrid(unittest.TestCase):
     def test_json(self):
         grid = Grid(5, 4)
         json = grid.toJson()
-        self.assertIsNotNone(json)
+        self.assertIsNotNone(json, 'Json of empty grid')
         grid.put(2, 2, '2:2')
-        #json = grid.toJson()
-        #self.assertIsNotNone(json)
+        json = grid.toJson()
+        self.assertIsNotNone(json, 'Json of non-empty grid')
+
+    def test_center(self):
+        grid = Grid(5, 5)
+        center = grid.getCenter()
+        self.assertEqual(center, Position(2, 2), 'Expected center at 2:2')
 
 
 if __name__ == '__main__':
