@@ -46,6 +46,7 @@ class QomboImage:
         pass
 
     def toImage(self, oPalette: Palette, sFilename: str):
+        """Save the image to a PNG file."""
         self.log.info('Saving %s as %s with palette %s', str(self), sFilename, oPalette.sName)
         rgbArray = np.zeros((self.h, self.w, 3), 'uint8')
         for x in range(self.w):
@@ -247,7 +248,26 @@ class CellQomboImage(QomboImage):
                     self.aMask[x, y] = QomboImage.gauss(ur, 0.98, 0.25) + 2.0*QomboImage.gauss(ur, 0.0, 0.15)
                 else:
                     self.aMask[x, y] = QomboImage.gauss(ur, 0.98, 0.05)
-    
+
+class TileQomboImage(QomboImage):
+    """Image divided into smaller and smaller squares."""
+
+    def __init__(self):
+        super().__init__('TileQomboImage')
+
+    def computeMask(self):
+        if self.iLevel < 1:
+            return
+        sw = int(self.w/self.iLevel)
+        for ix in range(self.iLevel+1):
+            for iy in range(self.iLevel+1):
+                #if (ix+iy % 2 == 0):
+                self.fillRect(ix*sw, iy*sw, (ix+1)*sw, (iy+1)*sw, 100*(ix+iy+1))
+
+    def fillRect(self, x0, y0, x1, y1, val):
+        for x in range(x0, min(x1, self.w-1)):
+            for y in range(y0, min(y1, self.h-1)):
+                self.aMask[x, y] = val
 
 def testQomboImage():
     """Unit Test case."""
@@ -255,10 +275,11 @@ def testQomboImage():
     dir = 'test/'
     aMasks = [DiceQomboImage(), 
 			  StarQomboImage(), 
-			  SpiralQomboImage(), 
-			  RingQomboImage(), 
-			  JuliaQomboImage(),
-			  ClusterQomboImage()
+			  #SpiralQomboImage(), 
+			  #RingQomboImage(), 
+			  #JuliaQomboImage(),
+			  #ClusterQomboImage(),
+              TileQomboImage()
               ]
     oPalette = HeatPalette()
     #oPalette = NightPalette()
