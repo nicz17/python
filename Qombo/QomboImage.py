@@ -258,21 +258,20 @@ class TileQomboImage(QomboImage):
     def computeMask(self):
         if self.iLevel < 1:
             return
-        elif self.iLevel == 1:
-            sw = int(self.w/5)
-            self.fillRect(sw, sw, 4*sw, 4*sw)
-            return
         sw = self.w/self.iLevel
         for ix in range(self.iLevel+1):
             for iy in range(self.iLevel+1):
-                if (ix+iy) % 2 == 0:
-                    self.fillRect(int(ix*sw), int(iy*sw), int((ix+1)*sw), int((iy+1)*sw))
+                bInverted = ((ix+iy) % 2 == 0)
+                self.fillRect(int(ix*sw), int(iy*sw), int((ix+1)*sw), int((iy+1)*sw), bInverted)
 
-    def fillRect(self, x0: int, y0: int, x1: int, y1: int):
-        """Fill the specified rectangle with a gradient using x+y"""
-        for x in range(x0, min(x1, self.w-1)):
-            for y in range(y0, min(y1, self.h-1)):
-                self.aMask[x, y] = x+y
+    def fillRect(self, x0: int, y0: int, x1: int, y1: int, bInverted = False):
+        """Fill the specified rectangle with a gradient using Manhattan metric"""
+        for x in range(x0, min(x1, self.w)):
+            for y in range(y0, min(y1, self.h)):
+                val = min(x, self.w - x) + min(y, self.h - y)
+                if bInverted:
+                    val = self.w + self.h - val
+                self.aMask[x, y] = val
 
 def testQomboImage():
     """Unit Test case."""
