@@ -95,6 +95,11 @@ class Renderer:
                 self.child = Qombit('Sample', qombit.getGeneratedKind(), 1, OrRarity.Common)
                 self.canSelection.create_image(tx-50, 420, anchor = tk.NW, image = self.child.getImage())
                 self.canSelection.create_text(tx, 540, text = qombit.getGeneratedKind().name + ' level 1')
+            elif qombit.oKind == OrKind.Objective:
+                self.canSelection.create_text(tx, 400, text = 'Target', font = self.fontBold)
+                self.child = qombit.oTarget
+                self.canSelection.create_image(tx-50, 420, anchor = tk.NW, image = self.child.getImage())
+                self.canSelection.create_text(tx, 540, text = qombit.getTargetDescription())
             else:
                 self.child = None
         else:
