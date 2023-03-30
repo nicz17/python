@@ -34,15 +34,26 @@ class HintProvider():
 
     def getHint(self) -> Hint:
         """Look for a hint on what to do next."""
-        hint = self.findFinishedObjective()
+        hint = self.findCompletedObjective()
         if hint is None:
             hint = self.findPair()
         if hint is None:
             hint = self.findGenerator()
         return hint
     
-    def findFinishedObjective(self) -> Hint:
-        """Look for a finished objective."""
+    def findCompletedObjective(self) -> Hint:
+        """Look for a completed objective."""
+        for x in range(self.grid.w):
+            for y in range(self.grid.h):
+                qombit = self.grid.get(x, y)
+                if qombit and qombit.oKind == OrKind.Objective:
+                    pos1 = Position(x, y)
+                    pos2 = self.findOther(qombit.oTarget, pos1)
+                    if pos2 is not None:
+                        hint = Hint('Objective complete: ' + str(qombit))
+                        hint.addPosition(pos1)
+                        hint.addPosition(pos2)
+                        return hint
         return None
     
     def findPair(self) -> Hint:
