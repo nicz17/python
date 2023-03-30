@@ -24,6 +24,9 @@ class Position:
     
     def __str__(self):
         return '[' + str(self.x) + ':' + str(self.y) + ']'
+    
+    def __repr__(self):
+        return 'Position(' + str(self.x) + ', ' + str(self.y) + ')'
         
     def __eq__(self, other): 
         if not isinstance(other, Position):
@@ -150,7 +153,7 @@ class Grid:
 
     def dump(self):
         """Print internal state to log."""
-        self.log.info('%s size %d', self.__str__(), self.size())
+        self.log.info('%s size %d', self, self.size())
         for y in range(self.h):
             sRow = ''
             for x in range(self.w):
@@ -181,9 +184,13 @@ class Grid:
 
     def __str__(self):
         return 'Grid ' + str(self.w) + 'x' + str(self.h)
+    
+    def __repr__(self):
+        return 'Grid(' + str(self.w) + ', ' + str(self.h) + ')'
 
 def testGrid():
     grid = Grid(5, 4)
+    grid.log.info(repr(grid))
     grid.put(0, 0, '0:0')
     grid.put(1, 2, '1:2')
     grid.put(4, 3,  4.3)
