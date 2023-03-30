@@ -14,6 +14,7 @@ from Game import *
 from GameSave import *
 from Grid import *
 from Qombit import *
+from QombitFactory import *
 from Timer import *
 from Renderer import *
 from HintProvider import *
@@ -50,12 +51,16 @@ class QomboApp(BaseApp):
         self.log.info('Starting new game')
         sPlayer = getpass.getuser()
         self.game = Game(self.sTitle, sPlayer, 0)
-        pos = self.grid.getCenter()
-        if pos:
-            qombit = Qombit('Premier', OrKind.Generator, 1, OrRarity.Common)
-            x, y = pos.x, pos.y
-            self.grid.put(x, y, qombit)
-            self.renderer.drawGrid()
+
+        # First generator
+        oGenerator = QombitFactory.fromValues('Premier', OrKind.Generator, 1, OrRarity.Common)
+        self.grid.put(2, int(self.gridH/2), oGenerator)
+
+        # First objective
+        oObjective = QombitFactory.objective()
+        self.grid.put(self.gridW-3, int(self.gridH/2), oObjective)
+        
+        self.renderer.drawGrid()
         self.setSelection(None)
 
     def resumeGame(self):
@@ -109,6 +114,22 @@ class QomboApp(BaseApp):
             return qombit.canSell()
         return False
     
+    def objectiveComplete(self, oObjective: ObjectiveQombit, oTarget: Qombit):
+        """Check if the objective is completed."""
+        if oObjective is not None and oObjective.oTarget == oTarget:
+            self.log.info('Objective %s completed', oObjective)
+            self.game.incScore(oObjective.getPoints())
+            self.grid.remove(oObjective)
+            self.grid.remove(oTarget)
+            self.setSelection(None)
+            self.addObjective()
+            return True
+        return False
+    
+    def addObjective(self):
+        """Add a new objective."""
+        pass
+    
     def onGridClick(self, at: Position):
         """Handle grid click event."""
         self.log.info('Grid selection %s %s', at, self.grid.valueAsStr(at.x, at.y))
@@ -153,17 +174,25 @@ class QomboApp(BaseApp):
     def doDragDrop(self, oFrom: Position, oTo: Position):
         qom1 = self.grid.get(oFrom.x, oFrom.y)
         qom2 = self.grid.get(oTo.x, oTo.y)
+        bSwap = True
         if qom1 == qom2:
-            # Combine
+            # Combine TODO put in dedicated method
             self.log.info('Combining %s and %s', oFrom, oTo)
             qom1.evolve()
             self.grid.put(oTo.x, oTo.y, qom1)
             self.grid.put(oFrom.x, oFrom.y, None)
-        else:
+            bSwap = False
+            self.setSelection(oTo)
+            self.renderer.drawGrid()
+        elif qom2 and qom2.oKind == OrKind.Objective:
+            # Check if objective is complete
+            bSwap = not self.objectiveComplete(qom2, qom1)
+
+        if bSwap:
             self.log.info('Swapping %s and %s', oFrom, oTo)
             self.grid.swap(oFrom, oTo)
-        self.setSelection(oTo)
-        self.renderer.drawGrid()
+            self.setSelection(oTo)
+            self.renderer.drawGrid()
 
     def setSelection(self, pos: Position):
         """Set the specified position as selected and update widgets"""
