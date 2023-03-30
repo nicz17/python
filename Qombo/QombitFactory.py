@@ -31,8 +31,14 @@ class QombitFactory():
         oKind = OrKind[oData['kind']]
         oRarity = OrRarity[oData['rarity']]
         qombit = Qombit(oData['name'], oKind, oData['level'], oRarity)
-        if oKind == OrKind.Generator:
-            pass
-        elif oKind == OrKind.Objective:
-            pass
+        if oKind == OrKind.Objective:
+            oTarget = QombitFactory.fromJson(oData['target'])
+            qombit = ObjectiveQombit(oData['name'], oData['level'], oRarity, oTarget)
         return qombit
+    
+    @staticmethod
+    def objective() -> ObjectiveQombit:
+        """Creates a random objective"""
+        oTarget = Qombit('Target', OrKind.Star, 5, OrRarity.Common)
+        oObjective = ObjectiveQombit('Goal', 1, OrRarity.Common, oTarget)
+        return oObjective

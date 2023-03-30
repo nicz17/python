@@ -69,7 +69,8 @@ class Qombit:
     def getMask(self) -> QomboImage:
         if self.oMask is None:
             match self.oKind:
-                case OrKind.Generator: self.oMask = TargetQomboImage()
+                case OrKind.Generator: self.oMask = TileQomboImage()
+                case OrKind.Objective: self.oMask = TargetQomboImage()
                 case OrKind.Star:      self.oMask = StarQomboImage()
                 case OrKind.Dice:      self.oMask = DiceQomboImage()
                 case OrKind.Spiral:    self.oMask = SpiralQomboImage()
@@ -163,7 +164,7 @@ class Qombit:
         return PhotoImage(file = sFilename)
     
     def getPoints(self):
-        """Retrun the number of points this qombit is worth."""
+        """Return the number of points this qombit is worth."""
         return self.iLevel * self.oKind.value * (self.oRarity.value + 1)
     
     def toJson(self):
@@ -177,10 +178,41 @@ class Qombit:
 
     def __str__(self):
         return self.sName + ' level ' + str(self.iLevel) + ' ' + str(self.oRarity) + ' ' + str(self.oKind)
+    
+    def __repr__(self):
+        return 'Qombit(' + self.sName + ', ' + str(self.iLevel) + ')'
         
     def __eq__(self, other): 
         if not isinstance(other, Qombit):
             # don't attempt to compare against unrelated types
             return NotImplemented
         return self.oKind.value == other.oKind.value and self.oRarity.value == other.oRarity.value and self.iLevel == other.iLevel
+
+class ObjectiveQombit(Qombit):
+    def __init__(self, sName: str, iLevel: int, oRarity: OrRarity, oTarget: Qombit):
+        super().__init__(sName, OrKind.Objective, iLevel, oRarity)
+        self.oTarget = oTarget
+
+    def canEvolve(self):
+        return False
+
+    def canGenerate(self):
+        return False
+    
+    def canSell(self):
+        return False
+    
+    def getPoints(self):
+        return 10*self.oTarget.getPoints()
+
+    def toJson(self):
+        data = super().toJson()
+        data['target'] = self.oTarget.toJson()
+        return data
+    
+    def getDescription(self) -> str:
+        return 'Drop target here\nto earn ' + str(self.getPoints()) + ' points'
+    
+    def getTargetDescription(self) -> str:
+        return 'Level ' + str(self.oTarget.iLevel) + ' ' + str(self.oTarget.oRarity) + ' ' + str(self.oTarget.oKind)
     
