@@ -1,6 +1,7 @@
 """
  A simple 2D grid containing objects in cells.
  A 2D Position class for the grid coordinates.
+ The grid is iterable; iteration yields positions.
 """
 
 __author__ = "Nicolas Zwahlen"
@@ -52,6 +53,10 @@ class Grid:
     def get(self, x: int, y: int):
         """Get the value in the x,y cell."""
         return self.cells[x][y]
+    
+    def getAt(self, pos: Position):
+        """Get the value at the specified position."""
+        return self.cells[pos.x][pos.y]
     
     def find(self, val):
         """Return the location in this grid of the specified value, or None."""
@@ -187,6 +192,11 @@ class Grid:
     
     def __repr__(self):
         return 'Grid(' + str(self.w) + ', ' + str(self.h) + ')'
+    
+    def __iter__(self):
+        for x in range(self.w):
+            for y in range(self.h):
+                yield Position(x, y)
 
 def testGrid():
     grid = Grid(5, 4)
@@ -197,6 +207,11 @@ def testGrid():
     grid.put(4, 0,  4==0)
     grid.dump()
     grid.log.info('JSON: %s', grid.toJson())
+
+    # Test iterable
+    grid.log.info('Grid iteration:')
+    for pos in grid:
+        grid.log.info('.. %s', repr(pos))
     
 if __name__ == '__main__':
     logging.basicConfig(format="[%(levelname)s] %(message)s", 
