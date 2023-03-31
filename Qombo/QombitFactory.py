@@ -8,6 +8,7 @@ __copyright__ = "Copyright 2023 N. Zwahlen"
 __version__ = "1.0.0"
 
 import logging
+import random
 from Qombit import *
 
 class QombitFactory():
@@ -37,8 +38,12 @@ class QombitFactory():
         return qombit
     
     @staticmethod
-    def objective() -> ObjectiveQombit:
+    def createObjective(iLevel: int, iDifficulty: int) -> ObjectiveQombit:
         """Creates a random objective"""
-        oTarget = Qombit('Target', OrKind.Star, 5, OrRarity.Common)
-        oObjective = ObjectiveQombit('Goal', 1, OrRarity.Common, oTarget)
+        QombitFactory.log.info('Creating a level %d Objective with difficulty %d', iLevel, iDifficulty)
+        iTargetlevel  = random.randint(iDifficulty, iDifficulty+4)
+        oTargetKind   = OrKind.Star
+        oTargetRarity = OrRarity.Common
+        oTarget = Qombit('Target', oTargetKind, iTargetlevel, oTargetRarity)
+        oObjective = ObjectiveQombit('Goal', iLevel, OrRarity.Common, oTarget)
         return oObjective

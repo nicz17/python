@@ -57,7 +57,7 @@ class QomboApp(BaseApp):
         self.grid.put(2, int(self.gridH/2), oGenerator)
 
         # First objective
-        oObjective = QombitFactory.objective()
+        oObjective = QombitFactory.createObjective(1, 1)
         self.grid.put(self.gridW-3, int(self.gridH/2), oObjective)
         
         self.renderer.drawGrid()
@@ -121,14 +121,20 @@ class QomboApp(BaseApp):
             self.game.incScore(oObjective.getPoints())
             self.grid.remove(oObjective)
             self.grid.remove(oTarget)
-            self.setSelection(None)
             self.addObjective()
+            self.setSelection(None)
+            self.renderer.drawGrid()
             return True
         return False
     
     def addObjective(self):
         """Add a new objective."""
-        pass
+        if not self.grid.isFull():
+            pos = self.grid.closestEmptyCell(self.grid.getCenter())
+            assert(pos is not None)
+            obj = QombitFactory.createObjective(2, 2)
+            self.grid.put(pos.x, pos.y, obj)
+            self.setStatus('New objective: ' + str(obj))
     
     def onGridClick(self, at: Position):
         """Handle grid click event."""
