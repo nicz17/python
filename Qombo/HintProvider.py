@@ -43,55 +43,48 @@ class HintProvider():
     
     def findCompletedObjective(self) -> Hint:
         """Look for a completed objective."""
-        for x in range(self.grid.w):
-            for y in range(self.grid.h):
-                qombit = self.grid.get(x, y)
-                if qombit and qombit.oKind == OrKind.Objective:
-                    pos1 = Position(x, y)
-                    pos2 = self.findOther(qombit.oTarget, pos1)
-                    if pos2 is not None:
-                        hint = Hint('Objective complete: ' + str(qombit))
-                        hint.addPosition(pos1)
-                        hint.addPosition(pos2)
-                        return hint
+        for pos in self.grid:
+            qombit = self.grid.getAt(pos)
+            if qombit and qombit.oKind == OrKind.Objective:
+                pos2 = self.findOther(qombit.oTarget, pos)
+                if pos2 is not None:
+                    hint = Hint('Objective complete: ' + str(qombit))
+                    hint.addPosition(pos)
+                    hint.addPosition(pos2)
+                    return hint
         return None
     
     def findPair(self) -> Hint:
         """Look for a pair to combine."""
-        for x in range(self.grid.w):
-            for y in range(self.grid.h):
-                qombit = self.grid.get(x, y)
-                if qombit is not None and qombit.canEvolve():
-                    pos1 = Position(x, y)
-                    pos2 = self.findOther(qombit, pos1)
-                    if pos2 is not None:
-                        hint = Hint('Combine ' + str(qombit))
-                        hint.addPosition(pos1)
-                        hint.addPosition(pos2)
-                        return hint
+        for pos in self.grid:
+            qombit = self.grid.getAt(pos)
+            if qombit is not None and qombit.canEvolve():
+                pos2 = self.findOther(qombit, pos)
+                if pos2 is not None:
+                    hint = Hint('Combine ' + str(qombit))
+                    hint.addPosition(pos)
+                    hint.addPosition(pos2)
+                    return hint
         return None
     
     def findOther(self, qombit: Qombit, pos: Position):
-        """Find another qombit to combine with this one"""
-        for x in range(self.grid.w):
-            for y in range(self.grid.h):
-                at = Position(x, y)
-                if at != pos:
-                    qombit2 = self.grid.get(x, y)
-                    if qombit2 is not None and qombit2 == qombit:
-                        return at
+        """Find another qombit to combine with this one."""
+        for at in self.grid:
+            if at != pos:
+                qombit2 = self.grid.getAt(at)
+                if qombit2 is not None and qombit2 == qombit:
+                    return at
         return None
 
     def findGenerator(self) -> Hint:
         """Look for the most advanced generator on the grid."""
         hint = None
         iBestGen = -1
-        for x in range(self.grid.w):
-            for y in range(self.grid.h):
-                qombit = self.grid.get(x, y)
-                if qombit is not None and qombit.canGenerate():
-                    if qombit.oKind.value > iBestGen:
-                        iBestGen = qombit.oKind.value
-                        hint = Hint('Generate more objects!')
-                        hint.addPosition(Position(x, y))
+        for pos in self.grid:
+            qombit = self.grid.getAt(pos)
+            if qombit is not None and qombit.canGenerate():
+                if qombit.oKind.value > iBestGen:
+                    iBestGen = qombit.oKind.value
+                    hint = Hint('Generate more objects!')
+                    hint.addPosition(pos)
         return hint
