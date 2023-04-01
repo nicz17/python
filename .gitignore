@@ -1,12 +1,17 @@
+
+*/__pycache__/*
+LESO/
+.vscode
+
 Common/*.css
 Common/*.html
 Common/palettes/*
+Common/test.txt
 
 Orfact/images/*.png
 Orfact/palettes/*.png
 Orfact/*.html
 Orfact/*.log
-*/__pycache__/*
 
 Recettes/*.html
 Recettes/*.log
@@ -14,11 +19,10 @@ Recettes/last-upload
 Recettes/recs.json
 
 Quidditch.py
-LESO/
-.vscode
 amandes.py
 
 Fractals/images/*
+
 Qombo/images/*
 Qombo/saves/*
 Qombo/test/*
