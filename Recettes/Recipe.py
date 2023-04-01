@@ -5,6 +5,7 @@ import re
 import config
 import logging
 from Chapter import *
+from FileReader import *
 from HtmlPage import *
 from RecettesHtmlPage import *
 
@@ -46,8 +47,7 @@ class Recipe:
             self.log.error('File not found: %s', sFile)
             exit('Aborted')
 
-        oFile = open(sFile, 'r', encoding="ISO-8859-1")
-        iLine = 0
+        oFileReader = FileReader(sFile, 'ISO-8859-1')
         sText = ''
         bTableIngrOver = False
 
@@ -63,14 +63,7 @@ class Recipe:
         oPatternIgnore   = re.compile('\\\\(label|begin|end|source)\{.+')
         oPatternComment  = re.compile('%.+')
 
-        while True:
-            iLine += 1
-            sLine = oFile.readline()
-
-            # if sLine is undefined, end of file is reached
-            if not sLine:
-                break
-
+        for sLine in oFileReader:
             # Ignore comments
             oMatch = re.match(oPatternComment, sLine)
             if (oMatch):
@@ -161,13 +154,14 @@ class Recipe:
             # Add text instructions
             sText += sLine.strip() + ' '
 
-        oFile.close()
+        oFileReader.close()
 
         # Add final paragraph
         if len(sText) > 0:
             self.aText.append(HtmlTag('p', sText))
 
     def replace(self, str):
+        """Replace special LaTeX strings by their HTML equivalent."""
         str = re.sub(r"\\\`A", '&Agrave;', str)
         str = re.sub(r"\\\`a", 'à', str)
         str = re.sub(r"\\\^a", 'â', str)
@@ -188,6 +182,7 @@ class Recipe:
         str = re.sub(r"\\c\{c\}", '&ccedil;', str)
         str = re.sub(r"\\undemi", '&frac12;', str)
         str = re.sub(r"\\degres ", '&deg;', str)
+        str = re.sub(r"\\degres\{\}", '&deg;', str)
         str = re.sub(r"\\begin\{itemize\}", '<ul>', str)
         str = re.sub(r"\\end\{itemize\}", '</ul>', str)
         str = re.sub(r"\\item", '<li>', str)

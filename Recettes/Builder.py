@@ -8,6 +8,7 @@ import os
 import re
 import json
 from Chapter import *
+from FileReader import *
 from Recipe import *
 from HtmlPage import *
 from RecettesHtmlPage import *
@@ -33,22 +34,17 @@ class Builder:
             self.log.error('Missing chapters file %s, aborting', sFileChapters)
             exit('Abort')
 
-        oFile = open(sFileChapters, 'r', encoding="ISO-8859-1")
-        iLine = 0
+        oFileReader = FileReader(sFileChapters, 'ISO-8859-1')
         iChapter = 0
         oChap = None
         oPatternChap = re.compile('\\\\chapitre\{(.+)\}')
         oPatternRec  = re.compile('\\\\(include|input)\{(.+)\}')
-        while True:
-            iLine += 1
-            sLine = oFile.readline()
-
+        for sLine in oFileReader:
             # Parse chapters
             oMatch = re.match(oPatternChap, sLine)
             if (oMatch):
                 iChapter += 1
                 sTitle = oMatch.group(1)
-                #log.debug('Line %d new chapter: %s', iLine, sTitle)
                 oChap = Chapter(iChapter, sTitle)
                 self.addChapter(oChap)
 
@@ -59,11 +55,9 @@ class Builder:
                 oRec = Recipe(sName, oChap)
                 oChap.addRecipe(oRec)
                 self.addRecipe(oRec)
-            
-            # if sLine is empty, end of file is reached
-            if not sLine:
-                break
-        oFile.close()
+                
+        oFileReader.close()
+        self.log.info('Found %d chapters', iChapter)
 
     def addRecipe(self, oRec: Recipe):
         """Add a recipe."""
