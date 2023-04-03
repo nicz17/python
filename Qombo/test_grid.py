@@ -5,12 +5,28 @@ Unit test for Grid class.
 import unittest
 from Grid import *
 
-class TestGrid(unittest.TestCase):
+class TestPosition(unittest.TestCase):
+    def test_distance(self):
+        pos1 = Position(0, 0)
+        pos2 = Position(3, 4)
+        dist = pos1.getDistance(pos2)
+        self.assertEqual(dist, 5.0, 'Expected distance 5.0')
 
+    def test_equality(self):
+        pos1 = Position(3, 3)
+        pos2 = Position(2+1, 1+2)
+        self.assertEqual(pos1, pos2, 'Expected Position(1+2, 2+1) == Position(3, 3)')
+
+class TestGrid(unittest.TestCase):
     def test_size(self):
         """Test grid size equals width x height."""
         grid = Grid(5, 4)
         self.assertEqual(grid.size(), 20, "Expected size 5x4")
+
+    def test_len(self):
+        """Test grid length equals width x height."""
+        grid = Grid(5, 4)
+        self.assertEqual(len(grid), 20, "Expected length 5x4")
 
     def test_count(self):
         """Test grid count equals number of not None cells."""
@@ -51,6 +67,17 @@ class TestGrid(unittest.TestCase):
             self.assertIsNotNone(pos)
             nIterations += 1
         self.assertEqual(nIterations, 25, 'Expected 25 iteration positions')
+
+    def test_contains(self):
+        """Test grid membership."""
+        grid = Grid(5, 5)
+        pos = Position(2, 2)
+        self.assertTrue(pos in grid, 'Expected Position(2,2) in Grid(5,5)')
+        pos = Position(4, 4)
+        self.assertTrue(pos in grid, 'Expected Position(4,4) in Grid(5,5)')
+        pos = Position(5, 4)
+        self.assertFalse(pos in grid, 'Expected Position(5,4) not in Grid(5,5)')
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -192,6 +192,13 @@ class Grid:
     
     def __repr__(self):
         return 'Grid(' + str(self.w) + ', ' + str(self.h) + ')'
+
+    def __len__(self):
+        """Returns the grid length (width x height)."""
+        return self.w * self.h
+    
+    def __contains__(self, pos: Position):
+        return pos.x >= 0 and pos.x < self.w and pos.y >= 0 and pos.y < self.h
     
     def __iter__(self):
         for x in range(self.w):
