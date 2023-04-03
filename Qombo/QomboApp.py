@@ -118,6 +118,7 @@ class QomboApp(BaseApp):
         """Check if the objective is completed."""
         if oObjective is not None and oObjective.oTarget == oTarget:
             self.log.info('Objective %s completed', oObjective)
+            self.game.incProgress()
             self.game.incScore(oObjective.getPoints())
             self.grid.remove(oObjective)
             self.grid.remove(oTarget)
