@@ -45,11 +45,14 @@ class GameSave():
 
     def load(self, filename: str, grid: Grid) -> Game:
         """Loads a game state from a JSON file."""
+
+        # Check file exists
         self.log.info('Loading game from %s%s', self.dir, filename)
         if not os.path.exists(self.dir + filename):
             self.log.error('No such file: %s', self.dir + filename)
-            return
+            return None
         
+        # Read the file and load the grid
         oFile = open(self.dir + filename, 'r')
         dData = json.load(oFile)
         dGrid = dData['grid']
@@ -59,9 +62,10 @@ class GameSave():
             qombit = QombitFactory.fromJson(dCell['value'])
             self.log.info('Adding %s at [%d:%d]', str(qombit), x, y)
             grid.put(x, y, qombit)
+        self.log.info('Loaded %s with %d qombits', grid, grid.count())
 
-        dGame = dData['game']
-        game = Game(dGame['name'], dGame['player'], dGame['score'], dGame['start'])
-
+        # Load the game state
+        game = Game.fromJson(dData['game'])
+        self.log.info('Loaded %s', game)
         oFile.close()
         return game
