@@ -199,6 +199,39 @@ class ClusterQomboImage(QomboImage):
         self.aMask[int(x*self.w), int(y*self.h)] = iVal
 
 
+class MandelbrotQomboImage(QomboImage):
+    """An image based on the Mandelbrot set fractal, with increasing zoom."""
+
+    def __init__(self):
+        super().__init__('MandelbrotQomboImage')
+        self.cParam = complex(-1.27966, -0.064341)
+        self.rWidth = 1.0
+        self.iMaxIter = 200
+        self.rBailout = 2.0
+
+    def computeMask(self):
+        self.rWidth = pow(2.0, -1.0*(self.iLevel + 4))
+        for x in range(self.w):
+            for y in range(self.h):
+                self.aMask[x, y] = self.iter(self.getZ(x, y))
+
+    def getZ(self, x, y):
+        """Get the complex number corresponding to the image pixel x,y"""
+        rw = self.rWidth
+        rh = rw*self.h/self.w
+        zr = self.cParam.real + x*rw/self.w - rw/2.0
+        zi = self.cParam.imag + y*rh/self.h - rh/2.0
+        return complex(zr, zi)
+
+    def iter(self, z):
+        """Compute the iterations required to bailout at complex number z."""
+        z0 = z
+        for i in range(self.iMaxIter):
+            z = z*z + z0
+            if abs(z) > self.rBailout:
+                return i
+        return self.iMaxIter
+
 class JuliaQomboImage(QomboImage):
     """An image based on the Julia set fractal, with increasing precision."""
 
@@ -273,15 +306,16 @@ class TileQomboImage(QomboImage):
                     val = self.w + self.h - val
                 self.aMask[x, y] = val
 
-def testQomboImage():
-    """Unit Test case."""
+def demoQomboImage():
+    """Generate a demo gallery of QomboImages as an HTML page."""
     nLevels = 10
     dir = 'test/'
     aMasks = [DiceQomboImage(), 
 			  StarQomboImage(), 
 			  #SpiralQomboImage(), 
 			  #RingQomboImage(), 
-			  #JuliaQomboImage(),
+			  JuliaQomboImage(),
+              MandelbrotQomboImage(),
 			  #ClusterQomboImage(),
               TileQomboImage()
               ]
@@ -302,13 +336,13 @@ def testQomboImage():
             aMaskImgs.append(ImageHtmlTag(sFilename, oMask.sName + ' level ' + str(iLevel)))
 
     # Create HTML page for rendering
-    oPage = HtmlPage('QomboImage Test')
+    oPage = HtmlPage('QomboImage Demo')
     oPage.addHeading(1, oPage.sTitle)
     oPage.addTable(aMaskImgs, nLevels)
-    oPage.save('QomboImageTest.html')
-    os.system('firefox QomboImageTest.html')
+    oPage.save('QomboImageDemo.html')
+    os.system('firefox QomboImageDemo.html')
 
 if __name__ == '__main__':
     logging.basicConfig(format="[%(levelname)s] %(message)s", 
         level=logging.DEBUG, handlers=[logging.StreamHandler()])
-    testQomboImage()
+    demoQomboImage()
