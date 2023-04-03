@@ -41,9 +41,17 @@ class QombitFactory():
     def createObjective(iLevel: int, iDifficulty: int) -> ObjectiveQombit:
         """Creates a random objective"""
         QombitFactory.log.info('Creating a level %d Objective with difficulty %d', iLevel, iDifficulty)
-        iTargetlevel  = random.randint(iDifficulty, iDifficulty+4)
+        iTargetlevel  = random.randint(3, 6)
+
         oTargetKind   = OrKind.Star
-        oTargetRarity = OrRarity.Common
-        oTarget = Qombit('Target', oTargetKind, iTargetlevel, oTargetRarity)
-        oObjective = ObjectiveQombit('Goal', iLevel, OrRarity.Common, oTarget)
+        if iDifficulty > 3:
+            oTargetKind = OrKind.Dice
+        if iDifficulty > 5:
+            oTargetKind = OrKind.Spiral
+        if iDifficulty > 7:
+            oTargetKind = OrKind.Ring
+
+        oRarity = OrRarity.Common
+        oTarget = Qombit('Target', oTargetKind, iTargetlevel, oRarity)
+        oObjective = ObjectiveQombit('Goal', iLevel, oRarity, oTarget)
         return oObjective

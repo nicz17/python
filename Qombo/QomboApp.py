@@ -120,20 +120,21 @@ class QomboApp(BaseApp):
             self.log.info('Objective %s completed', oObjective)
             self.game.incProgress()
             self.game.incScore(oObjective.getPoints())
+            posNext = self.grid.closestEmptyCell(self.grid.getCenter())
             self.grid.remove(oObjective)
             self.grid.remove(oTarget)
-            self.addObjective()
+            self.addObjective(posNext)
             self.setSelection(None)
             self.renderer.drawGrid()
             return True
         return False
     
-    def addObjective(self):
+    def addObjective(self, pos: Position):
         """Add a new objective."""
         if not self.grid.isFull():
-            pos = self.grid.closestEmptyCell(self.grid.getCenter())
+            #pos = self.grid.closestEmptyCell(self.grid.getCenter())
             assert(pos is not None)
-            obj = QombitFactory.createObjective(2, 2)
+            obj = QombitFactory.createObjective(self.game.iProgress, self.game.iProgress)
             self.grid.put(pos.x, pos.y, obj)
             self.setStatus('New objective: ' + str(obj))
     
