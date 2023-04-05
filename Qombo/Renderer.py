@@ -20,15 +20,16 @@ class Renderer:
     iRadiusGrid = 36
     iRadiusSel  = 64
     selpos: Position
-
     log = logging.getLogger('Renderer')
 
-    def __init__(self, grid: Grid, canGrid: tk.Canvas, canSelection: tk.Canvas, iSize: int):
+    def __init__(self, grid: Grid, canGrid: tk.Canvas, canSelection: tk.Canvas, iSize: int, root):
+        self.fontBold = tkfont.Font(family="Helvetica", size=12, weight='bold')
+        self.fontMsg  = tkfont.Font(family="Helvetica", size=24, weight='bold')
         self.iSize = iSize
         self.grid = grid
+        self.root = root
         self.canGrid = canGrid
         self.canSelection = canSelection
-        self.fontBold = tkfont.Font(family="Helvetica", size=12, weight='bold')
         self.iHeight = self.grid.h*self.iSize
         self.iWidth  = self.grid.w*self.iSize
         self.selpos = None
@@ -124,6 +125,12 @@ class Renderer:
         """Hide the highlights on the grid canvas."""
         for id in self.aHighlightIds:
             self.canGrid.itemconfigure(id, state='hidden')
+
+    def displayMessage(self, message):
+        """Display a temporary message on grid canvas."""
+        tx, ty = int(0.5*self.iWidth), int(0.4*self.iHeight)
+        msgId = self.canGrid.create_text(tx, ty, fill='yellow', font=self.fontMsg, text=message)
+        self.root.after(2000, self.canGrid.delete, msgId)
 
     def drawCircle(self, canvas: tk.Canvas, x:int, y: int, r: int, outline: str, fill: str):
         canvas.create_oval(x-r, y-r, x+r, y+r, outline=outline, fill=fill)

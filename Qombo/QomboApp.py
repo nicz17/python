@@ -39,7 +39,7 @@ class QomboApp(BaseApp):
         sGeometry = str(self.iWidth + 320) + 'x' + str(self.iHeight + 30)
         super().__init__('Qombo', sGeometry)
         self.window.resizable(width=False, height=False)
-        self.renderer = Renderer(self.grid, self.canGrid, self.canSelection, self.iSize)
+        self.renderer = Renderer(self.grid, self.canGrid, self.canSelection, self.iSize, self.window)
         self.hintProvider = HintProvider(self.grid)
         self.game = None
         self.gameSave = GameSave()
@@ -70,6 +70,7 @@ class QomboApp(BaseApp):
         self.renderer.drawGrid()
         self.setSelection(None)
         self.setStatus('Welcome to ' + self.sTitle + ', ' + self.game.sPlayer + ' !')
+        self.renderer.displayMessage(f'Welcome back, {self.game.sPlayer}!')
     
     def saveGame(self):
         """Save the game state to json file."""
