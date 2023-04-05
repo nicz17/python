@@ -62,6 +62,7 @@ class QomboApp(BaseApp):
         
         self.renderer.drawGrid()
         self.setSelection(None)
+        self.renderer.displayMessage('New game')
 
     def resumeGame(self):
         """Resume a saved game"""
@@ -118,15 +119,17 @@ class QomboApp(BaseApp):
     def objectiveComplete(self, oObjective: ObjectiveQombit, oTarget: Qombit):
         """Check if the objective is completed."""
         if oObjective is not None and oObjective.oTarget == oTarget:
+            nPoints = oObjective.getPoints()
             self.log.info('Objective %s completed', oObjective)
             self.game.incProgress()
-            self.game.incScore(oObjective.getPoints())
+            self.game.incScore(nPoints)
             posNext = self.grid.closestEmptyCell(self.grid.getCenter())
             self.grid.remove(oObjective)
             self.grid.remove(oTarget)
             self.addObjective(posNext)
             self.setSelection(None)
             self.renderer.drawGrid()
+            self.renderer.displayMessage(f'+ {nPoints} points!')
             return True
         return False
     
@@ -230,6 +233,7 @@ class QomboApp(BaseApp):
             self.setStatus('Hint: ' + hint.sText)
             for pos in hint.aPositions:
                 self.renderer.drawHighlight(pos, 'red')
+            self.renderer.displayMessage(hint.sText)
 
     def onBeforeClose(self):
         self.saveGame()

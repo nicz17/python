@@ -23,7 +23,7 @@ class HintProvider():
     """
     Provide hints for game progression.
     First look if there is a completed objective.
-    Otherwise, find a pair of identical qombos to merge.
+    Otherwise, find a pair of identical qombits to merge.
     Otherwise, find the best generator.
     """
     
@@ -48,7 +48,7 @@ class HintProvider():
             if qombit and qombit.oKind == OrKind.Objective:
                 pos2 = self.findOther(qombit.oTarget, pos)
                 if pos2 is not None:
-                    hint = Hint('Objective complete: ' + str(qombit))
+                    hint = Hint('Complete objective!')
                     hint.addPosition(pos)
                     hint.addPosition(pos2)
                     return hint
@@ -61,7 +61,7 @@ class HintProvider():
             if qombit is not None and qombit.canEvolve():
                 pos2 = self.findOther(qombit, pos)
                 if pos2 is not None:
-                    hint = Hint('Combine ' + str(qombit))
+                    hint = Hint('Combine identical objects!')
                     hint.addPosition(pos)
                     hint.addPosition(pos2)
                     return hint
