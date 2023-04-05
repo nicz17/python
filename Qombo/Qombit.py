@@ -72,7 +72,7 @@ class Qombit:
                 case OrKind.Generator: self.oMask = TileQomboImage()
                 case OrKind.Objective: self.oMask = TargetQomboImage()
                 case OrKind.Star:      self.oMask = StarQomboImage()
-                case OrKind.Dice:      self.oMask = DiceQomboImage()
+                case OrKind.Dice:      self.oMask = MandelbrotQomboImage()
                 case OrKind.Spiral:    self.oMask = SpiralQomboImage()
                 case OrKind.Ring:      self.oMask = RingQomboImage()
                 case OrKind.Julia:     self.oMask = JuliaQomboImage()

@@ -204,13 +204,14 @@ class MandelbrotQomboImage(QomboImage):
 
     def __init__(self):
         super().__init__('MandelbrotQomboImage')
-        self.cParam = complex(-1.27966, -0.064341)
+        self.cParam = complex(-1.27966, -0.06440)
         self.rWidth = 1.0
         self.iMaxIter = 200
         self.rBailout = 2.0
 
     def computeMask(self):
         self.rWidth = pow(2.0, -1.0*(self.iLevel + 4))
+        self.iMaxIter = self.w
         for x in range(self.w):
             for y in range(self.h):
                 self.aMask[x, y] = self.iter(self.getZ(x, y))
