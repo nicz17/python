@@ -21,6 +21,7 @@ class Palette:
     sigma = 0.35
 
     def __init__(self, sName):
+        """Constructor with palette name."""
         self.sName = sName
 
     def toColorScale(self, sFilename, iWidth, iHeight):
@@ -47,9 +48,10 @@ class Palette:
         return (int)(255. * math.exp(-(x-mu)*(x-mu)/(sig*sig)))
 
     def __str__(self):
-        return self.sName
+        return f'Palette {self.sName}'
+    
     def __repr__(self):
-        return 'Palette ' + self.sName
+        return f'Palette({self.sName})'
 
 class RandomPalette(Palette):
     def __init__(self):
@@ -189,8 +191,8 @@ class GrayScalePalette(Palette):
         return max(0, min(255, (int)(255. * x)))
 
 
-def testPalette():
-    """Palette unit test. Create a HTML page with palette renderings."""
+def demoPalette():
+    """Palette demo. Create a HTML page with palette renderings."""
     aPalettes = [HeatPalette(),
                  AlgaePalette(), 
                  SepiaPalette(), 
@@ -214,13 +216,13 @@ def testPalette():
         aPalImgs.append(HtmlTag('p', oPal.sName))
 
     # Create HTML page for rendering
-    oPage = HtmlPage('Palette test')
+    oPage = HtmlPage('Palette Demo')
     oPage.addHeading(1, oPage.sTitle)
     oPage.addTable(aPalImgs, 2)
-    oPage.save('PaletteTest.html')
-    os.system('firefox PaletteTest.html')
+    oPage.save('PaletteDemo.html')
+    os.system('firefox PaletteDemo.html')
 
 if __name__ == '__main__':
     logging.basicConfig(format="[%(levelname)s] %(message)s", 
         level=logging.DEBUG, handlers=[logging.StreamHandler()])
-    testPalette()
+    demoPalette()
