@@ -17,12 +17,12 @@ from ProgressBar import *
 
 class Renderer:
     """Rendering methods for Qombo."""
-    iRadiusGrid = 36
-    iRadiusSel  = 64
-    selpos: Position
+    iMsgDelay = 2000  # duration of message display in ms
+    selpos: Position  # selected grid position
+    colorGridLines = '#b0e0e0'
     log = logging.getLogger('Renderer')
 
-    def __init__(self, grid: Grid, canGrid: tk.Canvas, canSelection: tk.Canvas, iSize: int, root):
+    def __init__(self, grid: Grid, canGrid: tk.Canvas, canSelection: tk.Canvas, iSize: int, root: tk.Tk):
         self.fontBold = tkfont.Font(family="Helvetica", size=12, weight='bold')
         self.fontMsg  = tkfont.Font(family="Helvetica", size=24, weight='bold')
         self.iSize = iSize
@@ -35,6 +35,7 @@ class Renderer:
         self.selpos = None
         self.child = None
         self.aHighlightIds = []
+        self.aQombitIds = []
         self.progressBar = ProgressBar(grid.size())
         
         # Add image dir if missing
@@ -45,6 +46,7 @@ class Renderer:
         """Draw grid lines and qombits on the grid canvas"""
         self.canGrid.delete('all')
         self.aHighlightIds = []
+        self.aQombitIds = []
         self.drawGridLines()
         for x in range(self.grid.w):
             for y in range(self.grid.h):
@@ -59,18 +61,19 @@ class Renderer:
         if qombit:
             tx = x*self.iSize + 5
             ty = y*self.iSize + 5
-            self.canGrid.create_image(tx, ty, anchor = tk.NW, image = qombit.getImage())
+            id = self.canGrid.create_image(tx, ty, anchor = tk.NW, image = qombit.getImage())
+            self.aQombitIds.append(id)
 
     def drawGridLines(self):
         """Draw lines on the grid canvas"""
         for x in range(self.grid.w):
             gx = x*self.iSize
             gy = self.iHeight
-            self.canGrid.create_line(gx, 0, gx, gy, fill="#b0e0e0", width=1)
+            self.canGrid.create_line(gx, 0, gx, gy, fill=self.colorGridLines, width=1)
         for y in range(self.grid.h):
             gx = self.iWidth
             gy = y*self.iSize
-            self.canGrid.create_line(0, gy, gx, gy, fill="#b0e0e0", width=1)
+            self.canGrid.create_line(0, gy, gx, gy, fill=self.colorGridLines, width=1)
 
     def drawGridProgress(self):
         """Draw a progress bar showing grid fill"""
@@ -126,11 +129,23 @@ class Renderer:
         for id in self.aHighlightIds:
             self.canGrid.itemconfigure(id, state='hidden')
 
+    def moveQombit(self, x: int, y: int):
+        """Move a qombit during drag-n-drop to grid canvas (x,y)."""
+        obj = self.canGrid.find_withtag('dragdroptag')
+        if obj and obj[0] in self.aQombitIds:
+            cx, cy = x - self.iSize/2 + 5, y - self.iSize/2 + 5
+            self.canGrid.coords('dragdroptag', cx, cy)
+            self.hideHighlights()
+
     def displayMessage(self, message):
         """Display a temporary message on grid canvas."""
         tx, ty = int(0.5*self.iWidth), int(0.4*self.iHeight)
-        msgId = self.canGrid.create_text(tx, ty, fill='yellow', font=self.fontMsg, text=message)
-        self.root.after(2000, self.canGrid.delete, msgId)
+        msgId = self.canGrid.create_text(tx, ty, fill='orange', font=self.fontMsg, text=message)
+        bbox = self.canGrid.bbox(msgId)
+        boxId = self.canGrid.create_rectangle(bbox, outline=self.colorGridLines, fill=self.colorGridLines)
+        self.canGrid.tag_raise(msgId, boxId)
+        self.root.after(self.iMsgDelay, self.canGrid.delete, msgId)
+        self.root.after(self.iMsgDelay, self.canGrid.delete, boxId)
 
     def drawCircle(self, canvas: tk.Canvas, x:int, y: int, r: int, outline: str, fill: str):
         canvas.create_oval(x-r, y-r, x+r, y+r, outline=outline, fill=fill)

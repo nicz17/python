@@ -167,9 +167,7 @@ class QomboApp(BaseApp):
         self.canGrid.addtag_withtag('dragdroptag', tk.CURRENT)
 
     def onDragMove(self, event: tk.Event):
-        x, y = event.x - 50, event.y - 50
-        self.canGrid.coords('dragdroptag', x, y)
-        self.renderer.hideHighlights()
+        self.renderer.moveQombit(event.x, event.y)
 
     def onDragEnd(self, event: tk.Event):
         oDragTo = self.getGridPos(event.x, event.y)
@@ -187,6 +185,8 @@ class QomboApp(BaseApp):
         qom1 = self.grid.get(oFrom.x, oFrom.y)
         qom2 = self.grid.get(oTo.x, oTo.y)
         bSwap = True
+        if qom1 is None and qom2 is None:
+            return
         if qom1 == qom2:
             # Combine TODO put in dedicated method
             self.log.info('Combining %s and %s', oFrom, oTo)
