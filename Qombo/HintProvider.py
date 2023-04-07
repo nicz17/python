@@ -13,18 +13,29 @@ from Qombit import *
 class Hint():
     """A list of grid positions and an explanation."""
     def __init__(self, sText) -> None:
+        """Constructor with hint text."""
         self.sText = sText
         self.aPositions = []
 
     def addPosition(self, pos: Position):
+        """Add a position to the hint."""
         self.aPositions.append(pos)
+
+    def __iter__(self):
+        """Iterate on hint positions."""
+        for pos in self.aPositions:
+            yield pos
+
+    def __repr__(self) -> str:
+        return f'Hint({self.sText})'
 
 class HintProvider():
     """
     Provide hints for game progression.
     First look if there is a completed objective.
     Otherwise, find a pair of identical qombits to merge.
-    Otherwise, find the best generator.
+    Otherwise, find the best generator,
+    or the cheapest qombit to sell if the grid is full.
     """
     
     log = logging.getLogger(__name__)
@@ -38,7 +49,10 @@ class HintProvider():
         if hint is None:
             hint = self.findPair()
         if hint is None:
-            hint = self.findGenerator()
+            if self.grid.isFull():
+                hint = self.findSellable()
+            else:
+                hint = self.findGenerator()
         return hint
     
     def findCompletedObjective(self) -> Hint:
@@ -86,5 +100,18 @@ class HintProvider():
                 if qombit.oKind.value > iBestGen:
                     iBestGen = qombit.oKind.value
                     hint = Hint('Generate more objects!')
+                    hint.addPosition(pos)
+        return hint
+    
+    def findSellable(self) -> Hint:
+        """Look for the cheapest sellable qombit."""
+        hint = None
+        iCheapest = 1e9
+        for pos in self.grid:
+            qombit = self.grid.getAt(pos)
+            if qombit is not None and qombit.canSell():
+                if qombit.getPoints() < iCheapest:
+                    iCheapest = qombit.getPoints()
+                    hint = Hint(f'Sell {qombit.sName}')
                     hint.addPosition(pos)
         return hint

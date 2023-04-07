@@ -235,7 +235,7 @@ class QomboApp(BaseApp):
         hint = self.hintProvider.getHint()
         if hint is not None:
             self.setStatus('Hint: ' + hint.sText)
-            for pos in hint.aPositions:
+            for pos in hint:
                 self.renderer.drawHighlight(pos, 'red')
             self.renderer.displayMessage(hint.sText)
 
