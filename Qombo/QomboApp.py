@@ -182,8 +182,12 @@ class QomboApp(BaseApp):
         self.oDragFrom = None
 
     def doDragDrop(self, oFrom: Position, oTo: Position):
-        qom1 = self.grid.get(oFrom.x, oFrom.y)
-        qom2 = self.grid.get(oTo.x, oTo.y)
+        if not oTo in self.grid:
+            self.log.error('Cannot drop at %s', oTo)
+            self.renderer.drawGrid()
+            return
+        qom1 = self.grid.getAt(oFrom)
+        qom2 = self.grid.getAt(oTo)
         bSwap = True
         if qom1 is None and qom2 is None:
             return
