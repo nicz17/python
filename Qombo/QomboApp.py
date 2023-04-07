@@ -239,6 +239,19 @@ class QomboApp(BaseApp):
                 self.renderer.drawHighlight(pos, 'red')
             self.renderer.displayMessage(hint.sText)
 
+    def displayGameInfo(self, event):
+        """Display a message-box with game info."""
+        sMsg = 'Game not started yet.'
+        if self.game:
+            # TODO convert time to str in a helper
+            sStart = time.strftime("%d.%m.%Y %H:%M:%S", time.localtime(self.game.tStart))
+            sMsg = self.game.sName + '\n'
+            sMsg += f'Player {self.game.sPlayer}\n'
+            sMsg += f'Score {self.game.iScore}\n'
+            sMsg += f'Started {sStart}\n'
+            sMsg += f'Objectives completed: {self.game.iProgress}\n'
+        messagebox.showinfo(title='Game Info', message=sMsg)
+
     def onBeforeClose(self):
         self.saveGame()
 
@@ -274,6 +287,7 @@ class QomboApp(BaseApp):
         # Score label
         self.lblScore = tk.Label(self.frmButtons, text='Score: 0')
         self.lblScore.pack(fill=tk.X, pady=6)
+        self.lblScore.bind('<1>', self.displayGameInfo)
 
         # Canvas
         self.canGrid = tk.Canvas(master=self.frmMain, bg='#c0f0f0', bd=0, 
