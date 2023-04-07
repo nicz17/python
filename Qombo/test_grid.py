@@ -78,6 +78,15 @@ class TestGrid(unittest.TestCase):
         pos = Position(5, 4)
         self.assertFalse(pos in grid, 'Expected Position(5,4) not in Grid(5,5)')
 
+    def test_outside(self):
+        """Test putting objects in invalid cells."""
+        grid = Grid(5, 4)
+        grid.put(8, 12, 'No')
+        grid.get(8, 12)
+        pos = Position(7, 0)
+        grid.putAt(pos, 'Nope')
+        grid.getAt(pos)
+
 
 if __name__ == '__main__':
     unittest.main()

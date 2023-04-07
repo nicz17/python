@@ -48,16 +48,26 @@ class Grid:
 
     def put(self, x: int, y: int, val):
         """Put the value in the x,y cell."""
-        self.cells[x][y] = val
+        self.putAt(Position(x, y), val)
+
+    def putAt(self, pos: Position, val):
+        """Put the value in the specified cell."""
+        if pos in self:
+            self.cells[pos.x][pos.y] = val
+        else:
+            self.log.error('Invalid cell %s to put %s', pos, val)
 
     def get(self, x: int, y: int):
         """Get the value in the x,y cell."""
-        return self.cells[x][y]
+        return self.getAt(Position(x, y))
     
     def getAt(self, pos: Position):
         """Get the value at the specified position."""
-        return self.cells[pos.x][pos.y]
-    
+        if pos in self:
+            return self.cells[pos.x][pos.y]
+        else:
+            self.log.error('Invalid cell %s for get', pos)
+
     def find(self, val):
         """Return the location in this grid of the specified value, or None."""
         if val:
