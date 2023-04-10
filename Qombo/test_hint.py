@@ -5,11 +5,12 @@ Unit test for HintProvider class.
 import unittest
 from Grid import *
 from HintProvider import *
+from QombitFactory import *
 
 class TestHint(unittest.TestCase):
     def setUp(self):
         self.grid = Grid(5, 5)
-        self.hintProv = HintProvider(grid)
+        self.hintProv = HintProvider(self.grid)
 
     def test_empty(self):
         """Test hint on empty grid. Expect no hint."""
@@ -24,7 +25,7 @@ class TestHint(unittest.TestCase):
         hint = self.hintProv.getHint()
         self.assertIsNotNone(hint, 'Expected a hint')
         for pos in hint:
-            self.assertEquals(pos, posGen, 'Expected hint at (0,0)')
+            self.assertEqual(pos, posGen, 'Expected hint at (0,0)')
         
     def test_pair(self):
         """Test hint with a pair of qombits."""
@@ -37,7 +38,7 @@ class TestHint(unittest.TestCase):
         self.grid.putAt(posQ1, qombit)
         self.grid.putAt(posQ2, qombit)
         hint = self.hintProv.getHint()
-        self.assertEquals(self.grid.count(), 3, 'Expected 3 qombits on grid')
+        self.assertEqual(self.grid.count(), 3, 'Expected 3 qombits on grid')
         self.assertIsNotNone(hint, 'Expected a hint')
         for pos in hint:
             self.assertTrue(pos == posQ1 or pos == posQ2, 'Expected hint at (1,0) and (2,0)')
