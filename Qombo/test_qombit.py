@@ -11,7 +11,7 @@ class TestQombit(unittest.TestCase):
         self.gen   = QombitFactory.fromValues('Gen', OrKind.Generator, 1, OrRarity.Common)
         self.basic = QombitFactory.fromValues('Bas', OrKind.Spiral, 1, OrRarity.Common)
         self.star9 = QombitFactory.fromValues('Star', OrKind.Star, 9, OrRarity.Common)
-        self.obj   = QombitFactory.createObjective(1, 1)
+        self.obj   = QombitFactory.createObjective(1)
 
     def test_canGenerate(self):
         """Test qombit generation."""

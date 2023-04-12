@@ -57,7 +57,7 @@ class QomboApp(BaseApp):
         self.grid.put(2, int(self.gridH/2), oGenerator)
 
         # First objective
-        oObjective = QombitFactory.createObjective(1, 1)
+        oObjective = QombitFactory.createObjective(0)
         self.grid.put(self.gridW-3, int(self.gridH/2), oObjective)
         
         self.renderer.drawGrid()
@@ -138,7 +138,7 @@ class QomboApp(BaseApp):
         if not self.grid.isFull():
             #pos = self.grid.closestEmptyCell(self.grid.getCenter())
             assert(pos is not None)
-            obj = QombitFactory.createObjective(self.game.iProgress, self.game.iProgress)
+            obj = QombitFactory.createObjective(self.game.iProgress)
             self.grid.put(pos.x, pos.y, obj)
             self.setStatus('New objective: ' + str(obj))
     

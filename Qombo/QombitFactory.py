@@ -10,9 +10,11 @@ __version__ = "1.0.0"
 import logging
 import random
 from Qombit import *
+from NameGen import *
 
 class QombitFactory():
     log = logging.getLogger(__name__)
+    nameGen = NameGen()
 
     @staticmethod
     def fromValues(sName: str, oKind: OrKind, iLevel: int, oRarity: OrRarity) -> Qombit:
@@ -38,20 +40,15 @@ class QombitFactory():
         return qombit
     
     @staticmethod
-    def createObjective(iLevel: int, iDifficulty: int) -> ObjectiveQombit:
+    def createObjective(iDifficulty: int) -> ObjectiveQombit:
         """Creates a random objective"""
-        QombitFactory.log.info('Creating a level %d Objective with difficulty %d', iLevel, iDifficulty)
-        iTargetlevel  = random.randint(3, 6)
-
-        oTargetKind   = OrKind.Star
-        if iDifficulty > 3:
-            oTargetKind = OrKind.Dice
-        if iDifficulty > 5:
-            oTargetKind = OrKind.Spiral
-        if iDifficulty > 7:
-            oTargetKind = OrKind.Ring
-
-        oRarity = OrRarity.Common
-        oTarget = Qombit('Target', oTargetKind, iTargetlevel, oRarity)
-        oObjective = ObjectiveQombit('Goal', iLevel, oRarity, oTarget)
+        QombitFactory.log.info('Creating an Objective with difficulty %d', iDifficulty)
+        iObjectiveLevel = (iDifficulty % 4) + 1
+        oObjectiveRarity = OrRarity((iDifficulty // 4) % 4)
+        iTargetLevel = random.randint(2, min(6, iObjectiveLevel+2))
+        oTargetKind = OrKind(1 + ((iDifficulty // 12) % 6))
+        oRarity = oObjectiveRarity
+        
+        oTarget = Qombit('Target', oTargetKind, iTargetLevel, oRarity)
+        oObjective = ObjectiveQombit(QombitFactory.nameGen.generate(), iObjectiveLevel, oObjectiveRarity, oTarget)
         return oObjective
