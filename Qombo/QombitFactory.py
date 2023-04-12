@@ -27,6 +27,10 @@ class QombitFactory():
             #qombit = ObjectiveQombit(sName, oKind, iLevel, oRarity)
             pass
         return qombit
+    
+    @staticmethod
+    def copy(qombit: Qombit):
+        return Qombit(qombit.sName, qombit.oKind, qombit.iLevel, qombit.oRarity)
 
     @staticmethod
     def fromJson(oData: dict) -> Qombit:
@@ -48,7 +52,7 @@ class QombitFactory():
         iTargetLevel = random.randint(2, min(6, iObjectiveLevel+2))
         oTargetKind = OrKind(1 + ((iDifficulty // 12) % 6))
         oRarity = oObjectiveRarity
-        
+
         oTarget = Qombit('Target', oTargetKind, iTargetLevel, oRarity)
         oObjective = ObjectiveQombit(QombitFactory.nameGen.generate(), iObjectiveLevel, oObjectiveRarity, oTarget)
         return oObjective
