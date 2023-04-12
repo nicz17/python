@@ -190,6 +190,19 @@ class Qombit:
             # don't attempt to compare against unrelated types
             return NotImplemented
         return self.oKind.value == other.oKind.value and self.oRarity.value == other.oRarity.value and self.iLevel == other.iLevel
+    
+    def __lt__(self, other):
+        if not isinstance(other, Qombit):
+            # don't attempt to compare against unrelated types
+            return NotImplemented
+        if self.oKind.value == other.oKind.value:
+            if self.oRarity.value == other.oRarity.value:
+                return self.iLevel < other.iLevel
+            return self.oRarity.value < other.oRarity.value
+        return self.oKind.value < other.oKind.value
+    
+    def __hash__(self):
+        return hash((self.iLevel, self.oKind.value, self.oRarity.value))
 
 class ObjectiveQombit(Qombit):
     def __init__(self, sName: str, iLevel: int, oRarity: OrRarity, oTarget: Qombit):
