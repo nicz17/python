@@ -15,6 +15,7 @@ from GameSave import *
 from Grid import *
 from Qombit import *
 from QombitFactory import *
+from QombitCollection import *
 from Timer import *
 from Renderer import *
 from HintProvider import *
@@ -43,6 +44,7 @@ class QomboApp(BaseApp):
         self.hintProvider = HintProvider(self.grid)
         self.game = None
         self.gameSave = GameSave()
+        self.collec = QombitCollection()
         self.renderer.drawGrid()
         self.setSelection(None)
 
@@ -87,6 +89,8 @@ class QomboApp(BaseApp):
                 self.log.info('Generated %s at %s', qombit, pos)
                 self.grid.put(pos.x, pos.y, qombit)
                 self.enableWidgets()
+                self.renderer.drawGrid()
+                self.updateCollection(qombit)
         else:
             self.log.info('Cannot generate')
 
@@ -151,13 +155,16 @@ class QomboApp(BaseApp):
             #self.log.info('Reselection at %s', str(at))
             if self.canGenerate():
                 self.generate()
+            else:
+                self.renderer.drawGrid()
         # New selection
         else:
             #self.log.info('New selection at %s', str(at))
             self.setSelection(at)
+            self.renderer.drawGrid()
 
         # Redraw grid in any case
-        self.renderer.drawGrid()
+        #self.renderer.drawGrid()
 
     def onDragStart(self, event: tk.Event):
         self.oDragFrom = self.getGridPos(event.x, event.y)
@@ -200,6 +207,7 @@ class QomboApp(BaseApp):
             bSwap = False
             self.setSelection(oTo)
             self.renderer.drawGrid()
+            self.updateCollection(qom1)
         elif qom2 and qom2.oKind == OrKind.Objective:
             # Check if objective is complete
             bSwap = not self.objectiveComplete(qom2, qom1)
@@ -238,6 +246,18 @@ class QomboApp(BaseApp):
             for pos in hint:
                 self.renderer.drawHighlight(pos, 'red')
             self.renderer.displayMessage(hint.sText)
+
+    def updateCollection(self, qombit: Qombit):
+        """Add the qombit to the collection. Gain points if it is new."""
+        if qombit is not None and not qombit in self.collec:
+            self.collec.add(QombitFactory.copy(qombit))
+            self.renderer.displayMessage('Collection expanded!')
+            self.game.incScore(1)
+
+    def showCollection(self):
+        """Display the current qombit collection in a modal window."""
+        self.collec.dump()
+        messagebox.showinfo(title='Collection', message='Not implemented yet!')
 
     def displayGameInfo(self, event):
         """Display a message-box with game info."""
@@ -283,6 +303,7 @@ class QomboApp(BaseApp):
         self.btnSell   = self.addButton('Sell', self.sellQombit)
         self.btnSave   = self.addButton('Save', self.saveGame)
         self.btnHint   = self.addButton('Hint', self.getHint)
+        self.btnCollec = self.addButton('Collection', self.showCollection)
 
         # Score label
         self.lblScore = tk.Label(self.frmButtons, text='Score: 0')
