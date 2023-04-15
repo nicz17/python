@@ -50,6 +50,19 @@ class TestCollection(unittest.TestCase):
         self.collec.clear()
         self.assertEqual(len(self.collec), 0, 'Expected collection empty after clear')
 
+    def test_json(self):
+        """Test collection to JSON."""
+        self.collec.add(self.star)
+        self.collec.add(self.dice)
+        data = self.collec.toJson()
+        self.assertIsNotNone(data, 'Expected JSON data')
+
+    def test_byKind(self):
+        """Test getting qombits by kind."""
+        self.collec.add(self.star)
+        self.collec.add(self.dice)
+        stars = self.collec.getByKind(OrKind.Star)
+        self.assertIsNotNone(stars)
 
 if __name__ == '__main__':
     unittest.main()
