@@ -40,6 +40,6 @@ class ModalDialog(object):
     def exit(self):
         """Close the modal window. Release event grab."""
         self.log.info('Close modal dialog window')
-        self.data = self.entry.get()
+        #self.data = self.entry.get()
         self.root.grab_release()
         self.root.destroy()

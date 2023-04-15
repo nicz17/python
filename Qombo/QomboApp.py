@@ -10,13 +10,13 @@ import tkinter as tk
 import logging
 import getpass
 from BaseApp import *
+from DialogCollection import *
 from Game import *
 from GameSave import *
 from Grid import *
 from Qombit import *
 from QombitFactory import *
 from QombitCollection import *
-from ModalDialog import *
 from Timer import *
 from Renderer import *
 from HintProvider import *
@@ -75,6 +75,10 @@ class QomboApp(BaseApp):
         self.setSelection(None)
         self.setStatus('Welcome to ' + self.sTitle + ', ' + self.game.sPlayer + ' !')
         self.renderer.displayMessage(f'Welcome back, {self.game.sPlayer}!')
+
+        # Populate collection from grid
+        for pos in self.grid:
+            self.collec.add(self.grid.getAt(pos))
     
     def saveGame(self):
         """Save the game state to json file."""
@@ -259,7 +263,7 @@ class QomboApp(BaseApp):
     def showCollection(self):
         """Display the current qombit collection in a modal window."""
         self.collec.dump()
-        dlgCollect = ModalDialog(self.window, 'Collection')
+        dlgCollect = DialogCollection(self.window)
         self.log.info('Opened dialog window, waiting')
         self.window.wait_window(dlgCollect.root)
         self.log.info(f'Dialog closed with data: {dlgCollect.data}')
