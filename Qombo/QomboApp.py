@@ -263,8 +263,9 @@ class QomboApp(BaseApp):
     def showCollection(self):
         """Display the current qombit collection in a modal window."""
         self.collec.dump()
-        dlgCollect = DialogCollection(self.window)
+        dlgCollect = DialogCollection(self.window, self.collec)
         self.log.info('Opened dialog window, waiting')
+        dlgCollect.displayKind(OrKind.Star)
         self.window.wait_window(dlgCollect.root)
         self.log.info(f'Dialog closed with data: {dlgCollect.data}')
 
