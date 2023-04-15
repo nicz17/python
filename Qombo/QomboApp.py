@@ -16,6 +16,7 @@ from Grid import *
 from Qombit import *
 from QombitFactory import *
 from QombitCollection import *
+from ModalDialog import *
 from Timer import *
 from Renderer import *
 from HintProvider import *
@@ -253,11 +254,15 @@ class QomboApp(BaseApp):
             self.collec.add(QombitFactory.copy(qombit))
             self.renderer.displayMessage('Collection expanded!')
             self.game.incScore(1)
+            self.updateScore()
 
     def showCollection(self):
         """Display the current qombit collection in a modal window."""
         self.collec.dump()
-        messagebox.showinfo(title='Collection', message='Not implemented yet!')
+        dlgCollect = ModalDialog(self.window, 'Collection')
+        self.log.info('Opened dialog window, waiting')
+        self.window.wait_window(dlgCollect.root)
+        self.log.info(f'Dialog closed with data: {dlgCollect.data}')
 
     def displayGameInfo(self, event):
         """Display a message-box with game info."""
