@@ -20,6 +20,10 @@ class QombitCollection():
         if qombit is not None:
             self.qombits.add(qombit)
 
+    def clear(self):
+        """Clears the collection."""
+        self.qombits.clear()
+
     def dump(self):
         """Dump collection contents to log."""
         self.log.info('Collection of %d qombits', len(self.qombits))
@@ -28,3 +32,6 @@ class QombitCollection():
 
     def __contains__(self, qombit: Qombit):
         return qombit in self.qombits
+    
+    def __len__(self):
+        return len(self.qombits)
