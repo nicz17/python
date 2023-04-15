@@ -20,9 +20,17 @@ class QombitCollection():
         if qombit is not None:
             self.qombits.add(qombit)
 
+    def getByKind(self, kind: OrKind):
+        """Returns all qombits of the specified kind in this collection."""
+        pass  # TODO
+
     def clear(self):
         """Clears the collection."""
         self.qombits.clear()
+
+    def toJson(self):
+        """Export collection as JSON data."""
+        pass  # TODO
 
     def dump(self):
         """Dump collection contents to log."""
