@@ -56,13 +56,17 @@ class TestCollection(unittest.TestCase):
         self.collec.add(self.dice)
         data = self.collec.toJson()
         self.assertIsNotNone(data, 'Expected JSON data')
+        #print(data)
 
     def test_byKind(self):
         """Test getting qombits by kind."""
         self.collec.add(self.star)
         self.collec.add(self.dice)
-        stars = self.collec.getByKind(OrKind.Star)
+        stars = []
+        for qombit in self.collec.getByKind(OrKind.Star):
+            stars.append(qombit)
         self.assertIsNotNone(stars)
+        self.assertEqual(len(stars), 1, 'Expected 1 star')
 
 if __name__ == '__main__':
     unittest.main()

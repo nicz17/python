@@ -22,7 +22,9 @@ class QombitCollection():
 
     def getByKind(self, kind: OrKind):
         """Returns all qombits of the specified kind in this collection."""
-        pass  # TODO
+        for qombit in self.qombits:
+            if qombit.oKind == kind:
+                yield qombit
 
     def clear(self):
         """Clears the collection."""
@@ -30,7 +32,10 @@ class QombitCollection():
 
     def toJson(self):
         """Export collection as JSON data."""
-        pass  # TODO
+        data = []
+        for qombit in self.qombits:
+            data.append(qombit.toJson())
+        return data
 
     def dump(self):
         """Dump collection contents to log."""
