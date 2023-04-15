@@ -15,6 +15,7 @@ from Palette import *
 from QomboImage import *
 
 class OrKind(Enum):
+    """Enum of qombit kinds."""
     Generator  = 0
     Star       = 1
     Dice       = 2
@@ -28,6 +29,7 @@ class OrKind(Enum):
         return self.name
 
 class OrRarity(Enum):
+    """Enum of qombit rarities."""
     Common  = 0
     Unusual = 1
     Rare    = 2
