@@ -76,3 +76,22 @@ class ConstantModel(Model):
         arrConst = np.repeat(self.value, self.nValues)
         arrNoise = self.noise(0.9)
         return np.add(arrConst, arrNoise)
+    
+class ConsumptionModel(Model):
+    """A model generating high/low consumption values with random noise."""
+
+    def __init__(self, nValues: int, valLow: float, valHigh: float, dOptions: dict) -> None:
+        super().__init__('ConsumptionModel', nValues, dOptions)
+        self.valLow  = valLow
+        self.valHigh = valHigh
+
+    def generate(self):
+        self.log.info('Generating %d %s values', self.nValues, self.name)
+        arrConst = []
+        for i in range(self.nValues):
+            if i > 10 and i < 20:
+                arrConst.append(self.valHigh)
+            else:
+                arrConst.append(self.valLow)
+        arrNoise = self.noise(0.9)
+        return np.add(arrConst, arrNoise)
