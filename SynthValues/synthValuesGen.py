@@ -50,7 +50,7 @@ def main():
     log.info('Welcome to synthValuesGen v' + __version__)
     #model = RandomModel(30, dOptions)
     #model = ConstantModel(30, 100.0, dOptions)
-    model = ConsumptionModel(30, 30.0, 100.0, dOptions)
+    model = ConsumptionModel(7*96, 30.0, 100.0, dOptions)
     model.createDataframe()
     model.saveAsCSV()
 

@@ -18,7 +18,7 @@ class Model:
         self.name = name
         self.nValues = nValues
         self.dOptions = dOptions
-        self.df = None
+        self.df = pd.DataFrame()
         self.log.info('Model %s', name)
 
     def createDataframe(self):
@@ -27,12 +27,13 @@ class Model:
         """
         self.log.info('Generating DataFrame with %d %s values', self.nValues, self.name)
         self.df = pd.DataFrame({
-                "day": np.arange(1, self.nValues+1),
-                "value": self.generate()
+                "seq":   np.arange(1, self.nValues+1),
+                "value": np.repeat(0, self.nValues)
             },
             index = self.buildIndex()
             )
         self.df.index.name = 'index'
+        self.df.value = self.generate()
         if self.dOptions['verbose']:
             self.log.info('Dataframe:\n%s', self.df)
 
@@ -47,6 +48,10 @@ class Model:
     def noise(self, ampl: float):
         """Generate a random noise array"""
         return np.random.uniform(low=-ampl, high=ampl, size=(self.nValues,))
+
+    def interpolate(self, low: float, high: float, frac: float):
+        """Interpolate at the specified fraction (0 to 1) between low and high."""
+        return low + frac*(high - low)
 
     def saveAsCSV(self):
         """Save the DataFrame to a CSV file."""
@@ -85,13 +90,34 @@ class ConsumptionModel(Model):
         self.valLow  = valLow
         self.valHigh = valHigh
 
+    def buildIndex(self):
+        """Generate the dataframe index with 15 minute intervals."""
+        return pd.date_range(start='01/01/2023', periods=self.nValues, freq='15min')
+
     def generate(self):
         self.log.info('Generating %d %s values', self.nValues, self.name)
-        arrConst = []
+        arrCons = []
+        hourOpening = 7
+        hourClosing = 19
         for i in range(self.nValues):
-            if i > 10 and i < 20:
-                arrConst.append(self.valHigh)
+            hour    = self.df.index[i].hour
+            weekday = self.df.index[i].dayofweek
+            #self.log.info('Index is %s, day of week is %d, hour is %d', self.df.index[i], weekday, hour)
+            if weekday == 6:
+                # Sunday only has low consumption
+                arrCons.append(self.valLow)
+            elif hour == hourOpening:
+                # Opening hour ramp-up
+                min = self.df.index[i].minute
+                arrCons.append(self.interpolate(self.valLow, self.valHigh, min/60.0))
+            elif hour == hourClosing:
+                # Closing hour ramp-down
+                min = self.df.index[i].minute
+                arrCons.append(self.interpolate(self.valHigh, self.valLow, min/60.0))
+            elif hour > hourOpening and hour < hourClosing:
+                # Open hours high consumption
+                arrCons.append(self.valHigh)
             else:
-                arrConst.append(self.valLow)
-        arrNoise = self.noise(0.9)
-        return np.add(arrConst, arrNoise)
+                # Closed low consumption
+                arrCons.append(self.valLow)
+        return np.add(arrCons, self.noise(0.9))
