@@ -15,6 +15,7 @@ class Model:
     log = logging.getLogger(__name__)
 
     def __init__(self, name: str, nValues: int, dOptions: dict) -> None:
+        """Constructor with model name, number of values to generate, and other options."""
         self.name = name
         self.nValues = nValues
         self.dOptions = dOptions
@@ -22,9 +23,7 @@ class Model:
         self.log.info('Model %s', name)
 
     def createDataframe(self):
-        """
-        Create a Pandas Dataframe and fill it with synthetic values.
-        """
+        """Create a Pandas Dataframe and fill it with synthetic values."""
         self.log.info('Generating DataFrame with %d %s values', self.nValues, self.name)
         self.df = pd.DataFrame({
                 "seq":   np.arange(1, self.nValues+1),
@@ -34,8 +33,8 @@ class Model:
             )
         self.df.index.name = 'index'
         self.df.value = self.generate()
-        if self.dOptions['verbose']:
-            self.log.info('Dataframe:\n%s', self.df)
+        #if self.dOptions['verbose']:
+        self.log.info('Dataframe:\n%s', self.df)
 
     def buildIndex(self):
         """Generate the dataframe index."""
@@ -46,7 +45,7 @@ class Model:
         pass
 
     def noise(self, ampl: float):
-        """Generate a random noise array"""
+        """Generate a random noise array."""
         return np.random.uniform(low=-ampl, high=ampl, size=(self.nValues,))
 
     def interpolate(self, low: float, high: float, frac: float):
@@ -83,9 +82,14 @@ class ConstantModel(Model):
         return np.add(arrConst, arrNoise)
     
 class ConsumptionModel(Model):
-    """A model generating high/low consumption values with random noise."""
+    """
+    A model generating high/low consumption values with random noise.
+    Sampling rate is 15 minutes, so 96 values per day.
+    Consumption varies from low to high depending on the day and hour.
+    """
 
     def __init__(self, nValues: int, valLow: float, valHigh: float, dOptions: dict) -> None:
+        """Constructor with low and high consumption values."""
         super().__init__('ConsumptionModel', nValues, dOptions)
         self.valLow  = valLow
         self.valHigh = valHigh

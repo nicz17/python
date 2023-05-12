@@ -28,3 +28,5 @@ Qombo/saves/*
 Qombo/test/*
 Qombo/*.html
 Qombo/*.css
+
+SynthValues/*.csv
