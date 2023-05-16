@@ -52,6 +52,10 @@ class Model:
     def interpolate(self, low: float, high: float, frac: float):
         """Interpolate at the specified fraction (0 to 1) between low and high."""
         return low + frac*(high - low)
+    
+    def oscillate(self, low: float, high: float, freq: float):
+        """Generate sine wave values between low and high at the specified frequency."""
+        pass
 
     def saveAsCSV(self):
         """Save the DataFrame to a CSV file."""
@@ -60,7 +64,7 @@ class Model:
         self.df.to_csv(sFilename)
 
     def plot(self):
-        """Save a plot of the generated dataframe."""
+        """Save a matplotlib plot of the generated dataframe."""
         ax = self.df.plot(kind='line', title=self.name)
         fig = ax.get_figure()
         sFilename = f'{self.name}.pdf'
