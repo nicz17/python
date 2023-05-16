@@ -31,18 +31,20 @@ def configureLogging():
 def getOptions():
     """Parse program arguments and store them in a dict."""
 
-    dOptions = {'verbose': False}
+    dOptions = {'plot': False, 'verbose': False}
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'hv', ['help', 'verbose'])
+        opts, args = getopt.getopt(sys.argv[1:], 'hpv', ['help', 'plot', 'verbose'])
     except getopt.GetoptError:
         print("Invalid options: %s", sys.argv[1:])
     for opt, arg in opts:
         log.info("Parsing option %s value %s", opt, arg)
         if opt in ('-h', '--help'):
-            print('synthValuesGen.py -h (help) -v (verbose)')
+            print('synthValuesGen.py -h (help) -p (plot) -v (verbose)')
             sys.exit()
         elif opt in ("-v", "--verbose"):
             dOptions['verbose'] = True
+        elif opt in ("-p", "--plot"):
+            dOptions['plot'] = True
     return dOptions
 
 def main():
@@ -53,6 +55,9 @@ def main():
     model = ConsumptionModel(7*96, 30.0, 100.0, dOptions)
     model.createDataframe()
     model.saveAsCSV()
+
+    if dOptions['plot']:
+        model.plot()
 
 log = configureLogging()
 dOptions = getOptions()

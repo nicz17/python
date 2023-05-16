@@ -9,6 +9,7 @@ __version__ = "1.0.0"
 import logging
 import numpy  as np
 import pandas as pd
+import matplotlib
 
 class Model:
     """Interface for generating synthetic values."""
@@ -26,7 +27,7 @@ class Model:
         """Create a Pandas Dataframe and fill it with synthetic values."""
         self.log.info('Generating DataFrame with %d %s values', self.nValues, self.name)
         self.df = pd.DataFrame({
-                "seq":   np.arange(1, self.nValues+1),
+                #"seq":   np.arange(1, self.nValues+1),
                 "value": np.repeat(0, self.nValues)
             },
             index = self.buildIndex()
@@ -57,6 +58,15 @@ class Model:
         sFilename = f'{self.name}.csv'
         self.log.info('Saving synthetic data to %s', sFilename)
         self.df.to_csv(sFilename)
+
+    def plot(self):
+        """Save a plot of the generated dataframe."""
+        ax = self.df.plot(kind='line', title=self.name)
+        fig = ax.get_figure()
+        sFilename = f'{self.name}.pdf'
+        self.log.info('Saving plot as %s', sFilename)
+        fig.savefig(sFilename)
+
 
 class RandomModel(Model):
     """A model generating random values."""
