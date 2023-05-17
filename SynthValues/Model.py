@@ -8,6 +8,7 @@ __version__ = "1.0.0"
 
 import logging
 import math
+import random
 import numpy  as np
 import pandas as pd
 #import matplotlib
@@ -63,6 +64,15 @@ class Model:
             values.append(mean + ampl*math.sin(x*freq + phi0))
         return values
 
+    def circleWalk(self, ampl: float, speed: float):
+        """A bounded random walk."""
+        values = []
+        phi = 0.0
+        for x in range(self.nValues):
+            phi += speed*(-1.0 + 2.0*random.random())
+            values.append(ampl*math.sin(phi))
+        return values
+
     def saveAsCSV(self):
         """Save the DataFrame to a CSV file."""
         sFilename = f'{self.name}.csv'
@@ -86,7 +96,8 @@ class RandomModel(Model):
 
     def generate(self):
         self.log.info('Generating %d %s values', self.nValues, self.name)
-        return np.random.rand(self.nValues)
+        #return np.random.rand(self.nValues)
+        return self.circleWalk(3.0, 0.04)
     
 class ConstantModel(Model):
     """A model generating constant values with random noise."""
@@ -105,6 +116,7 @@ class TemperatureModel(Model):
     """
     A model roughly simulating European air temperature values.
     The baseline is a yearly oscillation and a daily oscillation.
+    Variation is provided by a slow bounded random walk, and small random noise.
     """
 
     def __init__(self, nValues: int, dOptions: dict) -> None:
@@ -117,9 +129,13 @@ class TemperatureModel(Model):
 
     def generate(self):
         self.log.info('Generating %d %s values', self.nValues, self.name)
+        # Daily oscillation: cold at night, warm in the afternoon
         tempDaily  = self.oscillate(-5.0, 5.0, 2.0*math.pi/self.nValPerDay, math.pi)
+        # Yearly oscillation: cold in winter, hot in summer
         tempYearly = self.oscillate(0.0, 20.0, 2.0*math.pi/(365.0*self.nValPerDay), 3*math.pi/2.0)
-        return np.add(tempDaily, tempYearly, self.noise(0.2))
+        # Random slow variations
+        tempRandom = self.circleWalk(4.0, 0.03)
+        return np.add.reduce([tempDaily, tempYearly, tempRandom, self.noise(0.2)])
 
     
 class ConsumptionModel(Model):
