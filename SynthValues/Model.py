@@ -7,9 +7,10 @@ __copyright__ = "Copyright 2023 N. Zwahlen"
 __version__ = "1.0.0"
 
 import logging
+import math
 import numpy  as np
 import pandas as pd
-import matplotlib
+#import matplotlib
 
 class Model:
     """Interface for generating synthetic values."""
@@ -53,9 +54,14 @@ class Model:
         """Interpolate at the specified fraction (0 to 1) between low and high."""
         return low + frac*(high - low)
     
-    def oscillate(self, low: float, high: float, freq: float):
+    def oscillate(self, low: float, high: float, freq: float, phi0 = 0.0):
         """Generate sine wave values between low and high at the specified frequency."""
-        pass
+        values = []
+        ampl = (high - low)/2
+        mean = (high + low)/2
+        for x in range(self.nValues):
+            values.append(mean + ampl*math.sin(x*freq + phi0))
+        return values
 
     def saveAsCSV(self):
         """Save the DataFrame to a CSV file."""
@@ -94,6 +100,27 @@ class ConstantModel(Model):
         arrConst = np.repeat(self.value, self.nValues)
         arrNoise = self.noise(0.9)
         return np.add(arrConst, arrNoise)
+
+class TemperatureModel(Model):
+    """
+    A model roughly simulating European air temperature values.
+    The baseline is a yearly oscillation and a daily oscillation.
+    """
+
+    def __init__(self, nValues: int, dOptions: dict) -> None:
+        super().__init__('TemperatureModel', nValues, dOptions)
+        self.nValPerDay = 96.0
+
+    def buildIndex(self):
+        """Generate the dataframe index with 15 minute intervals."""
+        return pd.date_range(start='01/01/2023', periods=self.nValues, freq='15min')
+
+    def generate(self):
+        self.log.info('Generating %d %s values', self.nValues, self.name)
+        tempDaily  = self.oscillate(-5.0, 5.0, 2.0*math.pi/self.nValPerDay, math.pi)
+        tempYearly = self.oscillate(0.0, 20.0, 2.0*math.pi/(365.0*self.nValPerDay), 3*math.pi/2.0)
+        return np.add(tempDaily, tempYearly, self.noise(0.2))
+
     
 class ConsumptionModel(Model):
     """
