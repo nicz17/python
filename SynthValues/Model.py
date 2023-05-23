@@ -21,6 +21,7 @@ class Model:
         """Constructor with model name, number of values to generate, and other options."""
         self.name = name
         self.nValues = nValues
+        self.sFreq = '1D'  # one value per day
         self.dOptions = dOptions
         self.df = pd.DataFrame()
         self.log.info('Model %s', name)
@@ -36,15 +37,20 @@ class Model:
             )
         self.df.index.name = 'index'
         self.df.value = self.generate()
+        self.finalize()
         #if self.dOptions['verbose']:
         self.log.info('Dataframe:\n%s', self.df)
 
     def buildIndex(self):
         """Generate the dataframe index."""
-        return pd.date_range(start='01/01/2023', periods = self.nValues)
+        return pd.date_range(start='2023-01-01', periods = self.nValues, freq = self.sFreq)
 
     def generate(self):
-        """Generate the specified number of values."""
+        """Generate the required number of values."""
+        pass
+
+    def finalize(self):
+        """Post-generation data manipulations, such as adding anomalies."""
         pass
 
     def noise(self, ampl: float):
@@ -72,6 +78,14 @@ class Model:
             phi += speed*(-1.0 + 2.0*random.random())
             values.append(ampl*math.sin(phi))
         return values
+
+    def addAnomaly(self, since: str, nValues: int, value: float):
+        """Add anomalous values starting at the specified index."""
+        self.log.info('Adding anomaly from %s for %d x %s value %f', 
+            since, nValues, self.sFreq, value)
+        aAt = pd.date_range(start=since, periods = nValues, freq = self.sFreq)
+        for at in aAt:
+            self.df.at[at, 'value'] = value + random.random()
 
     def saveAsCSV(self):
         """Save the DataFrame to a CSV file."""
@@ -122,10 +136,7 @@ class TemperatureModel(Model):
     def __init__(self, nValues: int, dOptions: dict) -> None:
         super().__init__('TemperatureModel', nValues, dOptions)
         self.nValPerDay = 96.0
-
-    def buildIndex(self):
-        """Generate the dataframe index with 15 minute intervals."""
-        return pd.date_range(start='01/01/2023', periods=self.nValues, freq='15min')
+        self.sFreq = '15min'
 
     def generate(self):
         self.log.info('Generating %d %s values', self.nValues, self.name)
@@ -148,12 +159,13 @@ class ConsumptionModel(Model):
     def __init__(self, nValues: int, valLow: float, valHigh: float, dOptions: dict) -> None:
         """Constructor with low and high consumption values."""
         super().__init__('ConsumptionModel', nValues, dOptions)
+        self.sFreq = '15min'
         self.valLow  = valLow
         self.valHigh = valHigh
 
-    def buildIndex(self):
-        """Generate the dataframe index with 15 minute intervals."""
-        return pd.date_range(start='01/01/2023', periods=self.nValues, freq='15min')
+    def finalize(self):
+        self.addAnomaly('2023-01-04 13:30', 1, 42.0)
+        self.addAnomaly('2023-01-01 09:30', 6, 5.0)
 
     def generate(self):
         self.log.info('Generating %d %s values', self.nValues, self.name)
@@ -164,6 +176,13 @@ class ConsumptionModel(Model):
             hour    = self.df.index[i].hour
             weekday = self.df.index[i].dayofweek
             #self.log.info('Index is %s, day of week is %d, hour is %d', self.df.index[i], weekday, hour)
+
+            if weekday == 5:
+                # Saturday has earlier closing time
+                hourClosing = 17
+            else:
+                hourClosing = 19
+
             if weekday == 6:
                 # Sunday only has low consumption
                 arrCons.append(self.valLow)
