@@ -167,6 +167,23 @@ class ConsumptionModel(Model):
         self.addAnomaly('2023-01-04 13:30', 1, 42.0)
         self.addAnomaly('2023-01-01 09:30', 6, 5.0)
 
+    def isSpecialDay(self, day: pd.DatetimeIndex) -> bool:
+        """Checks if the specified datetime is special like Sunday, Christmas etc."""
+        month    = day.month
+        monthday = day.day
+        weekday  = day.dayofweek
+
+        if weekday == 6:
+            # Sunday
+            return True
+        elif month == 8 and monthday == 1:
+            # First of August
+            return True
+        elif month == 12 and monthday == 25:
+            # Christmas
+            return True
+        return False
+
     def generate(self):
         self.log.info('Generating %d %s values', self.nValues, self.name)
         arrCons = []
@@ -183,7 +200,8 @@ class ConsumptionModel(Model):
             else:
                 hourClosing = 19
 
-            if weekday == 6:
+            #if weekday == 6:
+            if self.isSpecialDay(self.df.index[i]):
                 # Sunday only has low consumption
                 arrCons.append(self.valLow)
             elif hour == hourOpening:
