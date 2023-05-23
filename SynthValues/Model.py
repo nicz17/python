@@ -11,6 +11,7 @@ import math
 import random
 import numpy  as np
 import pandas as pd
+import pandas_highcharts.core
 #import matplotlib
 
 class Model:
@@ -101,6 +102,15 @@ class Model:
         self.log.info('Saving plot as %s', sFilename)
         fig.savefig(sFilename)
 
+    def toHighcharts(self):
+        """Save the generated dataframe as a Highcharts chart."""
+        chart = pandas_highcharts.core.serialize(self.df, render_to='my-chart', output_type='json', title=self.name)
+        sFilename = 'highchart.json'
+        self.log.info('Saving Highcharts as %s', sFilename)
+        file = open(sFilename, 'w')
+        file.write(chart)
+        file.close()
+        
 
 class RandomModel(Model):
     """A model generating random values."""
