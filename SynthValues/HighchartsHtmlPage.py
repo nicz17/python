@@ -29,7 +29,7 @@ class HighchartsHtmlPage(HtmlPage):
         """Add a div and JS script to display a Highcharts chart."""
         self.log.info('Adding Highcharts %s', name)
         divChart = DivHtmlTag(name)
-        divChart.addAttr('style', 'width:1200px; height:800px;')
+        divChart.addAttr('style', 'width:1500px; height:900px;')
         self.add(divChart)
 
         js = 'jQuery(document).ready(function() {\n'
