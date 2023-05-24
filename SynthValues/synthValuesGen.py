@@ -52,12 +52,14 @@ def main():
     log.info('Welcome to synthValuesGen v' + __version__)
     #model = RandomModel(30, dOptions)
     #model = ConstantModel(30, 100.0, dOptions)
-    model = ConsumptionModel(7*96, 30.0, 100.0, dOptions)
+    #model = ConsumptionModel(30*96, 30.0, 100.0, dOptions)
+    model = TemperatureModel(60*96, dOptions)
     model.createDataframe()
     model.saveAsCSV()
 
     if dOptions['plot']:
-        model.plot()
+        #model.plot()
+        model.toHighcharts()
 
 log = configureLogging()
 dOptions = getOptions()
