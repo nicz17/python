@@ -9,9 +9,11 @@ __version__ = "1.0.0"
 import logging
 import math
 import random
+import json
 import numpy  as np
 import pandas as pd
 import pandas_highcharts.core
+from HighchartsHtmlPage import *
 #import matplotlib
 
 class Model:
@@ -104,12 +106,27 @@ class Model:
 
     def toHighcharts(self):
         """Save the generated dataframe as a Highcharts chart."""
-        chart = pandas_highcharts.core.serialize(self.df, render_to='my-chart', output_type='json', title=self.name)
-        sFilename = 'highchart.json'
-        self.log.info('Saving Highcharts as %s', sFilename)
-        file = open(sFilename, 'w')
-        file.write(chart)
-        file.close()
+
+        # Export dataframe to Highchart 
+        sTitle = f'Synthetic values {self.name}'
+        sChart = pandas_highcharts.core.serialize(self.df, render_to='my-chart', output_type='json', title=sTitle)
+        jsonChart = json.loads(sChart)
+
+        # Modify the json chart
+        jsonChart['chart'].update({'zoomType': 'x'})
+        jsonChart['yAxis'].append({'title': {'text': 'Consumption (kWh)'}})
+
+        # Save chart as file
+        #sFilename = 'highchart.json'
+        #self.log.info('Saving Highcharts as %s', sFilename)
+        #file = open(sFilename, 'w')
+        #file.write(json.dumps(jsonChart, indent=2))
+        #file.close()
+
+        # Create a HTML page
+        page = HighchartsHtmlPage('SynthValues')
+        page.addChart('my-chart', jsonChart)
+        page.save('highcharts.html')
         
 
 class RandomModel(Model):
