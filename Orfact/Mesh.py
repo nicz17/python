@@ -1,7 +1,7 @@
 """
-A 2D mesh generator.
+A simple 2D triangle mesh generator.
 The mesh is made of vertices connected by edges.
-Three vertices and their edges make a face.
+Three vertices and their edges make a triangular face.
 """
 
 __author__ = "Nicolas Zwahlen"
@@ -16,10 +16,12 @@ class Vertex:
     log = logging.getLogger('Vertex')
 
     def __init__(self, x: float, y: float) -> None:
+        """Constructor with x, y coordinates of the vertex."""
         self.x = x 
         self.y = y
 
     def dist(self, v):
+        """Compute the euclidian distance to another vertex."""
         dx = self.x - v.x
         dy = self.y - v.y
         return math.sqrt(dx*dx + dy*dy)
@@ -41,6 +43,7 @@ class Edge:
     log = logging.getLogger('Edge')
 
     def __init__(self, v1: Vertex, v2: Vertex) -> None:
+        """Constructor with two vertices."""
         self.v1 = v1
         self.v2 = v2
     
@@ -67,10 +70,13 @@ class Mesh:
         self.edges = set()
 
     def addVertex(self, v: Vertex):
+        """Add a vertex to this mesh."""
         self.vertices.append(v)
 
     def buildEdges(self):
+        """Compute the edges of this mesh by combining vertices into triangles."""
         self.log.info('Building edges')
+        self.edges.clear()
         for v in self.vertices:
             v2 = self.getClosest(v)
             v3 = self.getClosest(v, v2)
@@ -82,6 +88,7 @@ class Mesh:
                     self.edges.add(Edge(v2, v3))
 
     def getClosest(self, v: Vertex, exc=None):
+        """Find the closest vertex to the specified one, possibly ignoring another vertex."""
         result = None
         minDist = None
         for vertex in self.vertices:
@@ -94,6 +101,7 @@ class Mesh:
         return result
 
     def dump(self):
+        """Dump the mesh details to log."""
         self.log.info(self)
         for vertex in self.vertices:
             self.log.info('  %s', vertex)
