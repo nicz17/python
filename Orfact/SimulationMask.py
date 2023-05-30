@@ -11,6 +11,7 @@ import math
 import random
 from scipy.ndimage import gaussian_filter
 from ImageMask import ImageMask
+from Mesh import *
 
 class SimulationMask(ImageMask):
     """An ImageMask based on a simulation."""
@@ -200,3 +201,20 @@ class FractalMask(SimulationMask):
             if abs(z) > self.rBailout:
                 return i
         return self.iMaxIter
+    
+class MeshMask(SimulationMask):
+    """A mask based on a random 2D triangle mesh."""
+
+    def __init__(self, w, h):
+        super().__init__('MeshMask', w, h)
+        self.nVertices = 8
+
+    def randomize(self):
+        self.nVertices = 8
+
+    def runSimulation(self):
+        mesh = Mesh()
+        for i in range(self.nVertices):
+            pass
+        mesh.buildEdges()
+        
