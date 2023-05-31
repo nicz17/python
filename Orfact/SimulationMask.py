@@ -235,7 +235,8 @@ class MeshMask(SimulationMask):
             if closest is not None:
                 dist = vertex.dist(closest)
                 if dist < minDist:
-                    self.log.info('Discarding %s as it is only %f away from another vertex', vertex, dist)
+                    pass
+                    #self.log.info('Discarding %s as it is only %f away from another vertex', vertex, dist)
                 else:
                     mesh.addVertex(vertex)
             else:

@@ -75,10 +75,47 @@ class Mesh:
 
     def buildEdges(self):
         """Compute the edges of this mesh by combining vertices into triangles."""
-        self.log.info('Building edges for %d vertices', len(self.vertices))
+        nVertices = len(self.vertices)
+        self.log.info('Building edges for %d vertices', nVertices)
         self.edges.clear()
-        self.buildEdgesProximity()
+
+        if nVertices < 2:
+            pass
+        elif nVertices == 2:
+            self.edges.add(Edge(self.vertices[0], self.vertices[1]))
+        else:
+            self.buildEdgesProximity()
+            #self.buildEdgesCentered()
+
         self.log.info('Build result: %s', self)
+
+    def buildEdgesCentered(self):
+        """Build edges starting from the center and going outward."""
+        center = self.getCenter()
+        self.log.info('Building edges from the center %s', center)
+
+        # Compute distance to center for each vertex
+        for v in self.vertices:
+            v.cdist = v.dist(center)
+
+        # Order vertices by distance from center
+        cenVert = sorted(self.vertices, key=lambda v: v.cdist)
+
+        # Start with most central triangle
+        self.edges.add(Edge(cenVert[0], cenVert[1]))
+        self.edges.add(Edge(cenVert[0], cenVert[2]))
+        self.edges.add(Edge(cenVert[1], cenVert[2]))
+
+        # Connect the rest
+        connected = [cenVert[0], cenVert[1], cenVert[2]]
+        if len(cenVert) > 3:
+            for i in range(3, len(cenVert)):
+                v = cenVert[i]
+                v1 = self.getClosestAmong(connected, v)
+                v2 = self.getClosestAmong(connected, v1)
+                self.edges.add(Edge(v, v1))
+                self.edges.add(Edge(v, v2))
+                connected.append(v)
 
     def buildEdgesProximity(self):
         """
@@ -110,6 +147,31 @@ class Mesh:
                 result = vertex
         return result
 
+    def getClosestAmong(self, vertices, v: Vertex, exc=None):
+        """Find the closest vertex to the specified one, possibly ignoring another vertex."""
+        result = None
+        minDist = None
+        for vertex in vertices:
+            if v == vertex or exc == vertex:
+                continue
+            dist = v.dist(vertex)
+            if minDist is None or dist < minDist:
+                minDist = dist
+                result = vertex
+        return result
+    
+    def getCenter(self):
+        """Find the geometric center of the vertices."""
+        nVertices = len(self.vertices)
+        if nVertices < 1:
+            return None
+        sumX = 0.0
+        sumY = 0.0
+        for v in self.vertices:
+            sumX += v.x
+            sumY += v.y
+        return Vertex(sumX/nVertices, sumY/nVertices)
+
     def dump(self):
         """Dump the mesh details to log."""
         self.log.info(self)
@@ -130,6 +192,8 @@ def demoMesh():
     mesh.addVertex(Vertex(2.1, 1.0))
     mesh.buildEdges()
     mesh.dump()
+    center = mesh.getCenter()
+    mesh.log.info('Center: %s', center)
 
 if __name__ == '__main__':
     logging.basicConfig(format="[%(levelname)s] %(message)s", 
