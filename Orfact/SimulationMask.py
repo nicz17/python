@@ -36,6 +36,17 @@ class SimulationMask(ImageMask):
         rMax = max(1.0, np.amax(self.aMask))
         self.aMask = self.aMask / rMax
 
+    def drawLine(self, p1, p2, value: float):
+        """Draw a line from p1 to p2."""
+        nPoints = int(p1.dist(p2))
+        #self.log.info('Drawing a line from %s to %s with %d points', p1, p2, nPoints)
+        for i in range(nPoints):
+            f = i / nPoints
+            x = int(p1.x + f*(p2.x - p1.x))
+            y = int(p1.y + f*(p2.y - p1.y))
+            self.aMask[x, y] = value
+
+
 class LorenzAttractorMask(SimulationMask):
     """An ImageMask based on the Lorenz Attractor.
        See https://itp.uni-frankfurt.de/~gros/Vorlesungen/SO/simulation_example/
@@ -207,14 +218,21 @@ class MeshMask(SimulationMask):
 
     def __init__(self, w, h):
         super().__init__('MeshMask', w, h)
-        self.nVertices = 8
+        self.nVertices = 64
 
     def randomize(self):
-        self.nVertices = 8
+        self.nVertices = 64
 
     def runSimulation(self):
         mesh = Mesh()
         for i in range(self.nVertices):
-            pass
+            x = random.randrange(10, self.w-10)
+            y = random.randrange(10, self.h-10)
+            mesh.addVertex(Vertex(x, y))
+            self.aMask[x, y] = 1000.0
+        self.aMask = gaussian_filter(self.aMask, sigma=6)
+        #self.log.info('After gauss filter, max is %f', np.amax(self.aMask))
+        valEdges = np.amax(self.aMask)/2.0
         mesh.buildEdges()
-        
+        for edge in mesh.edges:
+            self.drawLine(edge.v1, edge.v2, valEdges)
