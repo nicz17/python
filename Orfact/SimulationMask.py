@@ -218,21 +218,36 @@ class MeshMask(SimulationMask):
 
     def __init__(self, w, h):
         super().__init__('MeshMask', w, h)
-        self.nVertices = 64
+        self.nVertices = 32
 
     def randomize(self):
-        self.nVertices = 64
+        self.nVertices = 32
 
     def runSimulation(self):
+        minDist = self.w/15.0
         mesh = Mesh()
-        for i in range(self.nVertices):
+        #for i in range(self.nVertices):
+        while len(mesh.vertices) < self.nVertices:
             x = random.randrange(10, self.w-10)
             y = random.randrange(10, self.h-10)
-            mesh.addVertex(Vertex(x, y))
-            self.aMask[x, y] = 1000.0
-        self.aMask = gaussian_filter(self.aMask, sigma=6)
-        #self.log.info('After gauss filter, max is %f', np.amax(self.aMask))
-        valEdges = np.amax(self.aMask)/2.0
+            vertex = Vertex(x, y)
+            closest = mesh.getClosest(vertex)
+            if closest is not None:
+                dist = vertex.dist(closest)
+                if dist < minDist:
+                    self.log.info('Discarding %s as it is only %f away from another vertex', vertex, dist)
+                else:
+                    mesh.addVertex(vertex)
+            else:
+                mesh.addVertex(vertex)
+
         mesh.buildEdges()
+        self.log.info(mesh)
+
+        for vertex in mesh.vertices:
+            self.aMask[vertex.x, vertex.y] = 1000.0
+        self.aMask = gaussian_filter(self.aMask, sigma=4)
+        valEdges = np.amax(self.aMask)/2.0
         for edge in mesh.edges:
             self.drawLine(edge.v1, edge.v2, valEdges)
+        self.aMask = gaussian_filter(self.aMask, sigma=2)

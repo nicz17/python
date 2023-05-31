@@ -75,8 +75,18 @@ class Mesh:
 
     def buildEdges(self):
         """Compute the edges of this mesh by combining vertices into triangles."""
-        self.log.info('Building edges')
+        self.log.info('Building edges for %d vertices', len(self.vertices))
         self.edges.clear()
+        self.buildEdgesProximity()
+        self.log.info('Build result: %s', self)
+
+    def buildEdgesProximity(self):
+        """
+        Connect each vertex to its 2 closest neighbours.
+        Results in disjointed constellations.
+        Could be used as a kind of clustering.
+        """
+        self.log.info('Building edges by proximity')
         for v in self.vertices:
             v2 = self.getClosest(v)
             v3 = self.getClosest(v, v2)
