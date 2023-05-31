@@ -137,11 +137,11 @@ def runTests():
 
 def runDemos():
     #DemoPalette().run()
-    DemoImageMask().run()
-    #DemoImageGen().run()
+    #DemoImageMask().run()
+    DemoImageGen().run()
     if dOptions['open']:
-        os.system('firefox ImageMaskDemo.html &')
-        #os.system('firefox ImageGenDemo.html &')
+        #os.system('firefox ImageMaskDemo.html &')
+        os.system('firefox ImageGenDemo.html &')
 
 def runGUI():
     module = Module('ImageGen')
