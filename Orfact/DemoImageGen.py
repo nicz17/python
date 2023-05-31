@@ -34,7 +34,7 @@ class DemoImageGen:
 
         # Define ImageMasks to choose from
         aMasks = [#MultiGaussImageMask(self.size[0], self.size[1]),
-                  GaussianBlurMask(self.size[0], self.size[1]),
+                  #GaussianBlurMask(self.size[0], self.size[1]),
                   #RandomWalkMask(self.size[0], self.size[1]),
                   #SpiralImageMask(self.size[0], self.size[1]),
                   #StarFishImageMask(self.size[0], self.size[1]),
@@ -45,10 +45,11 @@ class DemoImageGen:
         aMaskImgs = []
         for i in range(nImages):
             oMask = random.choice(aMasks)
+            oMask.reset()
             oMask.randomize()
             oMask.generate()
             oPal = RandomPalette()
-            sFilename = self.dir + 'RandomImage0' + str(i) + '.png'
+            sFilename = self.dir + f'RandomImage0{i}.png'
             oMask.toImage(oPal, sFilename)
             aMaskImgs.append(ImageHtmlTag(sFilename, oMask.sName + ' rendered with ' + oPal.sName))
 

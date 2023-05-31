@@ -18,11 +18,12 @@ from Palette import *
 class ImageMask:
     log = logging.getLogger('ImageMask')
 
-    def __init__(self, sName: str, w: int, h: int):
+    def __init__(self, sName: str, width: int, height: int):
+        """Constructor with name, width and height"""
         self.sName = sName
-        self.w = w
-        self.h = h
-        self.aMask = np.zeros((w, h))
+        self.w = width
+        self.h = height
+        self.reset()
 
     def generate(self):
         """Generate the density mask."""
@@ -31,6 +32,10 @@ class ImageMask:
     def randomize(self):
         """Randomize the mask parameters."""
         self.log.info('Randomizing %s', str(self))
+
+    def reset(self):
+        """Clear the image mask."""
+        self.aMask = np.zeros((self.w, self.h))
 
     def toImage(self, oPalette: Palette, sFilename: str):
         self.log.info('Saving %s as %s with palette %s', str(self), sFilename, oPalette.sName)
