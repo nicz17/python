@@ -41,15 +41,16 @@ class DemoImageMask:
             aPalImgs.append(ImageHtmlTag(sFilename, oPal.sName))
 
         # Define ImageMasks and render them with each palette
-        aMasks = [GaussImageMask(self.size, self.size), 
+        aMasks = [#GaussImageMask(self.size, self.size), 
                   #MultiGaussImageMask(self.size, self.size),
                   GaussianBlurMask(self.size, self.size),
                   #ManhattanImageMask(self.size, self.size),
                   #WaveImageMask(0.0628, self.size, self.size),
                   #SineImageMask(0.0628, self.size, self.size),
-                  RandomWalkMask(self.size, self.size),
-                  LorenzAttractorMask(self.size, self.size),
-                  RoseWindowImageMask(self.size, self.size)
+                  #RandomWalkMask(self.size, self.size),
+                  #LorenzAttractorMask(self.size, self.size),
+                  #RoseWindowImageMask(self.size, self.size),
+                  MeshMask(self.size, self.size)
                   ]
         aMaskImgs = []
         for oMask in aMasks:

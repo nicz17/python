@@ -247,7 +247,7 @@ class MeshMask(SimulationMask):
         for vertex in mesh.vertices:
             self.aMask[vertex.x, vertex.y] = 1000.0
         self.aMask = gaussian_filter(self.aMask, sigma=4)
-        valEdges = np.amax(self.aMask)/2.0
+        valEdges = 0.6*np.amax(self.aMask)
         for edge in mesh.edges:
             self.drawLine(edge.v1, edge.v2, valEdges)
         self.aMask = gaussian_filter(self.aMask, sigma=2)

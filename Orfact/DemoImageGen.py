@@ -34,11 +34,12 @@ class DemoImageGen:
 
         # Define ImageMasks to choose from
         aMasks = [#MultiGaussImageMask(self.size[0], self.size[1]),
-                  #GaussianBlurMask(self.size[0], self.size[1]),
+                  GaussianBlurMask(self.size[0], self.size[1]),
                   #RandomWalkMask(self.size[0], self.size[1]),
                   #SpiralImageMask(self.size[0], self.size[1]),
-                  StarFishImageMask(self.size[0], self.size[1]),
-                  RoseWindowImageMask(self.size[0], self.size[1])
+                  #StarFishImageMask(self.size[0], self.size[1]),
+                  #RoseWindowImageMask(self.size[0], self.size[1],
+                  MeshMask(self.size[0], self.size[1])
                   ]
         nImages = 4
         aMaskImgs = []
