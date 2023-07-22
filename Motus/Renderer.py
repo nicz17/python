@@ -28,13 +28,33 @@ class Renderer:
         self.iHeight = self.grid.h*self.iSize
         self.iWidth  = self.grid.w*self.iSize
 
-    def drawGuess(self, guess: Guess):
+    def drawGuesses(self, guesses):
+        y = 0
+        for guess in guesses:
+            self.drawGuess(guess, y)
+            y += 1
+
+    def drawGuess(self, guess: Guess, y: int):
         """Draw the specified word guess on the grid canvas."""
         self.log.info('Rendering guess %s', guess)
-        ty = self.iSize/2
+        ty = self.iSize/2 + y*self.iSize
         for x in range(guess.size()):
             tx = self.iSize/2 + x*self.iSize
-            self.canGrid.create_text(tx, ty, text = guess.word[x].upper(), font = self.fontGuess)
+            letter = guess.letters[x]
+            color = self.getColor(letter)
+            self.canGrid.create_text(tx, ty, text = letter.char, font = self.fontGuess, fill=color)
+
+    def getColor(self, letter: Letter):
+        if letter.status == LetterStatus.Correct:
+            return '#10ff20'
+        if letter.status == LetterStatus.Close:
+            return '#f0f010'
+        if letter.status == LetterStatus.Wrong:
+            return '#101010'
+        if letter.status == LetterStatus.Pending:
+            return '#a0a0a0'
+        if letter.status == LetterStatus.Invalid:
+            return '#f01010'
 
     def drawGrid(self):
         """Draw grid lines and guesses on the grid canvas"""

@@ -24,24 +24,27 @@ class Letter:
     
 class Guess:
     def __init__(self) -> None:
-        self.word = ''
-        self.status = []
         self.letters = []
 
     def addLetter(self, letter: str):
         if not self.isComplete():
-            self.word += letter
             self.letters.append(Letter(letter))
 
     def isComplete(self):
         return self.size() == 5
     
     def size(self):
-        return len(self.word)
+        return len(self.letters)
+    
+    def word(self) -> str:
+        word = ''
+        for letter in self.letters:
+            word += letter.char
+        return word
     
     def __iter__(self):
-        for letter in range(len(self.word)):
-            yield self.word[letter]
+        for letter in self.letters:
+            yield letter
     
     def __str__(self):
-        return self.word
+        return self.word()

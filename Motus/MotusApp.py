@@ -28,7 +28,7 @@ class MotusApp(BaseApp):
         sGeometry = '1000x800'
         super().__init__('Motus', sGeometry)
         self.getWords()
-        self.guess = Guess()
+        self.guesses = []
         self.grid = Grid(self.gridW, self.gridH)
         self.window.resizable(width=False, height=False)
         self.renderer = Renderer(self.grid, self.canGrid, self.iSize, self.window)
@@ -38,9 +38,14 @@ class MotusApp(BaseApp):
         """Start a new game with a random word."""
         self.log.info('New game started.')
         self.word = random.choice(self.words)
-        self.guess = Guess()
-        self.log.info('Secret word is %s', self.word)
+        #self.log.info('Secret word is %s', self.word)
+        self.guesses = []
+        self.newGuess()
         self.renderer.drawGrid()
+
+    def newGuess(self):
+        self.guess = Guess()
+        self.guesses.append(self.guess)
 
     def getWords(self):
         """Build the list of valid 5-letter words."""
@@ -67,23 +72,30 @@ class MotusApp(BaseApp):
     def validateGuess(self):
         self.log.info('Validating guess %s', self.guess)
         if self.guess.isComplete():
-            if not self.guess.word.upper() in self.words:
+            if not self.guess.word() in self.words:
                 self.log.error('Invalid guess %s: unknown word', self.guess)
+                for letter in self.guess.letters:
+                    letter.status = LetterStatus.Invalid
             else:
                 for i in range(5):
-                    letter = self.guess.word[i]
-                    if self.word[i] == letter:
-                        self.log.info('%s is correct!', letter)
-                    elif letter in self.word:
-                        self.log.info('%s is close', letter)
+                    letter = self.guess.letters[i]
+                    if self.word[i] == letter.char:
+                        self.log.info('%s is correct!', letter.char)
+                        letter.status = LetterStatus.Correct
+                    elif letter.char in self.word:
+                        self.log.info('%s is close', letter.char)
+                        letter.status = LetterStatus.Close
                     else:
-                        self.log.info('%s is wrong', letter)
+                        self.log.info('%s is wrong', letter.char)
+                        letter.status = LetterStatus.Wrong
+            self.renderer.drawGuesses(self.guesses)
+        self.newGuess()
 
 
     def addLetter(self, letter: str):
         self.guess.addLetter(letter.upper())
         self.log.info('Current guess: %s', self.guess)
-        self.renderer.drawGuess(self.guess)
+        self.renderer.drawGuesses(self.guesses)
         if self.guess.isComplete():
             self.validateGuess()
 
