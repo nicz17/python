@@ -10,7 +10,6 @@ import tkinter as tk
 from tkinter import font as tkfont
 import logging
 from BaseApp import *
-from Grid import *
 from Guess import *
 
 class Renderer:
@@ -18,15 +17,16 @@ class Renderer:
     colorGridLines = '#b0e0e0'
     log = logging.getLogger('Renderer')
 
-    def __init__(self, grid: Grid, canGrid: tk.Canvas, iSize: int, root: tk.Tk):
+    def __init__(self, gridW: int, gridH: int, canGrid: tk.Canvas, iSize: int, root: tk.Tk):
         #self.fontBold = tkfont.Font(family="Helvetica", size=12, weight='bold')
-        self.fontGuess = tkfont.Font(family="Helvetica", size=32, weight='normal')
+        self.fontGuess = tkfont.Font(family="Helvetica", size=36, weight='bold')
         self.iSize = iSize
-        self.grid = grid
+        self.gridW = gridW
+        self.gridH = gridH
         self.root = root
         self.canGrid = canGrid
-        self.iHeight = self.grid.h*self.iSize
-        self.iWidth  = self.grid.w*self.iSize
+        self.iHeight = self.gridH*self.iSize
+        self.iWidth  = self.gridW*self.iSize
 
     def drawGuesses(self, guesses):
         y = 0
@@ -63,11 +63,11 @@ class Renderer:
 
     def drawGridLines(self):
         """Draw lines on the grid canvas"""
-        for x in range(self.grid.w):
+        for x in range(self.gridW):
             gx = x*self.iSize
             gy = self.iHeight
             self.canGrid.create_line(gx, 0, gx, gy, fill=self.colorGridLines, width=1)
-        for y in range(self.grid.h):
+        for y in range(self.gridH):
             gx = self.iWidth
             gy = y*self.iSize
             self.canGrid.create_line(0, gy, gx, gy, fill=self.colorGridLines, width=1)

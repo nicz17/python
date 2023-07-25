@@ -12,7 +12,6 @@ import random
 from BaseApp import *
 from FileReader import *
 from Guess import *
-from Grid import *
 from Renderer import *
 
 class MotusApp(BaseApp):
@@ -20,7 +19,7 @@ class MotusApp(BaseApp):
     log = logging.getLogger('MotusApp')
     gridW = 5
     gridH = 6
-    iSize = 110
+    iSize = 100
 
     def __init__(self) -> None:
         self.iHeight = self.gridH*self.iSize
@@ -29,9 +28,8 @@ class MotusApp(BaseApp):
         super().__init__('Motus', sGeometry)
         self.getWords()
         self.guesses = []
-        self.grid = Grid(self.gridW, self.gridH)
         self.window.resizable(width=False, height=False)
-        self.renderer = Renderer(self.grid, self.canGrid, self.iSize, self.window)
+        self.renderer = Renderer(self.gridW, self.gridH, self.canGrid, self.iSize, self.window)
         self.newGame()
 
     def newGame(self):
@@ -46,6 +44,13 @@ class MotusApp(BaseApp):
     def newGuess(self):
         self.guess = Guess()
         self.guesses.append(self.guess)
+
+    def gameOver(self, won: bool):
+        msg = 'Bravo !'
+        if not won:
+            msg = f'Echec !\nLe mot était {self.word}.'
+        messagebox.showinfo(title='Motus', message=msg)
+        self.newGame()
 
     def getWords(self):
         """Build the list of valid 5-letter words."""
@@ -89,7 +94,15 @@ class MotusApp(BaseApp):
                         self.log.info('%s is wrong', letter.char)
                         letter.status = LetterStatus.Wrong
             self.renderer.drawGuesses(self.guesses)
-        self.newGuess()
+
+            if self.word == self.guess.word():
+                self.gameOver(True)
+            elif len(self.guesses) < self.gridH:
+                self.newGuess()
+            else:
+                self.gameOver(False)
+        else:
+            self.log.error('Trying to validate incomplete guess %s', self.guess)
 
 
     def addLetter(self, letter: str):
@@ -110,7 +123,7 @@ class MotusApp(BaseApp):
         """Create user widgets"""
 
         # Buttons
-        self.btnStart  = self.addButton('Démarrer', self.newGame)
+        #self.btnStart  = self.addButton('Démarrer', self.newGame)
 
         # Canvas
         self.canGrid = tk.Canvas(master=self.frmMain, bg='#c0f0f0', bd=0, 
