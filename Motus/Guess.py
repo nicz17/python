@@ -27,10 +27,19 @@ class Guess:
         self.letters = []
 
     def addLetter(self, letter: str):
+        """Adds a letter to this guess."""
         if not self.isComplete():
             self.letters.append(Letter(letter))
 
+    def delete(self):
+        """Deletes the last letter from this guess."""
+        if len(self.letters) > 0:
+            self.letters.pop()
+            for letter in self.letters:
+                letter.status = LetterStatus.Pending
+
     def isComplete(self):
+        """Cecks if all letters are defined."""
         return self.size() == 5
     
     def size(self):

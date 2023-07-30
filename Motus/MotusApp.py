@@ -47,7 +47,10 @@ class MotusApp(BaseApp):
 
     def gameOver(self, won: bool):
         msg = 'Bravo !'
-        if not won:
+        if won:
+            self.log.info('Found correct word %s in %d tries.', self.word, len(self.guesses))
+        else:
+            self.log.info('Failed to find correct word %s', self.word)
             msg = f'Echec !\nLe mot était {self.word}.'
         messagebox.showinfo(title='Motus', message=msg)
         self.newGame()
@@ -75,6 +78,7 @@ class MotusApp(BaseApp):
         self.log.info('Built list of %d words', len(self.words))
 
     def validateGuess(self):
+        """Validate the current complete guess."""
         self.log.info('Validating guess %s', self.guess)
         if self.guess.isComplete():
             if not self.guess.word() in self.words:
@@ -106,6 +110,7 @@ class MotusApp(BaseApp):
 
 
     def addLetter(self, letter: str):
+        """Add the specified letter to the current guess."""
         self.guess.addLetter(letter.upper())
         self.log.info('Current guess: %s', self.guess)
         self.renderer.drawGuesses(self.guesses)
@@ -113,11 +118,18 @@ class MotusApp(BaseApp):
             self.validateGuess()
 
     def onKeyUp(self, event):
+        """Keyboard char key pressed."""
         #self.log.info('Key pressed: %s', event.char)
         char = event.char
         if char >= 'a' and char <= 'z':
             #self.log.info('Valid letter: %s', char)
             self.addLetter(char)
+
+    def onKeyDelete(self, event):
+        """Keyboard delete key pressed."""
+        self.log.info('Key pressed: Delete')
+        self.guess.delete()
+        self.renderer.drawGuesses(self.guesses)
 
     def createWidgets(self):
         """Create user widgets"""
@@ -129,4 +141,7 @@ class MotusApp(BaseApp):
         self.canGrid = tk.Canvas(master=self.frmMain, bg='#c0f0f0', bd=0, 
                                     height=self.iHeight, width=self.iWidth, highlightthickness=0)
         self.canGrid.pack(side=tk.LEFT)
+
+        # Keyboard bindings
         self.window.bind("<Key>", self.onKeyUp)
+        self.window.bind("<BackSpace>", self.onKeyDelete)

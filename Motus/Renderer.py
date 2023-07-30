@@ -29,6 +29,8 @@ class Renderer:
         self.iWidth  = self.gridW*self.iSize
 
     def drawGuesses(self, guesses):
+        """Draw the specified word guesses on the grid canvas."""
+        self.drawGrid()
         y = 0
         for guess in guesses:
             self.drawGuess(guess, y)
@@ -45,6 +47,7 @@ class Renderer:
             self.canGrid.create_text(tx, ty, text = letter.char, font = self.fontGuess, fill=color)
 
     def getColor(self, letter: Letter):
+        """Returns the rendering color for the letter status."""
         if letter.status == LetterStatus.Correct:
             return '#10ff20'
         if letter.status == LetterStatus.Close:
