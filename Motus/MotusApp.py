@@ -81,7 +81,9 @@ class MotusApp(BaseApp):
         """Validate the current complete guess."""
         self.log.info('Validating guess %s', self.guess)
         if self.guess.isComplete():
+            isValid = True
             if not self.guess.word() in self.words:
+                isValid = False
                 self.log.error('Invalid guess %s: unknown word', self.guess)
                 for letter in self.guess.letters:
                     letter.status = LetterStatus.Invalid
@@ -99,12 +101,13 @@ class MotusApp(BaseApp):
                         letter.status = LetterStatus.Wrong
             self.renderer.drawGuesses(self.guesses)
 
-            if self.word == self.guess.word():
-                self.gameOver(True)
-            elif len(self.guesses) < self.gridH:
-                self.newGuess()
-            else:
-                self.gameOver(False)
+            if isValid:
+                if self.word == self.guess.word():
+                    self.gameOver(True)
+                elif len(self.guesses) < self.gridH:
+                    self.newGuess()
+                else:
+                    self.gameOver(False)
         else:
             self.log.error('Trying to validate incomplete guess %s', self.guess)
 
