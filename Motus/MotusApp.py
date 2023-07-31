@@ -22,6 +22,7 @@ class MotusApp(BaseApp):
     iSize = 100
 
     def __init__(self) -> None:
+        """Constructor."""
         self.iHeight = self.gridH*self.iSize
         self.iWidth  = self.gridW*self.iSize
         sGeometry = '1000x800'
@@ -40,13 +41,16 @@ class MotusApp(BaseApp):
         self.guesses = []
         self.newGuess()
         self.renderer.drawGrid()
+        self.setStatus('Trouvez le mot de 5 lettres.')
 
     def newGuess(self):
+        """Create a new word guess and append it to the list of guesses."""
         self.guess = Guess()
         self.guesses.append(self.guess)
 
     def gameOver(self, won: bool):
-        msg = 'Bravo !'
+        """Game is over, won or lost."""
+        msg = f'Bravo !\nTrouvé en {len(self.guesses)} essais.'
         if won:
             self.log.info('Found correct word %s in %d tries.', self.word, len(self.guesses))
         else:
