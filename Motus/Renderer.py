@@ -39,12 +39,15 @@ class Renderer:
     def drawGuess(self, guess: Guess, y: int):
         """Draw the specified word guess on the grid canvas."""
         self.log.info('Rendering guess %s', guess)
-        ty = self.iSize/2 + y*self.iSize
+        sy = y*self.iSize
+        ty = sy + self.iSize/2 + 5
         for x in range(guess.size()):
-            tx = self.iSize/2 + x*self.iSize
+            sx = x*self.iSize
+            tx = sx + self.iSize/2
             letter = guess.letters[x]
             color = self.getColor(letter)
-            self.canGrid.create_text(tx, ty, text = letter.char, font = self.fontGuess, fill=color)
+            self.canGrid.create_rectangle(sx+10, sy+10, sx+self.iSize-10, sy+self.iSize-10, fill=color, outline='')
+            self.canGrid.create_text(tx, ty, text = letter.char, font = self.fontGuess, fill='white')
 
     def getColor(self, letter: Letter):
         """Returns the rendering color for the letter status."""
