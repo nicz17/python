@@ -28,26 +28,34 @@ class Renderer:
         self.iHeight = self.gridH*self.iSize
         self.iWidth  = self.gridW*self.iSize
 
-    def drawGuesses(self, guesses):
+    def drawGuesses(self, guesses, animate=False):
         """Draw the specified word guesses on the grid canvas."""
         self.drawGrid()
         y = 0
         for guess in guesses:
-            self.drawGuess(guess, y)
+            self.drawGuess(guess, y, animate and y == len(guesses)-1)
             y += 1
 
-    def drawGuess(self, guess: Guess, y: int):
+    def drawGuess(self, guess: Guess, y: int, animate=False):
         """Draw the specified word guess on the grid canvas."""
         self.log.info('Rendering guess %s', guess)
         sy = y*self.iSize
         ty = sy + self.iSize/2 + 5
         for x in range(guess.size()):
-            sx = x*self.iSize
-            tx = sx + self.iSize/2
-            letter = guess.letters[x]
-            color = self.getColor(letter)
-            self.canGrid.create_rectangle(sx+10, sy+10, sx+self.iSize-10, sy+self.iSize-10, fill=color, outline='')
-            self.canGrid.create_text(tx, ty, text = letter.char, font = self.fontGuess, fill='white')
+            if animate:
+                self.root.after(250*x, self.drawLetter, guess.letters[x], x, y)
+            else:
+                self.drawLetter(guess.letters[x], x, y)
+
+    def drawLetter(self, letter: Letter, x: int, y: int):
+        """Draw the specified letter on the grid canvas."""
+        sx = x*self.iSize
+        tx = sx + self.iSize/2
+        sy = y*self.iSize
+        ty = sy + self.iSize/2 + 5
+        color = self.getColor(letter)
+        self.canGrid.create_rectangle(sx+10, sy+10, sx+self.iSize-10, sy+self.iSize-10, fill=color, outline='')
+        self.canGrid.create_text(tx, ty, text = letter.char, font = self.fontGuess, fill='white')
 
     def getColor(self, letter: Letter):
         """Returns the rendering color for the letter status."""

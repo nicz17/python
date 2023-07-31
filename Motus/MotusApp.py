@@ -103,7 +103,7 @@ class MotusApp(BaseApp):
                     else:
                         self.log.info('%s is wrong', letter.char)
                         letter.status = LetterStatus.Wrong
-            self.renderer.drawGuesses(self.guesses)
+            self.renderer.drawGuesses(self.guesses, isValid)
 
             if isValid:
                 if self.word == self.guess.word():
