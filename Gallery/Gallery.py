@@ -85,6 +85,10 @@ class Gallery:
             return sThumb
         return None
     
+    def rename(self, name):
+        """Rename pictures in a sequence with the specified name"""
+        pass
+    
     def size(self):
         return len(self.aImgs)
     

@@ -21,6 +21,7 @@ class TF79Gallery(Gallery):
         self.sPath = sPath
         self.aImgs = None
         self.dicCaptions = None
+        self.sName = os.path.basename(sPath)
 
     def build(self):
         self.aImgs = sorted(glob.glob(self.sPath + 'photos/*.jpg'))
@@ -35,10 +36,15 @@ class TF79Gallery(Gallery):
         """Create a page for each photo"""
         self.log.info('Creating photo pages')
         sTitle = self.getTitle()
+
+        dirPages = self.sPath + 'pages/'
+        if not os.path.exists(dirPages):
+            os.makedirs(dirPages)
+
         for sImg in self.aImgs:
             sFile = os.path.basename(sImg)
             sCaption = self.getCaption(sFile)
-            sPageName = self.sPath + 'pages/' + sFile.replace('.jpg', '.html')
+            sPageName = dirPages + sFile.replace('.jpg', '.html')
 
             page = HtmlPage('Gallery - ' + sTitle, self.getStyle())
             tCenter = HtmlTag('center', None)
@@ -50,7 +56,7 @@ class TF79Gallery(Gallery):
             page.save(sPageName)
 
     def createIndex(self):
-        sTitle = self.getTitle()
+        sTitle = self.sName
         dirThumbs = 'thumbs/'
         aImgLinks = []
         for sImg in self.aImgs:
@@ -69,27 +75,54 @@ class TF79Gallery(Gallery):
         if len(sComments) > 0:
             page.add(HtmlTag('div', sComments))
         page.save(self.sPath + 'index.html')
+    
+    def rename(self, name):
+        """Rename pictures in a sequence with the specified name"""
+        self.log.info('Renaming photos to %s', name)
+        self.sName = name
+        aImgs = sorted(glob.glob(self.sPath + 'photos/*.JPG'))
+        self.log.info('Found %d originals in %s', len(aImgs), self.sPath + 'photos/*.JPG')
+        iSeq = 0
+        for sOrig in aImgs:
+            iSeq += 1
+            sNewName = f'{self.sPath}photos/{name}{iSeq:03d}.jpg'
+            self.log.info('Renaming %s to %s', sOrig, sNewName)
+            os.rename(sOrig, sNewName)
 
+    def createCaptionsFile(self):
+        """Create a default captions file"""
+        sCaptionsFile = self.sPath + 'captions'
+        if (os.path.exists(sCaptionsFile)):
+            self.log.info('Captions file exists')
+        else:
+            self.sName = self.getTitle()
+            self.log.info('Creating captions file for %s', self.sName)
+            oFile = open(sCaptionsFile, 'w')
+            oFile.write('gallery\t' + self.sName + '\n')
+            for sImg in self.aImgs:
+                oFile.write(os.path.basename(sImg) + '\t\n')
+            oFile.close()
 
     def readCaptionsFile(self):
         """If a captions file is found, parse it"""
         sCaptionsFile = self.sPath + 'captions'
+        self.createCaptionsFile()
         if (os.path.exists(sCaptionsFile)):
             self.dicCaptions = {}
             self.log.info('Parsing captions from %s', sCaptionsFile)
             oFile = open(sCaptionsFile, 'r')  #, encoding="ISO-8859-1")
-            while True:
-                sLine = oFile.readline()
 
+            for sLine in oFile:
+                sLine = sLine.strip('\n')
+                #self.log.info(sLine)
                 aCells = sLine.split('\t')
                 if (len(aCells) == 2):
                     self.dicCaptions[aCells[0]] = aCells[1].strip()
+                elif sLine.startswith('gallery'):
+                    self.sName = sLine.replace('gallery ', '')
+                    self.log.info('Title from captions file is ' + self.sName)
                 else:
                     self.log.warn('Unexpected captions line %s cells %d', sLine, len(aCells))
-                
-                # if sLine is empty, end of file is reached
-                if not sLine:
-                    break
             oFile.close()
 
     def readCommentsFile(self):

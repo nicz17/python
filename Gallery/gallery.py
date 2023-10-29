@@ -35,18 +35,20 @@ def configureLogging():
 
 def getOptions():
     """Parse program arguments and store them in a dict."""
-    dOptions = {'dir': '.', 'resize': False, 'open': False, 'all': False, 'tf79': False}
+    dOptions = {'dir': '.', 'name': None, 'resize': False, 'open': False, 'all': False, 'tf79': False}
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hd:orat", ["help", "dir=", "resize", 'open', 'all', 'tf79'])
+        opts, args = getopt.getopt(sys.argv[1:], "hd:n:orat", ["help", "dir=", "name=", "resize", 'open', 'all', 'tf79'])
     except getopt.GetoptError:
         print("Invalid options: %s", sys.argv[1:])
     for opt, arg in opts:
         log.info("Parsing option %s value %s", opt, arg)
         if opt in ('-h', '--help'):
-            print('gallery.py -h (help) -r (resize) -d (dir) -a (all galleries in dir) -o (open in browser) -t (TF79 style)')
+            print('gallery.py -h (help) -r (resize) -d (dir) -n (rename) -a (all galleries in dir) -o (open in browser) -t (TF79 style)')
             sys.exit()
         elif opt in ("-d", "--dir"):
             dOptions['dir'] = arg
+        elif opt in ("-n", "--name"):
+            dOptions['name'] = arg
         elif opt in ("-r", "--resize"):
             dOptions['resize'] = True
         elif opt in ("-o", "--open"):
@@ -70,6 +72,10 @@ def main():
             gal = TF79Gallery(dOptions['dir'])
         else:
             gal = Gallery(dOptions['dir'])
+
+        if (dOptions['name'] is not None):
+            #gal.rename(dOptions['name'])
+            gal.sName = dOptions['name']
         gal.build()
 
     if dOptions['open']:
