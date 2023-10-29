@@ -19,12 +19,11 @@ class TF79Gallery(Gallery):
     
     def __init__(self, sPath):
         self.sPath = sPath
-        self.aImgs = None
+        self.aImgs = sorted(glob.glob(self.sPath + 'photos/*.jpg'))
         self.dicCaptions = None
         self.sName = os.path.basename(sPath)
 
     def build(self):
-        self.aImgs = sorted(glob.glob(self.sPath + 'photos/*.jpg'))
         self.readCaptionsFile()
         self.log.info('Building TF79.ch gallery at %s with %s photos', self.sPath, len(self.aImgs))
         if len(self.aImgs) > 0:

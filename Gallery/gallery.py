@@ -35,9 +35,9 @@ def configureLogging():
 
 def getOptions():
     """Parse program arguments and store them in a dict."""
-    dOptions = {'dir': '.', 'name': None, 'resize': False, 'open': False, 'all': False, 'tf79': False}
+    dOptions = {'dir': '.', 'name': None, 'resize': None, 'open': False, 'all': False, 'tf79': False}
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hd:n:orat", ["help", "dir=", "name=", "resize", 'open', 'all', 'tf79'])
+        opts, args = getopt.getopt(sys.argv[1:], "hd:n:r:oat", ["help", "dir=", "name=", "resize=", 'open', 'all', 'tf79'])
     except getopt.GetoptError:
         print("Invalid options: %s", sys.argv[1:])
     for opt, arg in opts:
@@ -50,7 +50,7 @@ def getOptions():
         elif opt in ("-n", "--name"):
             dOptions['name'] = arg
         elif opt in ("-r", "--resize"):
-            dOptions['resize'] = True
+            dOptions['resize'] = arg
         elif opt in ("-o", "--open"):
             dOptions['open'] = True
         elif opt in ("-a", "--all"):
@@ -74,8 +74,11 @@ def main():
             gal = Gallery(dOptions['dir'])
 
         if (dOptions['name'] is not None):
-            #gal.rename(dOptions['name'])
-            gal.sName = dOptions['name']
+            gal.rename(dOptions['name'])
+            exit()
+        if (dOptions['resize'] is not None):
+            gal.resize(dOptions['resize'])
+            #exit()
         gal.build()
 
     if dOptions['open']:
