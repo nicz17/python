@@ -27,11 +27,12 @@ class HtmlPage:
         """Build the HTML head tag with CSS style, scripts etc."""
         self.head.addTag(HtmlTag('title', self.sTitle))
 
-        tStyle = HtmlTag('link')
-        tStyle.addAttr('rel', "stylesheet")
-        tStyle.addAttr('type', "text/css")
-        tStyle.addAttr('href', sStyle)
-        self.head.addTag(tStyle)
+        if sStyle is not None:
+            tStyle = HtmlTag('link')
+            tStyle.addAttr('rel', "stylesheet")
+            tStyle.addAttr('type', "text/css")
+            tStyle.addAttr('href', sStyle)
+            self.head.addTag(tStyle)
         self.head.addTag(HtmlTag('meta').addAttr('charset', 'utf-8'))
 
     def buildBody(self):
@@ -74,6 +75,7 @@ class HtmlPage:
         self.main.addTag(ListHtmlTag(aItems))
 
     def addTable(self, aItems, nItemsByRow = 4, bCenterCells = False):
+        """Add a table with the specified cells and return it."""
         tTable = HtmlTag('table')
         tRow = None
         nItemsInRow = 0
