@@ -45,7 +45,7 @@ class TF79Gallery(Gallery):
             sCaption = self.getCaption(sFile)
             sPageName = dirPages + sFile.replace('.jpg', '.html')
 
-            page = HtmlPage('Gallery - ' + sTitle, self.getStyle())
+            page = HtmlPage('Galerie &mdash; ' + sTitle, None)
             tCenter = HtmlTag('center', None)
             tImgLink = LinkHtmlTag('../index.html', None)
             tImgLink.addTag(ImageHtmlTag('../photos/' + sFile, sCaption))
