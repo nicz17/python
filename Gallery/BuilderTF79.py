@@ -28,6 +28,7 @@ class BuilderTF79:
         #aGalleries.append(self.addGalleryLink('Connemara', 'Septembre 2019', 'connemara'))
         aGalleries.append(self.addGalleryLink('Boston et Cape Cod', 'Juin 2012', 'boston'))
         aGalleries.append(self.addGalleryLink('Grèce', 'Juillet 2011', 'grece'))
+        aGalleries.append(self.addGalleryLink('Londres', 'Avril 2011', 'london'))
         aGalleries.append(self.addGalleryLink('Berlin', 'Juin 2009', 'berlin'))
         aGalleries.append(self.addGalleryLink('Burundi', 'Juillet 2008', 'burundi'))
         aGalleries.append(self.addGalleryLink('Japon', '2006 et 2007', '../nihon'))
@@ -51,8 +52,9 @@ class BuilderTF79:
         """Add a gallery link"""
         self.log.info('Adding gallery %s', title)
         pic = os.path.basename(link)
-        gal = LinkHtmlTag(f'{link}/', None)
-        gal.addTag(ImageHtmlTag(f'http://www.tf79.ch/gallery/vitrine/{pic}.jpg', title, title))
+        gal = LinkHtmlTag(f'{link}/index.html', None)
+        #gal.addTag(ImageHtmlTag(f'http://www.tf79.ch/gallery/vitrine/{pic}.jpg', title, title))
+        gal.addTag(ImageHtmlTag(f'../vitrine/{pic}.jpg', title, title))
         gal.addTag(InlineHtmlTag(f'<br>{title}<br><font color="gray">{desc}</font>', [], None))
         return gal
 
