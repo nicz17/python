@@ -189,7 +189,7 @@ class ImageHtmlTag(HtmlTag):
         super().__init__('img', None)
         self.addAttr('src', sSource)
         self.addAttr('title', sTitle)
-        if sAlt:
+        if sAlt is not None:
             self.addAttr('alt', sAlt)
 
 class LinkHtmlTag(HtmlTag):

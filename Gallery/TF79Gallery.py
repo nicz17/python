@@ -48,13 +48,14 @@ class TF79Gallery(Gallery):
             page = HtmlPage('Galerie &mdash; ' + sTitle, None)
             tCenter = HtmlTag('center', None)
             tImgLink = LinkHtmlTag('../index.html', None)
-            tImgLink.addTag(ImageHtmlTag('../photos/' + sFile, sCaption))
+            tImgLink.addTag(ImageHtmlTag('../photos/' + sFile, sCaption, sCaption))
             tCenter.addTag(tImgLink)
             tCenter.addTag(HtmlTag('p', sCaption))
             page.add(tCenter)
             page.save(sPageName)
 
     def createIndex(self):
+        """Create the gallery index.html page."""
         sTitle = self.sName
         dirThumbs = 'thumbs/'
         aImgLinks = []
@@ -64,7 +65,7 @@ class TF79Gallery(Gallery):
             sCaption = self.getCaption(sFile)
             sPageName = 'pages/' + sFile.replace('.jpg', '.html')
             tLink = LinkHtmlTag(sPageName, None)
-            tLink.addTag(ImageHtmlTag(sThumb, sCaption))
+            tLink.addTag(ImageHtmlTag(sThumb, sCaption, sCaption))
             aImgLinks.append(tLink)
 
         page = GalleryHtmlPage(sTitle)
@@ -123,6 +124,10 @@ class TF79Gallery(Gallery):
                 else:
                     self.log.warn('Unexpected captions line %s cells %d', sLine, len(aCells))
             oFile.close()
+
+            if 'gallery' in self.dicCaptions:
+                self.log.info('Title from captions dict is %s', self.dicCaptions['gallery'])
+                self.sName = self.dicCaptions['gallery']
 
     def readCommentsFile(self):
         """If a comments file is found, parse it"""
