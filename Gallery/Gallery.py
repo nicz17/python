@@ -111,7 +111,7 @@ class Gallery:
         iMaxSize = int(sSize)
         for img in self.aImgs:
             shape = self.getImageSizes(img)
-            if max(shape) > iMaxSize+10:
+            if max(shape) > 1.06*iMaxSize:
                 name = os.path.basename(img)
                 self.log.info('Resizing %s from %dpx to %dpx', name, max(shape), iMaxSize)
                 sCmd = f'convert -size {iMaxSize}x{iMaxSize} {img} -resize {iMaxSize}x{iMaxSize} {img}'

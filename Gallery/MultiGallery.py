@@ -15,9 +15,10 @@ from HtmlPage import *
 class MultiGallery:
     log = logging.getLogger('MultiGallery')
     
-    def __init__(self, sPath, bRecursive=False):
-        self.sPath = sPath
-        self.bRecursive = bRecursive
+    def __init__(self, dOptions):
+        self.dOptions = dOptions
+        self.sPath = dOptions['dir']
+        self.bRecursive = dOptions['tf79']
         self.aGals = []
 
     def build(self):
@@ -30,6 +31,8 @@ class MultiGallery:
         for sDir in aDirs:
             self.log.info('Building gallery %s', sDir)
             gal = Gallery(self.sPath + sDir + '/')
+            if (self.dOptions['resize'] is not None):
+                gal.resize(self.dOptions['resize'])
             gal.build()
             if gal.size() > 0:
                 self.aGals.append(gal)
