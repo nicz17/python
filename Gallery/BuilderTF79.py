@@ -25,7 +25,7 @@ class BuilderTF79:
 
         aGalleries = []
         aGalleries.append(self.addGalleryLink('Berlin', 'Octobre 2023', 'berlin2023'))
-        #aGalleries.append(self.addGalleryLink('Connemara', 'Septembre 2019', 'connemara'))
+        aGalleries.append(self.addGalleryLink('Connemara', 'Septembre 2019', 'connemara'))
         aGalleries.append(self.addGalleryLink('Boston et Cape Cod', 'Juin 2012', 'boston'))
         aGalleries.append(self.addGalleryLink('Grèce', 'Juillet 2011', 'grece'))
         aGalleries.append(self.addGalleryLink('Londres', 'Avril 2011', 'london'))
