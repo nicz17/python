@@ -10,6 +10,7 @@ import os
 import re
 import logging
 import glob
+from json import dumps
 from HtmlPage import *
 from GalleryHtmlPage import *
 from Gallery import *
@@ -21,7 +22,7 @@ class TF79Gallery(Gallery):
         self.sPath = sPath
         self.aImgs = sorted(glob.glob(self.sPath + 'photos/*.jpg'))
         self.dicCaptions = None
-        self.sName = os.path.basename(sPath)
+        self.sTitle = os.path.basename(sPath)
 
     def build(self):
         self.readCaptionsFile()
@@ -30,6 +31,7 @@ class TF79Gallery(Gallery):
             self.createThumbs()
             self.createPages()
             self.createIndex()
+            self.createSettingsFile()
 
     def createPages(self):
         """Create a page for each photo"""
@@ -56,7 +58,7 @@ class TF79Gallery(Gallery):
 
     def createIndex(self):
         """Create the gallery index.html page."""
-        sTitle = self.sName
+        sTitle = self.sTitle
         dirThumbs = 'thumbs/'
         aImgLinks = []
         for sImg in self.aImgs:
@@ -79,7 +81,7 @@ class TF79Gallery(Gallery):
     def rename(self, name):
         """Rename pictures in a sequence with the specified name"""
         self.log.info('Renaming photos to %s', name)
-        self.sName = name
+        self.sTitle = name
         aImgs = sorted(glob.glob(self.sPath + 'photos/*.JPG'))
         self.log.info('Found %d originals in %s', len(aImgs), self.sPath + 'photos/*.JPG')
         iSeq = 0
@@ -95,12 +97,29 @@ class TF79Gallery(Gallery):
         if (os.path.exists(sCaptionsFile)):
             self.log.info('Captions file exists')
         else:
-            self.sName = self.getTitle()
-            self.log.info('Creating captions file for %s', self.sName)
+            self.sTitle = self.getTitle()
+            self.log.info('Creating captions file for %s', self.sTitle)
             oFile = open(sCaptionsFile, 'w')
-            oFile.write('gallery\t' + self.sName + '\n')
+            oFile.write('gallery\t' + self.sTitle + '\n')
             for sImg in self.aImgs:
                 oFile.write(os.path.basename(sImg) + '\t\n')
+            oFile.close()
+
+    def createSettingsFile(self):
+        """Create a default JSON settings file"""
+        sJsonFile = self.sPath + 'settings.json'
+        if (os.path.exists(sJsonFile)):
+            self.log.info('Settings file exists')
+        else:
+            self.log.info('Creating JSON settings file for %s', self.sTitle)
+            settings = {
+                'title': self.sTitle,
+                'created': int(time.time()),
+                'vitrine': None,
+                'captions': self.dicCaptions
+            }
+            oFile = open(sJsonFile, 'w')
+            oFile.write(dumps(settings, indent=2))
             oFile.close()
 
     def readCaptionsFile(self):
@@ -110,7 +129,7 @@ class TF79Gallery(Gallery):
         if (os.path.exists(sCaptionsFile)):
             self.dicCaptions = {}
             self.log.info('Parsing captions from %s', sCaptionsFile)
-            oFile = open(sCaptionsFile, 'r')
+            oFile = open(sCaptionsFile, 'r')  #, encoding="ISO-8859-1")
 
             for sLine in oFile:
                 sLine = sLine.strip('\n')
@@ -119,28 +138,32 @@ class TF79Gallery(Gallery):
                 if (len(aCells) == 2):
                     self.dicCaptions[aCells[0]] = aCells[1].strip()
                 elif sLine.startswith('gallery'):
-                    self.sName = sLine.replace('gallery ', '')
-                    self.log.info('Title from captions file is ' + self.sName)
+                    self.sTitle = sLine.replace('gallery ', '')
+                    self.log.info('Title from captions file is ' + self.sTitle)
                 else:
                     self.log.warn('Unexpected captions line %s cells %d', sLine, len(aCells))
             oFile.close()
 
             if 'gallery' in self.dicCaptions:
                 self.log.info('Title from captions dict is %s', self.dicCaptions['gallery'])
-                self.sName = self.dicCaptions['gallery']
+                self.sTitle = self.dicCaptions['gallery']
+                del self.dicCaptions['gallery']
 
     def readCommentsFile(self):
         """If a comments file is found, parse it"""
         sCommentsFile = self.sPath + 'comments.html'
         sComments = ''
-        if os.path.exists(sCommentsFile):
+        if (os.path.exists(sCommentsFile)):
             self.log.info('Adding comments from %s', sCommentsFile)
-            oFile = open(sCommentsFile, 'r')
-            for sLine in oFile:
-                sComments += sLine #.strip('\n')
+            oFile = open(sCommentsFile, 'r')  #, encoding="ISO-8859-1")
+            while True:
+                sLine = oFile.readline()
+                sComments += sLine
+                
+                # if sLine is empty, end of file is reached
+                if not sLine:
+                    break
             oFile.close()
-        else:
-            self.log.info('No comments file found at %s', sCommentsFile)
         return sComments
 
     def getCaption(self, sFile):
