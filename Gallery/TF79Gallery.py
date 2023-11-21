@@ -129,7 +129,7 @@ class TF79Gallery(Gallery):
         if (os.path.exists(sCaptionsFile)):
             self.dicCaptions = {}
             self.log.info('Parsing captions from %s', sCaptionsFile)
-            oFile = open(sCaptionsFile, 'r')  #, encoding="ISO-8859-1")
+            oFile = open(sCaptionsFile, 'r')
 
             for sLine in oFile:
                 sLine = sLine.strip('\n')
@@ -153,17 +153,14 @@ class TF79Gallery(Gallery):
         """If a comments file is found, parse it"""
         sCommentsFile = self.sPath + 'comments.html'
         sComments = ''
-        if (os.path.exists(sCommentsFile)):
+        if os.path.exists(sCommentsFile):
             self.log.info('Adding comments from %s', sCommentsFile)
-            oFile = open(sCommentsFile, 'r')  #, encoding="ISO-8859-1")
-            while True:
-                sLine = oFile.readline()
-                sComments += sLine
-                
-                # if sLine is empty, end of file is reached
-                if not sLine:
-                    break
+            oFile = open(sCommentsFile, 'r')
+            for sLine in oFile:
+                sComments += sLine #.strip('\n')
             oFile.close()
+        else:
+            self.log.info('No comments file found at %s', sCommentsFile)
         return sComments
 
     def getCaption(self, sFile):
