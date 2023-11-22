@@ -41,7 +41,7 @@ def getOptions():
     except getopt.GetoptError:
         print("Invalid options: %s", sys.argv[1:])
     for opt, arg in opts:
-        log.info("Parsing option %s value %s", opt, arg)
+        #log.info("Parsing option %s value %s", opt, arg)
         if opt in ('-h', '--help'):
             print('gallery.py -h (help) -r (resize) -d (dir) -n (rename) -a (all galleries in dir) -o (open in browser) -t (TF79 style)')
             sys.exit()

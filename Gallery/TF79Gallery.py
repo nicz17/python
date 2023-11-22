@@ -10,28 +10,31 @@ import os
 import re
 import logging
 import glob
-from json import dumps
+import json
 from HtmlPage import *
 from GalleryHtmlPage import *
 from Gallery import *
 
 class TF79Gallery(Gallery):
     log = logging.getLogger('TF79Gallery')
+
+    # TODO include comments in settings.json
+    # TODO create showcase image if defined in settings.json
     
     def __init__(self, sPath):
+        """Constructor with gallery path."""
         self.sPath = sPath
         self.aImgs = sorted(glob.glob(self.sPath + 'photos/*.jpg'))
         self.dicCaptions = None
         self.sTitle = os.path.basename(sPath)
 
     def build(self):
-        self.readCaptionsFile()
+        self.readSettingsFile()
         self.log.info('Building TF79.ch gallery at %s with %s photos', self.sPath, len(self.aImgs))
         if len(self.aImgs) > 0:
             self.createThumbs()
             self.createPages()
             self.createIndex()
-            self.createSettingsFile()
 
     def createPages(self):
         """Create a page for each photo"""
@@ -108,25 +111,42 @@ class TF79Gallery(Gallery):
     def createSettingsFile(self):
         """Create a default JSON settings file"""
         sJsonFile = self.sPath + 'settings.json'
-        if (os.path.exists(sJsonFile)):
+        if os.path.exists(sJsonFile):
             self.log.info('Settings file exists')
         else:
+            self.readCaptionsFile()
+            if self.dicCaptions is None:
+                self.dicCaptions = {}
+                for sImg in self.aImgs:
+                    self.dicCaptions[os.path.basename(sImg)] = ''
             self.log.info('Creating JSON settings file for %s', self.sTitle)
             settings = {
                 'title': self.sTitle,
                 'created': int(time.time()),
-                'vitrine': None,
+                'showcase': None,
                 'captions': self.dicCaptions
             }
             oFile = open(sJsonFile, 'w')
-            oFile.write(dumps(settings, indent=2))
+            oFile.write(json.dumps(settings, indent=2))
             oFile.close()
+
+    def readSettingsFile(self):
+        """Read the gallery settings JSON file if it exists."""
+        sJsonFile = self.sPath + 'settings.json'
+        self.createSettingsFile()
+        if os.path.exists(sJsonFile):
+            self.log.info('Loading settings from %s', sJsonFile)
+            oFile = open(sJsonFile, 'r')
+            data = json.load(oFile)
+            oFile.close()
+            self.sTitle = data['title']
+            self.dicCaptions = data['captions']
 
     def readCaptionsFile(self):
         """If a captions file is found, parse it"""
         sCaptionsFile = self.sPath + 'captions'
-        self.createCaptionsFile()
-        if (os.path.exists(sCaptionsFile)):
+        #self.createCaptionsFile()
+        if os.path.exists(sCaptionsFile):
             self.dicCaptions = {}
             self.log.info('Parsing captions from %s', sCaptionsFile)
             oFile = open(sCaptionsFile, 'r')
