@@ -85,14 +85,17 @@ class TF79Gallery(Gallery):
         """Rename pictures in a sequence with the specified name"""
         self.log.info('Renaming photos to %s', name)
         self.sTitle = name
-        aImgs = sorted(glob.glob(self.sPath + 'photos/*.JPG'))
+        aImgs = sorted(glob.glob(self.sPath + 'photos/*.JPG') + glob.glob(self.sPath + 'photos/*.jpg'))
         self.log.info('Found %d originals in %s', len(aImgs), self.sPath + 'photos/*.JPG')
         iSeq = 0
         for sOrig in aImgs:
             iSeq += 1
             sNewName = f'{self.sPath}photos/{name}{iSeq:03d}.jpg'
             self.log.info('Renaming %s to %s', sOrig, sNewName)
-            os.rename(sOrig, sNewName)
+            if os.path.exists(sNewName):
+                self.log.error('Destination file already exists: %s', sNewName)
+            else:
+                os.rename(sOrig, sNewName)
 
     def createCaptionsFile(self):
         """Create a default captions file"""
