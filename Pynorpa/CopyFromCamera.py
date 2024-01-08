@@ -12,11 +12,11 @@ import os
 import sys
 #import config
 import logging
-from PIL import Image
+from PIL import Image, ExifTags
+
 
 class CopyFromCamera:
     """Copy JPG images from Nikon D800 camera."""
-    dir = '/home/nzw/Documents/galtest/photos/'
     log = logging.getLogger(__name__)
 
     def __init__(self):
@@ -27,25 +27,43 @@ class CopyFromCamera:
         """Copy JPG images from the mounted camera."""
 
         # Find source and target directories
+        sourceDir = self.getCameraDir()
+        if not os.path.exists(sourceDir):
+            self.log.error('Camera is not mounted at %s!', sourceDir)
+            exit()
+
         targetDir = self.getCurrentTarget()
         self.createNatureDirs(targetDir)
-        self.log.info('Copying images from %s to %s', self.dir, targetDir)
+        self.log.info('Copying images from %s to %s', sourceDir, targetDir)
 
         # Glob images
-        images = sorted(glob.glob(self.dir + '*.jpg'))
-        self.log.info('Found %d images:', len(images))
+        images = sorted(glob.glob(sourceDir + '*.JPG'))
+        self.log.info('Found %d images', len(images))
         for img in images:
             self.identify(img)
 
     def identify(self, img: str):
-        """Find details like width, height about the specified image file."""
+        """Find details like size and datetime about the specified image file."""
         im = Image.open(img)
         width, height = im.size
-        self.log.info('.. %s %dx%dpx', img, width, height)
+
+        # Read EXIF data
+        sDateTime = 'unknown'
+        exif = im.getexif()
+        if exif is None:
+            self.log.error('Image has no EXIF data.')
+        else:
+            #self.log.info('  shot at %s', exif[ExifTags.Base.DateTime])
+            for key, val in exif.items():
+                if key in ExifTags.TAGS and ExifTags.TAGS[key] == 'DateTime':
+                    #print(f'tag {ExifTags.TAGS[key]}:{val}')
+                    sDateTime = val
+        self.log.info('  %s size %dx%dpx shot at %s', os.path.basename(img), width, height, sDateTime)
 
     def getCameraDir(self):
         """Get the current photo dir on the mounted camera."""
-        dir = '/mnt/NikonD800/DCIM/'
+        # TODO increment past 105
+        dir = r'/media/nicz/NIKON D800/DCIM/105ND800/'
         return dir
 
     def getCurrentTarget(self):
@@ -54,7 +72,8 @@ class CopyFromCamera:
         date = currentDateTime.date()
         year = date.strftime("%Y")
         month = date.strftime("%m")
-        dir = f'Nature{year}-{month}/'
+        #/home/nicz/Pictures/
+        dir = f'Nature-{year}-{month}/'
         return dir
     
     def createNatureDirs(self, dir):
@@ -62,6 +81,9 @@ class CopyFromCamera:
         if not os.path.exists(dir):
             self.log.info('Creating dir %s', dir)
             os.makedirs(dir)
+            os.makedirs(dir + 'orig')
             os.makedirs(dir + 'photos')
+            os.makedirs(dir + 'thumbs')
+            os.makedirs(dir + 'geotracker')
         else:
             self.log.info('Directory %s already exists', dir)
