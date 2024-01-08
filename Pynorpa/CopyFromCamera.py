@@ -9,10 +9,10 @@ __version__ = "1.0.0"
 import datetime
 import glob
 import os
-import sys
 #import config
 import logging
 from PIL import Image, ExifTags
+from Timer import *
 
 
 class CopyFromCamera:
@@ -25,11 +25,12 @@ class CopyFromCamera:
 
     def copyImages(self):
         """Copy JPG images from the mounted camera."""
+        timer = Timer()
 
         # Find source and target directories
         sourceDir = self.getCameraDir()
         if not os.path.exists(sourceDir):
-            self.log.error('Camera is not mounted at %s!', sourceDir)
+            self.log.error('Camera is not mounted at %s !', sourceDir)
             exit()
 
         targetDir = self.getCurrentTarget()
@@ -41,6 +42,10 @@ class CopyFromCamera:
         self.log.info('Found %d images', len(images))
         for img in images:
             self.identify(img)
+            dest = f'{targetDir}orig/{os.path.basename(img)}'
+            os.system(f'cp {img} {dest}')
+        timer.stop()
+        self.log.info('Copied %d photos in %s', len(images), timer.getElapsed())
 
     def identify(self, img: str):
         """Find details like size and datetime about the specified image file."""
@@ -58,7 +63,7 @@ class CopyFromCamera:
                 if key in ExifTags.TAGS and ExifTags.TAGS[key] == 'DateTime':
                     #print(f'tag {ExifTags.TAGS[key]}:{val}')
                     sDateTime = val
-        self.log.info('  %s size %dx%dpx shot at %s', os.path.basename(img), width, height, sDateTime)
+        self.log.info('Copying %s size %dx%dpx shot at %s', os.path.basename(img), width, height, sDateTime)
 
     def getCameraDir(self):
         """Get the current photo dir on the mounted camera."""
@@ -72,7 +77,7 @@ class CopyFromCamera:
         date = currentDateTime.date()
         year = date.strftime("%Y")
         month = date.strftime("%m")
-        #/home/nicz/Pictures/
+        # TODO /home/nicz/Pictures/
         dir = f'Nature-{year}-{month}/'
         return dir
     
