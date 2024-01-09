@@ -22,30 +22,35 @@ class CopyFromCamera:
     def __init__(self):
         """Constructor."""
         self.log.info('Constructor')
+        self.images = []
+
+    def loadImages(self):
+        """Load the list of images to copy."""
+
+        # Find source and target directories
+        self.sourceDir = self.getCameraDir()
+        self.targetDir = self.getCurrentTarget()
+        if not os.path.exists(self.sourceDir):
+            self.log.error('Camera is not mounted at %s !', self.sourceDir)
+            return
+        self.createNatureDirs(self.targetDir)
+
+        # Glob images
+        self.images = sorted(glob.glob(self.sourceDir + '*.JPG'))
+        self.log.info('Found %d images', len(self.images))
 
     def copyImages(self):
         """Copy JPG images from the mounted camera."""
-        timer = Timer()
-
-        # Find source and target directories
-        sourceDir = self.getCameraDir()
-        if not os.path.exists(sourceDir):
-            self.log.error('Camera is not mounted at %s !', sourceDir)
+        if len(self.images) == 0:
             return
-
-        targetDir = self.getCurrentTarget()
-        self.createNatureDirs(targetDir)
-        self.log.info('Copying images from %s to %s', sourceDir, targetDir)
-
-        # Glob images
-        images = sorted(glob.glob(sourceDir + '*.JPG'))
-        self.log.info('Found %d images', len(images))
-        for img in images:
+        timer = Timer()
+        self.log.info('Copying images from %s to %s', self.sourceDir, self.targetDir)
+        for img in self.images:
             self.identify(img)
-            dest = f'{targetDir}orig/{os.path.basename(img)}'
+            dest = f'{self.targetDir}orig/{os.path.basename(img)}'
             os.system(f'cp {img} {dest}')
         timer.stop()
-        self.log.info('Copied %d photos in %s', len(images), timer.getElapsed())
+        self.log.info('Copied %d photos in %s', len(self.images), timer.getElapsed())
 
     def identify(self, img: str):
         """Find details like size and datetime about the specified image file."""

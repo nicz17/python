@@ -74,6 +74,7 @@ def main():
 
     if (dOptions['copy']):
         copier = CopyFromCamera()
+        copier.loadImages()
         copier.copyImages()
         tracker = GeoTracker()
         tracker.copyFiles()
