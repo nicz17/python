@@ -9,6 +9,7 @@ __version__ = "1.0.0"
 import tkinter as tk
 import logging
 from BaseApp import *
+from Renderer import *
 from Task import *
 
 class PynorpaApp(BaseApp):
@@ -22,7 +23,9 @@ class PynorpaApp(BaseApp):
         self.iWidth  = 1000
         sGeometry = f'{self.iWidth}x{self.iHeight}'
         super().__init__('Pynorpa', sGeometry)
+        self.renderer = Renderer(self.canTasks, self.window)
         self.loadTasks()
+        self.renderer.drawTasks(self.tasks)
 
     def loadTasks(self):
         """Load the tasks to perform."""
