@@ -15,6 +15,8 @@ import sys
 import logging
 import getopt
 from CopyFromCamera import *
+from GeoTracker import *
+from PynorpaApp import *
 #from LocationCache import *
 #from Uploader import *
 
@@ -73,8 +75,11 @@ def main():
     if (dOptions['copy']):
         copier = CopyFromCamera()
         copier.copyImages()
+        tracker = GeoTracker()
+        tracker.copyFiles()
     else:
-        pass
+        app = PynorpaApp()
+        app.run()
 
     if dOptions['open']:
         pass

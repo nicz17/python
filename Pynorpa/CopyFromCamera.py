@@ -31,7 +31,7 @@ class CopyFromCamera:
         sourceDir = self.getCameraDir()
         if not os.path.exists(sourceDir):
             self.log.error('Camera is not mounted at %s !', sourceDir)
-            exit()
+            return
 
         targetDir = self.getCurrentTarget()
         self.createNatureDirs(targetDir)
