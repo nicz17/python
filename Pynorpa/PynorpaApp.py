@@ -35,7 +35,9 @@ class PynorpaApp(BaseApp):
         self.tasks.append(Task('GeoTracking', 'Add GPS tags to 42 photos', 42))
 
     def copyFiles(self):
-        pass
+        """Start the file copy tasks."""
+        self.tasks[0].inc()
+        self.renderer.drawTasks(self.tasks)
 
     def createWidgets(self):
         """Create user widgets."""
