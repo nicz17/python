@@ -17,6 +17,7 @@ class Task:
         self.desc = desc
         self.nStepsTotal = nStepsTotal
         self.nStepsDone = 0
+        self.status = 'Idle'
         self.log.info('Constructor %s', self)
 
     def load(self):
@@ -26,6 +27,20 @@ class Task:
     def inc(self):
         """Increment the task progress."""
         self.nStepsDone += 1
+        if self.nStepsDone < self.nStepsTotal:
+            self.status = 'Running'
+        if self.nStepsDone >= self.nStepsTotal:
+            self.status = 'Done'
+
+    def setStatus(self, status: str):
+        self.status = status
+
+    def getStatus(self) -> str:
+        return f'{self.status} [{self.nStepsDone}/{self.nStepsTotal}]'
+
+    def isOver(self):
+        """Check if this task is done."""
+        return self.nStepsDone >= self.nStepsTotal
 
     def __str__(self):
         str = f'Task {self.title} at {self.nStepsDone}/{self.nStepsTotal}'
