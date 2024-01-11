@@ -16,7 +16,7 @@ from Timer import *
 
 
 class GeoTracker:
-    """Copy JPG images from Nikon D800 camera."""
+    """Copy GPX GeoTracking files and apply GPS coords to photos."""
     log = logging.getLogger(__name__)
     dirSource = '/home/nicz/Dropbox/GeoTrack/'
     dirTarget = None
@@ -25,9 +25,10 @@ class GeoTracker:
         """Constructor."""
         self.log.info('Constructor')
         self.getTargetDirectory()
+        self.files = []
 
-    def copyFiles(self):
-        """Copy GPX GeoTrack files from DropBox."""
+    def prepare(self):
+        """Check source and target dirs, list photos to update."""
 
         # Check dirs exist
         if not os.path.exists(self.dirTarget):
@@ -41,11 +42,14 @@ class GeoTracker:
         currentDateTime = datetime.datetime.now()
         date = currentDateTime.date()
         filter = self.dirSource + '*' + date.strftime("%y%m") + '*.gpx'
-        files = sorted(glob.glob(filter))
-        self.log.info('Found %d GeoTrack files in %s', len(files), filter)
+        self.files = sorted(glob.glob(filter))
+        self.log.info('Found %d GeoTrack files in %s', len(self.files), filter)
+
+    def copyFiles(self):
+        """Copy GPX GeoTrack files from DropBox."""
 
         # Copy files
-        for file in files:
+        for file in self.files:
             self.log.info('Copying %s', os.path.basename(file))
             dest = self.dirTarget + os.path.basename(file)
             os.system(f'cp {file} {dest}')
