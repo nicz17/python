@@ -23,6 +23,8 @@ class CopyFromCamera:
         """Constructor."""
         self.log.info('Constructor')
         self.images = []
+        self.sourceDir = None
+        self.targetDir = None
 
     def loadImages(self):
         """Load the list of images to copy."""
@@ -51,6 +53,17 @@ class CopyFromCamera:
             os.system(f'cp {img} {dest}')
         timer.stop()
         self.log.info('Copied %d photos in %s', len(self.images), timer.getElapsed())
+
+    def isCameraMounted(self):
+        """Check if the camera is mounted."""
+        if self.sourceDir is None:
+            self.log.error('Camera dir is undefined!')
+            return False
+        return os.path.exists(self.sourceDir)
+    
+    def getNumberImages(self):
+        """Get the number of photos to copy."""
+        return len(self.images)
 
     def identify(self, img: str):
         """Find details like size and datetime about the specified image file."""
