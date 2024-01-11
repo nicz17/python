@@ -32,6 +32,9 @@ class Task:
         if self.nStepsDone >= self.nStepsTotal:
             self.status = 'Done'
 
+    def setDesc(self, desc: str):
+        self.desc = desc
+
     def setStatus(self, status: str):
         self.status = status
 
