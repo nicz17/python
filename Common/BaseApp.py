@@ -83,3 +83,11 @@ class BaseApp:
         sMsg += 'Version ' + __version__ + '\n'
         sMsg += __copyright__
         messagebox.showinfo(title='About', message=sMsg)
+
+    def showInfoMsg(self, msg: str):
+        """Display a tk info message box."""
+        messagebox.showinfo(self.sTitle, msg)
+
+    def showErrorMsg(self, msg: str):
+        """Display a tk error message box."""
+        messagebox.showerror('Error', msg)
