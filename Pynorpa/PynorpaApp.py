@@ -48,11 +48,22 @@ class PynorpaApp(BaseApp):
             self.tasks[0].setDesc(f'Camera not mounted at {self.copier.getCameraDir()}')
         self.renderer.drawTasks(self.tasks)
 
+    def openPhotoDir(self):
+        """Open the copied photos dir in EyeOfGnome if possible."""
+        dir = self.copier.targetDir + 'orign/'
+        self.log.info('Opening photos dir %s', dir)
+        if dir is not None and os.path.exists(dir):
+            #os.system(f'nautilus {dir}')
+            os.system(f'eog {dir} &')
+        else:
+            self.showErrorMsg(f'Photo directory not found:\n{dir}')
+
     def createWidgets(self):
         """Create user widgets."""
 
         # Buttons
         self.btnCopy = self.addButton('Start', self.copyFiles)
+        self.btnOpen = self.addButton('Open',  self.openPhotoDir)
 
         # Canvas
         self.canTasks = tk.Canvas(master=self.frmMain, bg='#c0f0f0', bd=0, 
