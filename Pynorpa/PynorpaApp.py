@@ -9,6 +9,7 @@ __version__ = "1.0.0"
 import tkinter as tk
 import logging
 from BaseApp import *
+from CopyFromCamera import *
 from Renderer import *
 from Task import *
 
@@ -23,27 +24,35 @@ class PynorpaApp(BaseApp):
         self.iWidth  = 1000
         sGeometry = f'{self.iWidth}x{self.iHeight}'
         super().__init__('Pynorpa', sGeometry)
+
+        self.copier = CopyFromCamera()
+
         self.renderer = Renderer(self.canTasks, self.window)
         self.loadTasks()
         self.renderer.drawTasks(self.tasks)
 
     def loadTasks(self):
         """Load the tasks to perform."""
+        self.copier.loadImages()
         self.tasks.append(Task('Mount Camera', 'Mount camera memory card', 1))
-        self.tasks.append(Task('Copy photos', 'Copy 42 pictures from camera memory card', 42))
+        self.tasks.append(Task('Copy photos', 'Copy 42 pictures from camera memory card', self.copier.getNumberImages()))
         self.tasks.append(Task('Create thumbs', 'Create thumbnails for 42 photos', 42))
         self.tasks.append(Task('GeoTracking', 'Add GPS tags to 42 photos', 42))
 
     def copyFiles(self):
         """Start the file copy tasks."""
-        self.tasks[0].inc()
+        self.log.info('Starting %d tasks', len(self.tasks))
+        if self.copier.isCameraMounted():
+            self.tasks[0].inc()
+        else:
+            self.tasks[0].setDesc(f'Camera not mounted at {self.copier.getCameraDir()}')
         self.renderer.drawTasks(self.tasks)
 
     def createWidgets(self):
         """Create user widgets."""
 
         # Buttons
-        self.btnCopy = self.addButton('Copier', self.copyFiles)
+        self.btnCopy = self.addButton('Start', self.copyFiles)
 
         # Canvas
         self.canTasks = tk.Canvas(master=self.frmMain, bg='#c0f0f0', bd=0, 
