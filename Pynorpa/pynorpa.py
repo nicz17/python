@@ -77,15 +77,11 @@ def main():
         copier.loadImages()
         copier.copyImages()
         tracker = GeoTracker()
+        tracker.prepare()
         tracker.copyFiles()
     else:
         app = PynorpaApp()
         app.run()
-
-    if dOptions['open']:
-        pass
-        # Display home page in browser
-        #os.system('firefox ' + config.sDirExport + 'index.html')
 
 log = configureLogging()
 dOptions = getOptions()
