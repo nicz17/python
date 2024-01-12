@@ -72,7 +72,7 @@ class PynorpaApp(BaseApp):
         self.btnOpen = self.addButton('Open',  self.openPhotoDir)
 
         # Canvas
-        self.canTasks = tk.Canvas(master=self.frmMain, bg='#c0f0f0', bd=0, 
+        self.canTasks = tk.Canvas(master=self.frmMain, bg='#e0e0e0', bd=0, 
                                 height=self.iHeight-50, width=self.iWidth-200, 
                                 highlightthickness=0)
         self.canTasks.pack(side=tk.LEFT)
