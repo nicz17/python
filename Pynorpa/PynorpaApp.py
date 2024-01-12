@@ -35,8 +35,8 @@ class PynorpaApp(BaseApp):
         """Load the tasks to perform."""
         self.copier.loadImages()
         self.tasks.append(Task('Mount Camera', 'Mount camera memory card', 1))
-        self.tasks.append(Task('Copy photos', 'Copy 42 pictures from camera memory card', self.copier.getNumberImages()))
-        self.tasks.append(Task('Create thumbs', 'Create thumbnails for 42 photos', 42))
+        self.tasks.append(Task('Copy photos', 'Copy pictures from camera memory card', self.copier.getNumberImages()))
+        self.tasks.append(Task('Create thumbs', 'Create photo thumbnails', self.copier.getNumberImages()))
         self.tasks.append(Task('GeoTracking', 'Add GPS tags to 42 photos', 42))
 
     def copyFiles(self):
@@ -44,13 +44,14 @@ class PynorpaApp(BaseApp):
         self.log.info('Starting %d tasks', len(self.tasks))
         if self.copier.isCameraMounted():
             self.tasks[0].inc()
+            self.tasks[0].setDesc(f'Camera is mounted at {self.copier.getCameraDir()}')
         else:
             self.tasks[0].setDesc(f'Camera not mounted at {self.copier.getCameraDir()}')
         self.renderer.drawTasks(self.tasks)
 
     def openPhotoDir(self):
         """Open the copied photos dir in EyeOfGnome if possible."""
-        dir = self.copier.targetDir + 'orign/'
+        dir = self.copier.targetDir + 'orig/'
         self.log.info('Opening photos dir %s', dir)
         if dir is not None and os.path.exists(dir):
             #os.system(f'nautilus {dir}')
