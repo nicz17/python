@@ -56,11 +56,14 @@ class PhotoInfo:
     
 def testPhotoInfo():
     dir = '/home/nicz/Pictures/Nature-2023-12/photos/'
-    images = sorted(glob.glob(dir + '*.jpg'))
-    for img in images:
-        info = PhotoInfo(img)
+    files = sorted(glob.glob(dir + '*.jpg'))
+    photos = []
+    for file in files:
+        photo = PhotoInfo(file)
         #info.listAllExif()
-        info.identify()
+        photo.identify()
+        photos.append(photo)
+    print(f'Found {len(photos)} photos from {photos[0].shotat} to {photos[-1].shotat}')
 
 if __name__ == '__main__':
     logging.basicConfig(format="[%(levelname)s] %(message)s", 
