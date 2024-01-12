@@ -25,9 +25,9 @@ class PhotoInfo:
         self.lon = None
 
     def identify(self):
-        """Find details like size and shot-at about this image file."""
+        """Load details like size and shot-at from this image's EXIF tags."""
         file = open(self.filename, 'rb')
-        tags = exifread.process_file(file)
+        tags = exifread.process_file(file, details=False)
         for tag in tags.keys():
             if tag == 'EXIF DateTimeOriginal':
                 self.shotat = tags[tag]
@@ -35,9 +35,11 @@ class PhotoInfo:
                 self.width = tags[tag]
             elif tag == 'EXIF ExifImageLength':
                 self.height = tags[tag]
-        self.lat, self.lon = exifread.utils.get_gps_coords(tags)
+        gpsCoords = exifread.utils.get_gps_coords(tags)
+        if gpsCoords:
+            self.lat, self.lon = gpsCoords
         file.close()
-        self.log.info(self)
+        self.log.debug(self)
 
     def listAllExif(self):
         """List all existing EXIF tags."""
@@ -62,6 +64,7 @@ def testPhotoInfo():
         photo = PhotoInfo(file)
         #info.listAllExif()
         photo.identify()
+        photo.log.info(photo)
         photos.append(photo)
     print(f'Found {len(photos)} photos from {photos[0].shotat} to {photos[-1].shotat}')
 
