@@ -10,6 +10,7 @@ __version__ = "1.0.0"
 import logging
 import glob
 import exifread
+import DateTools
 
 class PhotoInfo:
     log = logging.getLogger(__name__)
@@ -30,7 +31,8 @@ class PhotoInfo:
         tags = exifread.process_file(file, details=False)
         for tag in tags.keys():
             if tag == 'EXIF DateTimeOriginal':
-                self.shotat = tags[tag]
+                self.tShotAt = DateTools.exifToTimestamp(str(tags[tag]))
+                self.log.debug('Shot at timestamp %f: %s', self.tShotAt, DateTools.timestampToString(self.tShotAt))
             elif tag == 'EXIF ExifImageWidth':
                 self.width = tags[tag]
             elif tag == 'EXIF ExifImageLength':
@@ -53,7 +55,8 @@ class PhotoInfo:
         file.close()
                     
     def __str__(self):
-        str = f'PhotoInfo {self.filename} [{self.width}x{self.height}] {self.shotat} Lon/Lat {self.lon}/{self.lat}'
+        str  = f'PhotoInfo {self.filename} [{self.width}x{self.height}] '
+        str += f'{DateTools.timestampToString(self.tShotAt)} Lon/Lat {self.lon}/{self.lat}'
         return str
     
 def testPhotoInfo():
@@ -66,7 +69,9 @@ def testPhotoInfo():
         photo.identify()
         photo.log.info(photo)
         photos.append(photo)
-    print(f'Found {len(photos)} photos from {photos[0].shotat} to {photos[-1].shotat}')
+    sStart = DateTools.timestampToString(photos[0].tShotAt)
+    sEnd   = DateTools.timestampToString(photos[-1].tShotAt)
+    print(f'Found {len(photos)} photos from {sStart} to {sEnd}')
 
 if __name__ == '__main__':
     logging.basicConfig(format="[%(levelname)s] %(message)s", 
