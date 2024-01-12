@@ -35,6 +35,8 @@ class CopyFromCamera:
         if not os.path.exists(self.sourceDir):
             self.log.error('Camera is not mounted at %s !', self.sourceDir)
             return
+        else:
+            self.log.info('Camera is mounted at %s', self.sourceDir)
         self.createNatureDirs(self.targetDir)
 
         # Glob images
@@ -49,8 +51,11 @@ class CopyFromCamera:
         self.log.info('Copying images from %s to %s', self.sourceDir, self.targetDir)
         for img in self.images:
             self.identify(img)
-            dest = f'{self.targetDir}orig/{os.path.basename(img)}'
-            os.system(f'cp {img} {dest}')
+            #dest = f'{self.targetDir}orig/{os.path.basename(img)}'
+            dest = f'{self.targetDir}orig/'
+            cmd = 'cp ' + img.replace(" ", "\\ ") + ' ' + dest
+            #self.log.info(cmd)
+            os.system(cmd)
         timer.stop()
         self.log.info('Copied %d photos in %s', len(self.images), timer.getElapsed())
 
@@ -95,8 +100,7 @@ class CopyFromCamera:
         date = currentDateTime.date()
         year = date.strftime("%Y")
         month = date.strftime("%m")
-        # TODO /home/nicz/Pictures/
-        dir = f'Nature-{year}-{month}/'
+        dir = f'/home/nicz/Pictures/Nature-{year}-{month}/'
         return dir
     
     def createNatureDirs(self, dir):
