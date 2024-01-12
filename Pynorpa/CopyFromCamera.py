@@ -11,7 +11,7 @@ import glob
 import os
 #import config
 import logging
-from PIL import Image, ExifTags
+from PhotoInfo import *
 from Timer import *
 
 
@@ -50,12 +50,17 @@ class CopyFromCamera:
         timer = Timer()
         self.log.info('Copying images from %s to %s', self.sourceDir, self.targetDir)
         for img in self.images:
-            self.identify(img)
+            photo = PhotoInfo(img)
+            photo.identify()
+            self.log.info('Copying %s', photo)
             #dest = f'{self.targetDir}orig/{os.path.basename(img)}'
             dest = f'{self.targetDir}orig/'
-            cmd = 'cp ' + img.replace(" ", "\\ ") + ' ' + dest
-            #self.log.info(cmd)
-            os.system(cmd)
+            if os.path.exists(dest + os.path.basename(img)):
+                self.log.info('Photo %s already copied, skipping', dest + os.path.basename(img))
+            else:
+                cmd = 'cp ' + img.replace(" ", "\\ ") + ' ' + dest
+                #self.log.info(cmd)
+                os.system(cmd)
         timer.stop()
         self.log.info('Copied %d photos in %s', len(self.images), timer.getElapsed())
 
@@ -70,24 +75,6 @@ class CopyFromCamera:
         """Get the number of photos to copy."""
         return len(self.images)
 
-    def identify(self, img: str):
-        """Find details like size and datetime about the specified image file."""
-        im = Image.open(img)
-        width, height = im.size
-
-        # Read EXIF data
-        sDateTime = 'unknown'
-        exif = im.getexif()
-        if exif is None:
-            self.log.error('Image has no EXIF data.')
-        else:
-            #self.log.info('  shot at %s', exif[ExifTags.Base.DateTime])
-            for key, val in exif.items():
-                if key in ExifTags.TAGS and ExifTags.TAGS[key] == 'DateTime':
-                    #print(f'tag {ExifTags.TAGS[key]}:{val}')
-                    sDateTime = val
-        self.log.info('Copying %s size %dx%dpx shot at %s', os.path.basename(img), width, height, sDateTime)
-
     def getCameraDir(self):
         """Get the current photo dir on the mounted camera."""
         # TODO increment past 105
@@ -100,7 +87,8 @@ class CopyFromCamera:
         date = currentDateTime.date()
         year = date.strftime("%Y")
         month = date.strftime("%m")
-        dir = f'/home/nicz/Pictures/Nature-{year}-{month}/'
+        #dir = f'/home/nicz/Pictures/Nature-{year}-{month}/'
+        dir = f'Nature-{year}-{month}/'
         return dir
     
     def createNatureDirs(self, dir):
