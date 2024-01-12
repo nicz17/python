@@ -20,6 +20,7 @@ from QombitCollection import *
 from Timer import *
 from Renderer import *
 from HintProvider import *
+import DateTools
 
 class QomboApp(BaseApp):
     """Qombo App window."""
@@ -273,8 +274,7 @@ class QomboApp(BaseApp):
         """Display a message-box with game info."""
         sMsg = 'Game not started yet.'
         if self.game:
-            # TODO convert time to str in a helper
-            sStart = time.strftime("%d.%m.%Y %H:%M:%S", time.localtime(self.game.tStart))
+            sStart = DateTools.timestampToString(self.game.tStart, "%d.%m.%Y %H:%M:%S")
             sMsg = self.game.sName + '\n'
             sMsg += f'Player {self.game.sPlayer}\n'
             sMsg += f'Score {self.game.iScore}\n'
