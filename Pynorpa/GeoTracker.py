@@ -7,6 +7,7 @@ __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
 import datetime
+import pytz
 import glob
 import gpxpy
 import gpxpy.gpx
@@ -63,6 +64,9 @@ class GeoTracker:
         for file in files:
             track = GeoTrack(file)
             track.loadData()
+            tAt = 1705069208.0
+            loc = track.getLocationAt(tAt)
+            self.log.info('Location is %s', loc)
 
     def getTargetDirectory(self):
         """Build target directory name from current date."""
@@ -82,6 +86,8 @@ class GeoTrack:
         self.log.info('Constructor from %s', filename)
         self.filename = filename
         self.name = os.path.basename(filename)
+        self.tStart = None
+        self.tEnd   = None
 
     def loadData(self):
         """Open and parse the GPX file."""
@@ -91,9 +97,10 @@ class GeoTrack:
 
         if self.gpx.name is not None:
             self.name = self.gpx.name
-        tStart, tEnd = self.gpx.get_time_bounds()
+        self.tStart, self.tEnd = self.gpx.get_time_bounds()
 
-        self.log.info('GPX %s has %d tracks, from %s to %s', self.gpx.name, len(self.gpx.tracks), tStart, tEnd)
+        self.log.info('GPX %s has %d tracks, from %s to %s', self.gpx.name, 
+                      len(self.gpx.tracks), self.tStart, self.tEnd)
         for track in self.gpx.tracks:
             self.log.info('Track has %d segments', len(track.segments))
             for segment in track.segments:
@@ -104,20 +111,34 @@ class GeoTrack:
                 
     def getLocationAt(self, tAt: float):
         """Get the GPS coordinates for the specified timestamp."""
+        # TODO check UTC conversion!
         if self.gpx is None:
             self.log.error('GPX data is not loaded')
             return None
-        # TODO use self.gpx.get_location_at(tAt)
-        dtAt = datetime.datetime.fromtimestamp(tAt)
+        dtAt = pytz.UTC.localize(datetime.datetime.utcfromtimestamp(tAt))
         self.log.info('Getting location at %s', dtAt)
-        if dtAt in self.gpx.get_time_bounds():
+        if self.contains(tAt):
             return self.gpx.get_location_at(dtAt)
         else:
             self.log.info('Timestamp %s is out of bounds', dtAt)
             return None
+        
+    def contains(self, tAt: float) -> bool:
+        """Check if the specified timestamp is contained in this track's daterange."""
+        if self.gpx is None:
+            self.log.error('GPX data not loaded!')
+            return False
+        dtStart, dtEnd = self.gpx.get_time_bounds()
+
+        utc = pytz.UTC
+        dtAt = utc.localize(datetime.datetime.utcfromtimestamp(tAt))
+        if dtAt >= dtStart and dtAt <= dtEnd:
+            return True
+        else:
+            return False
 
     def __str__(self) -> str:
-        str = f'GeoTrack {self.filename}'
+        str = f'GeoTrack {self.name}'
         return str
     
 def testGeoTracker():
