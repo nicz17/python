@@ -9,7 +9,7 @@ __version__ = "1.0.0"
 import datetime
 import glob
 import os
-#import config
+import config
 import logging
 from PhotoInfo import *
 from Timer import *
@@ -17,7 +17,7 @@ from Timer import *
 
 class CopyFromCamera:
     """Copy JPG images from Nikon D800 camera."""
-    log = logging.getLogger(__name__)
+    log = logging.getLogger('CopyFromCamera')
 
     def __init__(self):
         """Constructor."""
@@ -30,8 +30,8 @@ class CopyFromCamera:
         """Load the list of images to copy."""
 
         # Find source and target directories
-        self.sourceDir = self.getCameraDir()
-        self.targetDir = self.getCurrentTarget()
+        self.getCameraDir()
+        self.getCurrentTarget()
         if not os.path.exists(self.sourceDir):
             self.log.error('Camera is not mounted at %s !', self.sourceDir)
             return
@@ -53,13 +53,12 @@ class CopyFromCamera:
             photo = PhotoInfo(img)
             photo.identify()
             self.log.info('Copying %s', photo)
-            #dest = f'{self.targetDir}orig/{os.path.basename(img)}'
             dest = f'{self.targetDir}orig/'
             if os.path.exists(dest + os.path.basename(img)):
                 self.log.info('Photo %s already copied, skipping', dest + os.path.basename(img))
             else:
                 cmd = 'cp ' + img.replace(" ", "\\ ") + ' ' + dest
-                #self.log.info(cmd)
+                self.log.debug(cmd)
                 os.system(cmd)
         timer.stop()
         self.log.info('Copied %d photos in %s', len(self.images), timer.getElapsed())
@@ -75,21 +74,29 @@ class CopyFromCamera:
         """Get the number of photos to copy."""
         return len(self.images)
 
-    def getCameraDir(self):
+    def getCameraDir(self) -> None:
         """Get the current photo dir on the mounted camera."""
-        # TODO increment past 105
-        dir = r'/media/nicz/NIKON D800/DCIM/105ND800/'
-        return dir
+        dirBase = config.dirCameraBase
+        if not os.path.exists(dirBase):
+            self.log.error('Camera is not mounted at %s.', dirBase)
+            return
+        for nDir in range(101, 120):
+            dirCamera = f'{dirBase}{nDir}ND800/'
+            if os.path.exists(dirCamera):
+                self.sourceDir = dirCamera
+                self.log.info('Camera is mounted at %s', self.sourceDir)
+                break
+        if self.sourceDir is None:
+            self.log.error('Camera is not mounted: no folder found in %s', dirBase)
 
-    def getCurrentTarget(self):
-        """Get current target image directory. Name is based on year and month."""
+    def getCurrentTarget(self) -> None:
+        """Build current target image directory. Name is based on year and month."""
         currentDateTime = datetime.datetime.now()
         date = currentDateTime.date()
-        year = date.strftime("%Y")
+        year  = date.strftime("%Y")
         month = date.strftime("%m")
-        #dir = f'/home/nicz/Pictures/Nature-{year}-{month}/'
-        dir = f'Nature-{year}-{month}/'
-        return dir
+        self.targetDir = f'{config.dirPhotosBase}Nature-{year}-{month}/'
+        self.log.debug('Photo destination dir is %s', self.targetDir)
     
     def createNatureDirs(self, dir):
         """Create photo directories if needed."""
@@ -102,3 +109,19 @@ class CopyFromCamera:
             os.makedirs(dir + 'geotracker')
         else:
             self.log.info('Directory %s already exists', dir)
+
+
+def testCopyFromCamera():
+    copier = CopyFromCamera()
+    copier.getCameraDir()
+    copier.getCurrentTarget()
+    if copier.isCameraMounted():
+        copier.loadImages()
+        for img in copier.images:
+            photo = PhotoInfo(img)
+            #photo.identify()
+
+if __name__ == '__main__':
+    logging.basicConfig(format="%(levelname)s %(name)s: %(message)s", 
+        level=logging.DEBUG, handlers=[logging.StreamHandler()])
+    testCopyFromCamera()

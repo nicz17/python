@@ -34,4 +34,5 @@ SynthValues/*.pdf
 SynthValues/*.html
 
 Pynorpa/pynorpa.log
-Pynorpa/Nature-2024-01/*
+Pynorpa/Nature-2024-*/*
+Pynorpa/config.py
