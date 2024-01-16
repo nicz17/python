@@ -28,7 +28,7 @@ class GeoTracker:
         self.log.info('Constructor')
         self.getTargetDirectory()
         self.files = []
-        self.gpx = None
+        self.geoTracks = []
 
     def prepare(self):
         """Check source and target dirs, list photos to update."""
@@ -64,6 +64,7 @@ class GeoTracker:
         for file in files:
             track = GeoTrack(file)
             track.loadData()
+            self.geoTracks.append(track)
             tAt = 1705069208.0
             loc = track.getLocationAt(tAt)
             self.log.info('Location is %s', loc)
@@ -86,8 +87,11 @@ class GeoTrack:
         self.log.info('Constructor from %s', filename)
         self.filename = filename
         self.name = os.path.basename(filename)
+        self.gpx = None
         self.tStart = None
         self.tEnd   = None
+        self.meanLon = None
+        self.meanLat = None
 
     def loadData(self):
         """Open and parse the GPX file."""
@@ -99,15 +103,28 @@ class GeoTrack:
             self.name = self.gpx.name
         self.tStart, self.tEnd = self.gpx.get_time_bounds()
 
+        # Build stats for center point
+        nPoints = 0
+        sumLon = 0.0
+        sumLat = 0.0
+
         self.log.info('GPX %s has %d tracks, from %s to %s', self.gpx.name, 
                       len(self.gpx.tracks), self.tStart, self.tEnd)
         for track in self.gpx.tracks:
             self.log.info('Track has %d segments', len(track.segments))
             for segment in track.segments:
                 self.log.info('Segment has %d points', len(segment.points))
+                nPoints += len(segment.points)
                 for point in segment.points:
-                    pass
+                    sumLon += point.longitude
+                    sumLat += point.latitude
                     #self.log.info(f'Point at ({point.latitude},{point.longitude}) -> {point.elevation}m {point.time}')
+
+        # Center point
+        if nPoints > 0:
+            self.meanLon = sumLon/nPoints
+            self.meanLat = sumLat/nPoints
+        self.log.info('Track center point is %f/%f', self.meanLat, self.meanLon)
                 
     def getLocationAt(self, tAt: float):
         """Get the GPS coordinates for the specified timestamp."""
@@ -122,6 +139,10 @@ class GeoTrack:
         else:
             self.log.info('Timestamp %s is out of bounds', dtAt)
             return None
+        
+    def getCenter(self):
+        """Return the central point of this track as a float lat/lon pair."""
+        return self.meanLat, self.meanLon
         
     def contains(self, tAt: float) -> bool:
         """Check if the specified timestamp is contained in this track's daterange."""
