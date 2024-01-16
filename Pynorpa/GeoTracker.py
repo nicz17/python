@@ -7,13 +7,13 @@ __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
 import datetime
-import pytz
 import glob
 import gpxpy
 import gpxpy.gpx
 import config
 import logging
 import os
+import DateTools
 from Timer import *
 
 
@@ -66,7 +66,8 @@ class GeoTracker:
             track.loadData()
             self.geoTracks.append(track)
             tAt = 1705069208.0
-            loc = track.getLocationAt(tAt)
+            dtAt = DateTools.timestampToDatetimeUTC(tAt)
+            loc = track.getLocationAt(dtAt)
             self.log.info('Location is %s', loc)
 
     def getTargetDirectory(self):
@@ -126,15 +127,13 @@ class GeoTrack:
             self.meanLat = sumLat/nPoints
         self.log.info('Track center point is %f/%f', self.meanLat, self.meanLon)
                 
-    def getLocationAt(self, tAt: float):
+    def getLocationAt(self, dtAt: datetime.datetime):
         """Get the GPS coordinates for the specified timestamp."""
-        # TODO check UTC conversion!
         if self.gpx is None:
             self.log.error('GPX data is not loaded')
             return None
-        dtAt = pytz.UTC.localize(datetime.datetime.utcfromtimestamp(tAt))
         self.log.info('Getting location at %s', dtAt)
-        if self.contains(tAt):
+        if self.contains(dtAt):
             return self.gpx.get_location_at(dtAt)
         else:
             self.log.info('Timestamp %s is out of bounds', dtAt)
@@ -144,19 +143,13 @@ class GeoTrack:
         """Return the central point of this track as a float lat/lon pair."""
         return self.meanLat, self.meanLon
         
-    def contains(self, tAt: float) -> bool:
-        """Check if the specified timestamp is contained in this track's daterange."""
+    def contains(self, dtAt: datetime.datetime) -> bool:
+        """Check if the specified datetime is contained in this track's daterange."""
         if self.gpx is None:
             self.log.error('GPX data not loaded!')
             return False
         dtStart, dtEnd = self.gpx.get_time_bounds()
-
-        utc = pytz.UTC
-        dtAt = utc.localize(datetime.datetime.utcfromtimestamp(tAt))
-        if dtAt >= dtStart and dtAt <= dtEnd:
-            return True
-        else:
-            return False
+        return (dtAt >= dtStart and dtAt <= dtEnd)
 
     def __str__(self) -> str:
         str = f'GeoTrack {self.name}'
