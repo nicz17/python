@@ -10,6 +10,7 @@ import datetime
 import glob
 import gpxpy
 import gpxpy.gpx
+import gpxpy.geo
 import config
 import logging
 import os
@@ -65,10 +66,17 @@ class GeoTracker:
             track = GeoTrack(file)
             track.loadData()
             self.geoTracks.append(track)
-            tAt = 1705069208.0
-            dtAt = DateTools.timestampToDatetimeUTC(tAt)
+
+    def getLocationAt(self, tAt: float):
+        """Get the GPS coordinates for the specified UNIX timestamp."""
+        dtAt = DateTools.timestampToDatetimeUTC(tAt)
+        for track in self.geoTracks:
             loc = track.getLocationAt(dtAt)
-            self.log.info('Location is %s', loc)
+            if loc is not None:
+                self.log.info('Location in %s is %s', track.name, loc)
+                dist = loc.distance_2d(track.center)
+                self.log.info('Distance to center %fm', dist)
+                return loc
 
     def getTargetDirectory(self):
         """Build target directory name from current date."""
@@ -91,8 +99,7 @@ class GeoTrack:
         self.gpx = None
         self.tStart = None
         self.tEnd   = None
-        self.meanLon = None
-        self.meanLat = None
+        self.center = None
 
     def loadData(self):
         """Open and parse the GPX file."""
@@ -123,25 +130,30 @@ class GeoTrack:
 
         # Center point
         if nPoints > 0:
-            self.meanLon = sumLon/nPoints
-            self.meanLat = sumLat/nPoints
-        self.log.info('Track center point is %f/%f', self.meanLat, self.meanLon)
+            meanLon = sumLon/nPoints
+            meanLat = sumLat/nPoints
+            self.center = gpxpy.geo.Location(meanLat, meanLon)
+        self.log.info('Track center point is %s', self.center)
                 
-    def getLocationAt(self, dtAt: datetime.datetime):
+    def getLocationAt(self, dtAt: datetime.datetime) -> gpxpy.geo.Location:
         """Get the GPS coordinates for the specified timestamp."""
         if self.gpx is None:
             self.log.error('GPX data is not loaded')
             return None
         self.log.info('Getting location at %s', dtAt)
         if self.contains(dtAt):
-            return self.gpx.get_location_at(dtAt)
+            locs = self.gpx.get_location_at(dtAt)
+            if locs is not None and len(locs) > 0:
+                return locs[0]
+            else:
+                return None
         else:
             self.log.info('Timestamp %s is out of bounds', dtAt)
             return None
         
-    def getCenter(self):
-        """Return the central point of this track as a float lat/lon pair."""
-        return self.meanLat, self.meanLon
+    def getCenter(self) -> gpxpy.geo.Location:
+        """Return the central point of this track as a gpxpy.geo.Location."""
+        return self.center
         
     def contains(self, dtAt: datetime.datetime) -> bool:
         """Check if the specified datetime is contained in this track's daterange."""
@@ -160,7 +172,8 @@ def testGeoTracker():
     tracker.prepare()
     tracker.loadGeoTracks()
     # TODO test with tAt = 1705066208.0
-    
+    tAt = 1705069208.0
+    tracker.getLocationAt(tAt)
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s", 
