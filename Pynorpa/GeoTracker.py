@@ -16,6 +16,7 @@ import logging
 import os
 import DateTools
 from Timer import *
+from LocationCache import *
 
 
 class GeoTracker:
@@ -30,6 +31,7 @@ class GeoTracker:
         self.getTargetDirectory()
         self.files = []
         self.geoTracks = []
+        self.locationCache = None
 
     def prepare(self):
         """Check source and target dirs, list photos to update."""
@@ -48,6 +50,10 @@ class GeoTracker:
         filter = self.dirSource + '*' + date.strftime("%y%m") + '*.gpx'
         self.files = sorted(glob.glob(filter))
         self.log.info('Found %d GeoTrack files in %s', len(self.files), filter)
+
+        # Load LocationCache
+        self.locationCache = LocationCache()
+        self.locationCache.load()
 
     def copyFiles(self):
         """Copy GPX GeoTrack files from DropBox."""
@@ -71,12 +77,14 @@ class GeoTracker:
         """Get the GPS coordinates for the specified UNIX timestamp."""
         dtAt = DateTools.timestampToDatetimeUTC(tAt)
         for track in self.geoTracks:
-            loc = track.getLocationAt(dtAt)
-            if loc is not None:
-                self.log.info('Location in %s is %s', track.name, loc)
-                dist = loc.distance_2d(track.center)
+            gpxloc = track.getLocationAt(dtAt)
+            if gpxloc is not None:
+                self.log.info('Location in %s is %s', track.name, gpxloc)
+                dist = gpxloc.distance_2d(track.center)
                 self.log.info('Distance to center %fm', dist)
-                return loc
+                loc = self.locationCache.getClosest(gpxloc.latitude, gpxloc.longitude)
+                self.log.info('Closest location in cache is %s', loc)
+                return gpxloc
 
     def getTargetDirectory(self):
         """Build target directory name from current date."""
@@ -171,7 +179,6 @@ def testGeoTracker():
     tracker = GeoTracker()
     tracker.prepare()
     tracker.loadGeoTracks()
-    # TODO test with tAt = 1705066208.0
     tAt = 1705069208.0
     tracker.getLocationAt(tAt)
 
