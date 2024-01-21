@@ -19,7 +19,7 @@ class PhotoInfo:
         """Constructor from full filename."""
         self.log.info('Constructor from %s', filename)
         self.filename = filename
-        self.shotat = None
+        self.tShotAt = None
         self.width  = None
         self.height = None
         self.lat = None
@@ -42,6 +42,10 @@ class PhotoInfo:
             self.lat, self.lon = gpsCoords
         file.close()
         self.log.debug(self)
+
+    def hasGPSData(self):
+        """Checks if this photo has GPS EXIF tags defined."""
+        return self.lat is not None and self.lon is not None
 
     def listAllExif(self):
         """List all existing EXIF tags."""
