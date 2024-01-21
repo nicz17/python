@@ -17,6 +17,7 @@ import os
 import DateTools
 from Timer import *
 from LocationCache import *
+from PhotoInfo import *
 
 
 class GeoTracker:
@@ -24,6 +25,7 @@ class GeoTracker:
     log = logging.getLogger('GeoTracker')
     dirSource = config.dirSourceGeoTrack
     dirTarget = None
+    dirPhotos = None
 
     def __init__(self):
         """Constructor."""
@@ -39,6 +41,9 @@ class GeoTracker:
         # Check dirs exist
         if not os.path.exists(self.dirTarget):
             self.log.error('Missing target dir %s', self.dirTarget)
+            return
+        if not os.path.exists(self.dirPhotos):
+            self.log.error('Missing photos dir %s', self.dirPhotos)
             return
         if not os.path.exists(self.dirSource):
             self.log.error('Missing source dir %s', self.dirSource)
@@ -72,6 +77,8 @@ class GeoTracker:
             track = GeoTrack(file)
             track.loadData()
             self.geoTracks.append(track)
+            loc = self.locationCache.getClosest(track.center.latitude, track.center.longitude)
+            self.log.info('Closest location in cache to track %s is %s', track.name, loc)
 
     def getLocationAt(self, tAt: float):
         """Get the GPS coordinates for the specified UNIX timestamp."""
@@ -85,6 +92,23 @@ class GeoTracker:
                 loc = self.locationCache.getClosest(gpxloc.latitude, gpxloc.longitude)
                 self.log.info('Closest location in cache is %s', loc)
                 return gpxloc
+            
+    def setPhotoGPSTags(self):
+        """Get newly uploaded photos and add GPS EXIF tags if possible."""
+        #filter = self.dirPhotos + '*.JPG'
+        filter = 'Nature-2024-01/orig/*0.JPG' # TODO remove test
+        files = sorted(glob.glob(filter))
+        self.log.info('Looking for photos in %s', filter)
+        self.log.info('Will update %d photos with GPS tags', len(files))
+        for file in files:
+            photo = PhotoInfo(file)
+            photo.identify()
+            if photo.hasGPSData():
+                self.log.info('%s already has GPS data', photo)
+            else:
+                self.log.info('Adding GPS data to %s', photo)
+                gpxloc = self.getLocationAt(photo.tShotAt)
+                # TODO set EXIF tags from gpxloc
 
     def getTargetDirectory(self):
         """Build target directory name from current date."""
@@ -93,6 +117,7 @@ class GeoTracker:
         year  = date.strftime("%Y")
         month = date.strftime("%m")
         self.dirTarget = f'{config.dirPhotosBase}Nature-{year}-{month}/geotracker/'
+        self.dirPhotos = f'{config.dirPhotosBase}Nature-{year}-{month}/orig/'
         self.log.info('Target directory is %s', self.dirTarget)
         
 class GeoTrack:
@@ -110,7 +135,7 @@ class GeoTrack:
         self.center = None
 
     def loadData(self):
-        """Open and parse the GPX file."""
+        """Open and parse the GPX file. Computes the center point."""
         gpxFile = open(self.filename, 'r')
         self.gpx = gpxpy.parse(gpxFile)
         gpxFile.close()
@@ -156,7 +181,7 @@ class GeoTrack:
             else:
                 return None
         else:
-            self.log.info('Timestamp %s is out of bounds', dtAt)
+            self.log.info('Timestamp %s is out of bounds for %s', dtAt, self)
             return None
         
     def getCenter(self) -> gpxpy.geo.Location:
@@ -179,8 +204,7 @@ def testGeoTracker():
     tracker = GeoTracker()
     tracker.prepare()
     tracker.loadGeoTracks()
-    tAt = 1705069208.0
-    tracker.getLocationAt(tAt)
+    tracker.setPhotoGPSTags()
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s", 
