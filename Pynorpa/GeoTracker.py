@@ -62,8 +62,6 @@ class GeoTracker:
 
     def copyFiles(self):
         """Copy GPX GeoTrack files from DropBox."""
-
-        # Copy files
         for file in self.files:
             self.log.info('Copying %s', os.path.basename(file))
             dest = self.dirTarget + os.path.basename(file)
@@ -99,7 +97,8 @@ class GeoTracker:
         filter = 'Nature-2024-01/orig/*0.JPG' # TODO remove test
         files = sorted(glob.glob(filter))
         self.log.info('Looking for photos in %s', filter)
-        self.log.info('Will update %d photos with GPS tags', len(files))
+        self.log.info('Will try to update %d photos with GPS tags', len(files))
+        nUpdated = 0
         for file in files:
             photo = PhotoInfo(file)
             photo.identify()
@@ -108,7 +107,20 @@ class GeoTracker:
             else:
                 self.log.info('Adding GPS data to %s', photo)
                 gpxloc = self.getLocationAt(photo.tShotAt)
-                # TODO set EXIF tags from gpxloc
+                if self.callExifTool(file, gpxloc):
+                    nUpdated += 1
+        self.log.info('Updated %d photos with GPS tags', nUpdated)
+
+    def callExifTool(self, file: str, gpxloc: gpxpy.geo.Location):
+        """Set EXIF GPS tags from gpxloc using exiftool."""
+        if gpxloc is None:
+            self.log.error('Undefined GPX location for exiftool')
+            return False
+        # exiftool -GPSLatitude*=40.6892 -GPSLongitude*=-74.0445 -GPSAltitude*=10 FILE
+        cmd = f'exiftool -GPSLatitude*={gpxloc.latitude} -GPSLongitude*={gpxloc.longitude} {file}'
+        self.log.debug(cmd)
+        os.system(cmd)
+        return True
 
     def getTargetDirectory(self):
         """Build target directory name from current date."""
