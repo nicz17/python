@@ -18,6 +18,7 @@ import DateTools
 from Timer import *
 from LocationCache import *
 from PhotoInfo import *
+from GeoTrackHtmlPage import *
 
 
 class GeoTracker:
@@ -34,6 +35,7 @@ class GeoTracker:
         self.files = []
         self.geoTracks = []
         self.locationCache = None
+        self.photos = []
 
     def prepare(self):
         """Check source and target dirs, list photos to update."""
@@ -109,12 +111,13 @@ class GeoTracker:
                 gpxloc = self.getLocationAt(photo.tShotAt)
                 if self.callExifTool(file, gpxloc):
                     nUpdated += 1
+            self.photos.append(photo)
         self.log.info('Updated %d photos with GPS tags', nUpdated)
 
     def callExifTool(self, file: str, gpxloc: gpxpy.geo.Location):
         """Set EXIF GPS tags from gpxloc using exiftool."""
         if gpxloc is None:
-            self.log.error('Undefined GPX location for exiftool')
+            self.log.error('Undefined GPX location for exiftool for %s', file)
             return False
         # exiftool -GPSLatitude*=40.6892 -GPSLongitude*=-74.0445 -GPSAltitude*=10 FILE
         cmd = f'exiftool -GPSLatitude*={gpxloc.latitude} -GPSLongitude*={gpxloc.longitude} {file}'
@@ -131,6 +134,13 @@ class GeoTracker:
         self.dirTarget = f'{config.dirPhotosBase}Nature-{year}-{month}/geotracker/'
         self.dirPhotos = f'{config.dirPhotosBase}Nature-{year}-{month}/orig/'
         self.log.info('Target directory is %s', self.dirTarget)
+
+    def buildHtmlPreviews(self):
+        """Build HTML preview pages for each GeoTrack."""
+        for track in self.geoTracks:
+            page = GeoTrackHtmlPage(track.name)
+            page.build(track, self.photos)
+            page.save(f'track{track.name}.html')
         
 class GeoTrack:
     """Read a .gpx file and store the track."""
@@ -217,6 +227,7 @@ def testGeoTracker():
     tracker.prepare()
     tracker.loadGeoTracks()
     tracker.setPhotoGPSTags()
+    tracker.buildHtmlPreviews()
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s", 
