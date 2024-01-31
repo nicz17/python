@@ -66,6 +66,11 @@ class HtmlPage:
         tScript = HtmlTag('script').addAttr('src', sUrl)
         self.head.addTag(tScript)
 
+    def addCssLink(self, url):
+        """Adds the specified URL as CSS link to the header."""
+        link = HtmlTag('link').addAttr('rel', 'stylesheet').addAttr('href', url).addAttr('type', 'text/css')
+        self.head.addTag(link)
+
     def addHeading(self, iLevel, sTitle):
         """Add a heading of the specified level, for example h1."""
         self.main.addTag(HtmlTag('h' + str(iLevel), sTitle))
