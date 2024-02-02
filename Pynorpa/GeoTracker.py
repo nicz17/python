@@ -38,7 +38,11 @@ class GeoTracker:
         self.photos = []
 
     def prepare(self):
-        """Check source and target dirs, list photos to update."""
+        """Check source and target dirs, list photos to update, load LocationCache."""
+
+        # Load LocationCache
+        self.locationCache = LocationCache()
+        self.locationCache.load()
 
         # Check dirs exist
         if not os.path.exists(self.dirTarget):
@@ -57,10 +61,6 @@ class GeoTracker:
         filter = self.dirSource + '*' + date.strftime("%y%m") + '*.gpx'
         self.files = sorted(glob.glob(filter))
         self.log.info('Found %d GeoTrack files in %s', len(self.files), filter)
-
-        # Load LocationCache
-        self.locationCache = LocationCache()
-        self.locationCache.load()
 
     def copyFiles(self):
         """Copy GPX GeoTrack files from DropBox."""
@@ -133,14 +133,17 @@ class GeoTracker:
         month = date.strftime("%m")
         self.dirTarget = f'{config.dirPhotosBase}Nature-{year}-{month}/geotracker/'
         self.dirPhotos = f'{config.dirPhotosBase}Nature-{year}-{month}/orig/'
+        self.dirTarget = f'{config.dirPhotosBase}Nature-2024-01/geotracker/'  # TODO remove test
         self.log.info('Target directory is %s', self.dirTarget)
 
     def buildHtmlPreviews(self):
         """Build HTML preview pages for each GeoTrack."""
+        track: GeoTrack
         for track in self.geoTracks:
+            loc = self.locationCache.getClosest(track.center.latitude, track.center.longitude)
             page = GeoTrackHtmlPage(track.name)
-            page.build(track, self.photos)
-            page.save(f'track{track.name}.html')
+            page.build(track, self.photos, loc)
+            page.save(f'Nature-2024-01/track{track.name}.html')  # TODO remove test
         
 class GeoTrack:
     """Read a .gpx file and store the track."""
