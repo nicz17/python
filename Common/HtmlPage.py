@@ -177,8 +177,14 @@ class DivHtmlTag(HtmlTag):
         if sClass:
             self.addAttr('class', sClass)
 
-class BlueBoxHtmlTag(DivHtmlTag):
+class MyBoxHtmlTag(DivHtmlTag):
     """A div tag with myBox class."""
+    def __init__(self, sTitle, sId=None):
+        super().__init__(sId, 'myBox')
+        self.addTag(HtmlTag('h2', sTitle))
+
+class BlueBoxHtmlTag(DivHtmlTag):
+    """A div tag with blueBox class."""
     def __init__(self, sTitle, sId=None):
         super().__init__(sId, 'blueBox')
         self.addTag(HtmlTag('h2', sTitle))
