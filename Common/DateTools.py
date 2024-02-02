@@ -15,6 +15,10 @@ def timestampToString(tAt: float, format = "%Y.%m.%d %H:%M:%S") -> str:
     """Convert a float timestamp to string like 2023.12.28 13:15:36."""
     return time.strftime(format, time.localtime(tAt))
 
+def datetimeToString(dtAt: datetime.datetime, format = "%Y.%m.%d %H:%M:%S") -> str:
+    """Convert a datetime object to string like 2023.12.28 13:15:36."""
+    return dtAt.strftime(format)
+
 def timestampToDatetimeUTC(tAt: float) -> datetime.datetime:
     """Convert a float timestamp to a UTC aware datetime object."""
     return pytz.UTC.localize(datetime.datetime.utcfromtimestamp(tAt))
@@ -26,6 +30,10 @@ def stringToTimestamp(strExif: str, format = "%Y.%m.%d %H:%M:%S") -> float:
 def exifToTimestamp(strExif: str) -> float:
     """Convert EXIF string like 2023:12:28 13:15:36 to float timestamp."""
     return stringToTimestamp(strExif, "%Y:%m:%d %H:%M:%S")
+
+def nowAsString() -> str:
+    """Formats the current local timestamp like 2023.12.28 13:15:36."""
+    return timestampToString(time.time())
 
 
 def testDateTools():
