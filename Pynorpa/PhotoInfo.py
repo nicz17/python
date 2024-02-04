@@ -26,7 +26,7 @@ class PhotoInfo:
         self.lon = None
 
     def identify(self):
-        """Load details like size and shot-at from this image's EXIF tags."""
+        """Load details like size, shot-at and GPS from this image's EXIF tags."""
         file = open(self.filename, 'rb')
         tags = exifread.process_file(file, details=False)
         for tag in tags.keys():

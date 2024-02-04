@@ -63,10 +63,6 @@ def checkConfig():
     """Checks that config dirs exist."""
     pass
 
-    #if not os.path.exists(config.sDirSources):
-    #    log.error('Missing LaTeX source dir %s, aborting', config.sDirSources)
-    #    exit('Abort')
-
 def main():
     """Main function. Builds or uploads depending on options."""
     log.info('Welcome to Pynorpa v' + __version__)
@@ -79,6 +75,9 @@ def main():
         tracker = GeoTracker()
         tracker.prepare()
         tracker.copyFiles()
+        tracker.loadGeoTracks()
+        tracker.setPhotoGPSTags()
+        tracker.buildHtmlPreviews()
     else:
         app = PynorpaApp()
         app.run()
