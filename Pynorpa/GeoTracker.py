@@ -15,6 +15,7 @@ import config
 import logging
 import os
 import DateTools
+import TextTools
 from HtmlPage import *
 from Timer import *
 from LocationCache import *
@@ -84,6 +85,7 @@ class GeoTracker:
     def getLocationAt(self, tAt: float):
         """Get the GPS coordinates for the specified UNIX timestamp."""
         dtAt = DateTools.timestampToDatetimeUTC(tAt)
+        track: GeoTrack
         for track in self.geoTracks:
             gpxloc = track.getLocationAt(dtAt)
             if gpxloc is not None:
@@ -122,7 +124,7 @@ class GeoTracker:
             self.log.error('Undefined GPX location for exiftool for %s', file)
             return False
         # exiftool -GPSLatitude*=40.6892 -GPSLongitude*=-74.0445 -GPSAltitude*=10 FILE
-        cmd = f'exiftool -GPSLatitude*={gpxloc.latitude} -GPSLongitude*={gpxloc.longitude} {file}'
+        cmd = f'exiftool -GPSLatitude*={gpxloc.latitude} -GPSLongitude*={gpxloc.longitude} -overwrite_original {file}'
         self.log.debug(cmd)
         os.system(cmd)
         return True
@@ -135,7 +137,6 @@ class GeoTracker:
         month = date.strftime("%m")
         self.dirTarget = f'{config.dirPhotosBase}Nature-{year}-{month}/geotracker/'
         self.dirPhotos = f'{config.dirPhotosBase}Nature-{year}-{month}/orig/'
-        #self.dirTarget = f'{config.dirPhotosBase}Nature-2024-01/geotracker/'  # TODO remove test
         self.log.info('Target directory is %s', self.dirTarget)
 
     def buildHtmlPreviews(self):
@@ -253,10 +254,14 @@ class GeoTrackHtmlPage(HtmlPage):
         # GeoTrack info div
         aTrackInfo = []
         aTrackInfo.append('Name: ' + track.name)
-        aTrackInfo.append(DateTools.datetimeToString(track.tStart) + ' - ' + DateTools.datetimeToString(track.tEnd))
-        aTrackInfo.append(f'Photos: {len(photos)}')
+        aTrackInfo.append(DateTools.datetimeToString(track.tStart) + ' - ' + 
+                          DateTools.datetimeToString(track.tEnd, '%H:%M:%S'))
+        aTrackInfo.append('Duration: ' + TextTools.durationToString(track.tEnd.timestamp() - track.tStart.timestamp()))
+        aTrackInfo.append(f'{len(photos)} photos')
         if location is not None:
-            aTrackInfo.append(f'Closest location: {location.name}')
+            gpxloc = gpxpy.geo.Location(location.lat, location.lon)
+            dist = gpxloc.distance_2d(track.center)
+            aTrackInfo.append(f'Closest location: {location.name} at {TextTools.distanceToString(dist)}')
         divTrackInfo = MyBoxHtmlTag('GeoTrack details')
         divTrackInfo.addTag(ListHtmlTag(aTrackInfo))
 
