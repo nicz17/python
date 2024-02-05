@@ -17,7 +17,8 @@ def timestampToString(tAt: float, format = "%Y.%m.%d %H:%M:%S") -> str:
 
 def datetimeToString(dtAt: datetime.datetime, format = "%Y.%m.%d %H:%M:%S") -> str:
     """Convert a datetime object to string like 2023.12.28 13:15:36."""
-    return dtAt.strftime(format)
+    #return dtAt.strftime(format)
+    return timestampToString(dtAt.timestamp(), format)
 
 def timestampToDatetimeUTC(tAt: float) -> datetime.datetime:
     """Convert a float timestamp to a UTC aware datetime object."""
