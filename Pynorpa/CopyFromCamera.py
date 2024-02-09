@@ -30,10 +30,10 @@ class CopyFromCamera:
         """Load the list of images to copy."""
 
         # Find source and target directories
-        self.getCameraDir()
         self.getCurrentTarget()
-        if not os.path.exists(self.sourceDir):
-            self.log.error('Camera is not mounted at %s !', self.sourceDir)
+        self.getCameraDir()
+        if not self.isCameraMounted():
+            self.log.error('Camera is not mounted, aborting!')
             return
         else:
             self.log.info('Camera is mounted at %s', self.sourceDir)
