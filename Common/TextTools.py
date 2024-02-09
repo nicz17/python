@@ -24,7 +24,7 @@ def durationToString(dur: float) -> str:
         str = f'{hours}h{min}m'
     elif dur > 60:
         min = int(dur/60)
-        sec = dur - 60*min
+        sec = int(dur - 60*min)
         str = f'{min}m{sec}s'
     return str
 
