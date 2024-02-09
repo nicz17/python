@@ -20,7 +20,6 @@ from HtmlPage import *
 from Timer import *
 from LocationCache import *
 from PhotoInfo import *
-#from GeoTrackHtmlPage import *
 
 
 class GeoTracker:
@@ -108,7 +107,7 @@ class GeoTracker:
             photo = PhotoInfo(file)
             photo.identify()
             if photo.hasGPSData():
-                self.log.info('%s already has GPS data', photo)
+                self.log.debug('%s already has GPS data', photo)
             else:
                 self.log.info('Adding GPS data to %s', photo)
                 gpxloc = self.getLocationAt(photo.tShotAt)
@@ -116,6 +115,7 @@ class GeoTracker:
                     nUpdated += 1
                     photo.identify()
             self.photos.append(photo)
+            self.addPhotoToTrack(photo)
         self.log.info('Updated %d photos with GPS tags', nUpdated)
 
     def callExifTool(self, file: str, gpxloc: gpxpy.geo.Location):
@@ -128,6 +128,14 @@ class GeoTracker:
         self.log.debug(cmd)
         os.system(cmd)
         return True
+    
+    def addPhotoToTrack(self, photo: PhotoInfo):
+        """Add the photo to a GeoTrack if it contains its timestamp."""
+        dtAt = DateTools.timestampToDatetimeUTC(photo.tShotAt)
+        track: GeoTrack
+        for track in self.geoTracks:
+            if track.contains(dtAt):
+                track.photos.append(photo)
 
     def getTargetDirectory(self):
         """Build target directory name from current date."""
@@ -144,9 +152,11 @@ class GeoTracker:
         track: GeoTrack
         for track in self.geoTracks:
             loc = self.locationCache.getClosest(track.center.latitude, track.center.longitude)
+            htmlFile = f'{self.dirTarget}track{track.name}.html'
             page = GeoTrackHtmlPage(track.name)
-            page.build(track, self.photos, loc)
-            page.save(f'{self.dirTarget}track{track.name}.html')
+            page.build(track, loc)
+            page.save(htmlFile)
+            os.system(f'firefox {htmlFile} &')
         
 class GeoTrack:
     """Read a .gpx file and store the track."""
@@ -161,6 +171,7 @@ class GeoTrack:
         self.tStart = None
         self.tEnd   = None
         self.center = None
+        self.photos = []
 
     def loadData(self):
         """Open and parse the GPX file. Computes the center point."""
@@ -230,6 +241,7 @@ class GeoTrack:
 
 
 class GeoTrackHtmlPage(HtmlPage):
+    """An HTML page specialized for previewing GeoTracks."""
     log = logging.getLogger('GeoTrackHtmlPage')
 
     def __init__(self, sTitle: str):
@@ -241,9 +253,9 @@ class GeoTrackHtmlPage(HtmlPage):
         self.includeScript('http://www.tf79.ch/nature/js/panorpa-maps.js')
         self.addCssLink('http://www.tf79.ch/nature/css/OpenLayers-v5.3.0.css')
 
-    def build(self, track: GeoTrack, photos, location: Location):
+    def build(self, track: GeoTrack, location: Location):
         """Build page content from the specified GeoTrack."""
-        self.log.info('Building preview of %s with %d photos', track.name, len(photos))
+        self.log.info('Building preview of %s with %d photos', track.name, len(track.photos))
         self.addHeading(1, f'Preview of GeoTrack {track.name}')
 
         # OpenLayers map
@@ -257,7 +269,7 @@ class GeoTrackHtmlPage(HtmlPage):
         aTrackInfo.append(DateTools.datetimeToString(track.tStart) + ' - ' + 
                           DateTools.datetimeToString(track.tEnd, '%H:%M:%S'))
         aTrackInfo.append('Duration: ' + TextTools.durationToString(track.tEnd.timestamp() - track.tStart.timestamp()))
-        aTrackInfo.append(f'{len(photos)} photos')
+        aTrackInfo.append(f'{len(track.photos)} photos')
         if location is not None:
             gpxloc = gpxpy.geo.Location(location.lat, location.lon)
             dist = gpxloc.distance_2d(track.center)
@@ -277,7 +289,7 @@ class GeoTrackHtmlPage(HtmlPage):
         if location is not None:
             js += f'\taddMapMarker({location.lon:.6f}, {location.lat:.6f}, "{location.name}");\n'
         photo: PhotoInfo
-        for photo in photos:
+        for photo in track.photos:
             if photo.hasGPSData():
                 js += f'\taddPicMarker({photo.lon:.6f}, {photo.lat:.6f}, "{photo.filename}", "");\n'
             else:
