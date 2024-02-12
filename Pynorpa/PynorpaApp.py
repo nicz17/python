@@ -34,9 +34,8 @@ class PynorpaApp(BaseApp):
     def loadTasks(self):
         """Load the tasks to perform."""
         self.copier.loadImages()
-        #self.tasks.append(Task('Mount Camera', 'Mount camera memory card', 1))
+        self.tasks.append(TestPynorpaTask(10,self.updateTaskDisplay))
         self.tasks.append(MountCameraTask(self.copier))
-        #self.tasks.append(Task('Copy photos', 'Copy pictures from camera memory card', self.copier.getNumberImages()))
         self.tasks.append(CopyFromCameraTask(self.copier))
         self.tasks.append(PynorpaTask('Create thumbs', 'Create photo thumbnails', self.copier.getNumberImages()))
         self.tasks.append(PynorpaTask('GeoTracking', 'Add GPS tags to 42 photos', 42))
@@ -44,15 +43,24 @@ class PynorpaApp(BaseApp):
     def copyFiles(self):
         """Start the file copy tasks."""
         self.log.info('Starting %d tasks', len(self.tasks))
+        task: PynorpaTask
         for task in self.tasks:
-            task.prepare()
+            if not task.isOver():
+                task.prepare()
         self.renderer.drawTasks(self.tasks)
 
         for task in self.tasks:
             if not task.isOver():
                 task.run()
-                break
+                if not task.isOver():
+                    break
         self.renderer.drawTasks(self.tasks)
+
+    def updateTaskDisplay(self):
+        """Update the task rendering."""
+        self.renderer.drawTasks(self.tasks)
+        self.window.update()
+        self.window.update_idletasks()
 
     def openPhotoDir(self):
         """Open the copied photos dir in EyeOfGnome if possible."""
