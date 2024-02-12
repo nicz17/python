@@ -49,7 +49,7 @@ class Renderer:
         if task.isOver():
             color = '#40ff00'
         elif task.nStepsDone > 0:
-            color = '#808000'
+            color = '#ffa500'
         return color
 
     def __str__(self):
