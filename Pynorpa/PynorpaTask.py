@@ -7,6 +7,8 @@ __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
 import logging
+import config
+import time
 from Task import *
 from CopyFromCamera import *
 from GeoTracker import *
@@ -43,7 +45,7 @@ class MountCameraTask(PynorpaTask):
             self.inc()
             self.setDesc(f'Camera is mounted at {self.copier.getCameraDir()}')
         else:
-            self.setDesc(f'Camera is not mounted at {self.copier.getCameraDir()}')
+            self.setDesc(f'Camera is not mounted at {config.dirCameraBase}')
 
 class CopyFromCameraTask(PynorpaTask):
     """Copy pictures from camera memory card."""
@@ -60,3 +62,28 @@ class CopyFromCameraTask(PynorpaTask):
     def run(self):
         self.log.info('Running')
         self.copier.copyImages()
+
+class TestPynorpaTask(PynorpaTask):
+    """Test with sleeping steps."""
+    log = logging.getLogger('TestPynorpaTask')
+
+    def __init__(self, steps: int, cbkUpdate = None):
+        """Constructor with number of 1-second steps."""
+        self.nSteps = steps
+        self.cbkUpdate = cbkUpdate
+        super().__init__('Test case', f'Sleep {steps} times then move on', steps)
+
+    def prepare(self):
+        self.log.info('Prepare')
+        self.setDesc('Sleeping')
+
+    def run(self):
+        self.log.info('Running')
+        for iStep in range(self.nSteps):
+            self.log.info('Sleeping %d/%d', iStep, self.nSteps)
+            self.setDesc(f'Power nap {iStep+1} in progress')
+            if self.cbkUpdate is not None:
+                self.cbkUpdate()
+            time.sleep(1)
+            self.inc()
+        self.setDesc('Slept well.')
