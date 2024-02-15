@@ -14,8 +14,11 @@ import logging
 import getopt
 import time
 import json
-from BaseApp import *
 import DateTools
+import tkinter as tk
+from BaseApp import *
+from LogBookTask import *
+
 
 class LogBook():
     """A list of tasks and steps."""
@@ -30,6 +33,11 @@ class LogBook():
         self.log.info('Constructor %s', self)
         self.load()
 
+    def addTask(self, task: LogBookTask):
+        """Add the specified task to this LogBook."""
+        if task is not None:
+            self.tasks.append(task)
+
     def load(self):
         """Load from a JSON file or create new if no file."""
         filename = f'{self.name}.json'
@@ -43,11 +51,14 @@ class LogBook():
     def toJson(self):
         """Save this LogBook as a JSON file."""
         filename = f'{self.name}.json'
+        dataTasks = []
+        for task in self.tasks:
+            dataTasks.append(task.toJson())
         data = {
             'name': self.name,
             'title': self.title,
             'created': DateTools.timestampToString(self.created),
-            'tasks': self.tasks
+            'tasks': dataTasks
         }
         self.log.info('Saving as %s', filename)
         file = open(filename, 'w')
@@ -63,7 +74,9 @@ class LogBook():
 
         self.title = data.get('title')
         self.created = DateTools.stringToTimestamp(data.get('created'))
-        self.tasks = data.get('tasks')
+        #self.tasks = data.get('tasks')
+        for dataTask in data.get('tasks'):
+            self.tasks.append(LogBookTask.fromJson(dataTask))
         self.log.info('Loaded from JSON with title %s', self.title)
 
     def __str__(self):
@@ -78,14 +91,36 @@ class LogBookApp(BaseApp):
         """Constructor."""
         self.iHeight = 800
         self.iWidth  = 1000
+        self.book = None
         sGeometry = f'{self.iWidth}x{self.iHeight}'
         super().__init__('LogBook', sGeometry)
         self.loadBook()
+        self.addTestTasks()
 
     def loadBook(self):
         """Load the default logbook."""
         self.log.info('Loading the default logbook')
-        book = LogBook('TestBook')
+        self.book = LogBook('TestBook')
+
+        idx = 1
+        for task in self.book.tasks:
+            self.listTasks.insert(idx, task.title)
+            idx += 1
+
+    def addTestTasks(self):
+        """Add some test tasks to the default book."""
+        if self.book is not None:
+            self.book.addTask(LogBookTask('Buy some bread'))
+            self.book.addTask(LogBookTask('Build a Golem deck'))
+            self.book.toJson()
+
+    def createWidgets(self):
+        # create listbox object
+        self.listTasks = tk.Listbox(self.window, 
+            height = 10, width = 20, 
+            bg = "white", fg = "black",
+            activestyle = 'dotbox', font = "Helvetica")
+        self.listTasks.pack()
 
 def configureLogging():
     """
