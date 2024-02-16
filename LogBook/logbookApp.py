@@ -22,7 +22,7 @@ class LogBookApp(BaseApp):
     def __init__(self) -> None:
         """Constructor."""
         self.iHeight = 800
-        self.iWidth  = 1000
+        self.iWidth  = 1200
         self.book = None
         sGeometry = f'{self.iWidth}x{self.iHeight}'
         super().__init__('LogBook', sGeometry)
@@ -34,6 +34,7 @@ class LogBookApp(BaseApp):
         """Load the default logbook."""
         self.log.info('Loading the default logbook')
         self.book = LogBook('TestBook')
+        self.lblBook.configure(text = self.book.title)
 
         idx = 1
         for task in self.book.tasks:
@@ -49,12 +50,35 @@ class LogBookApp(BaseApp):
             self.book.toJson()
 
     def createWidgets(self):
-        # create listbox object
-        self.listTasks = tk.Listbox(self.window, 
-            height = 10, width = 20, 
+        # Frames
+        self.frmBook = tk.Frame(master=self.frmMain, width=200, bg='#f0f0ff')
+        self.frmBook.pack(fill=tk.Y, side=tk.LEFT)
+        self.frmTasks = tk.Frame(master=self.frmMain, width=400, bg='#f0fff0')
+        self.frmTasks.pack(fill=tk.Y, side=tk.LEFT)
+        self.frmEdit = tk.Frame(master=self.frmMain, width=300, bg='#fff0f0')
+        self.frmEdit.pack(fill=tk.Y, side=tk.LEFT)
+
+        # LogBook title label
+        self.lblBook = tk.Label(self.frmBook, width=20, 
+            text='LogBook title', font='Helvetica 16 bold')
+        self.lblBook.pack()
+
+        # Task Listbox widget
+        self.listTasks = tk.Listbox(self.frmBook, 
+            height = 30, width = 22, 
             bg = "white", fg = "black",
             activestyle = 'dotbox', font = "Helvetica")
         self.listTasks.pack()
+
+        # Tasks title label
+        self.lblTasks = tk.Label(self.frmTasks, width=40, 
+            text='Tasks table', font='Helvetica 16 bold')
+        self.lblTasks.pack()
+
+        # Edition title label
+        self.lblEdit = tk.Label(self.frmEdit, width=30, 
+            text='Edition', font='Helvetica 16 bold')
+        self.lblEdit.pack()
 
 def configureLogging():
     """
