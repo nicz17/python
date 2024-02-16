@@ -27,27 +27,23 @@ class LogBookApp(BaseApp):
         sGeometry = f'{self.iWidth}x{self.iHeight}'
         super().__init__('LogBook', sGeometry)
         self.loadBook()
-        if self.book is not None and len(self.book.tasks) == 0:
-            self.addTestTasks()
+        self.renderBook()
 
     def loadBook(self):
         """Load the default logbook."""
         self.log.info('Loading the default logbook')
         self.book = LogBook('TestBook')
-        self.lblBook.configure(text = self.book.title)
 
-        idx = 1
-        for task in self.book.tasks:
-            self.listTasks.insert(idx, task.title)
-            idx += 1
-
-    def addTestTasks(self):
-        """Add some test tasks to the default book."""
+    def renderBook(self):
+        """Update rendering for the current book."""
+        self.listTasks.delete(0, tk.END)
         if self.book is not None:
-            self.log.info('Adding test tasks to %s', self.book)
-            self.book.addTask(LogBookTask('Buy some bread'))
-            self.book.addTask(LogBookTask('Build a Golem deck'))
-            self.book.toJson()
+            self.lblBook.configure(text = self.book.title)
+            idx = 1
+            task: LogBookTask
+            for task in self.book.tasks:
+                self.listTasks.insert(idx, task.title)
+                idx += 1
 
     def addTask(self):
         """Add a task from input text widget."""
@@ -56,18 +52,19 @@ class LogBookApp(BaseApp):
         self.log.info('Task is %s', input)
         if self.book is not None and input is not None and len(input) > 0:
             self.book.addTask(LogBookTask(input))
-            self.book.toJson()
+            self.book.save()
             self.txtTask.delete(1.0, tk.END)
+            self.renderBook()
         else:
             self.log.info('Skipping empty input')
 
     def createWidgets(self):
         # Frames
-        self.frmBook = tk.Frame(master=self.frmMain, width=200, bg='#f0f0ff')
+        self.frmBook = tk.Frame(master=self.frmMain,  width=200, bg='#f0f0ff')
         self.frmBook.pack(fill=tk.Y, side=tk.LEFT)
         self.frmTasks = tk.Frame(master=self.frmMain, width=400, bg='#f0fff0')
         self.frmTasks.pack(fill=tk.Y, side=tk.LEFT)
-        self.frmEdit = tk.Frame(master=self.frmMain, width=300, bg='#fff0f0')
+        self.frmEdit = tk.Frame(master=self.frmMain,  width=300, bg='#fff0f0')
         self.frmEdit.pack(fill=tk.Y, side=tk.LEFT)
 
         # LogBook title label
