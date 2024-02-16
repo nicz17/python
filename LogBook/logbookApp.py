@@ -24,6 +24,7 @@ class LogBookApp(BaseApp):
         self.iHeight = 800
         self.iWidth  = 1200
         self.book = None
+        self.task = None
         sGeometry = f'{self.iWidth}x{self.iHeight}'
         super().__init__('LogBook', sGeometry)
         self.loadBook()
@@ -45,6 +46,13 @@ class LogBookApp(BaseApp):
                 self.listTasks.insert(idx, task.title)
                 idx += 1
 
+    def renderTask(self):
+        """Update rendering for the current task."""
+        if self.task is None:
+            self.lblTasks.configure(text = 'Tasks table')
+        else:
+            self.lblTasks.configure(text = self.task.title)
+
     def addTask(self):
         """Add a task from input text widget."""
         self.log.info('Adding task from user input')
@@ -57,6 +65,14 @@ class LogBookApp(BaseApp):
             self.renderBook()
         else:
             self.log.info('Skipping empty input')
+
+    def onTaskSelection(self, evt):
+        """Task ListBox selection handling."""
+        index = int(self.listTasks.curselection()[0])
+        #value = self.listTasks.get(index)
+        self.task = self.book.tasks[index]
+        self.log.info('Task selection: %d %s', index, self.task)
+        self.renderTask()
 
     def createWidgets(self):
         # Frames
@@ -77,6 +93,7 @@ class LogBookApp(BaseApp):
             height = 30, width = 22, 
             bg = "white", fg = "black",
             activestyle = 'dotbox', font = "Helvetica")
+        self.listTasks.bind('<<ListboxSelect>>', self.onTaskSelection)
         self.listTasks.pack()
         
         # Task input TextBox 
