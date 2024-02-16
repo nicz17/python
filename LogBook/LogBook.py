@@ -42,9 +42,16 @@ class LogBook():
             self.log.info('Creating new %s', self)
             self.toJson()
 
-    def toJson(self):
+    def save(self):
         """Save this LogBook as a JSON file."""
         filename = f'{self.name}.json'
+        self.log.info('Saving as %s', filename)
+        file = open(filename, 'w')
+        file.write(json.dumps(self.toJson(), indent=2))
+        file.close()
+
+    def toJson(self):
+        """Export this LogBook as JSON."""
         dataTasks = []
         for task in self.tasks:
             dataTasks.append(task.toJson())
@@ -54,10 +61,7 @@ class LogBook():
             'created': DateTools.timestampToString(self.created),
             'tasks': dataTasks
         }
-        self.log.info('Saving as %s', filename)
-        file = open(filename, 'w')
-        file.write(json.dumps(data, indent=2))
-        file.close()
+        return data
 
     def fromJson(self):
         """Load data from a JSON file."""
