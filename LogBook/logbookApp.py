@@ -49,6 +49,18 @@ class LogBookApp(BaseApp):
             self.book.addTask(LogBookTask('Build a Golem deck'))
             self.book.toJson()
 
+    def addTask(self):
+        """Add a task from input text widget."""
+        self.log.info('Adding task from user input')
+        input = self.txtTask.get(1.0, tk.END).rstrip()
+        self.log.info('Task is %s', input)
+        if self.book is not None and input is not None and len(input) > 0:
+            self.book.addTask(LogBookTask(input))
+            self.book.toJson()
+            self.txtTask.delete(1.0, tk.END)
+        else:
+            self.log.info('Skipping empty input')
+
     def createWidgets(self):
         # Frames
         self.frmBook = tk.Frame(master=self.frmMain, width=200, bg='#f0f0ff')
@@ -69,6 +81,15 @@ class LogBookApp(BaseApp):
             bg = "white", fg = "black",
             activestyle = 'dotbox', font = "Helvetica")
         self.listTasks.pack()
+        
+        # Task input TextBox 
+        self.txtTask = tk.Text(self.frmBook, height = 2, width = 22) 
+        self.txtTask.pack() 
+        
+        # Button Creation 
+        self.btnAddtask = tk.Button(self.frmBook, text = "Add task",  
+            command = self.addTask) 
+        self.btnAddtask.pack() 
 
         # Tasks title label
         self.lblTasks = tk.Label(self.frmTasks, width=40, 
