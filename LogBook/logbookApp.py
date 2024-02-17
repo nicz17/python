@@ -14,6 +14,7 @@ from BaseApp import *
 from LogBook import *
 from LogBookTask import *
 from TextInputBox import *
+from StepsTable import *
 
 
 class LogBookApp(BaseApp):
@@ -26,7 +27,10 @@ class LogBookApp(BaseApp):
         self.iWidth  = 1300
         self.book = None
         self.task = None
+        self.step = None
         self.taskInput = TextInputBox(self.addTask)
+        self.stepsTable = StepsTable(self.onStepSelection)
+
         sGeometry = f'{self.iWidth}x{self.iHeight}'
         super().__init__('LogBook', sGeometry)
         self.loadBook()
@@ -71,10 +75,19 @@ class LogBookApp(BaseApp):
     def onTaskSelection(self, evt):
         """Task ListBox selection handling."""
         index = int(self.listTasks.curselection()[0])
-        #value = self.listTasks.get(index)
         self.task = self.book.tasks[index]
         self.log.info('Task selection: %d %s', index, self.task)
         self.renderTask()
+        self.stepsTable.loadData(self.task)
+
+    def onStepSelection(self, evt):
+        """Step table selection handling."""
+        idx = self.stepsTable.getSelection()
+        if idx is None:
+            self.step = None
+        else:
+            self.step = self.task.steps[idx]
+        self.log.info('Step selection: %s', self.step)
 
     def createWidgets(self):
         # Frames
@@ -101,10 +114,13 @@ class LogBookApp(BaseApp):
         # Task input TextBox 
         self.taskInput.build(self.frmBook)
 
-        # Tasks title label
+        # Steps title label
         self.lblTasks = tk.Label(self.frmTasks, width=40, 
-            text='Tasks table', font='Helvetica 16 bold')
+            text='Steps table', font='Helvetica 16 bold')
         self.lblTasks.pack()
+
+        # Steps table
+        self.stepsTable.build(self.frmTasks)
 
         # Edition title label
         self.lblEdit = tk.Label(self.frmEdit, width=30, 
