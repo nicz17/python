@@ -13,6 +13,7 @@ import tkinter as tk
 from BaseApp import *
 from LogBook import *
 from LogBookTask import *
+from TextInputBox import *
 
 
 class LogBookApp(BaseApp):
@@ -22,9 +23,10 @@ class LogBookApp(BaseApp):
     def __init__(self) -> None:
         """Constructor."""
         self.iHeight = 800
-        self.iWidth  = 1200
+        self.iWidth  = 1300
         self.book = None
         self.task = None
+        self.taskInput = TextInputBox(self.addTask)
         sGeometry = f'{self.iWidth}x{self.iHeight}'
         super().__init__('LogBook', sGeometry)
         self.loadBook()
@@ -56,12 +58,12 @@ class LogBookApp(BaseApp):
     def addTask(self):
         """Add a task from input text widget."""
         self.log.info('Adding task from user input')
-        input = self.txtTask.get(1.0, tk.END).rstrip()
+        input = self.taskInput.getContent()
         self.log.info('Task is %s', input)
         if self.book is not None and input is not None and len(input) > 0:
             self.book.addTask(LogBookTask(input))
             self.book.save()
-            self.txtTask.delete(1.0, tk.END)
+            self.taskInput.clear()
             self.renderBook()
         else:
             self.log.info('Skipping empty input')
@@ -76,7 +78,7 @@ class LogBookApp(BaseApp):
 
     def createWidgets(self):
         # Frames
-        self.frmBook = tk.Frame(master=self.frmMain,  width=200, bg='#f0f0ff')
+        self.frmBook = tk.Frame(master=self.frmMain,  width=300, bg='#f0f0ff')
         self.frmBook.pack(fill=tk.Y, side=tk.LEFT)
         self.frmTasks = tk.Frame(master=self.frmMain, width=400, bg='#f0fff0')
         self.frmTasks.pack(fill=tk.Y, side=tk.LEFT)
@@ -90,20 +92,14 @@ class LogBookApp(BaseApp):
 
         # Task Listbox widget
         self.listTasks = tk.Listbox(self.frmBook, 
-            height = 30, width = 22, 
+            height = 30, width = 32, 
             bg = "white", fg = "black",
             activestyle = 'dotbox', font = "Helvetica")
         self.listTasks.bind('<<ListboxSelect>>', self.onTaskSelection)
         self.listTasks.pack()
         
         # Task input TextBox 
-        self.txtTask = tk.Text(self.frmBook, height = 2, width = 22) 
-        self.txtTask.pack() 
-        
-        # Button Creation 
-        self.btnAddtask = tk.Button(self.frmBook, text = "Add task",  
-            command = self.addTask) 
-        self.btnAddtask.pack() 
+        self.taskInput.build(self.frmBook)
 
         # Tasks title label
         self.lblTasks = tk.Label(self.frmTasks, width=40, 
