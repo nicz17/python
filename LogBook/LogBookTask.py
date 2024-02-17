@@ -12,6 +12,7 @@ import DateTools
 from enum import Enum
 
 class Status(Enum):
+    """Enumeration of step status."""
     Idle = 0
     Done = 1
     Cancelled = 2
