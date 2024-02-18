@@ -24,7 +24,7 @@ class LogBookStep:
     """A step in a LogBook task."""
     log = logging.getLogger(__name__)
 
-    def __init__(self, text: str, status: Status):
+    def __init__(self, text: str, status = None):
         """Constructor with text, status."""
         self.text = text
         if status is None:
