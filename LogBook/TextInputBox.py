@@ -26,14 +26,19 @@ class TextInputBox():
     def build(self, parent: tk.Frame):
         """Add the widgets to the parent frame."""
 
-        # Add input TextBox 
-        self.txtInput = tk.Text(parent, height = 1, width = 28) 
+        # Compute optimal width
+        #self.log.info('Parent width is %d', parent.winfo_width())
+        widthTxt = int((parent.winfo_width() - 140.8)/5.4) + 1
+        #self.log.info('text width is %d', widthTxt)
+
+        # Add input TextBox
+        self.txtInput = tk.Text(parent, height = 1, width = widthTxt) 
         self.txtInput.pack(fill=tk.X, side=tk.LEFT)
         self.txtInput.bind("<<Modified>>", self.enableWidgets)
         
         # Add button
         self.btnAdd = tk.Button(parent, text = 'Add', command = self.cbkAdd)
-        self.btnAdd.pack(side=tk.RIGHT)
+        self.btnAdd.pack(side=tk.LEFT)
 
         self.enableWidgets()
 
