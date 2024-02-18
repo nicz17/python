@@ -29,6 +29,7 @@ class LogBookApp(BaseApp):
         self.task = None
         self.step = None
         self.taskInput = TextInputBox(self.addTask)
+        self.stepInput = TextInputBox(self.addStep)
         self.stepsTable = StepsTable(self.onStepSelection)
 
         sGeometry = f'{self.iWidth}x{self.iHeight}'
@@ -60,7 +61,7 @@ class LogBookApp(BaseApp):
             self.lblTasks.configure(text = self.task.title)
 
     def addTask(self):
-        """Add a task from input text widget."""
+        """Add a task from text input widget."""
         self.log.info('Adding task from user input')
         input = self.taskInput.getContent()
         self.log.info('Task is %s', input)
@@ -69,6 +70,19 @@ class LogBookApp(BaseApp):
             self.book.save()
             self.taskInput.clear()
             self.renderBook()
+        else:
+            self.log.info('Skipping empty input')
+
+    def addStep(self):
+        """Add a step from text input widget."""
+        self.log.info('Adding step from user input')
+        input = self.stepInput.getContent()
+        self.log.info('Step is %s', input)
+        if self.task is not None and input is not None and len(input) > 0:
+            self.task.addStep(LogBookStep(input))
+            self.book.save()
+            self.stepInput.clear()
+            self.stepsTable.loadData(self.task)
         else:
             self.log.info('Skipping empty input')
 
@@ -111,7 +125,8 @@ class LogBookApp(BaseApp):
         self.listTasks.bind('<<ListboxSelect>>', self.onTaskSelection)
         self.listTasks.pack()
         
-        # Task input TextBox 
+        # Task input TextBox
+        self.window.update()
         self.taskInput.build(self.frmBook)
 
         # Steps title label
@@ -121,6 +136,9 @@ class LogBookApp(BaseApp):
 
         # Steps table
         self.stepsTable.build(self.frmTasks)
+        
+        # Step input TextBox 
+        self.stepInput.build(self.frmTasks)
 
         # Edition title label
         self.lblEdit = tk.Label(self.frmEdit, width=30, 
