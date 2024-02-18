@@ -15,6 +15,7 @@ from LogBook import *
 from LogBookTask import *
 from TextInputBox import *
 from StepsTable import *
+from StepEditor import *
 
 
 class LogBookApp(BaseApp):
@@ -31,9 +32,10 @@ class LogBookApp(BaseApp):
         self.taskInput = TextInputBox(self.addTask)
         self.stepInput = TextInputBox(self.addStep)
         self.stepsTable = StepsTable(self.onStepSelection)
+        self.stepEditor = StepEditor(self.onStepSave)
 
-        sGeometry = f'{self.iWidth}x{self.iHeight}'
-        super().__init__('LogBook', sGeometry)
+        geometry = f'{self.iWidth}x{self.iHeight}'
+        super().__init__('LogBook', geometry)
         self.loadBook()
         self.renderBook()
 
@@ -88,6 +90,8 @@ class LogBookApp(BaseApp):
 
     def onTaskSelection(self, evt):
         """Task ListBox selection handling."""
+        if len(self.listTasks.curselection()) == 0:
+            return
         index = int(self.listTasks.curselection()[0])
         self.task = self.book.tasks[index]
         self.log.info('Task selection: %d %s', index, self.task)
@@ -102,6 +106,13 @@ class LogBookApp(BaseApp):
         else:
             self.step = self.task.steps[idx]
         self.log.info('Step selection: %s', self.step)
+        self.stepEditor.loadData(self.step)
+
+    def onStepSave(self):
+        if self.book is not None:
+            self.book.save()
+        #self.stepEditor.loadData(self.step)
+        self.stepsTable.loadData(self.task)
 
     def createWidgets(self):
         # Frames
@@ -113,7 +124,7 @@ class LogBookApp(BaseApp):
         self.frmEdit.pack(fill=tk.Y, side=tk.LEFT)
 
         # LogBook title label
-        self.lblBook = tk.Label(self.frmBook, width=20, 
+        self.lblBook = tk.Label(self.frmBook, width=21, 
             text='LogBook title', font='Helvetica 16 bold')
         self.lblBook.pack()
 
@@ -130,7 +141,7 @@ class LogBookApp(BaseApp):
         self.taskInput.build(self.frmBook)
 
         # Steps title label
-        self.lblTasks = tk.Label(self.frmTasks, width=40, 
+        self.lblTasks = tk.Label(self.frmTasks, width=38, 
             text='Steps table', font='Helvetica 16 bold')
         self.lblTasks.pack()
 
@@ -144,6 +155,10 @@ class LogBookApp(BaseApp):
         self.lblEdit = tk.Label(self.frmEdit, width=30, 
             text='Edition', font='Helvetica 16 bold')
         self.lblEdit.pack()
+
+        # Step editor
+        self.stepEditor.build(self.frmEdit)
+
 
 def configureLogging():
     """
@@ -160,7 +175,6 @@ def configureLogging():
             logging.StreamHandler()
         ])
     return logging.getLogger('LogBookApp')
-
 
 def main():
     """Main function. Runs the app."""
