@@ -61,7 +61,7 @@ class StepEditor():
         self.txtInput.bind("<<Modified>>", self.enableWidgets)
 
         # Buttons frame
-        frmButtons = tk.Frame(frmEdit)
+        frmButtons = ttk.Frame(frmEdit, padding=5)
         frmButtons.pack()
         
         # Save button
