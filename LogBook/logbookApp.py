@@ -13,6 +13,7 @@ import tkinter as tk
 from BaseApp import *
 from LogBook import *
 from LogBookTask import *
+from TaskList import *
 from TextInputBox import *
 from StepsTable import *
 from StepEditor import *
@@ -29,6 +30,7 @@ class LogBookApp(BaseApp):
         self.book = None
         self.task = None
         self.step = None
+        self.taskList = TaskList(self.onTaskSelection)
         self.taskInput = TextInputBox(self.addTask)
         self.stepInput = TextInputBox(self.addStep)
         self.stepsTable = StepsTable(self.onStepSelection)
@@ -46,14 +48,9 @@ class LogBookApp(BaseApp):
 
     def renderBook(self):
         """Update rendering for the current book."""
-        self.listTasks.delete(0, tk.END)
+        self.taskList.loadData(self.book)
         if self.book is not None:
             self.lblBook.configure(text = self.book.title)
-            idx = 1
-            task: LogBookTask
-            for task in self.book.tasks:
-                self.listTasks.insert(idx, task.title)
-                idx += 1
 
     def renderTask(self):
         """Update rendering for the current task."""
@@ -89,12 +86,9 @@ class LogBookApp(BaseApp):
             self.log.info('Skipping empty input')
 
     def onTaskSelection(self, evt):
-        """Task ListBox selection handling."""
-        if len(self.listTasks.curselection()) == 0:
-            return
-        index = int(self.listTasks.curselection()[0])
-        self.task = self.book.tasks[index]
-        self.log.info('Task selection: %d %s', index, self.task)
+        """TaskList selection handling."""
+        self.task = self.taskList.getSelection()
+        self.log.info('Task selection: %s', self.task)
         self.renderTask()
         self.stepsTable.loadData(self.task)
 
@@ -129,12 +123,7 @@ class LogBookApp(BaseApp):
         self.lblBook.pack()
 
         # Task Listbox widget
-        self.listTasks = tk.Listbox(self.frmBook, 
-            height = 30, width = 32, 
-            bg = "white", fg = "black",
-            activestyle = 'dotbox', font = "Helvetica")
-        self.listTasks.bind('<<ListboxSelect>>', self.onTaskSelection)
-        self.listTasks.pack()
+        self.taskList.build(self.frmBook)
         
         # Task input TextBox
         self.window.update()
