@@ -37,6 +37,9 @@ class TextInputBox():
         self.txtInput.bind("<<Modified>>", self.enableWidgets)
         
         # Add button
+        #icon = tk.PhotoImage(file = '/home/nicz/prog/icons/add.png') 
+        #self.btnAdd = tk.Button(parent, image=icon, command = self.cbkAdd)
+        #self.btnAdd.image = icon
         self.btnAdd = tk.Button(parent, text = 'Add', command = self.cbkAdd)
         self.btnAdd.pack(side=tk.LEFT)
 
