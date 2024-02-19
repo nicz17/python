@@ -10,6 +10,8 @@ __version__ = "1.0.0"
 
 import logging
 import tkinter as tk
+from tkinter import filedialog as fd
+from pathlib import Path
 from BaseApp import *
 from LogBook import *
 from LogBookTask import *
@@ -50,7 +52,7 @@ class LogBookApp(BaseApp):
         """Update rendering for the current book."""
         self.taskList.loadData(self.book)
         if self.book is not None:
-            self.lblBook.configure(text = self.book.title)
+            self.lblBook.configure(text = self.book.name)
 
     def renderTask(self):
         """Update rendering for the current task."""
@@ -103,12 +105,31 @@ class LogBookApp(BaseApp):
         self.stepEditor.loadData(self.step)
 
     def onStepSave(self):
+        """Step save callback."""
         if self.book is not None:
             self.book.save()
         #self.stepEditor.loadData(self.step)
         self.stepsTable.loadData(self.task)
 
+    def onOpenFile(self):
+        """Display dialog to open book from file."""
+        home = str(Path.home())
+        #dir = f'{home}/Documents/'
+        dir = './'
+        filename = fd.askopenfilename(
+            title='Open a LogBook',
+            initialdir=dir,
+            filetypes=[('LogBook files', '*.json')])
+        self.log.info('Loading %s', filename)
+        self.book = LogBook(os.path.basename(filename).replace('.json', ''))
+        self.stepEditor.loadData(None)
+        self.stepsTable.loadData(None)
+        self.renderBook()
+
     def createWidgets(self):
+        # Buttons
+        self.addButton('Open', self.onOpenFile)
+
         # Frames
         self.frmBook = tk.Frame(master=self.frmMain,  width=300, bg='#f0f0ff')
         self.frmBook.pack(fill=tk.Y, side=tk.LEFT)
