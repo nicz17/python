@@ -55,12 +55,14 @@ class LogBookTask:
     """A task with steps for the LogBook app."""
     log = logging.getLogger(__name__)
 
-    def __init__(self, title, steps = [], created = None):
+    def __init__(self, title, steps = None, created = None):
         """Constructor with title, steps, created timestamp."""
         self.title = title
         if created is None:
             created = time.time()
         self.created = created
+        if steps is None:
+            steps = []
         self.steps = steps
 
     def addStep(self, step: LogBookStep):
