@@ -8,6 +8,7 @@ __version__ = "1.0.0"
 
 import logging
 import os
+import TextTools
 from LogBook import *
 from LogBookTask import *
 from pathlib import Path
@@ -43,12 +44,14 @@ class Importer():
             if len(line) == 0 or line.startswith('--'):
                 continue
             if line.startswith('- '):
-                self.log.info('Step: %s', line[2:])
+                text = TextTools.upperCaseFirst(line[2:])
+                self.log.info('  Step: %s', text)
                 if task is not None:
-                    task.addStep(LogBookStep(line[2:]))
+                    task.addStep(LogBookStep(text))
             else:
-                self.log.info('Task: %s', line)
-                task = LogBookTask(line)
+                text = TextTools.upperCaseFirst(line)
+                self.log.info('Task: %s', text)
+                task = LogBookTask(text)
                 book.addTask(task)
         file.close()
 
@@ -59,7 +62,7 @@ class Importer():
 def testImporter():
     """Simple unit test."""
     home = str(Path.home())
-    filename = f'{home}/Documents/TodoList.txt'
+    filename = f'{home}/Documents/LogBook/TodoList.txt'
     importer = Importer()
     importer.importFromTextFile(filename)
 
