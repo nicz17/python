@@ -23,17 +23,17 @@ class StepsTable():
 
     def build(self, parent: tk.Frame):
         """Add the widgets to the parent frame."""
-        self.tree = ttk.Treeview(parent, height=26)
+        self.tree = ttk.Treeview(parent, height=32)
         self.tree['columns'] = ('status', 'text')
 
         self.tree.column('#0', width=0, stretch=tk.NO)
         self.tree.column('status', anchor=tk.W, width=60)
-        self.tree.column('text',   anchor=tk.W, width=400)
+        self.tree.column('text',   anchor=tk.W, width=440)
         self.tree.heading('#0', text='', anchor=tk.W)
         self.tree.heading('status', text='Status', anchor=tk.W)
         self.tree.heading('text',   text='Text',   anchor=tk.W)
         self.tree.bind('<<TreeviewSelect>>', self.cbkSelect)
-        self.tree.pack()
+        self.tree.pack(pady=5)
     
     def loadData(self, task: LogBookTask):
         """Add steps from the specified task to the table."""

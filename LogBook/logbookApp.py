@@ -130,12 +130,12 @@ class LogBookApp(BaseApp):
         self.addButton('Open', self.onOpenFile)
 
         # Frames
-        self.frmBook = tk.Frame(master=self.frmMain,  width=300, bg='#f0f0ff')
-        self.frmBook.pack(fill=tk.Y, side=tk.LEFT)
-        self.frmTasks = tk.Frame(master=self.frmMain, width=400, bg='#f0fff0')
-        self.frmTasks.pack(fill=tk.Y, side=tk.LEFT)
-        self.frmEdit = tk.Frame(master=self.frmMain,  width=300, bg='#fff0f0')
-        self.frmEdit.pack(fill=tk.Y, side=tk.LEFT)
+        self.frmBook = tk.Frame(master=self.frmMain,  width=300)#, bg='#f0f0ff')
+        self.frmBook.pack(fill=tk.Y, side=tk.LEFT, pady=5)
+        self.frmTasks = tk.Frame(master=self.frmMain, width=500)#, bg='#f0fff0')
+        self.frmTasks.pack(fill=tk.Y, side=tk.LEFT, padx=5, pady=5)
+        self.frmEdit = tk.Frame(master=self.frmMain,  width=300)#, bg='#fff0f0')
+        self.frmEdit.pack(fill=tk.Y, side=tk.LEFT, pady=5)
 
         # LogBook title label
         self.lblBook = tk.Label(self.frmBook, width=21, 

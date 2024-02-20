@@ -49,7 +49,7 @@ class StepEditor():
     def build(self, parent: tk.Frame):
         """Add the editor widgets to the parent widget."""
         frmEdit = ttk.LabelFrame(parent, text='Step Editor')
-        frmEdit.pack()
+        frmEdit.pack(side=tk.TOP, anchor=tk.N, fill=tk.X, expand=True, pady=5)
 
         # Status label
         self.lblStatus = tk.Label(frmEdit, text='Status')
@@ -70,7 +70,7 @@ class StepEditor():
         
         # Cancel button
         self.btnCancel = tk.Button(frmButtons, text = 'Cancel', command = self.onCancel)
-        self.btnCancel.pack(side=tk.LEFT)
+        self.btnCancel.pack(side=tk.LEFT, padx=5)
         
         # Done button
         self.btnDone = tk.Button(frmButtons, text = 'Done', command = self.onDone)
