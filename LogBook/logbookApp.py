@@ -11,7 +11,6 @@ __version__ = "1.0.0"
 import logging
 import tkinter as tk
 from tkinter import filedialog as fd
-from pathlib import Path
 from BaseApp import *
 from LogBook import *
 from LogBookTask import *
@@ -27,6 +26,7 @@ class LogBookApp(BaseApp):
 
     def __init__(self) -> None:
         """Constructor."""
+        LogBook.initDefaultDir()
         self.iHeight = 800
         self.iWidth  = 1300
         self.book = None
@@ -37,7 +37,6 @@ class LogBookApp(BaseApp):
         self.stepInput = TextInputBox(self.addStep)
         self.stepsTable = StepsTable(self.onStepSelection)
         self.stepEditor = StepEditor(self.onStepSave)
-
         geometry = f'{self.iWidth}x{self.iHeight}'
         super().__init__('LogBook', geometry)
         self.loadBook()
@@ -113,18 +112,18 @@ class LogBookApp(BaseApp):
 
     def onOpenFile(self):
         """Display dialog to open book from file."""
-        home = str(Path.home())
-        #dir = f'{home}/Documents/'
+        #dir = LogBook.dir
         dir = './'
         filename = fd.askopenfilename(
             title='Open a LogBook',
             initialdir=dir,
             filetypes=[('LogBook files', '*.json')])
-        self.log.info('Loading %s', filename)
-        self.book = LogBook(os.path.basename(filename).replace('.json', ''))
-        self.stepEditor.loadData(None)
-        self.stepsTable.loadData(None)
-        self.renderBook()
+        if filename:
+            self.log.info('Loading %s', filename)
+            self.book = LogBook(os.path.basename(filename).replace('.json', ''))
+            self.stepEditor.loadData(None)
+            self.stepsTable.loadData(None)
+            self.renderBook()
 
     def createWidgets(self):
         # Buttons
