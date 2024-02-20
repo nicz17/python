@@ -11,12 +11,14 @@ import os
 import time
 import json
 import DateTools
+from pathlib import Path
 from LogBookTask import *
 
 
 class LogBook():
     """A list of tasks and steps."""
     log = logging.getLogger('LogBook')
+    dir = None
 
     def __init__(self, name: str) -> None:
         """Constructor with name."""
@@ -80,3 +82,10 @@ class LogBook():
     def __str__(self):
         str = f'LogBook {self.name}'
         return str
+    
+    @staticmethod
+    def initDefaultDir():
+        """Set the default directory for LogBook files."""
+        home = str(Path.home())
+        LogBook.dir = f'{home}/Documents/LogBook/'
+        LogBook.log.info('Default directory: %s', LogBook.dir)
