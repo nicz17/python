@@ -31,7 +31,11 @@ class TaskList():
             idx = 1
             task: LogBookTask
             for task in self.book.tasks:
-                self.listTasks.insert(idx, task.title)
+                nActive = task.countActiveSteps()
+                text = task.title
+                if nActive > 0:
+                    text += f' ({nActive})'
+                self.listTasks.insert(idx, text)
                 idx += 1
 
     def getSelection(self) -> LogBookTask:
