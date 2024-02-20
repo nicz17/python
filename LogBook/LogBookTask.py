@@ -70,10 +70,18 @@ class LogBookTask:
         if step is not None:
             self.steps.append(step)
 
+    def countActiveSteps(self) -> int:
+        """Count the number of active steps in this task."""
+        nActive = 0
+        for step in self:
+            if step.status != Status.Done:
+                nActive += 1
+        return nActive
+
     def toJson(self):
         """Export this task as JSON."""
         dataSteps = []
-        for step in self.steps:
+        for step in self:
             dataSteps.append(step.toJson())
         data = {
             'title': self.title,
@@ -92,6 +100,12 @@ class LogBookTask:
         for dataStep in data.get('steps'):
             steps.append(LogBookStep.fromJson(dataStep))
         return LogBookTask(title, steps, created)
+    
+    def __iter__(self):
+        """Iterate on this task's steps."""
+        step: LogBookStep
+        for step in self.steps:
+            yield step
     
     def __str__(self):
         str = f'LogBookTask {self.title}'
