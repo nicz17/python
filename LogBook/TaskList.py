@@ -50,6 +50,6 @@ class TaskList():
         self.listTasks = tk.Listbox(parent, 
             height = 20, width = 32,
             bg = "white", fg = "black",
-            activestyle = 'dotbox', font = "Helvetica")
+            activestyle = 'dotbox')
         self.listTasks.bind('<<ListboxSelect>>', self.cbkSelect)
         self.listTasks.pack(fill=tk.Y, expand=True, pady=5)

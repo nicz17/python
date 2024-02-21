@@ -33,7 +33,7 @@ class StepEditor():
 
     def onSave(self):
         """Save changes to the edited object."""
-        textEdit = self.txtInput.get(1.0, tk.END).rstrip()
+        textEdit = self.txtInput.get(1.0, tk.END).strip()
         self.step.text = textEdit
         self.cbkSave()
 
@@ -53,11 +53,11 @@ class StepEditor():
 
         # Status label
         self.lblStatus = tk.Label(frmEdit, text='Status')
-        self.lblStatus.pack()
+        self.lblStatus.pack(anchor=tk.W)
 
         # Step TextBox
-        self.txtInput = tk.Text(frmEdit, height=3, width=42)
-        self.txtInput.pack()
+        self.txtInput = tk.Text(frmEdit, height=5, width=42)
+        self.txtInput.pack(fill=tk.X, expand=True, padx=3)
         self.txtInput.bind("<<Modified>>", self.enableWidgets)
 
         # Buttons frame
@@ -82,7 +82,7 @@ class StepEditor():
         """Check if the editor has any changes."""
         if self.step is None:
             return False
-        textEdit = self.txtInput.get(1.0, tk.END).rstrip()
+        textEdit = self.txtInput.get(1.0, tk.END).strip()
         if self.step.text != textEdit:
             return True
         return False
@@ -90,9 +90,10 @@ class StepEditor():
     def enableWidgets(self, evt = None):
         """Enable our internal widgets."""
         modified = self.hasChanges()
+        enableDone = self.step and self.step.status is not Status.Done
         self.enableButton(self.btnSave, modified)
         self.enableButton(self.btnCancel, modified)
-        self.enableButton(self.btnDone, self.step is not None)
+        self.enableButton(self.btnDone, enableDone)
         self.txtInput.edit_modified(False)
         
     def enableButton(self, btn: tk.Button, bEnabled: bool):
