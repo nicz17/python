@@ -52,6 +52,7 @@ class LogBookApp(BaseApp):
         self.taskList.loadData(self.book)
         if self.book is not None:
             self.lblBook.configure(text = self.book.name)
+            self.setStatus(f'Opened {self.book.getFilename()}')
 
     def renderTask(self):
         """Update rendering for the current task."""
@@ -85,10 +86,12 @@ class LogBookApp(BaseApp):
 
     def onTaskSelection(self, evt):
         """TaskList selection handling."""
-        self.task = self.taskList.getSelection()
-        self.log.info('Task selection: %s', self.task)
-        self.renderTask()
-        self.stepsTable.loadData(self.task)
+        sel = self.taskList.getSelection()
+        if sel:
+            self.task = sel
+            self.log.info('Task selection: %s', self.task)
+            self.renderTask()
+            self.stepsTable.loadData(self.task)
 
     def onStepSelection(self, evt):
         """Step table selection handling."""
