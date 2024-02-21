@@ -45,7 +45,7 @@ class LogBookApp(BaseApp):
     def loadBook(self):
         """Load the default logbook."""
         self.log.info('Loading the default logbook')
-        self.book = LogBook('TestBook')
+        self.book = LogBook('TodoList')
 
     def renderBook(self):
         """Update rendering for the current book."""
@@ -112,15 +112,13 @@ class LogBookApp(BaseApp):
 
     def onOpenFile(self):
         """Display dialog to open book from file."""
-        #dir = LogBook.dir
-        dir = './'
         filename = fd.askopenfilename(
-            title='Open a LogBook',
-            initialdir=dir,
-            filetypes=[('LogBook files', '*.json')])
+            title = 'Open a LogBook',
+            initialdir = LogBook.dir,
+            filetypes = [('LogBook files', '*.logbook')])
         if filename:
             self.log.info('Loading %s', filename)
-            self.book = LogBook(os.path.basename(filename).replace('.json', ''))
+            self.book = LogBook(os.path.basename(filename).replace('.logbook', ''))
             self.stepEditor.loadData(None)
             self.stepsTable.loadData(None)
             self.renderBook()

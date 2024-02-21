@@ -61,8 +61,8 @@ class Importer():
 
 def testImporter():
     """Simple unit test."""
-    home = str(Path.home())
-    filename = f'{home}/Documents/LogBook/TodoList.txt'
+    LogBook.initDefaultDir()
+    filename = f'{LogBook.dir}ImportTest.txt'
     importer = Importer()
     importer.importFromTextFile(filename)
 

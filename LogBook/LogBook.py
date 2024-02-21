@@ -36,7 +36,7 @@ class LogBook():
 
     def load(self):
         """Load from a JSON file or create new if no file."""
-        filename = f'{self.name}.json'
+        filename = self.getFilename()
         if os.path.exists(filename):
             self.log.info('Loading from %s', filename)
             self.fromJson()
@@ -46,11 +46,15 @@ class LogBook():
 
     def save(self):
         """Save this LogBook as a JSON file."""
-        filename = f'{self.name}.json'
+        filename = self.getFilename()
         self.log.info('Saving as %s', filename)
         file = open(filename, 'w')
         file.write(json.dumps(self.toJson(), indent=2))
         file.close()
+
+    def getFilename(self):
+        """Get this book's file name."""
+        return f'{LogBook.dir}{self.name}.logbook'
 
     def toJson(self):
         """Export this LogBook as JSON."""
@@ -58,6 +62,8 @@ class LogBook():
         for task in self.tasks:
             dataTasks.append(task.toJson())
         data = {
+            'class': type(self).__name__,
+            'version': __version__,
             'name': self.name,
             'title': self.title,
             'created': DateTools.timestampToString(self.created),
@@ -67,14 +73,13 @@ class LogBook():
 
     def fromJson(self):
         """Load data from a JSON file."""
-        filename = f'{self.name}.json'
+        filename = self.getFilename()
         file = open(filename, 'r')
         data = json.load(file)
         file.close()
 
         self.title = data.get('title')
         self.created = DateTools.stringToTimestamp(data.get('created'))
-        #self.tasks = data.get('tasks')
         for dataTask in data.get('tasks'):
             self.tasks.append(LogBookTask.fromJson(dataTask))
         self.log.info('Loaded from JSON with title %s', self.title)
