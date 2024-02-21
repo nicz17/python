@@ -11,7 +11,6 @@ import os
 import TextTools
 from LogBook import *
 from LogBookTask import *
-from pathlib import Path
 
 
 class Importer():
@@ -26,7 +25,7 @@ class Importer():
         """Import a LogBook from a text file."""
         self.log.info('Importing from %s', filename)
 
-        # Check file exists
+        # Check input file exists
         if not os.path.exists(filename):
             self.log.error('File does not exist: %s', filename)
             return
@@ -45,9 +44,13 @@ class Importer():
                 continue
             if line.startswith('- '):
                 text = TextTools.upperCaseFirst(line[2:])
+                status = None
+                if text.startswith('DONE '):
+                    status = Status.Done
+                    text = TextTools.upperCaseFirst(text.replace('DONE ', ''))
                 self.log.info('  Step: %s', text)
                 if task is not None:
-                    task.addStep(LogBookStep(text))
+                    task.addStep(LogBookStep(text, status))
             else:
                 text = TextTools.upperCaseFirst(line)
                 self.log.info('Task: %s', text)
@@ -56,6 +59,9 @@ class Importer():
         file.close()
 
         # Save LogBook
+        if os.path.exists(book.getFilename()):
+            self.log.info('Replacing existing file')
+            os.remove(book.getFilename())
         book.save()
 
 
