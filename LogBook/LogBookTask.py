@@ -13,9 +13,9 @@ from enum import Enum
 
 class Status(Enum):
     """Enumeration of step status."""
-    Idle = 0
+    Todo = 0
     Done = 1
-    Cancelled = 2
+    Idle = 2
 
     def __str__(self):
         return self.name
@@ -28,7 +28,7 @@ class LogBookStep:
         """Constructor with text, status."""
         self.text = text
         if status is None:
-            status = Status.Idle
+            status = Status.Todo
         self.status = status
 
     def toJson(self):
