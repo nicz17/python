@@ -21,7 +21,13 @@ class TextInputBox():
 
     def getContent(self) -> str:
         """Get the text input content."""
-        return self.txtInput.get(1.0, tk.END).rstrip()
+        return self.txtInput.get(1.0, tk.END).strip()
+    
+    def onReturnKey(self, evt = None):
+        """Callback for text widget Return key press."""
+        content = self.getContent()
+        if content and len(content) > 0:
+            self.cbkAdd(content)
 
     def build(self, parent: tk.Frame):
         """Add the widgets to the parent frame."""
@@ -35,12 +41,13 @@ class TextInputBox():
         self.txtInput = tk.Text(parent, height=1, width=10) 
         self.txtInput.pack(fill=tk.X, expand=True, side=tk.LEFT)
         self.txtInput.bind("<<Modified>>", self.enableWidgets)
+        self.txtInput.bind("<Return>", self.onReturnKey)
         
         # Add button
         #icon = tk.PhotoImage(file = '/home/nicz/prog/icons/add.png') 
         #self.btnAdd = tk.Button(parent, image=icon, command = self.cbkAdd)
         #self.btnAdd.image = icon
-        self.btnAdd = tk.Button(parent, text = 'Add', command = self.cbkAdd)
+        self.btnAdd = tk.Button(parent, text = 'Add', command = self.onReturnKey)
         self.btnAdd.pack(side=tk.LEFT, padx=3)
 
         self.enableWidgets()

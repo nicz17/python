@@ -60,10 +60,9 @@ class LogBookApp(BaseApp):
         else:
             self.lblTasks.configure(text = self.task.title)
 
-    def addTask(self):
+    def addTask(self, input: str):
         """Add a task from text input widget."""
         self.log.info('Adding task from user input')
-        input = self.taskInput.getContent()
         self.log.info('Task is %s', input)
         if self.book is not None and input is not None and len(input) > 0:
             self.book.addTask(LogBookTask(input))
@@ -73,11 +72,9 @@ class LogBookApp(BaseApp):
         else:
             self.log.info('Skipping empty input')
 
-    def addStep(self):
+    def addStep(self, input: str):
         """Add a step from text input widget."""
-        self.log.info('Adding step from user input')
-        input = self.stepInput.getContent()
-        self.log.info('Step is %s', input)
+        self.log.info('Adding Step %s', input)
         if self.task is not None and input is not None and len(input) > 0:
             self.task.addStep(LogBookStep(input))
             self.book.save()
