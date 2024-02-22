@@ -34,6 +34,10 @@ class LogBook():
         if task is not None:
             self.tasks.append(task)
 
+    def clear(self):
+        """Remove all tasks from this book."""
+        self.tasks = []
+
     def load(self):
         """Load from a JSON file or create new if no file."""
         filename = self.getFilename()
