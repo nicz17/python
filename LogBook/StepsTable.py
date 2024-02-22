@@ -33,6 +33,8 @@ class StepsTable():
         self.tree.heading('status', text='Status', anchor=tk.W)
         self.tree.heading('text',   text='Text',   anchor=tk.W)
         self.tree.bind('<<TreeviewSelect>>', self.cbkSelect)
+        self.tree.tag_configure('step-done', background='#e0ffe0')
+        self.tree.tag_configure('step-todo', background='#fffff0')
         self.tree.pack(pady=5)
     
     def loadData(self, task: LogBookTask):
@@ -44,9 +46,12 @@ class StepsTable():
         
         idx = 0
         step: LogBookStep
-        for step in sorted(task.steps):
+        for step in task.steps:
+            tag = 'step-todo'
+            if step.status == Status.Done:
+                tag = 'step-done'
             self.tree.insert(parent='', index='end', iid=idx, text='',
-                values=(step.status.name, step.text))
+                values=(step.status.name, step.text), tags=(tag,))
             idx += 1
 
     def getSelection(self) -> int:
