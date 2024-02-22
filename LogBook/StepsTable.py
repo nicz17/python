@@ -44,7 +44,7 @@ class StepsTable():
         
         idx = 0
         step: LogBookStep
-        for step in task.steps:
+        for step in sorted(task.steps):
             self.tree.insert(parent='', index='end', iid=idx, text='',
                 values=(step.status.name, step.text))
             idx += 1

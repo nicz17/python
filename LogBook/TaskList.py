@@ -8,7 +8,6 @@ __version__ = "1.0.0"
 
 import logging
 import tkinter as tk
-from tkinter import ttk
 from LogBook import *
 from LogBookTask import *
 
@@ -30,7 +29,7 @@ class TaskList():
         if book is not None:
             idx = 1
             task: LogBookTask
-            for task in self.book.tasks:
+            for task in sorted(self.book.tasks):
                 nActive = task.countActiveSteps()
                 text = task.title
                 if nActive > 0:
