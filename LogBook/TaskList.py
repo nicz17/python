@@ -29,7 +29,7 @@ class TaskList():
         if book is not None:
             idx = 1
             task: LogBookTask
-            for task in sorted(self.book.tasks):
+            for task in self.book.tasks:
                 nActive = task.countActiveSteps()
                 text = task.title
                 if nActive > 0:

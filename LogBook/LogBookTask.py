@@ -102,11 +102,10 @@ class LogBookTask:
         """Load data from a JSON object."""
         title = data.get('title')
         created = DateTools.stringToTimestamp(data.get('created'))
-        #steps = data.get('steps')
         steps = []
         for dataStep in data.get('steps'):
             steps.append(LogBookStep.fromJson(dataStep))
-        return LogBookTask(title, steps, created)
+        return LogBookTask(title, sorted(steps), created)
     
     def __iter__(self):
         """Iterate on this task's steps."""

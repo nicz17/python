@@ -46,7 +46,7 @@ class LogBook():
             self.fromJson()
         else:
             self.log.info('Creating new %s', self)
-            self.toJson()
+            self.save()
 
     def save(self):
         """Save this LogBook as a JSON file."""
@@ -86,6 +86,7 @@ class LogBook():
         self.created = DateTools.stringToTimestamp(data.get('created'))
         for dataTask in data.get('tasks'):
             self.tasks.append(LogBookTask.fromJson(dataTask))
+        self.tasks = sorted(self.tasks)
         self.log.info('Loaded from JSON with title %s', self.title)
 
     def __str__(self):
