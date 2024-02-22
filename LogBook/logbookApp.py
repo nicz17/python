@@ -18,6 +18,7 @@ from TaskList import *
 from TextInputBox import *
 from StepsTable import *
 from StepEditor import *
+from Importer import *
 
 
 class LogBookApp(BaseApp):
@@ -123,9 +124,25 @@ class LogBookApp(BaseApp):
             self.stepsTable.loadData(None)
             self.renderBook()
 
+    def onImportFile(self):
+        """Display dialog to import book from text file."""
+        filename = fd.askopenfilename(
+            title = 'Import from text file',
+            initialdir = LogBook.dir,
+            filetypes = [('Text files', '*.txt')])
+        if filename:
+            self.log.info('Importing %s', filename)
+            importer = Importer()
+            self.book = importer.importFromTextFile(filename)
+            self.stepEditor.loadData(None)
+            self.stepsTable.loadData(None)
+            self.renderBook()
+
+
     def createWidgets(self):
         # Buttons
-        self.addButton('Open', self.onOpenFile)
+        self.addButton('Open',   self.onOpenFile)
+        self.addButton('Import', self.onImportFile)
 
         # Frames
         self.frmBook = tk.Frame(master=self.frmMain,  width=300)#, bg='#f0f0ff')
