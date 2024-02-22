@@ -14,8 +14,8 @@ from enum import Enum
 class Status(Enum):
     """Enumeration of step status."""
     Todo = 0
-    Done = 1
-    Idle = 2
+    Idle = 1
+    Done = 2
 
     def __str__(self):
         return self.name
@@ -45,6 +45,13 @@ class LogBookStep:
         text = data.get('text')
         status = Status[data.get('status')]
         return LogBookStep(text, status)
+    
+    def __lt__(self, other):
+        if not isinstance(other, LogBookStep):
+            return NotImplemented
+        if self.status.value == other.status.value:
+            return self.text < other.text
+        return self.status.value > other.status.value
     
     def __str__(self):
         str = f'LogBookStep {self.text} {self.status}'
@@ -106,6 +113,11 @@ class LogBookTask:
         step: LogBookStep
         for step in self.steps:
             yield step
+    
+    def __lt__(self, other):
+        if not isinstance(other, LogBookTask):
+            return NotImplemented
+        return self.created < other.created
     
     def __str__(self):
         str = f'LogBookTask {self.title}'
