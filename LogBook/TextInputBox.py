@@ -8,6 +8,7 @@ __version__ = "1.0.0"
 
 import logging
 import tkinter as tk
+import TextTools
 
 
 class TextInputBox():
@@ -27,6 +28,7 @@ class TextInputBox():
         """Callback for text widget Return key press."""
         content = self.getContent()
         if content and len(content) > 0:
+            content = TextTools.upperCaseFirst(content)
             self.cbkAdd(content)
 
     def build(self, parent: tk.Frame):
