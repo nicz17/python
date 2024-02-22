@@ -21,19 +21,20 @@ class Importer():
         """Constructor"""
         self.log.info('Constructor')
     
-    def importFromTextFile(self, filename: str):
+    def importFromTextFile(self, filename: str) -> LogBook:
         """Import a LogBook from a text file."""
         self.log.info('Importing from %s', filename)
 
         # Check input file exists
         if not os.path.exists(filename):
             self.log.error('File does not exist: %s', filename)
-            return
+            return None
         
         # Create LogBook
         name = os.path.basename(filename).replace('.txt', '')
         book = LogBook(name)
         book.title = f'Imported from {filename}'
+        book.clear()
         task = None
         
         # Read file
@@ -63,6 +64,7 @@ class Importer():
             self.log.info('Replacing existing file')
             os.remove(book.getFilename())
         book.save()
+        return book
 
 
 def testImporter():
