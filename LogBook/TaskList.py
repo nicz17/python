@@ -30,11 +30,14 @@ class TaskList():
             idx = 1
             task: LogBookTask
             for task in self.book.tasks:
+                bgcolor = '#e0ffe0'
                 nActive = task.countActiveSteps()
                 text = task.title
                 if nActive > 0:
                     text += f' ({nActive})'
+                    bgcolor = '#ffffe0'
                 self.listTasks.insert(idx, text)
+                self.listTasks.itemconfig(tk.END, {'bg': bgcolor})
                 idx += 1
 
     def getSelection(self) -> LogBookTask:
@@ -48,7 +51,6 @@ class TaskList():
         """Add the widgets to the parent frame."""
         self.listTasks = tk.Listbox(parent, 
             height = 20, width = 32,
-            bg = "white", fg = "black",
-            activestyle = 'dotbox')
+            bg = "white", fg = "black")
         self.listTasks.bind('<<ListboxSelect>>', self.cbkSelect)
         self.listTasks.pack(fill=tk.Y, expand=True, pady=5)
