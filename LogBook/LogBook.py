@@ -70,7 +70,7 @@ class LogBook():
     def toJson(self):
         """Export this LogBook as JSON."""
         dataTasks = []
-        for task in self.tasks:
+        for task in self:
             dataTasks.append(task.toJson())
         data = {
             'class': type(self).__name__,
