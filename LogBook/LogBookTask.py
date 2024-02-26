@@ -84,6 +84,10 @@ class LogBookTask:
             if step.status != Status.Done:
                 nActive += 1
         return nActive
+    
+    def sort(self):
+        """Sort the steps in this task."""
+        self.steps = sorted(self.steps)
 
     def toJson(self):
         """Export this task as JSON."""

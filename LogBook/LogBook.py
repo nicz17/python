@@ -50,6 +50,7 @@ class LogBook():
 
     def save(self):
         """Save this LogBook as a JSON file."""
+        self.sort()
         filename = self.getFilename()
         self.log.info('Saving as %s', filename)
         file = open(filename, 'w')
@@ -59,6 +60,12 @@ class LogBook():
     def getFilename(self):
         """Get this book's file name."""
         return f'{LogBook.dir}{self.name}.logbook'
+    
+    def sort(self):
+        """Sort the tasks and steps in this book."""
+        self.tasks = sorted(self.tasks)
+        for task in self:
+            task.sort()
 
     def toJson(self):
         """Export this LogBook as JSON."""
@@ -88,6 +95,12 @@ class LogBook():
             self.tasks.append(LogBookTask.fromJson(dataTask))
         self.tasks = sorted(self.tasks)
         self.log.info('Loaded from JSON with title %s', self.title)
+
+    def __iter__(self):
+        """Iterate over the tasks in this book."""
+        task: LogBookTask
+        for task in self.tasks:
+            yield task
 
     def __str__(self):
         str = f'LogBook {self.name}'
