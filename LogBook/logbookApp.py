@@ -109,13 +109,15 @@ class LogBookApp(BaseApp):
 
     def onTaskSave(self):
         """Task save callback."""
-        pass
+        if self.book is not None:
+            self.book.save()
+            self.renderBook()
+        self.taskEditor.loadData(self.task)
 
     def onStepSave(self):
         """Step save callback."""
         if self.book is not None:
             self.book.save()
-        #self.stepEditor.loadData(self.step)
         self.stepsTable.loadData(self.task)
 
     def onOpenFile(self):
