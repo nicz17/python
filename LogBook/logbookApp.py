@@ -18,6 +18,7 @@ from TaskList import *
 from TextInputBox import *
 from StepsTable import *
 from StepEditor import *
+from TaskEditor import *
 from Importer import *
 
 
@@ -38,6 +39,7 @@ class LogBookApp(BaseApp):
         self.stepInput = TextInputBox(self.addStep)
         self.stepsTable = StepsTable(self.onStepSelection)
         self.stepEditor = StepEditor(self.onStepSave)
+        self.taskEditor = TaskEditor(self.onTaskSave)
         geometry = f'{self.iWidth}x{self.iHeight}'
         super().__init__('LogBook', geometry)
         self.loadBook()
@@ -93,6 +95,7 @@ class LogBookApp(BaseApp):
             self.log.info('Task selection: %s', self.task)
             self.renderTask()
             self.stepsTable.loadData(self.task)
+            self.taskEditor.loadData(self.task)
 
     def onStepSelection(self, evt):
         """Step table selection handling."""
@@ -103,6 +106,10 @@ class LogBookApp(BaseApp):
             self.step = self.task.steps[idx]
         self.log.info('Step selection: %s', self.step)
         self.stepEditor.loadData(self.step)
+
+    def onTaskSave(self):
+        """Task save callback."""
+        pass
 
     def onStepSave(self):
         """Step save callback."""
@@ -179,6 +186,9 @@ class LogBookApp(BaseApp):
         self.lblEdit = tk.Label(self.frmEdit, width=30, 
             text='Edition', font='Helvetica 16 bold')
         self.lblEdit.pack()
+
+        # Task editor
+        self.taskEditor.build(self.frmEdit)
 
         # Step editor
         self.stepEditor.build(self.frmEdit)
