@@ -16,6 +16,7 @@ class Status(Enum):
     Todo = 0
     Idle = 1
     Done = 2
+    Fail = 3
 
     def __str__(self):
         return self.name
@@ -62,7 +63,7 @@ class LogBookTask:
     """A task with steps for the LogBook app."""
     log = logging.getLogger(__name__)
 
-    def __init__(self, title, steps = None, created = None):
+    def __init__(self, title, steps = None, created = None, status = None):
         """Constructor with title, steps, created timestamp."""
         self.title = title
         if created is None:
@@ -71,6 +72,9 @@ class LogBookTask:
         if steps is None:
             steps = []
         self.steps = steps
+        if status is None:
+            status = Status.Todo
+        self.status = status
 
     def addStep(self, step: LogBookStep):
         """Add a step to this task."""
@@ -97,6 +101,7 @@ class LogBookTask:
         data = {
             'title': self.title,
             'created': DateTools.timestampToString(self.created),
+            'status': self.status.name,
             'steps': dataSteps
         }
         return data
@@ -107,9 +112,12 @@ class LogBookTask:
         title = data.get('title')
         created = DateTools.stringToTimestamp(data.get('created'))
         steps = []
+        status = None
+        if 'status' in data:
+            status = Status[data.get('status')]
         for dataStep in data.get('steps'):
             steps.append(LogBookStep.fromJson(dataStep))
-        return LogBookTask(title, sorted(steps), created)
+        return LogBookTask(title, sorted(steps), created, status)
     
     def __iter__(self):
         """Iterate on this task's steps."""
@@ -118,9 +126,12 @@ class LogBookTask:
             yield step
     
     def __lt__(self, other):
+        """Sort by status and creation date"""
         if not isinstance(other, LogBookTask):
             return NotImplemented
-        return self.created < other.created
+        if self.status.value == other.status.value:
+            return self.created < other.created
+        return self.status.value > other.status.value
     
     def __str__(self):
         str = f'LogBookTask {self.title}'
