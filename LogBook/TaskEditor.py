@@ -33,7 +33,7 @@ class TaskEditor():
             sCreated = DateTools.timestampToString(task.created)
             self.txtInput.insert(1.0, self.task.title)
             self.lblCreated.configure(text = f'Created: {sCreated}')
-            #self.lblStatus.configure(text = f'Status: {task.status.name}')
+            self.lblStatus.configure(text = f'Status: {task.status.name}')
 
     def onSave(self):
         """Save changes to the edited object."""
@@ -64,6 +64,7 @@ class TaskEditor():
         self.lblStatus.pack(anchor=tk.W)
 
         # Task TextBox
+        tk.Label(frmEdit, text='Title:').pack(anchor=tk.W)
         self.txtInput = tk.Text(frmEdit, height=2, width=42)
         self.txtInput.pack(fill=tk.X, expand=True, padx=3)
         self.txtInput.bind("<<Modified>>", self.enableWidgets)
@@ -98,8 +99,7 @@ class TaskEditor():
     def enableWidgets(self, evt = None):
         """Enable our internal widgets."""
         modified = self.hasChanges()
-        #enableDone = self.task and self.task.status is not Status.Done
-        enableDone = False
+        enableDone = self.task and self.task.status is not Status.Done
         self.enableButton(self.btnSave, modified)
         self.enableButton(self.btnCancel, modified)
         self.enableButton(self.btnDone, enableDone)

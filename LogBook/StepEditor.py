@@ -29,7 +29,7 @@ class StepEditor():
         self.lblStatus.configure(text = '')
         if step is not None:
             self.txtInput.insert(1.0, self.step.text)
-            self.lblStatus.configure(text = step.status.name)
+            self.lblStatus.configure(text = f'Status: {step.status.name}')
 
     def onSave(self):
         """Save changes to the edited object."""
@@ -56,6 +56,7 @@ class StepEditor():
         self.lblStatus.pack(anchor=tk.W)
 
         # Step TextBox
+        tk.Label(frmEdit, text='Text:').pack(anchor=tk.W)
         self.txtInput = tk.Text(frmEdit, height=5, width=42)
         self.txtInput.pack(fill=tk.X, expand=True, padx=3)
         self.txtInput.bind("<<Modified>>", self.enableWidgets)
