@@ -20,6 +20,7 @@ from StepsTable import *
 from StepEditor import *
 from TaskEditor import *
 from Importer import *
+from Exporter import *
 
 
 class LogBookApp(BaseApp):
@@ -147,11 +148,23 @@ class LogBookApp(BaseApp):
             self.stepsTable.loadData(None)
             self.renderBook()
 
+    def onExportFile(self):
+        """Display dialog to export book to text file."""
+        filename = fd.asksaveasfilename(
+            title = 'Export to text file',
+            initialdir = LogBook.dir,
+            filetypes = [('Text files', '*.txt')])
+        if filename and self.book:
+            self.log.info('Exporting to %s', filename)
+            exporter = Exporter()
+            exporter.exportToTextFile(self.book, filename)
+
 
     def createWidgets(self):
         # Buttons
         self.addButton('Open',   self.onOpenFile)
         self.addButton('Import', self.onImportFile)
+        self.addButton('Export', self.onExportFile)
 
         # Frames
         self.frmBook = tk.Frame(master=self.frmMain,  width=300)#, bg='#f0f0ff')
