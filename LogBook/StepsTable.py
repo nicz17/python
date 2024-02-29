@@ -33,8 +33,8 @@ class StepsTable():
         self.tree.heading('status', text='Status', anchor=tk.W)
         self.tree.heading('text',   text='Text',   anchor=tk.W)
         self.tree.bind('<<TreeviewSelect>>', self.cbkSelect)
-        self.tree.tag_configure('step-done', background='#e0ffe0')
-        self.tree.tag_configure('step-todo', background='#ffffe0')
+        self.tree.tag_configure('step-done', background=Status.Done.getColor())
+        self.tree.tag_configure('step-todo', background=Status.Todo.getColor())
         self.tree.pack(pady=5)
     
     def loadData(self, task: LogBookTask):

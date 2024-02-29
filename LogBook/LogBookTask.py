@@ -18,6 +18,15 @@ class Status(Enum):
     Done = 2
     Fail = 3
 
+    def getColor(self):
+        """Get the hex color code for the status."""
+        color = '#ffffd0'
+        if self == Status.Done:
+            color = '#d0ffd0'
+        if self == Status.Fail:
+            color = '#ffd0d0'
+        return color
+
     def __str__(self):
         return self.name
     
@@ -80,6 +89,7 @@ class LogBookTask:
         """Add a step to this task."""
         if step is not None:
             self.steps.append(step)
+            self.updateStatus()
 
     def countActiveSteps(self) -> int:
         """Count the number of active steps in this task."""
@@ -88,6 +98,20 @@ class LogBookTask:
             if step.status != Status.Done:
                 nActive += 1
         return nActive
+    
+    def updateStatus(self):
+        """Update task status based on steps status."""
+        isDone = True
+        for step in self:
+            if step.status != Status.Done:
+                isDone = False
+            if step.status == Status.Fail:
+                self.status = Status.Fail
+                return
+        if len(self.steps) > 0 and isDone:
+            self.status = Status.Done
+        else:
+            self.status = Status.Todo
     
     def sort(self):
         """Sort the steps in this task."""

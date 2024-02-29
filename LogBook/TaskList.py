@@ -30,14 +30,12 @@ class TaskList():
             idx = 1
             task: LogBookTask
             for task in self.book.tasks:
-                bgcolor = '#e0ffe0'
                 nActive = task.countActiveSteps()
                 text = task.title
                 if nActive > 0:
                     text += f' ({nActive})'
-                    bgcolor = '#ffffe0'
                 self.listTasks.insert(idx, text)
-                self.listTasks.itemconfig(tk.END, {'bg': bgcolor})
+                self.listTasks.itemconfig(tk.END, {'bg': task.status.getColor()})
                 idx += 1
 
     def getSelection(self) -> LogBookTask:
