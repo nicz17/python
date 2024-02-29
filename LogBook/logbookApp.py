@@ -50,13 +50,19 @@ class LogBookApp(BaseApp):
         """Load the default logbook."""
         self.log.info('Loading the default logbook')
         self.book = LogBook('TodoList')
+        self.setStatus(f'Opened {self.book.getFilename()}')
 
     def renderBook(self):
         """Update rendering for the current book."""
         self.taskList.loadData(self.book)
         if self.book is not None:
             self.lblBook.configure(text = self.book.name)
-            self.setStatus(f'Opened {self.book.getFilename()}')
+
+    def saveBook(self):
+        """Save the current book."""
+        if self.book is not None:
+            self.book.save()
+            self.setStatus(f'Saved {self.book.getFilename()}')
 
     def renderTask(self):
         """Update rendering for the current task."""
@@ -71,7 +77,7 @@ class LogBookApp(BaseApp):
         self.log.info('Task is %s', input)
         if self.book is not None and input is not None and len(input) > 0:
             self.book.addTask(LogBookTask(input))
-            self.book.save()
+            self.saveBook()
             self.taskInput.clear()
             self.renderBook()
         else:
@@ -82,7 +88,7 @@ class LogBookApp(BaseApp):
         self.log.info('Adding Step %s', input)
         if self.task is not None and input is not None and len(input) > 0:
             self.task.addStep(LogBookStep(input))
-            self.book.save()
+            self.saveBook()
             self.stepInput.clear()
             self.stepsTable.loadData(self.task)
         else:
@@ -111,14 +117,14 @@ class LogBookApp(BaseApp):
     def onTaskSave(self):
         """Task save callback."""
         if self.book is not None:
-            self.book.save()
+            self.saveBook()
             self.renderBook()
         self.taskEditor.loadData(self.task)
 
     def onStepSave(self):
         """Step save callback."""
         if self.book is not None:
-            self.book.save()
+            self.saveBook()
         self.stepsTable.loadData(self.task)
 
     def onOpenFile(self):
@@ -133,11 +139,13 @@ class LogBookApp(BaseApp):
             self.stepEditor.loadData(None)
             self.stepsTable.loadData(None)
             self.renderBook()
+            self.setStatus(f'Opened {self.book.getFilename()}')
 
     def onRefresh(self):
         """Refresh current display."""
         if self.book is not None:
             self.renderBook()
+            self.setStatus(f'Refreshed {self.book.getFilename()}')
 
     def onImportFile(self):
         """Display dialog to import book from text file."""
@@ -152,6 +160,7 @@ class LogBookApp(BaseApp):
             self.stepEditor.loadData(None)
             self.stepsTable.loadData(None)
             self.renderBook()
+            self.setStatus(f'Imported {self.book.getFilename()}')
 
     def onExportFile(self):
         """Display dialog to export book to text file."""
@@ -163,7 +172,7 @@ class LogBookApp(BaseApp):
             self.log.info('Exporting to %s', filename)
             exporter = Exporter()
             exporter.exportToTextFile(self.book, filename)
-
+            self.setStatus(f'Exported to {filename}')
 
     def createWidgets(self):
         # Buttons
@@ -174,11 +183,11 @@ class LogBookApp(BaseApp):
 
         # Frames
         self.frmBook = tk.Frame(master=self.frmMain,  width=300)#, bg='#f0f0ff')
-        self.frmBook.pack(fill=tk.Y, side=tk.LEFT, pady=5)
+        self.frmBook.pack(fill=tk.Y, side=tk.LEFT,  pady=5)
         self.frmTasks = tk.Frame(master=self.frmMain, width=500)#, bg='#f0fff0')
         self.frmTasks.pack(fill=tk.Y, side=tk.LEFT, padx=5, pady=5)
         self.frmEdit = tk.Frame(master=self.frmMain,  width=300)#, bg='#fff0f0')
-        self.frmEdit.pack(fill=tk.Y, side=tk.LEFT, pady=5)
+        self.frmEdit.pack(fill=tk.Y, side=tk.LEFT,  padx=5, pady=5)
 
         # LogBook title label
         self.lblBook = tk.Label(self.frmBook, width=21, 
