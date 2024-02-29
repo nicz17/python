@@ -123,6 +123,8 @@ class LogBookApp(BaseApp):
 
     def onStepSave(self):
         """Step save callback."""
+        if self.task is not None:
+            self.task.updateStatus()
         if self.book is not None:
             self.saveBook()
         self.stepsTable.loadData(self.task)

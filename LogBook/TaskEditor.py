@@ -82,8 +82,8 @@ class TaskEditor():
         self.btnCancel.pack(side=tk.LEFT, padx=5)
         
         # Done button
-        self.btnDone = tk.Button(frmButtons, text = 'Done', command = self.onDone)
-        self.btnDone.pack(side=tk.LEFT)
+        #self.btnDone = tk.Button(frmButtons, text = 'Done', command = self.onDone)
+        #self.btnDone.pack(side=tk.LEFT)
 
         self.enableWidgets()
 
@@ -102,7 +102,7 @@ class TaskEditor():
         enableDone = self.task and self.task.status is not Status.Done
         self.enableButton(self.btnSave, modified)
         self.enableButton(self.btnCancel, modified)
-        self.enableButton(self.btnDone, enableDone)
+        #self.enableButton(self.btnDone, enableDone)
         self.txtInput.edit_modified(False)
         
     def enableButton(self, btn: tk.Button, bEnabled: bool):
