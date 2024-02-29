@@ -134,6 +134,11 @@ class LogBookApp(BaseApp):
             self.stepsTable.loadData(None)
             self.renderBook()
 
+    def onRefresh(self):
+        """Refresh current display."""
+        if self.book is not None:
+            self.renderBook()
+
     def onImportFile(self):
         """Display dialog to import book from text file."""
         filename = fd.askopenfilename(
@@ -162,9 +167,10 @@ class LogBookApp(BaseApp):
 
     def createWidgets(self):
         # Buttons
-        self.addButton('Open',   self.onOpenFile)
-        self.addButton('Import', self.onImportFile)
-        self.addButton('Export', self.onExportFile)
+        self.addButton('Open',    self.onOpenFile)
+        self.addButton('Refresh', self.onRefresh)
+        self.addButton('Import',  self.onImportFile)
+        self.addButton('Export',  self.onExportFile)
 
         # Frames
         self.frmBook = tk.Frame(master=self.frmMain,  width=300)#, bg='#f0f0ff')
