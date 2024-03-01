@@ -34,6 +34,11 @@ class LogBook():
         if task is not None:
             self.tasks.append(task)
 
+    def removeTask(self, task: LogBookTask):
+        """Removes the specified task from this LogBook."""
+        if task is not None and task in self.tasks:
+            self.tasks.remove(task)
+
     def clear(self):
         """Remove all tasks from this book."""
         self.tasks = []
