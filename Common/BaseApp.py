@@ -22,6 +22,7 @@ class BaseApp:
         self.createFrames()
         self.createBaseWidgets()
         self.createWidgets()
+        self.createBaseButtons()
         self.displayData()
 
     def run(self):
@@ -33,13 +34,14 @@ class BaseApp:
         pass
 
     def createBaseWidgets(self):
-        """Create base widgets"""
-
-        self.btnExit  = self.addButton('Exit',  self.close)
-        self.btnAbout = self.addButton('About', self.showAboutMsg)
-
+        """Create base widgets: status label."""
         self.lblStatus = tk.Label(master=self.frmBottom)
         self.lblStatus.pack(fill=tk.X, side=tk.LEFT) 
+
+    def createBaseButtons(self):
+        """Create base buttons: About, Exit."""
+        self.btnAbout = self.addButton('About', self.showAboutMsg)
+        self.btnExit  = self.addButton('Exit',  self.close)
 
     def createFrames(self):
         """Create basic frames for the widgets"""
@@ -91,3 +93,11 @@ class BaseApp:
     def showErrorMsg(self, msg: str):
         """Display a tk error message box."""
         messagebox.showerror('Error', msg)
+        
+    def enableButton(self, btn: tk.Button, bEnabled: bool):
+        """Enable the specified button if bEnabled is true."""
+        if btn:
+            if bEnabled:
+                btn['state'] = tk.NORMAL
+            else:
+                btn['state'] = tk.DISABLED
