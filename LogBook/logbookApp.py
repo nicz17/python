@@ -33,6 +33,7 @@ class LogBookApp(BaseApp):
         self.iHeight = 800
         self.iWidth  = 1300
         self.book = None
+        self.archive = None
         self.task = None
         self.step = None
         self.taskList = TaskList(self.onTaskSelection)
@@ -45,6 +46,7 @@ class LogBookApp(BaseApp):
         super().__init__('LogBook', geometry)
         self.loadBook()
         self.renderBook()
+        self.enableWidgets()
 
     def loadBook(self):
         """Load the default logbook."""
@@ -82,6 +84,7 @@ class LogBookApp(BaseApp):
             self.renderBook()
         else:
             self.log.info('Skipping empty input')
+        self.enableWidgets()
 
     def addStep(self, input: str):
         """Add a step from text input widget."""
@@ -103,6 +106,7 @@ class LogBookApp(BaseApp):
             self.renderTask()
             self.stepsTable.loadData(self.task)
             self.taskEditor.loadData(self.task)
+        self.enableWidgets()
 
     def onStepSelection(self, evt):
         """Step table selection handling."""
@@ -142,12 +146,14 @@ class LogBookApp(BaseApp):
             self.stepsTable.loadData(None)
             self.renderBook()
             self.setStatus(f'Opened {self.book.getFilename()}')
+        self.enableWidgets()
 
     def onRefresh(self):
         """Refresh current display."""
         if self.book is not None:
             self.renderBook()
             self.setStatus(f'Refreshed {self.book.getFilename()}')
+        self.enableWidgets()
 
     def onImportFile(self):
         """Display dialog to import book from text file."""
@@ -163,6 +169,7 @@ class LogBookApp(BaseApp):
             self.stepsTable.loadData(None)
             self.renderBook()
             self.setStatus(f'Imported {self.book.getFilename()}')
+        self.enableWidgets()
 
     def onExportFile(self):
         """Display dialog to export book to text file."""
@@ -178,12 +185,37 @@ class LogBookApp(BaseApp):
             exporter.exportToTextFile(self.book, filename)
             self.setStatus(f'Exported to {filename}')
 
+    def onTaskArchive(self):
+        """Move the selected task to the Archive book."""
+        self.log.info('Archiving %s', self.task)
+        if self.task is None:
+            self.showErrorMsg('No task selected!')
+            return
+        if self.task.status != Status.Done:
+            self.showErrorMsg('Cannot archive unfinished task!')
+            return
+        if self.archive is None:
+            self.archive = LogBook('Archive')
+        self.archive.addTask(self.task)
+        self.archive.save()
+        self.book.removeTask(self.task)
+        self.book.save()
+        msg = f'Archived {self.task.title}'
+        self.task = None
+        self.onRefresh()
+        self.setStatus(msg)
+
+    def onNotImplemented(self):
+        """Show a Not implemented yet error message."""
+        self.showErrorMsg('Not implemenented yet!')
+
     def createWidgets(self):
         # Buttons
         self.addButton('Open',    self.onOpenFile)
         self.addButton('Refresh', self.onRefresh)
         self.addButton('Import',  self.onImportFile)
         self.addButton('Export',  self.onExportFile)
+        self.btnArchive = self.addButton('Archive', self.onTaskArchive)
 
         # Frames
         self.frmBook = tk.Frame(master=self.frmMain,  width=300)#, bg='#f0f0ff')
@@ -226,6 +258,11 @@ class LogBookApp(BaseApp):
 
         # Step editor
         self.stepEditor.build(self.frmEdit)
+
+    def enableWidgets(self):
+        """Enable or disable widgets based on state."""
+        canArchive = self.task is not None and self.task.status == Status.Done
+        self.enableButton(self.btnArchive, canArchive)
 
 
 def configureLogging():
