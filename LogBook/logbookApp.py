@@ -19,6 +19,7 @@ from TextInputBox import *
 from StepsTable import *
 from StepEditor import *
 from TaskEditor import *
+from BookSelector import *
 from Importer import *
 from Exporter import *
 
@@ -42,6 +43,7 @@ class LogBookApp(BaseApp):
         self.stepsTable = StepsTable(self.onStepSelection)
         self.stepEditor = StepEditor(self.onStepSave)
         self.taskEditor = TaskEditor(self.onTaskSave)
+        self.bookSelector = BookSelector(self.onBookSelection)
         geometry = f'{self.iWidth}x{self.iHeight}'
         super().__init__('LogBook', geometry)
         self.loadBook()
@@ -53,6 +55,7 @@ class LogBookApp(BaseApp):
         self.log.info('Loading the default logbook')
         self.book = LogBook('TodoList')
         self.setStatus(f'Opened {self.book.getFilename()}')
+        self.bookSelector.loadData(self.book)
 
     def renderBook(self):
         """Update rendering for the current book."""
@@ -96,6 +99,17 @@ class LogBookApp(BaseApp):
             self.stepsTable.loadData(self.task)
         else:
             self.log.info('Skipping empty input')
+
+    def onBookSelection(self, name: str):
+        """BookSelector selection handling."""
+        self.log.info('Book selected: %s, current: %s', name, self.book.name)
+        if name != self.book.name:
+            self.book = LogBook(name)
+            self.stepEditor.loadData(None)
+            self.stepsTable.loadData(None)
+            self.renderBook()
+            self.setStatus(f'Selected {self.book.getFilename()}')
+            self.enableWidgets()
 
     def onTaskSelection(self, evt):
         """TaskList selection handling."""
@@ -169,6 +183,7 @@ class LogBookApp(BaseApp):
             self.stepsTable.loadData(None)
             self.renderBook()
             self.setStatus(f'Imported {self.book.getFilename()}')
+        self.bookSelector.loadData(self.book)
         self.enableWidgets()
 
     def onExportFile(self):
@@ -258,6 +273,9 @@ class LogBookApp(BaseApp):
 
         # Step editor
         self.stepEditor.build(self.frmEdit)
+
+        # Book selector
+        self.bookSelector.build(self.frmEdit)
 
     def enableWidgets(self):
         """Enable or disable widgets based on state."""
