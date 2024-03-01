@@ -32,9 +32,9 @@ def exifToTimestamp(strExif: str) -> float:
     """Convert EXIF string like 2023:12:28 13:15:36 to float timestamp."""
     return stringToTimestamp(strExif, "%Y:%m:%d %H:%M:%S")
 
-def nowAsString() -> str:
+def nowAsString(format = "%Y.%m.%d %H:%M:%S") -> str:
     """Formats the current local timestamp like 2023.12.28 13:15:36."""
-    return timestampToString(time.time())
+    return timestampToString(time.time(), format)
 
 
 def testDateTools():
