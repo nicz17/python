@@ -166,9 +166,11 @@ class LogBookApp(BaseApp):
 
     def onExportFile(self):
         """Display dialog to export book to text file."""
+        defFilename = f'Archive{DateTools.nowAsString("%y%m%d")}.txt'
         filename = fd.asksaveasfilename(
             title = 'Export to text file',
             initialdir = LogBook.dir,
+            initialfile = defFilename,
             filetypes = [('Text files', '*.txt')])
         if filename and self.book:
             self.log.info('Exporting to %s', filename)
