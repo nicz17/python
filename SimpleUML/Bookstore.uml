@@ -1,0 +1,13 @@
+----------------------------
+Book
+----------------------------
+-title: str
+-author: str
+-pages: int
+-published: date
+----------------------------
++Book(title, author, pages)
+-init()
++getTitle(): str
+----------------------------
+
