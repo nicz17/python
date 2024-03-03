@@ -85,7 +85,7 @@ class TF79Gallery(Gallery):
         """Rename pictures in a sequence with the specified name"""
         self.log.info('Renaming photos to %s', name)
         self.sTitle = name
-        aImgs = sorted(glob.glob(self.sPath + 'photos/*.JPG') + glob.glob(self.sPath + 'photos/*.jpg'))
+        aImgs = sorted(glob.glob(self.sPath + 'photos/*.jpg')) + sorted(glob.glob(self.sPath + 'photos/*.JPG'))
         self.log.info('Found %d originals in %s', len(aImgs), self.sPath + 'photos/*.JPG')
         iSeq = 0
         for sOrig in aImgs:
