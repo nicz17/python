@@ -17,7 +17,7 @@ class CodeFile():
         self.log.info('Constructor')
         self.file = open(filename, 'w')
 
-    def comment(self, text: str, indent = 0):
+    def addDoc(self, text: str, indent = 0):
         self.write(f'"""{text}"""', indent)
 
     def newline(self, amount = 1):
