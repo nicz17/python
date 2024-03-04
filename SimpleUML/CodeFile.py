@@ -14,11 +14,11 @@ class CodeFile():
 
     def __init__(self, filename: str) -> None:
         """Constructor."""
-        self.log.info('Constructor')
+        self.log.info('Constructor for %s', filename)
         self.file = open(filename, 'w')
 
     def addDoc(self, text: str, indent = 0):
-        self.write(f'"""{text}"""', indent)
+        self.write(f'/* {text} */', indent)
 
     def newline(self, amount = 1):
         self.file.write('\n' * amount)
@@ -29,3 +29,14 @@ class CodeFile():
     def close(self):
         """Close our file."""
         self.file.close()
+
+class CodeFilePython(CodeFile):
+    """Write python code to a file."""
+    log = logging.getLogger('CodeFilePython')
+
+    def __init__(self, filename: str) -> None:
+        """Constructor."""
+        super().__init__(filename)
+
+    def addDoc(self, text: str, indent = 0):
+        self.write(f'"""{text}"""', indent)
