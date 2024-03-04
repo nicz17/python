@@ -76,7 +76,7 @@ class SimpleUMLClassPython(SimpleUMLClass):
         """Generate the code."""
         filename = f'{self.dir}/{self.name}.py'
         self.log.info('Generating %s', filename)
-        file = CodeFile(filename)
+        file = CodeFilePython(filename)
 
         # Header
         year = DateTools.nowAsString('%Y')
