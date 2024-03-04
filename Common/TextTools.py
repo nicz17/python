@@ -34,6 +34,12 @@ def upperCaseFirst(text: str) -> str:
         return None
     return text[:1].upper() + text[1:]
 
+def lowerCaseFirst(text: str) -> str:
+    """Return the specified text with the first char in lower case."""
+    if text is None:
+        return None
+    return text[:1].lower() + text[1:]
+
 
 def testTextTools():
     log = logging.getLogger('TextTools')
@@ -43,6 +49,7 @@ def testTextTools():
     log.info('Duration is %s', durationToString(2*60 + 30))
     log.info('Duration is %s', durationToString(3*3600 + 15*60 + 42))
     log.info(upperCaseFirst('welcome to Lausanne!'))
+    log.info(lowerCaseFirst('GetTitle()'))
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(asctime)s %(levelname)s %(name)s: %(message)s", 
