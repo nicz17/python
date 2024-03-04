@@ -7,7 +7,8 @@ Book
 -published: date
 ----------------------------
 +Book(title, author, pages)
--init()
 +getTitle(): str
++setPublished(tAt)
+-init()
 ----------------------------
 
