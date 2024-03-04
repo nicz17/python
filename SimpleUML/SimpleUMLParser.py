@@ -7,6 +7,7 @@ __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
 import logging
+import os
 import re
 from enum import Enum
 from SimpleUMLClass import *
@@ -46,6 +47,9 @@ class SimpleUMLParser():
                 self.clazz.addMember(match.group(1), match.group(2))
         elif mode == Mode.Methods:
             self.log.info('Method %s', line)
+            match = re.match(r'[-+](.+)\((.*)\)', line)
+            if match:
+                self.clazz.addMethod(match.group(1), match.group(2), None)
         else:
             self.log.error('Unhandled mode %s for line %s', mode, line)
 
