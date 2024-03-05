@@ -64,7 +64,10 @@ class SimpleUMLParser():
         
         # Create class object
         mode = Mode.Init
-        self.clazz = SimpleUMLClassPython()
+        if self.lang == 'cpp':
+            self.clazz = SimpleUMLClassCpp()
+        else:
+            self.clazz = SimpleUMLClassPython()
         
         # Read file
         file = open(filename, 'r')
