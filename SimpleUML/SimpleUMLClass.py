@@ -7,6 +7,7 @@ __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
 import logging
+import re
 import DateTools
 import TextTools
 from CodeFile import *
@@ -153,3 +154,55 @@ class SimpleUMLClassPython(SimpleUMLClass):
         file.newline()
 
         file.close()
+
+
+class SimpleUMLClassCpp(SimpleUMLClass):
+    """A simple C++ code generator."""
+    log = logging.getLogger('SimpleUMLClassCpp')
+
+    def __init__(self) -> None:
+        """Constructor."""
+        super().__init__()
+
+    def generate(self):
+        """Generate the code."""
+        self.buildHeader()
+        self.buildBody()
+
+    def buildHeader(self):
+        """Create the .h file."""
+        filename = f'{self.dir}/{self.name}.h'
+        self.log.info('Building %s', filename)
+        flag = self.getIncludeFlag()
+
+        file = CodeFile(filename)
+        #file.write(self.buildCopyright())
+        file.write(f'#ifndef {flag}')
+        file.write(f'#define {flag}')
+        file.newline()
+        file.write(f'class {self.name} ' + '{')
+        file.write('public:\n\nprivate:\n\n};')
+        file.write(f'#endif // {flag}')
+        file.close()
+
+    def buildBody(self):
+        """Create the .cc body file."""
+        filename = f'{self.dir}/{self.name}.cc'
+        self.log.info('Building %s', filename)
+
+        file = CodeFile(filename)
+        #file.write(self.buildCopyright())
+        file.write(f'#include {self.name}.h')
+        file.newline(2)
+        for method in self.methods:
+            file.write(f'void {self.name}::{method.name}() ' + '{')
+            file.newline()
+            file.write('}')
+            file.newline()
+        file.close()
+
+    def getIncludeFlag(self):
+        flag = re.sub(r"([A-Z])", r"_\1", self.name).upper() + '_H_'
+        self.log.info('include flag: %s', flag)
+        return flag
+
