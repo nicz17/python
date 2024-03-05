@@ -174,14 +174,30 @@ class SimpleUMLClassCpp(SimpleUMLClass):
         filename = f'{self.dir}/{self.name}.h'
         self.log.info('Building %s', filename)
         flag = self.getIncludeFlag()
-
         file = CodeFile(filename)
-        #file.write(self.buildCopyright())
+
+        # Heading
+        self.buildCopyright(file, True)
         file.write(f'#ifndef {flag}')
         file.write(f'#define {flag}')
         file.newline()
         file.write(f'class {self.name} ' + '{')
-        file.write('public:\n\nprivate:\n\n};')
+
+        # Public methods
+        file.write('public:')
+        for method in self.methods:
+            file.write(f'void {method.name}({method.params});', 1)
+            file.newline()
+
+        # Private methods and members
+        file.write('private:')
+        for member in self.members:
+            file.write(f'int {member};', 1)
+        file.newline()
+
+        # Ending
+        file.write('};')
+        file.newline()
         file.write(f'#endif // {flag}')
         file.close()
 
@@ -189,17 +205,32 @@ class SimpleUMLClassCpp(SimpleUMLClass):
         """Create the .cc body file."""
         filename = f'{self.dir}/{self.name}.cc'
         self.log.info('Building %s', filename)
-
         file = CodeFile(filename)
-        #file.write(self.buildCopyright())
+
+        # Heading
+        self.buildCopyright(file, False)
         file.write(f'#include {self.name}.h')
         file.newline(2)
+
+        # Methods
         for method in self.methods:
-            file.write(f'void {self.name}::{method.name}() ' + '{')
+            file.write(f'void {self.name}::{method.name}({method.params}) ' + '{')
             file.newline()
             file.write('}')
             file.newline()
         file.close()
+
+    def buildCopyright(self, file: CodeFile, isHeader: bool):
+        """Create the top documentation part."""
+        year = DateTools.nowAsString('%Y')
+        date = DateTools.nowAsString('%d.%m.%Y')
+        lines = [
+            f'{self.name}.' + ('h' if isHeader else 'cc'),
+            f'Copyright {year} N. Zwahlen',
+            f'Created {date}'
+        ]
+        file.addMultiLineDoc(lines)
+        file.newline(2)
 
     def getIncludeFlag(self):
         flag = re.sub(r"([A-Z])", r"_\1", self.name).upper() + '_H_'

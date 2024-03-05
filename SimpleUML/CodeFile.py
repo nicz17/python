@@ -18,7 +18,15 @@ class CodeFile():
         self.file = open(filename, 'w')
 
     def addDoc(self, text: str, indent = 0):
+        """Add a single line of documentation."""
         self.write(f'/* {text} */', indent)
+
+    def addMultiLineDoc(self, lines, indent = 0):
+        """Add multiple lines of documentation."""
+        self.write(f'/*', indent)
+        for line in lines:
+            self.write(f' * {line}', indent)
+        self.write(f' */', indent)
 
     def newline(self, amount = 1):
         self.file.write('\n' * amount)
@@ -39,4 +47,12 @@ class CodeFilePython(CodeFile):
         super().__init__(filename)
 
     def addDoc(self, text: str, indent = 0):
+        """Add a single line of documentation."""
         self.write(f'"""{text}"""', indent)
+
+    def addMultiLineDoc(self, lines, indent = 0):
+        """Add multiple lines of documentation."""
+        self.write(f'"""', indent)
+        for line in lines:
+            self.write(f' {line}', indent)
+        self.write(f'"""', indent)
