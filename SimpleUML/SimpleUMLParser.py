@@ -45,6 +45,10 @@ class SimpleUMLParser():
             match = re.match(r'-(.+): (.+)', line)
             if match:
                 self.clazz.addMember(match.group(1), match.group(2))
+            else:
+                match = re.match(r'-(.+)', line)
+                if match:
+                    self.clazz.addMember(match.group(1))
         elif mode == Mode.Methods:
             self.log.info('Method %s', line)
             match = re.match(r'[-+](.+)\((.*)\)', line)
