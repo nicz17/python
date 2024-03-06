@@ -136,10 +136,13 @@ class SimpleUMLClassPython(SimpleUMLClass):
                     else:
                         file.write(f'self.{member.name} = None', 2)
             elif method.isGetter():
-                member = TextTools.lowerCaseFirst(method.name[3:])
+                memberName = TextTools.lowerCaseFirst(method.name[3:])
+                member = self.getMember(memberName)
+                if member and member.type:
+                    definition = f'def {method.name}({params}) -> {member.type}:'
                 file.write(definition, 1)
-                file.addDoc(f'Getter for {member}', 2)
-                file.write(f'return self.{member}', 2)
+                file.addDoc(f'Getter for {memberName}', 2)
+                file.write(f'return self.{memberName}', 2)
             elif method.isSetter():
                 member = TextTools.lowerCaseFirst(method.name[3:])
                 file.write(definition, 1)
@@ -147,7 +150,8 @@ class SimpleUMLClassPython(SimpleUMLClass):
                 file.write(f'self.{member} = {method.params[0]}', 2)
             else:
                 file.write(definition, 1)
-                file.addDoc(f'{method.name}', 2)
+                file.addDoc(f'{TextTools.upperCaseFirst(method.name)}', 2)
+                file.addComment('TODO: implement', 2)
                 file.write('pass', 2)
             file.newline()
 
