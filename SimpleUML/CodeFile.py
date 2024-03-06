@@ -17,6 +17,10 @@ class CodeFile():
         self.log.info('Constructor for %s', filename)
         self.file = open(filename, 'w')
 
+    def addComment(self, comment: str, indent = 0):
+        """Add a single-line comment."""
+        self.write(f'// {comment}', indent)
+
     def addDoc(self, text: str, indent = 0):
         """Add a single line of documentation."""
         self.write(f'/* {text} */', indent)
@@ -45,6 +49,10 @@ class CodeFilePython(CodeFile):
     def __init__(self, filename: str) -> None:
         """Constructor."""
         super().__init__(filename)
+
+    def addComment(self, comment: str, indent = 0):
+        """Add a single-line comment."""
+        self.write(f'# {comment}', indent)
 
     def addDoc(self, text: str, indent = 0):
         """Add a single line of documentation."""
