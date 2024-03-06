@@ -44,16 +44,24 @@ class SimpleUMLParser():
             self.log.info('Member %s', line)
             match = re.match(r'-(.+): (.+)', line)
             if match:
-                self.clazz.addMember(match.group(1), match.group(2))
+                name = match.group(1)
+                type = match.group(2)
+                self.clazz.addMember(name, type)
             else:
                 match = re.match(r'-(.+)', line)
                 if match:
-                    self.clazz.addMember(match.group(1))
+                    self.clazz.addMember(match.group(1), [])
         elif mode == Mode.Methods:
             self.log.info('Method %s', line)
             match = re.match(r'[-+](.+)\((.*)\)', line)
             if match:
-                self.clazz.addMethod(match.group(1), match.group(2), None)
+                name = match.group(1)
+                sparams = match.group(2)
+                params = []
+                if len(sparams) > 0:
+                    params = sparams.split(', ')
+                #self.log.info('Method %s has %d params', name, len(params))
+                self.clazz.addMethod(name, params, None)
         else:
             self.log.error('Unhandled mode %s for line %s', mode, line)
 
