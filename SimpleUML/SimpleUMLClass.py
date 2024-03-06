@@ -13,6 +13,15 @@ import TextTools
 from CodeFile import *
 
 
+class SimpleUMLMember():
+    """Class member representation."""
+    log = logging.getLogger('SimpleUMLMethod')
+
+    def __init__(self, name: str, type = None):
+        """Constructor"""
+        self.name = name
+        self.type = type
+
 class SimpleUMLMethod():
     """Class method representation."""
     log = logging.getLogger('SimpleUMLMethod')
@@ -51,10 +60,10 @@ class SimpleUMLClass():
         """Define the class name."""
         self.name = name
 
-    def addMember(self, name: str, type: str):
+    def addMember(self, name: str, type = None):
         """Add a class member of the specified name and type."""
         self.log.info('Adding member %s type %s', name, type)
-        self.members.append(name)
+        self.members.append(SimpleUMLMember(name, type))
 
     def addMethod(self, name: str, params: str, type: str):
         """Add a class method of the specified name and type."""
@@ -116,10 +125,10 @@ class SimpleUMLClassPython(SimpleUMLClass):
                 file.write(f'def __init__({params}):', 1)
                 file.addDoc('Constructor.', 2)
                 for member in self.members:
-                    if member in params:
-                        file.write(f'self.{member} = {member}', 2)
+                    if member.name in params:
+                        file.write(f'self.{member.name} = {member.name}', 2)
                     else:
-                        file.write(f'self.{member} = None', 2)
+                        file.write(f'self.{member.name} = None', 2)
             elif method.isGetter():
                 member = TextTools.lowerCaseFirst(method.name[3:])
                 file.write(definition, 1)
@@ -140,7 +149,7 @@ class SimpleUMLClassPython(SimpleUMLClass):
         file.write('def __str__(self):', 1)
         file.write(f'str = "{self.name}"', 2)
         for member in self.members:
-            file.write(f'str += " {member}: " + self.{member}', 2)
+            file.write(f'str += " {member.name}: " + self.{member.name}', 2)
         file.write('return str', 2)
         file.newline(2)
 
@@ -192,7 +201,7 @@ class SimpleUMLClassCpp(SimpleUMLClass):
         # Private methods and members
         file.write('private:')
         for member in self.members:
-            file.write(f'int {member};', 1)
+            file.write(f'{member.type} {member.name};', 1)
         file.newline()
 
         # Ending
@@ -209,7 +218,7 @@ class SimpleUMLClassCpp(SimpleUMLClass):
 
         # Heading
         self.buildCopyright(file, False)
-        file.write(f'#include {self.name}.h')
+        file.write(f'#include "{self.name}.h"')
         file.newline(2)
 
         # Methods
