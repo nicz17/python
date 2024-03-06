@@ -26,10 +26,12 @@ class SimpleUMLMethod():
     """Class method representation."""
     log = logging.getLogger('SimpleUMLMethod')
 
-    def __init__(self, name: str, params: str):
+    def __init__(self, name: str, params):
         """Constructor"""
         self.name = name
         self.params = params
+        if params is None:
+            self.params = []
 
     def isConstructor(self, className: str):
         """Check if this method is a constructor."""
@@ -65,10 +67,17 @@ class SimpleUMLClass():
         self.log.info('Adding member %s type %s', name, type)
         self.members.append(SimpleUMLMember(name, type))
 
-    def addMethod(self, name: str, params: str, type: str):
+    def addMethod(self, name: str, params, type: str):
         """Add a class method of the specified name and type."""
         self.log.info('Adding method %s params %s', name, params)
         self.methods.append(SimpleUMLMethod(name, params))
+
+    def getMember(self, name: str) -> SimpleUMLMember:
+        """Return the class member with the specified name, or None."""
+        for member in self.members:
+            if member.name == name:
+                return member
+        return None
 
     def generate(self):
         """Generate the code."""
@@ -107,19 +116,16 @@ class SimpleUMLClassPython(SimpleUMLClass):
         file.write(f'log = logging.getLogger("{self.name}")', 1)
         file.newline()
 
-        # Constructor
-        #file.write('def __init__(self):', 1)
-        #file.addDoc('Constructor.', 2)
-        #for member in self.members:
-        #    file.write(f'self.{member} = None', 2)
-        #file.newline()
-
         # Methods
         method: SimpleUMLMethod
         for method in self.methods:
             params = 'self'
-            if len(method.params) > 0:
-                params += f', {method.params}'
+            for param in method.params:
+                member = self.getMember(param)
+                if member and member.type:
+                    params += f', {member.name}: {member.type}'
+                else:
+                    params += f', {param}'
             definition = f'def {method.name}({params}):'
             if method.isConstructor(self.name):
                 file.write(f'def __init__({params}):', 1)
@@ -138,7 +144,7 @@ class SimpleUMLClassPython(SimpleUMLClass):
                 member = TextTools.lowerCaseFirst(method.name[3:])
                 file.write(definition, 1)
                 file.addDoc(f'Setter for {member}', 2)
-                file.write(f'self.{member} = {method.params}', 2)
+                file.write(f'self.{member} = {method.params[0]}', 2)
             else:
                 file.write(definition, 1)
                 file.addDoc(f'{method.name}', 2)
@@ -194,8 +200,21 @@ class SimpleUMLClassCpp(SimpleUMLClass):
 
         # Public methods
         file.write('public:')
+        method: SimpleUMLMethod
         for method in self.methods:
-            file.write(f'void {method.name}({method.params});', 1)
+            type = 'void '
+            if method.isConstructor(self.name):
+                type = ''
+            params = ''
+            for param in method.params:
+                member = self.getMember(param)
+                ptype = 'void'
+                if member and member.type:
+                    ptype = member.type
+                if len(params) > 0:
+                    params += ', '
+                params += f'{ptype} {param}'
+            file.write(f'{type}{method.name}({params});', 1)
             file.newline()
 
         # Private methods and members
@@ -222,8 +241,21 @@ class SimpleUMLClassCpp(SimpleUMLClass):
         file.newline(2)
 
         # Methods
+        method: SimpleUMLMethod
         for method in self.methods:
-            file.write(f'void {self.name}::{method.name}({method.params}) ' + '{')
+            type = 'void '
+            if method.isConstructor(self.name):
+                type = ''
+            params = ''
+            for param in method.params:
+                member = self.getMember(param)
+                ptype = 'void'
+                if member and member.type:
+                    ptype = member.type
+                if len(params) > 0:
+                    params += ', '
+                params += f'{ptype} {param}'
+            file.write(f'{type}{self.name}::{method.name}({params}) ' + '{')
             file.newline()
             file.write('}')
             file.newline()
