@@ -78,6 +78,17 @@ class SimpleUMLClass():
             if member.name == name:
                 return member
         return None
+    
+    def getMethod(self, name: str) -> SimpleUMLMethod:
+        """Return the class method with the specified name, or None."""
+        for method in self.methods:
+            if method.name == name:
+                return method
+        return None
+    
+    def getConstructor(self):
+        """Return the default constructor method for this class, or None."""
+        return self.getMethod(self.name)
 
     def generate(self):
         """Generate the code."""
@@ -155,20 +166,43 @@ class SimpleUMLClassPython(SimpleUMLClass):
                 file.write('pass', 2)
             file.newline()
 
+        # toJson method
+        file.write('def toJson(self):', 1)
+        file.addDoc(f'Create a dict of this {self.name} for json export.', 2)
+        file.write('data = {', 2)
+        for member in self.members:
+            file.write(f"'{member.name}': self.{member.name},", 3)
+        file.write('}', 2)
+        file.write('return data', 2)
+        file.newline()
+
         # toString method
         file.write('def __str__(self):', 1)
         file.write(f'str = "{self.name}"', 2)
         for member in self.members:
-            file.write(f'str += " {member.name}: " + self.{member.name}', 2)
+            #file.write(f'str += " {member.name}: " + self.{member.name}', 2)
+            file.write("str += f' " + member.name + ": {self." + member.name + "}'", 2)
         file.write('return str', 2)
         file.newline(2)
 
         # Testing method
         file.write(f'def test{self.name}():')
         file.addDoc(f'Unit test for {self.name}', 1)
-        file.write('pass', 1)
+        file.write(f'{self.name}.log.info("Testing {self.name}")', 1)
+        constr = self.getConstructor()
+        if constr:
+            values = []
+            for param in constr.params:
+                values.append('None')
+            svalues = ', '.join(values)
+            file.write(f'obj = {self.name}({svalues})', 1)
+            file.write('obj.log.info(obj)', 1)
+            file.write('obj.log.info(obj.toJson())', 1)
         file.newline()
         file.write("if __name__ == '__main__':")
+
+        file.write('logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",', 1)
+        file.write('level=logging.INFO, handlers=[logging.StreamHandler()])', 2)
         file.write(f'test{self.name}()', 1)
         file.newline()
 
