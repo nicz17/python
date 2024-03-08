@@ -50,18 +50,31 @@ class SimpleUMLParser():
             else:
                 match = re.match(r'-(.+)', line)
                 if match:
-                    self.clazz.addMember(match.group(1), [])
+                    self.clazz.addMember(match.group(1), None)
         elif mode == Mode.Methods:
             self.log.info('Method %s', line)
-            match = re.match(r'[-+](.+)\((.*)\)', line)
-            if match:
-                name = match.group(1)
-                sparams = match.group(2)
-                params = []
+            isPrivate = True
+            params = []
+            type = None
+            if line.startswith('+'):
+                isPrivate = False
+            match1 = re.match(r'[-+](.+)\((.*)\): (.+)', line)
+            match2 = re.match(r'[-+](.+)\((.*)\)', line)
+            if match1:
+                name = match1.group(1)
+                sparams = match1.group(2)
+                type = match1.group(3)
+                if len(sparams) > 0:
+                    params = sparams.split(', ')
+            elif match2:
+                name = match2.group(1)
+                sparams = match2.group(2)
                 if len(sparams) > 0:
                     params = sparams.split(', ')
                 #self.log.info('Method %s has %d params', name, len(params))
-                self.clazz.addMethod(name, params, None)
+            else:
+                self.log.error('Failed to parse method from %s', line)
+            self.clazz.addMethod(name, params, type, isPrivate)
         else:
             self.log.error('Unhandled mode %s for line %s', mode, line)
 

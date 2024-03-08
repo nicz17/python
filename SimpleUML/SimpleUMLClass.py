@@ -26,12 +26,14 @@ class SimpleUMLMethod():
     """Class method representation."""
     log = logging.getLogger('SimpleUMLMethod')
 
-    def __init__(self, name: str, params):
+    def __init__(self, name: str, params, type: str, isPrivate = True):
         """Constructor"""
         self.name = name
         self.params = params
         if params is None:
             self.params = []
+        self.type = type
+        self.isPrivate = isPrivate
 
     def isConstructor(self, className: str):
         """Check if this method is a constructor."""
@@ -67,10 +69,10 @@ class SimpleUMLClass():
         self.log.info('Adding member %s type %s', name, type)
         self.members.append(SimpleUMLMember(name, type))
 
-    def addMethod(self, name: str, params, type: str):
+    def addMethod(self, name: str, params, type: str, isPrivate = True):
         """Add a class method of the specified name and type."""
         self.log.info('Adding method %s params %s', name, params)
-        self.methods.append(SimpleUMLMethod(name, params))
+        self.methods.append(SimpleUMLMethod(name, params, type, isPrivate))
 
     def getMember(self, name: str) -> SimpleUMLMember:
         """Return the class member with the specified name, or None."""
@@ -243,6 +245,8 @@ class SimpleUMLClassCpp(SimpleUMLClass):
             type = 'void '
             if method.isConstructor(self.name):
                 type = ''
+            elif method.type:
+                type = f'{method.type} '
             params = ''
             for param in method.params:
                 member = self.getMember(param)
