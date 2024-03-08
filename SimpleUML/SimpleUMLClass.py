@@ -240,27 +240,20 @@ class SimpleUMLClassCpp(SimpleUMLClass):
 
         # Public methods
         file.write('public:')
-        method: SimpleUMLMethod
+        file.newline()
         for method in self.methods:
-            type = 'void '
-            if method.isConstructor(self.name):
-                type = ''
-            elif method.type:
-                type = f'{method.type} '
-            params = ''
-            for param in method.params:
-                member = self.getMember(param)
-                ptype = 'void'
-                if member and member.type:
-                    ptype = member.type
-                if len(params) > 0:
-                    params += ', '
-                params += f'{ptype} {param}'
-            file.write(f'{type}{method.name}({params});', 1)
-            file.newline()
+            if not method.isPrivate:
+                self.buildDeclaration(file, method)
 
-        # Private methods and members
+        # Private methods
         file.write('private:')
+        file.newline()
+        for method in self.methods:
+            if method.isPrivate:
+                self.buildDeclaration(file, method)
+        file.newline()
+
+        # Private members
         for member in self.members:
             file.write(f'{member.type} {member.name};', 1)
         file.newline()
@@ -286,22 +279,47 @@ class SimpleUMLClassCpp(SimpleUMLClass):
         method: SimpleUMLMethod
         for method in self.methods:
             type = 'void '
+            if method.type:
+                type = f'{method.type} '
             if method.isConstructor(self.name):
                 type = ''
             params = ''
             for param in method.params:
                 member = self.getMember(param)
-                ptype = 'void'
+                ptype = 'int'
                 if member and member.type:
                     ptype = member.type
                 if len(params) > 0:
                     params += ', '
                 params += f'{ptype} {param}'
             file.write(f'{type}{self.name}::{method.name}({params}) ' + '{')
-            file.newline()
+            if method.isGetter():
+                memberName = TextTools.lowerCaseFirst(method.name[3:])
+                file.write(f'return {memberName};', 1)
+            else:
+                file.newline()
             file.write('}')
             file.newline()
         file.close()
+
+    def buildDeclaration(self, file: CodeFile, method: SimpleUMLMethod):
+        """Writes the method declaration to the header file."""
+        type = 'void '
+        if method.isConstructor(self.name):
+            type = ''
+        elif method.type:
+            type = f'{method.type} '
+        params = ''
+        for param in method.params:
+            member = self.getMember(param)
+            ptype = 'int'
+            if member and member.type:
+                ptype = member.type
+            if len(params) > 0:
+                params += ', '
+            params += f'{ptype} {param}'
+        file.write(f'{type}{method.name}({params});', 1)
+        file.newline()
 
     def buildCopyright(self, file: CodeFile, isHeader: bool):
         """Create the top documentation part."""

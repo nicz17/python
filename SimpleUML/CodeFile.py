@@ -27,7 +27,7 @@ class CodeFile():
 
     def addMultiLineDoc(self, lines, indent = 0):
         """Add multiple lines of documentation."""
-        self.write(f'/*', indent)
+        self.write(f'/**', indent)
         for line in lines:
             self.write(f' * {line}', indent)
         self.write(f' */', indent)
