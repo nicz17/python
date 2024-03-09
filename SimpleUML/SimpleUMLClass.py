@@ -272,34 +272,15 @@ class SimpleUMLClassCpp(SimpleUMLClass):
 
         # Heading
         self.buildCopyright(file, False)
+        file.write(f'#include <string>')
         file.write(f'#include "{self.name}.h"')
         file.newline(2)
 
         # Methods
         method: SimpleUMLMethod
         for method in self.methods:
-            type = 'void '
-            if method.type:
-                type = f'{method.type} '
-            if method.isConstructor(self.name):
-                type = ''
-            params = ''
-            for param in method.params:
-                member = self.getMember(param)
-                ptype = 'int'
-                if member and member.type:
-                    ptype = member.type
-                if len(params) > 0:
-                    params += ', '
-                params += f'{ptype} {param}'
-            file.write(f'{type}{self.name}::{method.name}({params}) ' + '{')
-            if method.isGetter():
-                memberName = TextTools.lowerCaseFirst(method.name[3:])
-                file.write(f'return {memberName};', 1)
-            else:
-                file.newline()
-            file.write('}')
-            file.newline()
+            self.buildDefinition(file, method)
+
         file.close()
 
     def buildDeclaration(self, file: CodeFile, method: SimpleUMLMethod):
@@ -319,6 +300,40 @@ class SimpleUMLClassCpp(SimpleUMLClass):
                 params += ', '
             params += f'{ptype} {param}'
         file.write(f'{type}{method.name}({params});', 1)
+        file.newline()
+
+    def buildDefinition(self, file: CodeFile, method: SimpleUMLMethod):
+        """Writes the method definition to the body file."""
+        type = 'void '
+        if method.type:
+            type = f'{method.type} '
+        if method.isConstructor(self.name):
+            type = ''
+        params = ''
+        for param in method.params:
+            member = self.getMember(param)
+            ptype = 'int'
+            if member and member.type:
+                ptype = member.type
+            if len(params) > 0:
+                params += ', '
+            params += f'{ptype} {param}'
+        file.write(f'{type}{self.name}::{method.name}({params}) ' + '{')
+        if method.isConstructor(self.name):
+            for member in self.members:
+                if member.name in params:
+                    file.write(f'{member.name} = {member.name};', 1)
+                else:
+                    file.write(f'{member.name} = nullptr;', 1)
+        elif method.isGetter():
+            memberName = TextTools.lowerCaseFirst(method.name[3:])
+            file.write(f'return {memberName};', 1)
+        elif method.isSetter():
+            memberName = TextTools.lowerCaseFirst(method.name[3:])
+            file.write(f'{memberName} = {method.params[0]};', 1)
+        else:
+            file.addComment('TODO: implement', 1)
+        file.write('}')
         file.newline()
 
     def buildCopyright(self, file: CodeFile, isHeader: bool):
