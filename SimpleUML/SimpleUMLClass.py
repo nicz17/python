@@ -285,11 +285,15 @@ class SimpleUMLClassCpp(SimpleUMLClass):
 
     def buildDeclaration(self, file: CodeFile, method: SimpleUMLMethod):
         """Writes the method declaration to the header file."""
+        docs = []
         type = 'void '
-        if method.isConstructor(self.name):
+        isConstructor = method.isConstructor(self.name)
+        if isConstructor:
             type = ''
+            docs.append('Constructor')
         elif method.type:
             type = f'{method.type} '
+        docs.append('TODO: document')
         params = ''
         for param in method.params:
             member = self.getMember(param)
@@ -299,15 +303,20 @@ class SimpleUMLClassCpp(SimpleUMLClass):
             if len(params) > 0:
                 params += ', '
             params += f'{ptype} {param}'
+            docs.append(f'@param {param} ')
+        if type and not type.startswith('void'):
+            docs.append('@return ')
+        file.addMultiLineDoc(docs, 1)
         file.write(f'{type}{method.name}({params});', 1)
         file.newline()
 
     def buildDefinition(self, file: CodeFile, method: SimpleUMLMethod):
         """Writes the method definition to the body file."""
         type = 'void '
+        isConstructor = method.isConstructor(self.name)
         if method.type:
             type = f'{method.type} '
-        if method.isConstructor(self.name):
+        if isConstructor:
             type = ''
         params = ''
         for param in method.params:
@@ -319,7 +328,7 @@ class SimpleUMLClassCpp(SimpleUMLClass):
                 params += ', '
             params += f'{ptype} {param}'
         file.write(f'{type}{self.name}::{method.name}({params}) ' + '{')
-        if method.isConstructor(self.name):
+        if isConstructor:
             for member in self.members:
                 if member.name in params:
                     file.write(f'{member.name} = {member.name};', 1)
