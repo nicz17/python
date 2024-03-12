@@ -38,3 +38,5 @@ Pynorpa/Nature-2024-*/*
 Pynorpa/config.py
 LogBook/*.json
 SimpleUML/test/*
+SimpleUML/*.uml
+SimpleUML/settings.json

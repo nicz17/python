@@ -12,21 +12,22 @@ __version__ = "1.0.0"
 import logging
 import getopt
 import sys
+from SettingsLoader import *
 from SimpleUMLClass import *
 from SimpleUMLParser import *
 
 
 def getOptions():
     """Parse program arguments and store them in a dict."""
-    dOptions = {'dir': '.', 'file': None, 'lang': 'python'}
+    dOptions = {'dir': '.', 'file': None, 'lang': 'python', 'settings': None}
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hd:f:l:", ["help", "dir=", "file=", "lang="])
+        opts, args = getopt.getopt(sys.argv[1:], "hd:f:l:s:", ["help", "dir=", "file=", "lang=", "sett="])
     except getopt.GetoptError:
         print("Invalid options: %s", sys.argv[1:])
     for opt, arg in opts:
         #log.info("Parsing option %s value %s", opt, arg)
         if opt in ('-h', '--help'):
-            print('simpleUML.py -h (help) -d (output dir) -f (.uml file) -l (language)')
+            print('simpleUML.py -h (help) -d (output dir) -f (.uml file) -l (language) -s (settings)')
             sys.exit()
         elif opt in ("-d", "--dir"):
             dOptions['dir'] = arg
@@ -34,6 +35,8 @@ def getOptions():
             dOptions['file'] = arg
         elif opt in ("-l", "--lang"):
             dOptions['lang'] = arg
+        elif opt in ("-s", "--sett"):
+            dOptions['settings'] = arg
     return dOptions
 
 def configureLogging():
@@ -49,9 +52,14 @@ def main():
     """Main function. Runs the parser."""
     log.info('Welcome to SimpleUML v' + __version__)
     
+    dSettings = None
+    if (dOptions['settings']):
+        loader = SettingsLoader(dOptions['settings'])
+        dSettings = loader.getSettingsDict()
+    
     if (dOptions['file']):
         log.info('Parsing %s to generate %s code', dOptions['file'], dOptions['lang'])
-        parser = SimpleUMLParser(dOptions['lang'])
+        parser = SimpleUMLParser(dOptions['lang'], dSettings)
         parser.parse(dOptions['file'])
     else:
         log.error('Please enter a .uml file name with -f')

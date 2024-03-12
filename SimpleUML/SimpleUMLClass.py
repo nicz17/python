@@ -7,6 +7,7 @@ __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
 import logging
+import os
 import re
 import DateTools
 import TextTools
@@ -53,10 +54,11 @@ class SimpleUMLClass():
     log = logging.getLogger('SimpleUMLClass')
     dir = 'test'
 
-    def __init__(self) -> None:
+    def __init__(self, dSettings = None) -> None:
         """Constructor."""
         self.log.info('Constructor')
         self.name = None
+        self.dSettings = dSettings
         self.members = []
         self.methods = []
 
@@ -100,9 +102,9 @@ class SimpleUMLClassPython(SimpleUMLClass):
     """A simple python code generator."""
     log = logging.getLogger('SimpleUMLClassPython')
 
-    def __init__(self) -> None:
+    def __init__(self, dSettings = None) -> None:
         """Constructor."""
-        super().__init__()
+        super().__init__(dSettings)
 
     def generate(self):
         """Generate the code."""
@@ -215,9 +217,9 @@ class SimpleUMLClassCpp(SimpleUMLClass):
     """A simple C++ code generator."""
     log = logging.getLogger('SimpleUMLClassCpp')
 
-    def __init__(self) -> None:
+    def __init__(self, dSettings = None) -> None:
         """Constructor."""
-        super().__init__()
+        super().__init__(dSettings)
 
     def generate(self):
         """Generate the code."""
@@ -272,6 +274,7 @@ class SimpleUMLClassCpp(SimpleUMLClass):
 
         # Heading
         self.buildCopyright(file, False)
+        file.write(f'#include <iostream>')
         file.write(f'#include <string>')
         file.write(f'#include "{self.name}.h"')
         file.newline(2)
@@ -349,11 +352,32 @@ class SimpleUMLClassCpp(SimpleUMLClass):
         """Create the top documentation part."""
         year = DateTools.nowAsString('%Y')
         date = DateTools.nowAsString('%d.%m.%Y')
+        name = self.name + ('.h' if isHeader else '.cc')
+
+        # Default doc
         lines = [
-            f'{self.name}.' + ('h' if isHeader else 'cc'),
+            name,
             f'Copyright {year} N. Zwahlen',
             f'Created {date}'
         ]
+
+        # External doc file
+        if self.dSettings and self.dSettings['headerCpp']:
+            filename = self.dSettings['headerCpp']
+            if os.path.exists(filename):
+                self.log.info('Building header doc from %s', filename)
+                lines = []
+                docfile = open(filename, 'r')
+                for line in docfile.readlines():
+                    line = line.strip()
+                    line = line.replace('[[name]]', name)
+                    line = line.replace('[[year]]', year)
+                    line = line.replace('[[date]]', date)
+                    lines.append(line)
+                docfile.close()
+            else:
+                self.log.warn('No external doc file %s', filename)
+
         file.addMultiLineDoc(lines)
         file.newline(2)
 

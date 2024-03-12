@@ -1,5 +1,5 @@
 """
-Module SettingsLoader
+Module SettingsLoader:
 Load settings options from a json file
 and return them as a dict.
 """
