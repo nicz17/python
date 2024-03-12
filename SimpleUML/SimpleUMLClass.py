@@ -228,13 +228,13 @@ class SimpleUMLClassCpp(SimpleUMLClass):
         """Create the .h file."""
         filename = f'{self.dir}/{self.name}.h'
         self.log.info('Building %s', filename)
-        flag = self.getIncludeFlag()
+        guard = self.getHeaderGuard()
         file = CodeFile(filename)
 
         # Heading
         self.buildCopyright(file, True)
-        file.write(f'#ifndef {flag}')
-        file.write(f'#define {flag}')
+        file.write(f'#ifndef {guard}')
+        file.write(f'#define {guard}')
         file.newline()
         file.write(f'class {self.name} ' + '{')
 
@@ -261,7 +261,7 @@ class SimpleUMLClassCpp(SimpleUMLClass):
         # Ending
         file.write('};')
         file.newline()
-        file.write(f'#endif // {flag}')
+        file.write(f'#endif // {guard}')
         file.close()
 
     def buildBody(self):
@@ -357,8 +357,11 @@ class SimpleUMLClassCpp(SimpleUMLClass):
         file.addMultiLineDoc(lines)
         file.newline(2)
 
-    def getIncludeFlag(self):
-        flag = re.sub(r"([A-Z])", r"_\1", self.name).upper() + '_H_'
-        self.log.info('include flag: %s', flag)
-        return flag
+    def getHeaderGuard(self):
+        """Build the header guard from the class name."""
+        guard = str(re.sub(r"([A-Z][a-z])", r"_\1", self.name).upper() + '_H_')
+        if not guard.startswith('_'):
+            guard = '_' + guard
+        self.log.info('Header guard: %s', guard)
+        return guard
 
