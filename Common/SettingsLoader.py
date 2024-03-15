@@ -2,6 +2,7 @@
 Module SettingsLoader:
 Load settings options from a json file
 and return them as a dict.
+This is a singleton.
 """
 
 __author__ = "Nicolas Zwahlen"
@@ -15,14 +16,25 @@ import os
 class SettingsLoader():
 	"""Class SettingsLoader"""
 	log = logging.getLogger("SettingsLoader")
+	_instance = None
+
+	def __new__(cls, filename: str):
+		"""Create a singleton object."""
+		if cls._instance is None:
+			cls._instance = super(SettingsLoader, cls).__new__(cls)
+			cls._instance.log.info('Created the SettingsLoader singleton from %s', filename)
+			# Put any initialization here.
+			cls._instance.filename = filename
+			cls._instance.dict = {}
+		return cls._instance
 
 	def __init__(self, filename: str):
-		"""Constructor."""
-		self.filename = filename
-		self.dict = {}
+		"""Constructor. Unused as all is done in new."""
+		pass
 
-	def loadSettings(self):
+	def loadSettings(self) -> None:
 		"""Load the settings from the file."""
+		self.log.info('Loading settings from %s', self.filename)
 		if os.path.exists(self.filename):
 			file = open(self.filename, 'r')
 			self.dict = json.load(file)
@@ -30,7 +42,7 @@ class SettingsLoader():
 		else:
 			self.log.error('File does not exist: %s', self.filename)
 
-	def getSettingsDict(self):
+	def getSettingsDict(self) -> dict:
 		"""Get settings as a dict."""
 		return self.dict
 
@@ -49,6 +61,9 @@ def testSettingsLoader():
 	loader.log.info(loader)
 	dict = loader.getSettingsDict()
 	loader.log.info(dict)
+
+	loader2 = SettingsLoader('blam')
+	loader2.log.info(loader2)
 
 if __name__ == '__main__':
 	logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",
