@@ -31,7 +31,7 @@ class StepEditor():
             self.txtInput.insert(1.0, self.step.text)
             self.lblStatus.configure(text = f'Status: {step.status.name}')
 
-    def onSave(self):
+    def onSave(self, evt = None):
         """Save changes to the edited object."""
         textEdit = self.txtInput.get(1.0, tk.END).strip()
         self.step.text = textEdit
@@ -60,6 +60,7 @@ class StepEditor():
         self.txtInput = tk.Text(frmEdit, height=5, width=42)
         self.txtInput.pack(fill=tk.X, expand=True, padx=3)
         self.txtInput.bind("<<Modified>>", self.enableWidgets)
+        self.txtInput.bind("<Return>", self.onSave)
 
         # Buttons frame
         frmButtons = ttk.Frame(frmEdit, padding=5)

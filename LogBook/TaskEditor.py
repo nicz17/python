@@ -35,7 +35,7 @@ class TaskEditor():
             self.lblCreated.configure(text = f'Created: {sCreated}')
             self.lblStatus.configure(text = f'Status: {task.status.name}')
 
-    def onSave(self):
+    def onSave(self, evt = None):
         """Save changes to the edited object."""
         textEdit = self.txtInput.get(1.0, tk.END).strip()
         self.task.title = textEdit
@@ -68,6 +68,7 @@ class TaskEditor():
         self.txtInput = tk.Text(frmEdit, height=2, width=42)
         self.txtInput.pack(fill=tk.X, expand=True, padx=3)
         self.txtInput.bind("<<Modified>>", self.enableWidgets)
+        self.txtInput.bind("<Return>", self.onSave)
 
         # Buttons frame
         frmButtons = ttk.Frame(frmEdit, padding=5)
