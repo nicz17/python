@@ -37,6 +37,10 @@ class TaskList():
                 self.listTasks.insert(idx, text)
                 self.listTasks.itemconfig(tk.END, {'bg': task.status.getColor()})
                 idx += 1
+        
+    def onSelection(self, evt):
+        """ListBox selection event."""
+        self.cbkSelect(self.getSelection())
 
     def getSelection(self) -> LogBookTask:
         """Get the selected task."""
@@ -50,5 +54,5 @@ class TaskList():
         self.listTasks = tk.Listbox(parent, 
             height = 20, width = 36,
             bg = "white", fg = "black")
-        self.listTasks.bind('<<ListboxSelect>>', self.cbkSelect)
+        self.listTasks.bind('<<ListboxSelect>>', self.onSelection)
         self.listTasks.pack(fill=tk.Y, expand=True, pady=5)

@@ -111,9 +111,9 @@ class LogBookApp(BaseApp):
             self.setStatus(f'Selected {self.book.getFilename()}')
             self.enableWidgets()
 
-    def onTaskSelection(self, evt):
+    def onTaskSelection(self, sel: LogBookTask):
         """TaskList selection handling."""
-        sel = self.taskList.getSelection()
+        #sel = self.taskList.getSelection()
         if sel:
             self.task = sel
             self.log.info('Task selection: %s', self.task)
