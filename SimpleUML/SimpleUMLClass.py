@@ -12,6 +12,7 @@ import re
 import DateTools
 import TextTools
 from CodeFile import *
+from SettingsLoader import *
 
 
 class SimpleUMLMember():
@@ -54,11 +55,10 @@ class SimpleUMLClass():
     log = logging.getLogger('SimpleUMLClass')
     dir = 'test'
 
-    def __init__(self, dSettings = None) -> None:
+    def __init__(self) -> None:
         """Constructor."""
         self.log.info('Constructor')
         self.name = None
-        self.dSettings = dSettings
         self.members = []
         self.methods = []
 
@@ -102,9 +102,9 @@ class SimpleUMLClassPython(SimpleUMLClass):
     """A simple python code generator."""
     log = logging.getLogger('SimpleUMLClassPython')
 
-    def __init__(self, dSettings = None) -> None:
+    def __init__(self) -> None:
         """Constructor."""
-        super().__init__(dSettings)
+        super().__init__()
 
     def generate(self):
         """Generate the code."""
@@ -217,9 +217,9 @@ class SimpleUMLClassCpp(SimpleUMLClass):
     """A simple C++ code generator."""
     log = logging.getLogger('SimpleUMLClassCpp')
 
-    def __init__(self, dSettings = None) -> None:
+    def __init__(self) -> None:
         """Constructor."""
-        super().__init__(dSettings)
+        super().__init__()
 
     def generate(self):
         """Generate the code."""
@@ -362,10 +362,11 @@ class SimpleUMLClassCpp(SimpleUMLClass):
         ]
 
         # External doc file
-        if self.dSettings and self.dSettings['headerCpp']:
-            filename = self.dSettings['headerCpp']
+        dSettings = SettingsLoader(None).getSettingsDict()
+        if dSettings and dSettings['headerCpp']:
+            filename = dSettings['headerCpp']
             if os.path.exists(filename):
-                self.log.info('Building header doc from %s', filename)
+                self.log.info('Building %s copyright from %s', ('header' if isHeader else 'body'), filename)
                 lines = []
                 docfile = open(filename, 'r')
                 for line in docfile.readlines():

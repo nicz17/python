@@ -55,11 +55,12 @@ def main():
     dSettings = None
     if (dOptions['settings']):
         loader = SettingsLoader(dOptions['settings'])
-        dSettings = loader.getSettingsDict()
+        loader.loadSettings()
+        #dSettings = loader.getSettingsDict()
     
     if (dOptions['file']):
         log.info('Parsing %s to generate %s code', dOptions['file'], dOptions['lang'])
-        parser = SimpleUMLParser(dOptions['lang'], dSettings)
+        parser = SimpleUMLParser(dOptions['lang'])
         parser.parse(dOptions['file'])
     else:
         log.error('Please enter a .uml file name with -f')

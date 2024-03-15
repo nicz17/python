@@ -29,11 +29,10 @@ class SimpleUMLParser():
     """A simple UML parser."""
     log = logging.getLogger('SimpleUMLParser')
 
-    def __init__(self, lang: str, dSettings = None) -> None:
+    def __init__(self, lang: str) -> None:
         """Constructor with language."""
         self.log.info('Constructor, language: %s', lang)
         self.lang = lang
-        self.dSettings = dSettings
         self.clazz: SimpleUMLClass
 
     def parseLine(self, line: str, mode: Mode):
@@ -91,9 +90,9 @@ class SimpleUMLParser():
         # Create class object
         mode = Mode.Init
         if self.lang == 'cpp':
-            self.clazz = SimpleUMLClassCpp(self.dSettings)
+            self.clazz = SimpleUMLClassCpp()
         else:
-            self.clazz = SimpleUMLClassPython(self.dSettings)
+            self.clazz = SimpleUMLClassPython()
         
         # Read file
         file = open(filename, 'r')
