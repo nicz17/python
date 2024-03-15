@@ -19,31 +19,36 @@ class SettingsLoader():
 	def __init__(self, filename: str):
 		"""Constructor."""
 		self.filename = filename
+		self.dict = {}
 
-	def getSettingsDict(self):
-		"""Get settings as a dict."""
-		dict = {}
+	def loadSettings(self):
+		"""Load the settings from the file."""
 		if os.path.exists(self.filename):
 			file = open(self.filename, 'r')
-			dict = json.load(file)
+			self.dict = json.load(file)
 			file.close()
 		else:
 			self.log.error('File does not exist: %s', self.filename)
-		return dict
+
+	def getSettingsDict(self):
+		"""Get settings as a dict."""
+		return self.dict
 
 	def __str__(self):
 		str = "SettingsLoader"
 		str += f' from {self.filename}'
+		str += f' with {len(self.dict)} settings'
 		return str
 
 
 def testSettingsLoader():
 	"""Unit test for SettingsLoader"""
 	SettingsLoader.log.info("Testing SettingsLoader")
-	obj = SettingsLoader('/home/nzw/SimpleUML/settings.json')
-	obj.log.info(obj)
-	dict = obj.getSettingsDict()
-	obj.log.info(dict)
+	loader = SettingsLoader('/home/nicz/prog/python/SimpleUML/settings.json')
+	loader.loadSettings()
+	loader.log.info(loader)
+	dict = loader.getSettingsDict()
+	loader.log.info(dict)
 
 if __name__ == '__main__':
 	logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",
