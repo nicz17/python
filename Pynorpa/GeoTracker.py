@@ -36,7 +36,9 @@ class GeoTracker:
         self.files = []
         self.geoTracks = []
         self.locationCache = None
+        self.jpgFiles = []
         self.photos = []
+        self.statusMsg = 'Init'
 
     def prepare(self):
         """Check source and target dirs, list photos to update, load LocationCache."""
@@ -56,12 +58,20 @@ class GeoTracker:
             self.log.error('Missing source dir %s', self.dirSource)
             return
 
-        # Glob files
+        # Glob GPX files
         currentDateTime = datetime.datetime.now()
         date = currentDateTime.date()
         filter = self.dirSource + '*' + date.strftime("%y%m") + '*.gpx'
         self.files = sorted(glob.glob(filter))
         self.log.info('Found %d GeoTrack files in %s', len(self.files), filter)
+
+        # Glob JPG photos
+        filter = self.dirPhotos + '*.JPG'
+        self.log.info('Looking for photos in %s', filter)
+        self.jpgFiles = sorted(glob.glob(filter))
+        self.log.info('Will try to update %d photos with GPS tags', len(self.jpgFiles))
+
+        self.statusMsg = 'Prepared'
 
     def copyFiles(self):
         """Copy GPX GeoTrack files from DropBox."""
@@ -69,6 +79,7 @@ class GeoTracker:
             self.log.info('Copying %s', os.path.basename(file))
             dest = self.dirTarget + os.path.basename(file)
             os.system(f'cp {file} {dest}')
+        self.statusMsg = f'Copied {len(self.files)} GPX files'
 
     def loadGeoTracks(self):
         """Load the GPX data from our .gpx files."""
@@ -95,7 +106,12 @@ class GeoTracker:
                 self.log.info('Closest location in cache is %s', loc)
                 return gpxloc
             
-    def setPhotoGPSTags(self):
+    def getNumberImages(self):
+        """Get the number of photos to GeoTag."""
+        # TODO see if can already exclude tracked photos
+        return len(self.jpgFiles)
+            
+    def setPhotoGPSTags(self, cbkProgress = None):
         """Get newly uploaded photos and add GPS EXIF tags if possible."""
         filter = self.dirPhotos + '*.JPG'
         #filter = 'Nature-2024-01/orig/*0.JPG' # TODO remove test
@@ -103,7 +119,7 @@ class GeoTracker:
         self.log.info('Looking for photos in %s', filter)
         self.log.info('Will try to update %d photos with GPS tags', len(files))
         nUpdated = 0
-        for file in files:
+        for file in self.jpgFiles:
             photo = PhotoInfo(file)
             photo.identify()
             if photo.hasGPSData():
@@ -116,7 +132,12 @@ class GeoTracker:
                     photo.identify()
             self.photos.append(photo)
             self.addPhotoToTrack(photo)
+            self.statusMsg = f'Added GPS data to {photo}'
+            if cbkProgress:
+                cbkProgress()
+        # TODO more detailed msg: nUpdated, nUntracked, nAlreadyDone
         self.log.info('Updated %d photos with GPS tags', nUpdated)
+        self.statusMsg = f'Updated {nUpdated} photos with GPS tags'
 
     def callExifTool(self, file: str, gpxloc: gpxpy.geo.Location):
         """Set EXIF GPS tags from gpxloc using exiftool."""
@@ -157,6 +178,10 @@ class GeoTracker:
             page.build(track, loc)
             page.save(htmlFile)
             os.system(f'firefox {htmlFile} &')
+
+    def getStatusMessage(self):
+        """Return a message about the current status."""
+        return self.statusMsg
         
 class GeoTrack:
     """Read a .gpx file and store the track."""
