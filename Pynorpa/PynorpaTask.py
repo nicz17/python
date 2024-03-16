@@ -31,9 +31,10 @@ class MountCameraTask(PynorpaTask):
     """Just check that the camera is mounted."""
     log = logging.getLogger('MountCameraTask')
 
-    def __init__(self, copier: CopyFromCamera):
+    def __init__(self, copier: CopyFromCamera, cbkUpdate = None):
         super().__init__('Mount Camera', 'Mount camera memory card', 1)
         self.copier = copier
+        self.cbkUpdate = cbkUpdate
 
     def prepare(self):
         self.log.info('Prepare')
@@ -46,28 +47,69 @@ class MountCameraTask(PynorpaTask):
             self.setDesc(f'Camera is mounted at {self.copier.getCameraDir()}')
         else:
             self.setDesc(f'Camera is not mounted at {config.dirCameraBase}')
+        self.cbkUpdate()
 
 class CopyFromCameraTask(PynorpaTask):
     """Copy pictures from camera memory card."""
     log = logging.getLogger('CopyFromCameraTask')
 
-    def __init__(self, copier: CopyFromCamera):
+    def __init__(self, copier: CopyFromCamera, cbkUpdate):
         super().__init__('Copy photos', 'Copy pictures from camera memory card', copier.getNumberImages())
         self.copier = copier
+        self.cbkUpdate = cbkUpdate
 
     def prepare(self):
         self.log.info('Prepare')
         self.copier.loadImages()
+        self.setDesc(self.copier.getStatusMessage())
 
     def run(self):
         self.log.info('Running')
-        self.copier.copyImages()
+        self.copier.copyImages(self.onProgress)
+        self.setDesc(self.copier.getStatusMessage())
+        self.cbkUpdate()
+
+    def onProgress(self):
+        self.inc()
+        self.setDesc(self.copier.getStatusMessage())
+        self.cbkUpdate()
+
+class GeoTrackerTask(PynorpaTask):
+    """Add GPS tags to copied pictures."""
+    log = logging.getLogger('GeoTrackerTask')
+
+    def __init__(self, tracker: GeoTracker, cbkUpdate):
+        super().__init__('Geotracking', 'Add GPS tags to copied photos', tracker.getNumberImages())
+        self.tracker = tracker
+        self.cbkUpdate = cbkUpdate
+
+    def prepare(self):
+        self.log.info('Prepare')
+        #self.tracker.prepare()  TODO must be done before constructor... reset nTasks here
+        self.tracker.copyFiles()
+        self.setDesc(self.tracker.getStatusMessage())
+
+    def run(self):
+        self.log.info('Running')
+        self.tracker.loadGeoTracks()
+        self.setDesc(self.tracker.getStatusMessage())
+        self.cbkUpdate()
+        self.tracker.setPhotoGPSTags(self.onProgress)
+        self.setDesc(self.tracker.getStatusMessage())
+        self.cbkUpdate()
+        self.tracker.buildHtmlPreviews() # TODO move to own task ?
+
+    def onProgress(self):
+        self.inc()
+        self.setDesc(self.tracker.getStatusMessage())
+        self.cbkUpdate()
+
 
 class TestPynorpaTask(PynorpaTask):
     """Test with sleeping steps."""
     log = logging.getLogger('TestPynorpaTask')
 
-    def __init__(self, steps: int, cbkUpdate = None):
+    def __init__(self, steps: int, cbkUpdate):
         """Constructor with number of 1-second steps."""
         self.nSteps = steps
         self.cbkUpdate = cbkUpdate
@@ -75,14 +117,14 @@ class TestPynorpaTask(PynorpaTask):
 
     def prepare(self):
         self.log.info('Prepare')
-        self.setDesc('Sleeping')
+        self.setDesc('Sleepy!')
 
     def run(self):
         self.log.info('Running')
         for iStep in range(self.nSteps):
             self.log.info('Sleeping %d/%d', iStep, self.nSteps)
             self.setDesc(f'Power nap {iStep+1} in progress')
-            if self.cbkUpdate is not None:
+            if self.cbkUpdate:
                 self.cbkUpdate()
             time.sleep(1)
             self.inc()

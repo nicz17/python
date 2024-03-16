@@ -26,6 +26,7 @@ class PynorpaApp(BaseApp):
         super().__init__('Pynorpa', sGeometry)
 
         self.copier = CopyFromCamera()
+        self.tracker = GeoTracker()
 
         self.renderer = Renderer(self.canTasks, self.window)
         self.loadTasks()
@@ -34,11 +35,13 @@ class PynorpaApp(BaseApp):
     def loadTasks(self):
         """Load the tasks to perform."""
         self.copier.loadImages()
-        self.tasks.append(TestPynorpaTask(10,self.updateTaskDisplay))
-        self.tasks.append(MountCameraTask(self.copier))
-        self.tasks.append(CopyFromCameraTask(self.copier))
-        self.tasks.append(PynorpaTask('Create thumbs', 'Create photo thumbnails', self.copier.getNumberImages()))
-        self.tasks.append(PynorpaTask('GeoTracking', 'Add GPS tags to 42 photos', 42))
+        self.tracker.prepare()
+        self.tasks.append(TestPynorpaTask(5, self.updateTaskDisplay))
+        self.tasks.append(MountCameraTask(self.copier, self.updateTaskDisplay))
+        self.tasks.append(CopyFromCameraTask(self.copier, self.updateTaskDisplay))
+        self.tasks.append(GeoTrackerTask(self.tracker, self.updateTaskDisplay))
+        #self.tasks.append(TestPynorpaTask(10, self.updateTaskDisplay))
+        self.tasks.append(PynorpaTask('Create thumbs', 'Not implemented yet', self.copier.getNumberImages()))
 
     def copyFiles(self):
         """Start the file copy tasks."""
