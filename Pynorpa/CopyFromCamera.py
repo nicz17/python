@@ -25,6 +25,7 @@ class CopyFromCamera:
         self.images = []
         self.sourceDir = None
         self.targetDir = None
+        self.statusMsg = 'Init'
 
     def loadImages(self):
         """Load the list of images to copy."""
@@ -42,8 +43,9 @@ class CopyFromCamera:
         # Glob images
         self.images = sorted(glob.glob(self.sourceDir + '*.JPG'))
         self.log.info('Found %d images', len(self.images))
+        self.statusMsg = f'Loaded {len(self.images)} images from {self.sourceDir}'
 
-    def copyImages(self):
+    def copyImages(self, cbkProgress = None):
         """Copy JPG images from the mounted camera."""
         if len(self.images) == 0:
             return
@@ -53,6 +55,7 @@ class CopyFromCamera:
             photo = PhotoInfo(img)
             photo.identify()
             self.log.info('Copying %s', photo)
+            self.statusMsg = f'Copying {photo}'
             dest = f'{self.targetDir}orig/'
             if os.path.exists(dest + os.path.basename(img)):
                 self.log.info('Photo %s already copied, skipping', dest + os.path.basename(img))
@@ -60,8 +63,11 @@ class CopyFromCamera:
                 cmd = 'cp ' + img.replace(" ", "\\ ") + ' ' + dest
                 self.log.debug(cmd)
                 os.system(cmd)
+            if cbkProgress:
+                cbkProgress()
         timer.stop()
         self.log.info('Copied %d photos in %s', len(self.images), timer.getElapsed())
+        self.statusMsg = f'Copied {len(self.images)} photos to {self.targetDir} in {timer.getElapsed()}'
 
     def isCameraMounted(self):
         """Check if the camera is mounted."""
@@ -74,7 +80,7 @@ class CopyFromCamera:
         """Get the number of photos to copy."""
         return len(self.images)
 
-    def getCameraDir(self) -> None:
+    def getCameraDir(self) -> str:
         """Get the current photo dir on the mounted camera."""
         dirBase = config.dirCameraBase
         if not os.path.exists(dirBase):
@@ -88,6 +94,7 @@ class CopyFromCamera:
                 break
         if self.sourceDir is None:
             self.log.error('Camera is not mounted: no folder found in %s', dirBase)
+        return self.sourceDir
 
     def getCurrentTarget(self) -> None:
         """Build current target image directory. Name is based on year and month."""
@@ -109,6 +116,10 @@ class CopyFromCamera:
             os.makedirs(dir + 'geotracker')
         else:
             self.log.info('Directory %s already exists', dir)
+
+    def getStatusMessage(self):
+        """Return a message about the current status."""
+        return self.statusMsg
 
 
 def testCopyFromCamera():
