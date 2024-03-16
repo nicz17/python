@@ -52,11 +52,9 @@ def main():
     """Main function. Runs the parser."""
     log.info('Welcome to SimpleUML v' + __version__)
     
-    dSettings = None
     if (dOptions['settings']):
         loader = SettingsLoader(dOptions['settings'])
         loader.loadSettings()
-        #dSettings = loader.getSettingsDict()
     
     if (dOptions['file']):
         log.info('Parsing %s to generate %s code', dOptions['file'], dOptions['lang'])
