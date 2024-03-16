@@ -113,11 +113,7 @@ class GeoTracker:
             
     def setPhotoGPSTags(self, cbkProgress = None):
         """Get newly uploaded photos and add GPS EXIF tags if possible."""
-        filter = self.dirPhotos + '*.JPG'
-        #filter = 'Nature-2024-01/orig/*0.JPG' # TODO remove test
-        files = sorted(glob.glob(filter))
-        self.log.info('Looking for photos in %s', filter)
-        self.log.info('Will try to update %d photos with GPS tags', len(files))
+        self.log.info('Will try to update %d photos with GPS tags', len(self.jpgFiles))
         nUpdated = 0
         for file in self.jpgFiles:
             photo = PhotoInfo(file)
