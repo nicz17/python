@@ -79,7 +79,10 @@ class GeoTracker:
             self.log.info('Copying %s', os.path.basename(file))
             dest = self.dirTarget + os.path.basename(file)
             os.system(f'cp {file} {dest}')
-        self.statusMsg = f'Copied {len(self.files)} GPX files'
+        msg = ', '.join([os.path.basename(file) for file in self.files])
+        #self.statusMsg = f'Copied {len(self.files)} GPX files'
+        self.statusMsg = f'Copied {msg}'
+        self.log.info('Copied %s', msg)
 
     def loadGeoTracks(self):
         """Load the GPX data from our .gpx files."""
@@ -115,25 +118,29 @@ class GeoTracker:
         """Get newly uploaded photos and add GPS EXIF tags if possible."""
         self.log.info('Will try to update %d photos with GPS tags', len(self.jpgFiles))
         nUpdated = 0
+        nUntracked = 0
+        nAlreadyDone = 0
         for file in self.jpgFiles:
             photo = PhotoInfo(file)
             photo.identify()
             if photo.hasGPSData():
                 self.log.debug('%s already has GPS data', photo)
+                nAlreadyDone += 1
             else:
                 self.log.info('Adding GPS data to %s', photo)
                 gpxloc = self.getLocationAt(photo.tShotAt)
                 if self.callExifTool(file, gpxloc):
                     nUpdated += 1
                     photo.identify()
+                else:
+                    nUntracked += 1
             self.photos.append(photo)
             self.addPhotoToTrack(photo)
             self.statusMsg = f'Added GPS data to {photo}'
             if cbkProgress:
                 cbkProgress()
-        # TODO more detailed msg: nUpdated, nUntracked, nAlreadyDone
         self.log.info('Updated %d photos with GPS tags', nUpdated)
-        self.statusMsg = f'Updated {nUpdated} photos with GPS tags'
+        self.statusMsg = f'Photos geo-tagged: {nUpdated}, already tagged: {nAlreadyDone}, out of track: {nUntracked}'
 
     def callExifTool(self, file: str, gpxloc: gpxpy.geo.Location):
         """Set EXIF GPS tags from gpxloc using exiftool."""
@@ -174,6 +181,9 @@ class GeoTracker:
             page.build(track, loc)
             page.save(htmlFile)
             os.system(f'firefox {htmlFile} &')
+
+        # Copy PNG icons from resources/ to target
+        os.system(f'cp resources/*.png {self.dirTarget}')
 
     def getStatusMessage(self):
         """Return a message about the current status."""
@@ -329,6 +339,7 @@ class GeoTrackHtmlPage(HtmlPage):
 def testGeoTracker():
     tracker = GeoTracker()
     tracker.prepare()
+    tracker.copyFiles()
     tracker.loadGeoTracks()
     tracker.setPhotoGPSTags()
     tracker.buildHtmlPreviews()

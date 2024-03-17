@@ -36,7 +36,10 @@ SynthValues/*.html
 Pynorpa/pynorpa.log
 Pynorpa/Nature-2024-*/*
 Pynorpa/config.py
+Pynorpa/resources/*
+
 LogBook/*.json
+
 SimpleUML/test/*
 SimpleUML/*.uml
 SimpleUML/settings.json
