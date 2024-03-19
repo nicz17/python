@@ -81,10 +81,14 @@ class LogBookApp(BaseApp):
         self.log.info('Adding task from user input')
         self.log.info('Task is %s', input)
         if self.book is not None and input is not None and len(input) > 0:
-            self.book.addTask(LogBookTask(input))
+            task = LogBookTask(input)
+            self.book.addTask(task)
             self.saveBook()
             self.taskInput.clear()
             self.renderBook()
+            self.taskList.setSelection(task)
+            self.onTaskSelection(task)
+            self.stepInput.setFocus()
         else:
             self.log.info('Skipping empty input')
         self.enableWidgets()

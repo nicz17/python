@@ -48,6 +48,13 @@ class TaskList():
             return None
         index = int(self.listTasks.curselection()[0])
         return self.book.tasks[index]
+    
+    def setSelection(self, task: LogBookTask):
+        """Set the listbox selection to the specified task."""
+        for i in range(len(self.book.tasks)):
+            if task == self.book.tasks[i]:
+                self.listTasks.select_set(i)
+                break
 
     def build(self, parent: tk.Frame):
         """Add the widgets to the parent frame."""

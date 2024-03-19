@@ -24,6 +24,10 @@ class TextInputBox():
         """Get the text input content."""
         return self.txtInput.get(1.0, tk.END).strip()
     
+    def setFocus(self) -> None:
+        """Set the focus in our text box."""
+        self.txtInput.focus_set()
+    
     def onReturnKey(self, evt = None):
         """Callback for text widget Return key press."""
         content = self.getContent()
