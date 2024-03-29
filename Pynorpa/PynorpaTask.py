@@ -49,6 +49,30 @@ class MountCameraTask(PynorpaTask):
             self.setDesc(f'Camera is not mounted at {config.dirCameraBase}')
         self.cbkUpdate()
 
+class CreateThumbnailsTask(PynorpaTask):
+    """Create miniatures for copied photos."""
+    log = logging.getLogger('CreateThumbnailsTask')
+
+    def __init__(self, copier: CopyFromCamera, cbkUpdate):
+        super().__init__('Create previews', 'Create previews for copied photos', copier.getNumberImages())
+        self.copier = copier
+        self.cbkUpdate = cbkUpdate
+
+    def prepare(self):
+        self.log.info('Prepare')
+        self.setDesc(self.copier.getStatusMessage())
+
+    def run(self):
+        self.log.info('Running')
+        self.copier.createThumbs(self.onProgress)
+        self.setDesc(self.copier.getStatusMessage())
+        self.cbkUpdate()
+
+    def onProgress(self):
+        self.inc()
+        self.setDesc(self.copier.getStatusMessage())
+        self.cbkUpdate()
+
 class CopyFromCameraTask(PynorpaTask):
     """Copy pictures from camera memory card."""
     log = logging.getLogger('CopyFromCameraTask')

@@ -40,8 +40,8 @@ class PynorpaApp(BaseApp):
         self.tasks.append(MountCameraTask(self.copier, self.updateTaskDisplay))
         self.tasks.append(CopyFromCameraTask(self.copier, self.updateTaskDisplay))
         self.tasks.append(GeoTrackerTask(self.tracker, self.updateTaskDisplay))
+        self.tasks.append(CreateThumbnailsTask(self.copier, self.updateTaskDisplay))
         #self.tasks.append(TestPynorpaTask(10, self.updateTaskDisplay))
-        self.tasks.append(PynorpaTask('Create thumbs', 'Not implemented yet', self.copier.getNumberImages()))
 
     def copyFiles(self):
         """Start the file copy tasks."""
