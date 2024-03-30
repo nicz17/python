@@ -24,6 +24,10 @@ class PhotoInfo:
         self.height = None
         self.lat = None
         self.lon = None
+        self.focalLength = None
+        self.exposureTime = None
+        self.fNumber = None
+        self.isoRating = None
 
     def identify(self):
         """Load details like size, shot-at and GPS from this image's EXIF tags."""
@@ -37,15 +41,27 @@ class PhotoInfo:
                 self.width = tags[tag]
             elif tag == 'EXIF ExifImageLength':
                 self.height = tags[tag]
+            elif tag == 'EXIF FocalLength':
+                self.focalLength = tags[tag]
+            elif tag == 'EXIF ExposureTime':
+                self.exposureTime = tags[tag]
+            elif tag == 'EXIF FNumber':
+                self.fNumber = tags[tag]
+            elif tag == 'EXIF ISOSpeedRatings':
+                self.isoRating = tags[tag]
         gpsCoords = exifread.utils.get_gps_coords(tags)
         if gpsCoords:
             self.lat, self.lon = gpsCoords
         file.close()
         self.log.debug(self)
 
-    def hasGPSData(self):
+    def hasGPSData(self) -> bool:
         """Checks if this photo has GPS EXIF tags defined."""
         return self.lat is not None and self.lon is not None
+    
+    def getExposureDetails(self) -> str:
+        """Gets exposure info, for example 400mm f/32 1/200s ISO 200"""
+        return f'{self.focalLength}mm f/{self.fNumber} {self.exposureTime}s ISO {self.isoRating}'
 
     def listAllExif(self):
         """List all existing EXIF tags."""
@@ -69,7 +85,7 @@ def testPhotoInfo():
     photos = []
     for file in files:
         photo = PhotoInfo(file)
-        #info.listAllExif()
+        photo.listAllExif()
         photo.identify()
         photo.log.info(photo)
         photos.append(photo)
