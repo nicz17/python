@@ -81,7 +81,7 @@ class CopyFromCamera:
             self.statusMsg = f'Creating thumbnail {sThumb}'
             if not os.path.exists(sThumb):
                 self.log.info('Creating thumbnail image %s', sThumb)
-                sCmd = f'convert {sImg} -resize 180x180 {sThumb}'
+                sCmd = f'convert {sImg} -resize 500x500 {sThumb}'
                 os.system(sCmd)
             if cbkProgress:
                 cbkProgress()
