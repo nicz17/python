@@ -322,10 +322,24 @@ class GeoTrackHtmlPage(HtmlPage):
         photo: PhotoInfo
         for photo in track.photos:
             if photo.hasGPSData():
-                js += f'\taddPicMarker({photo.lon:.6f}, {photo.lat:.6f}, "{photo.filename}", "");\n'
+                sThumb = photo.filename.replace('orig/', 'thumbs/')
+                image = f'<img src=\'{sThumb}\'>'
+                js += f'\taddPicMarker({photo.lon:.6f}, {photo.lat:.6f}, "{image}", "#");\n'
             else:
                 self.log.info('No GPS data in %s', photo.filename)
         self.main.addTag(ScriptHtmlTag(js))
+
+        # Photos table
+        aImgLinks = []
+        for photo in track.photos:
+            sFile = photo.filename
+            sThumb = photo.filename.replace('orig/', 'thumbs/')
+            sCaption = os.path.basename(sFile) + '<br>' + photo.getExposureDetails()
+            tLink = LinkHtmlTag(sFile, None)
+            tLink.addTag(ImageHtmlTag(sThumb, sThumb))
+            tLink.addTag(GrayFontHtmlTag('<br>' + sCaption))
+            aImgLinks.append(tLink)
+        self.addTable(aImgLinks, 2, True).addAttr('width', '100%').addAttr('cellpadding', '10px')
 
     def buildMenu(self):
         """Build the left-hand side menu with links."""
