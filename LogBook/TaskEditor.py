@@ -26,6 +26,7 @@ class TaskEditor():
     def loadData(self, task: LogBookTask):
         """Display the specified object in this editor."""
         self.task = task
+        self.enableWidgets()
         self.txtInput.delete(1.0, tk.END)
         self.lblStatus.configure(text = 'Status')
         self.lblCreated.configure(text = 'Created')
@@ -81,10 +82,6 @@ class TaskEditor():
         # Cancel button
         self.btnCancel = tk.Button(frmButtons, text = 'Cancel', command = self.onCancel)
         self.btnCancel.pack(side=tk.LEFT, padx=5)
-        
-        # Done button
-        #self.btnDone = tk.Button(frmButtons, text = 'Done', command = self.onDone)
-        #self.btnDone.pack(side=tk.LEFT)
 
         self.enableWidgets()
 
@@ -100,16 +97,12 @@ class TaskEditor():
     def enableWidgets(self, evt = None):
         """Enable our internal widgets."""
         modified = self.hasChanges()
-        enableDone = self.task and self.task.status is not Status.Done
-        self.enableButton(self.btnSave, modified)
-        self.enableButton(self.btnCancel, modified)
-        #self.enableButton(self.btnDone, enableDone)
+        self.enableWidget(self.btnSave, modified)
+        self.enableWidget(self.btnCancel, modified)
+        self.enableWidget(self.txtInput, self.task is not None)
         self.txtInput.edit_modified(False)
         
-    def enableButton(self, btn: tk.Button, bEnabled: bool):
-        """Enable the specified button if bEnabled is true."""
-        if btn:
-            if bEnabled:
-                btn['state'] = tk.NORMAL
-            else:
-                btn['state'] = tk.DISABLED
+    def enableWidget(self, widget: tk.Widget, enabled: bool):
+        """Enable the specified tk widget if enabled is true."""
+        if widget:
+            widget['state'] = tk.NORMAL if enabled else tk.DISABLED

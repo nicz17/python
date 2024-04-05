@@ -25,6 +25,7 @@ class StepEditor():
     def loadData(self, step: LogBookStep):
         """Display the specified object in this editor."""
         self.step = step
+        self.enableWidgets()
         self.txtInput.delete(1.0, tk.END)
         self.lblStatus.configure(text = '')
         if step is not None:
@@ -93,15 +94,13 @@ class StepEditor():
         """Enable our internal widgets."""
         modified = self.hasChanges()
         enableDone = self.step and self.step.status is not Status.Done
-        self.enableButton(self.btnSave, modified)
-        self.enableButton(self.btnCancel, modified)
-        self.enableButton(self.btnDone, enableDone)
+        self.enableWidget(self.btnSave, modified)
+        self.enableWidget(self.btnCancel, modified)
+        self.enableWidget(self.btnDone, enableDone)
+        self.enableWidget(self.txtInput, self.step is not None)
         self.txtInput.edit_modified(False)
         
-    def enableButton(self, btn: tk.Button, bEnabled: bool):
-        """Enable the specified button if bEnabled is true."""
-        if btn:
-            if bEnabled:
-                btn['state'] = tk.NORMAL
-            else:
-                btn['state'] = tk.DISABLED
+    def enableWidget(self, widget: tk.Widget, enabled: bool):
+        """Enable the specified tk widget if enabled is true."""
+        if widget:
+            widget['state'] = tk.NORMAL if enabled else tk.DISABLED
