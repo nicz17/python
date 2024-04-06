@@ -102,8 +102,8 @@ class GeoTrackerTask(PynorpaTask):
     """Add GPS tags to copied pictures."""
     log = logging.getLogger('GeoTrackerTask')
 
-    def __init__(self, tracker: GeoTracker, cbkUpdate):
-        super().__init__('Geotracking', 'Add GPS tags to copied photos', tracker.getNumberImages())
+    def __init__(self, tracker: GeoTracker, nPhotos: int, cbkUpdate):
+        super().__init__('Geotracking', 'Add GPS tags to copied photos', nPhotos)
         self.tracker = tracker
         self.cbkUpdate = cbkUpdate
 
@@ -116,6 +116,8 @@ class GeoTrackerTask(PynorpaTask):
     def run(self):
         self.log.info('Running')
         self.tracker.loadGeoTracks()
+        self.tracker.loadPhotos()
+        #self.nStepsTotal = self.tracker.getNumberImages()
         self.setDesc(self.tracker.getStatusMessage())
         self.cbkUpdate()
         self.tracker.setPhotoGPSTags(self.onProgress)

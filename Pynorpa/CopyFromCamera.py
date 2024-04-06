@@ -55,7 +55,7 @@ class CopyFromCamera:
             photo = PhotoInfo(img)
             photo.identify()
             self.log.info('Copying %s', photo)
-            self.statusMsg = f'Copying {photo}'
+            self.statusMsg = f'Copying {photo.filename}'
             dest = f'{self.targetDir}orig/'
             if os.path.exists(dest + os.path.basename(img)):
                 self.log.info('Photo %s already copied, skipping', dest + os.path.basename(img))
@@ -76,7 +76,8 @@ class CopyFromCamera:
         if not os.path.exists(dirThumbs):
             os.makedirs(dirThumbs)
 
-        for sImg in self.images:
+        copied = sorted(glob.glob(self.targetDir + 'orig/*.JPG'))
+        for sImg in copied:
             sThumb = dirThumbs + os.path.basename(sImg)
             self.statusMsg = f'Creating thumbnail {sThumb}'
             if not os.path.exists(sThumb):

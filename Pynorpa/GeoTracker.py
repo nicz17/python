@@ -64,13 +64,6 @@ class GeoTracker:
         filter = self.dirSource + '*' + date.strftime("%y%m") + '*.gpx'
         self.files = sorted(glob.glob(filter))
         self.log.info('Found %d GeoTrack files in %s', len(self.files), filter)
-
-        # Glob JPG photos
-        filter = self.dirPhotos + '*.JPG'
-        self.log.info('Looking for photos in %s', filter)
-        self.jpgFiles = sorted(glob.glob(filter))
-        self.log.info('Will try to update %d photos with GPS tags', len(self.jpgFiles))
-
         self.statusMsg = 'Prepared'
 
     def copyFiles(self):
@@ -94,6 +87,15 @@ class GeoTracker:
             self.geoTracks.append(track)
             loc = self.locationCache.getClosest(track.center.latitude, track.center.longitude)
             self.log.info('Closest location in cache to track %s is %s', track.name, loc)
+
+    def loadPhotos(self):
+        # Glob JPG photos
+        filter = self.dirPhotos + '*.JPG'
+        self.log.info('Looking for photos in %s', filter)
+        self.jpgFiles = sorted(glob.glob(filter))
+        self.log.info('Will try to update %d photos with GPS tags', len(self.jpgFiles))
+
+        self.statusMsg = 'Prepared'
 
     def getLocationAt(self, tAt: float):
         """Get the GPS coordinates for the specified UNIX timestamp."""
@@ -128,7 +130,7 @@ class GeoTracker:
                 nAlreadyDone += 1
             else:
                 self.log.info('Adding GPS data to %s', photo)
-                gpxloc = self.getLocationAt(photo.tShotAt)
+                gpxloc = self.getLocationAt(photo.tShotAt)  # +3600 if wrong DST settings on camera
                 if self.callExifTool(file, gpxloc):
                     nUpdated += 1
                     photo.identify()
@@ -136,11 +138,11 @@ class GeoTracker:
                     nUntracked += 1
             self.photos.append(photo)
             self.addPhotoToTrack(photo)
-            self.statusMsg = f'Added GPS data to {photo}'
+            self.statusMsg = f'Added GPS data to {photo.filename}'
             if cbkProgress:
                 cbkProgress()
-        self.log.info('Updated %d photos with GPS tags', nUpdated)
         self.statusMsg = f'Photos geo-tagged: {nUpdated}, already tagged: {nAlreadyDone}, out of track: {nUntracked}'
+        self.log.info(self.statusMsg)
 
     def callExifTool(self, file: str, gpxloc: gpxpy.geo.Location):
         """Set EXIF GPS tags from gpxloc using exiftool."""
@@ -183,6 +185,7 @@ class GeoTracker:
             os.system(f'firefox {htmlFile} &')
 
         # Copy PNG icons from resources/ to target
+        # TODO: need settings for resources path
         os.system(f'cp resources/*.png {self.dirTarget}')
 
     def getStatusMessage(self):
@@ -355,6 +358,7 @@ def testGeoTracker():
     tracker.prepare()
     tracker.copyFiles()
     tracker.loadGeoTracks()
+    tracker.loadPhotos()
     tracker.setPhotoGPSTags()
     tracker.buildHtmlPreviews()
 
