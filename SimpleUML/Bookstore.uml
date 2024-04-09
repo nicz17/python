@@ -4,11 +4,11 @@ Book
 -title: str
 -author: str
 -pages: int
--published: date
+-published: time_t
 ----------------------------
 +Book(title, author, pages)
 +getTitle(): str
-+setPublished(tAt)
++setPublished(tAt: time_t)
 -init()
 ----------------------------
 

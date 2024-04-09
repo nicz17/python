@@ -64,19 +64,35 @@ class SimpleUMLParser():
                 name = match1.group(1)
                 sparams = match1.group(2)
                 type = match1.group(3)
-                if len(sparams) > 0:
-                    params = sparams.split(', ')
+                #if len(sparams) > 0:
+                #    params = sparams.split(', ')
+                self.parseParams(sparams, params)
             elif match2:
                 name = match2.group(1)
                 sparams = match2.group(2)
-                if len(sparams) > 0:
-                    params = sparams.split(', ')
-                #self.log.info('Method %s has %d params', name, len(params))
+                #if len(sparams) > 0:
+                #    params = sparams.split(', ')
+                self.parseParams(sparams, params)
             else:
                 self.log.error('Failed to parse method from %s', line)
+            
+            self.log.info('Method %s has %d params:', name, len(params))
+            for p in params:
+                self.log.info('.. %s', p)
             self.clazz.addMethod(name, params, type, isPrivate)
         else:
             self.log.error('Unhandled mode %s for line %s', mode, line)
+
+    def parseParams(self, line: str, result):
+        """Parse method parameters from a comma-separated list."""
+        if len(line) > 0:
+            params = line.split(', ')
+            for rawParam in params:
+                if ': ' in rawParam:
+                    parts = rawParam.split(': ')
+                    result.append(SimpleUMLParam(parts[0], parts[1]))
+                else:
+                    result.append(SimpleUMLParam(rawParam))
 
     def parse(self, filename: str):
         """Parse the specified text file."""

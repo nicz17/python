@@ -17,12 +17,27 @@ from SettingsLoader import *
 
 class SimpleUMLMember():
     """Class member representation."""
-    log = logging.getLogger('SimpleUMLMethod')
+    log = logging.getLogger('SimpleUMLMember')
 
     def __init__(self, name: str, type = None):
         """Constructor"""
         self.name = name
         self.type = type
+
+    def __str__(self):
+        return f'SimpleUMLMember {self.name}: {self.type}'
+
+class SimpleUMLParam():
+    """Method parameter representation."""
+    log = logging.getLogger('SimpleUMLParam')
+
+    def __init__(self, name: str, type = None):
+        """Constructor"""
+        self.name = name
+        self.type = type
+
+    def __str__(self):
+        return f'SimpleUMLParam {self.name}: {self.type}'
 
 class SimpleUMLMethod():
     """Class method representation."""
@@ -49,6 +64,9 @@ class SimpleUMLMethod():
         """Check if this method is a setter."""
         return self.name.startswith('set')
     
+    def __str__(self):
+        return f'SimpleUMLMethod {self.name}() with {len(self.params)} params'
+    
 
 class SimpleUMLClass():
     """A simple code generator."""
@@ -73,8 +91,9 @@ class SimpleUMLClass():
 
     def addMethod(self, name: str, params, type: str, isPrivate = True):
         """Add a class method of the specified name and type."""
-        self.log.info('Adding method %s params %s', name, params)
-        self.methods.append(SimpleUMLMethod(name, params, type, isPrivate))
+        method = SimpleUMLMethod(name, params, type, isPrivate)
+        self.log.info('Adding %s', method)
+        self.methods.append(method)
 
     def getMember(self, name: str) -> SimpleUMLMember:
         """Return the class member with the specified name, or None."""
@@ -136,11 +155,11 @@ class SimpleUMLClassPython(SimpleUMLClass):
         for method in self.methods:
             params = 'self'
             for param in method.params:
-                member = self.getMember(param)
+                member = self.getMember(param.name)
                 if member and member.type:
                     params += f', {member.name}: {member.type}'
                 else:
-                    params += f', {param}'
+                    params += f', {param.name}'
             definition = f'def {method.name}({params}):'
             if method.isConstructor(self.name):
                 file.write(f'def __init__({params}):', 1)
@@ -162,7 +181,7 @@ class SimpleUMLClassPython(SimpleUMLClass):
                 member = TextTools.lowerCaseFirst(method.name[3:])
                 file.write(definition, 1)
                 file.addDoc(f'Setter for {member}', 2)
-                file.write(f'self.{member} = {method.params[0]}', 2)
+                file.write(f'self.{member} = {method.params[0].name}', 2)
             else:
                 file.write(definition, 1)
                 file.addDoc(f'{TextTools.upperCaseFirst(method.name)}', 2)
@@ -299,14 +318,16 @@ class SimpleUMLClassCpp(SimpleUMLClass):
         docs.append('TODO: document')
         params = ''
         for param in method.params:
-            member = self.getMember(param)
+            member = self.getMember(param.name)
             ptype = 'int'
-            if member and member.type:
+            if param.type:
+                ptype = param.type
+            elif member and member.type:
                 ptype = member.type
             if len(params) > 0:
                 params += ', '
-            params += f'{ptype} {param}'
-            docs.append(f'@param {param} ')
+            params += f'{ptype} {param.name}'
+            docs.append(f'@param {param.name} ')
         if type and not type.startswith('void'):
             docs.append('@return ')
         file.addMultiLineDoc(docs, 1)
@@ -323,13 +344,15 @@ class SimpleUMLClassCpp(SimpleUMLClass):
             type = ''
         params = ''
         for param in method.params:
-            member = self.getMember(param)
+            member = self.getMember(param.name)
             ptype = 'int'
-            if member and member.type:
+            if param.type:
+                ptype = param.type
+            elif member and member.type:
                 ptype = member.type
             if len(params) > 0:
                 params += ', '
-            params += f'{ptype} {param}'
+            params += f'{ptype} {param.name}'
         file.write(f'{type}{self.name}::{method.name}({params}) ' + '{')
         if isConstructor:
             for member in self.members:
@@ -342,7 +365,7 @@ class SimpleUMLClassCpp(SimpleUMLClass):
             file.write(f'return {memberName};', 1)
         elif method.isSetter():
             memberName = TextTools.lowerCaseFirst(method.name[3:])
-            file.write(f'{memberName} = {method.params[0]};', 1)
+            file.write(f'{memberName} = {method.params[0].name};', 1)
         else:
             file.addComment('TODO: implement', 1)
         file.write('}')
