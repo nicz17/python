@@ -9,6 +9,7 @@ __version__ = "1.0.0"
 import logging
 import config
 import time
+import TextTools
 from Task import *
 from CopyFromCamera import *
 from GeoTracker import *
@@ -18,6 +19,7 @@ class PynorpaTask(Task):
 
     def __init__(self, title: str, desc: str, nStepsTotal: int):
         super().__init__(title, desc, nStepsTotal)
+        self.tStart = None
 
     def prepare(self):
         """Prepare this task. Must be done before running."""
@@ -25,7 +27,25 @@ class PynorpaTask(Task):
 
     def run(self):
         """Run this task."""
-        pass
+        self.tStart = time.time()
+        self.log.info('Running')
+
+    def getStatus(self) -> str:
+        sLeft = self.getRemainingTime()
+        return f'{self.status} [{self.nStepsDone}/{self.nStepsTotal}]{sLeft}'
+    
+    def getRemainingTime(self):
+        """Estimate the remaining time."""
+        result = ''
+        nTotal = self.nStepsTotal
+        nDone  = self.nStepsDone
+        if self.tStart and nTotal and nDone and nTotal > 0 and nDone > 0:
+            if nDone < nTotal:
+                tUsed = time.time() - self.tStart
+                tLeft = (nTotal - nDone)*tUsed/nDone
+                result = ' time left: ' + TextTools.durationToString(tLeft)
+        return result
+
 
 class MountCameraTask(PynorpaTask):
     """Just check that the camera is mounted."""
@@ -41,7 +61,7 @@ class MountCameraTask(PynorpaTask):
         self.copier.getCameraDir()
 
     def run(self):
-        self.log.info('Running')
+        super().run()
         if self.copier.isCameraMounted():
             self.inc()
             self.setDesc(f'Camera is mounted at {self.copier.getCameraDir()}')
@@ -63,7 +83,7 @@ class CreateThumbnailsTask(PynorpaTask):
         self.setDesc(self.copier.getStatusMessage())
 
     def run(self):
-        self.log.info('Running')
+        super().run()
         self.copier.createThumbs(self.onProgress)
         self.setDesc(self.copier.getStatusMessage())
         self.cbkUpdate()
@@ -88,7 +108,7 @@ class CopyFromCameraTask(PynorpaTask):
         self.setDesc(self.copier.getStatusMessage())
 
     def run(self):
-        self.log.info('Running')
+        super().run()
         self.copier.copyImages(self.onProgress)
         self.setDesc(self.copier.getStatusMessage())
         self.cbkUpdate()
@@ -114,7 +134,7 @@ class GeoTrackerTask(PynorpaTask):
         self.setDesc(self.tracker.getStatusMessage())
 
     def run(self):
-        self.log.info('Running')
+        super().run()
         self.tracker.loadGeoTracks()
         self.tracker.loadPhotos()
         #self.nStepsTotal = self.tracker.getNumberImages()
@@ -146,7 +166,7 @@ class TestPynorpaTask(PynorpaTask):
         self.setDesc('Sleepy!')
 
     def run(self):
-        self.log.info('Running')
+        super().run()
         for iStep in range(self.nSteps):
             self.log.info('Sleeping %d/%d', iStep, self.nSteps)
             self.setDesc(f'Power nap {iStep+1} in progress')
