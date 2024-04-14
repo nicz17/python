@@ -84,8 +84,8 @@ class CopyFromCamera:
                 self.log.info('Creating thumbnail image %s', sThumb)
                 sCmd = f'convert {sImg} -resize 500x500 {sThumb}'
                 os.system(sCmd)
-            if cbkProgress:
-                cbkProgress()
+                if cbkProgress:
+                    cbkProgress()
         self.statusMsg = f'Created {len(self.images)} thumbnails'
 
     def isCameraMounted(self):

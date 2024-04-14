@@ -134,13 +134,14 @@ class GeoTracker:
                 if self.callExifTool(file, gpxloc):
                     nUpdated += 1
                     photo.identify()
+                    self.statusMsg = f'Added GPS data to {photo.filename}'
                 else:
                     nUntracked += 1
+                    self.statusMsg = f'No GPS data for {photo.filename}'
+                if cbkProgress:
+                    cbkProgress()
             self.photos.append(photo)
             self.addPhotoToTrack(photo)
-            self.statusMsg = f'Added GPS data to {photo.filename}'
-            if cbkProgress:
-                cbkProgress()
         self.statusMsg = f'Photos geo-tagged: {nUpdated}, already tagged: {nAlreadyDone}, out of track: {nUntracked}'
         self.log.info(self.statusMsg)
 
