@@ -45,7 +45,7 @@ class LogBookApp(BaseApp):
         self.taskEditor = TaskEditor(self.onTaskSave)
         self.bookSelector = BookSelector(self.onBookSelection)
         geometry = f'{self.iWidth}x{self.iHeight}'
-        super().__init__('LogBook', geometry)
+        super().__init__('LogBook', geometry, LogBook.dir + 'LogBook.png')
         self.loadBook()
         self.renderBook()
         self.enableWidgets()
