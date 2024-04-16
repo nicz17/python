@@ -52,17 +52,34 @@ class OrderReader():
         """Read order files and merge into the synthesis table."""
         self.log.info('Reading %d order files:', len(self.orders))
         dfMerged = pd.DataFrame()
+        iRowFrom = 6
+        iRowTo = 28
+        iOrder = 1
         for order in self.orders:
             dfOrder = pd.read_excel(order)
+            if iOrder == 1:
+                rowNames = dfOrder.iloc[iRowFrom:iRowTo, 0]
+                rowNames.at[-1] = 'Subsides'
+                dfMerged.insert(0, 'Produits', rowNames)
             #print(dfOrder)
             name = dfOrder.iloc[2][3]
             if pd.isna(dfOrder.iloc[2, 3]):
+                # Hope to find name in filename
                 name = os.path.basename(order)
-            quant = dfOrder.iloc[6:26, 3]
-            self.log.info('Order by "%s"', name)
-            dfMerged.insert(0, name, quant)
+                name = name.replace('commande_groupee_avril2024_', '')
+                name = name.replace('sans_subsides_', '')
+                name = name.replace('avec_subsides_', '')
+                name = name.replace('.xlsx', '')
+            hasSubsidy = not pd.isna(dfOrder.iloc[0, 0])
+            quant = dfOrder.iloc[iRowFrom:iRowTo, 3]
+            quant.at[-1] = 'x' if hasSubsidy else ''
+            self.log.info('Commande %s subsides par "%s"', 
+                        'AVEC' if hasSubsidy else 'sans', name)
+            dfMerged.insert(iOrder, name, quant)
+            iOrder += 1
         #print(dfMerged)
         dfMerged.to_csv('synthese.csv')
+        dfMerged.to_excel('synthese-brute.xlsx')
 
     def __str__(self):
         str = "OrderReader"
