@@ -9,16 +9,23 @@ __version__ = "1.0.0"
 import tkinter as tk
 from tkinter import messagebox
 import logging
+import os
+
 
 class BaseApp:
     log = logging.getLogger('BaseApp')
 
-    def __init__(self, sTitle, sGeometry = '1200x800') -> None:
+    def __init__(self, sTitle, sGeometry = '1200x800', sIconFile = None) -> None:
         self.log.info('Creating BaseApp %s [%s]', sTitle, sGeometry)
         self.sTitle = sTitle
         self.window = tk.Tk()
         self.window.title(sTitle)
         self.window.geometry(sGeometry)
+
+        # Set the application icon if defined
+        if sIconFile and os.path.exists(sIconFile):
+            self.window.iconphoto(False, tk.PhotoImage(file=sIconFile)) 
+
         self.createFrames()
         self.createBaseWidgets()
         self.createWidgets()
