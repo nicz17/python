@@ -36,7 +36,7 @@ class CodeFile():
         self.file.write('\n' * amount)
 
     def write(self, line: str, indent = 0):
-        self.file.write('\t' * indent + line + '\n')
+        self.file.write(' '*4*indent + line + '\n')
 
     def close(self):
         """Close our file."""
