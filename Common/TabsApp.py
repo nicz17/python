@@ -20,8 +20,10 @@ class TabsApp(BaseApp):
 
     def createBaseWidgets(self):
         """Create base widgets"""
-        self.frmTop = tk.Frame(master=self.window, width=1200, height=100)
+        self.frmTop = tk.Frame(master=self.window, width=1200, height=800)
         self.frmTop.pack(fill=tk.X, side=tk.TOP)
+        self.frmButtons = tk.Frame(master=self.frmTop, width=100, height=800)
+        self.frmButtons.pack(fill=tk.Y, side=tk.LEFT)
         self.frmBottom = tk.Frame(master=self.window, width=1200, height=50, bg='red')
         self.frmBottom.pack(fill=tk.X, side=tk.BOTTOM)
         
@@ -66,7 +68,9 @@ class TabModule:
 
     def createWidgets(self):
         """Create user widgets"""
-        pass
+        self.lblTest = tk.Label(master=self.oFrame)
+        self.lblTest.pack(fill=tk.X)
+        self.lblTest.configure(text = f'Test for {self.sTitle} tab')
 
 def testTabsApp():
     app = TabsApp('Test')
