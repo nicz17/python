@@ -28,7 +28,7 @@ class TabsApp(BaseApp):
         self.frmBottom.pack(fill=tk.X, side=tk.BOTTOM)
         
         self.tabControl = ttk.Notebook(self.frmTop)
-        self.tabControl.pack(expand=1, fill="both")
+        self.tabControl.pack(expand=1, fill="both", pady=3)
 
         self.lblStatus = tk.Label(master=self.frmBottom)
         self.lblStatus.pack(fill=tk.X) 
@@ -60,7 +60,7 @@ class TabModule:
     """ A module for the TabsApp. """
     log = logging.getLogger('TabModule')
     
-    def __init__(self, oParent, sTitle):
+    def __init__(self, oParent: TabsApp, sTitle: str):
         self.sTitle = sTitle
         self.oParent = oParent
         self.oFrame = oParent.addTab(sTitle)
