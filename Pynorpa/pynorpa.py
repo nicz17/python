@@ -9,16 +9,13 @@ __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
-import os
 import sys
-#import config
 import logging
 import getopt
 from CopyFromCamera import *
 from GeoTracker import *
 from PynorpaApp import *
-#from LocationCache import *
-#from Uploader import *
+from PynorpaTabsApp import *
 
 
 def configureLogging():
@@ -39,9 +36,9 @@ def configureLogging():
 
 def getOptions():
     """Parse program arguments and store them in a dict."""
-    dOptions = {'dryrun': False, 'upload': False, 'open': False, 'copy': False}
+    dOptions = {'dryrun': False, 'upload': False, 'open': False, 'copy': False, 'tabs': False}
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hduoc", ["help", "dry", "upload", 'open', 'copy'])
+        opts, args = getopt.getopt(sys.argv[1:], "hduoct", ["help", "dry", "upload", 'open', 'copy', 'tabs'])
     except getopt.GetoptError:
         print("Invalid options: %s", sys.argv[1:])
     for opt, arg in opts:
@@ -57,6 +54,8 @@ def getOptions():
             dOptions['open'] = True
         elif opt in ("-c", "--copy"):
             dOptions['copy'] = True
+        elif opt in ("-t", "--tabs"):
+            dOptions['tabs'] = True
     return dOptions
 
 def checkConfig():
@@ -78,6 +77,9 @@ def main():
         tracker.loadGeoTracks()
         tracker.setPhotoGPSTags()
         tracker.buildHtmlPreviews()
+    elif (dOptions['tabs']):
+        app = PynorpaTabsApp()
+        app.run()
     else:
         app = PynorpaApp()
         app.run()
