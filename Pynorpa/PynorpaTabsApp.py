@@ -6,9 +6,9 @@ __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
-import tkinter as tk
 import logging
 from TabsApp import *
+from ModuleCamera import *
 
 class PynorpaTabsApp(TabsApp):
     """Pynorpa App window."""
@@ -21,6 +21,6 @@ class PynorpaTabsApp(TabsApp):
         sGeometry = f'{self.iWidth}x{self.iHeight}'
         super().__init__('Pynorpa Tabs', sGeometry)
 
-        modCamera    = TabModule(self, 'Caméra')
+        modCamera    = ModuleCamera(self)
         modLocations = TabModule(self, 'Lieux')
         modPictures  = TabModule(self, 'Photos')
