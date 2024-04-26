@@ -46,7 +46,8 @@ class LocationCache:
         """Fetch and store the location records."""
         db = Database(config.dbName)
         db.connect(config.dbUser, config.dbPass)
-        sql = 'select idxLocation, locName, locDesc, locLatitude, locLongitude from Location'
+        sql  = 'select idxLocation, locName, locDesc, locLatitude, locLongitude '
+        sql += 'from Location order by locName asc'
         rows = db.fetch(sql)
         for row in rows:
             self.log.debug(row)
@@ -55,6 +56,10 @@ class LocationCache:
             self.log.debug(loc)
         db.disconnect()
         self.log.info('Done loading %s', self)
+
+    def getLocations(self):
+        """Returns the fetched locations."""
+        return self.locations
 
     def getClosest(self, lat: float, lon: float) -> Location:
         """Find the closest location in this cache to the specified lat/lon."""
