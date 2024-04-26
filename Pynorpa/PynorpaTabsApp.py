@@ -9,6 +9,7 @@ __version__ = "1.0.0"
 import logging
 from TabsApp import *
 from ModuleCamera import *
+from ModuleLocations import *
 
 class PynorpaTabsApp(TabsApp):
     """Pynorpa App window."""
@@ -22,5 +23,5 @@ class PynorpaTabsApp(TabsApp):
         super().__init__('Pynorpa Tabs', sGeometry)
 
         modCamera    = ModuleCamera(self)
-        modLocations = TabModule(self, 'Lieux')
+        modLocations = ModuleLocations(self)
         modPictures  = TabModule(self, 'Photos')
