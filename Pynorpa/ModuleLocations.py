@@ -6,10 +6,9 @@ __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
-#import tkinter as tk
 import logging
 from TabsApp import *
-from BaseTable import *
+from TableLocations import *
 from LocationCache import *
 
 class ModuleLocations(TabModule):
@@ -19,13 +18,15 @@ class ModuleLocations(TabModule):
     def __init__(self, parent: TabsApp) -> None:
         """Constructor."""
         self.window = parent.window
-        self.table = BaseTable(self.onSelectLocation)
+        self.table = TableLocations(self.onSelectLocation)
         super().__init__(parent, 'Lieux')
+        self.locationCache = LocationCache()
+        self.locationCache.load()
+        self.table.loadData(self.locationCache.getLocations())
 
-    def onSelectLocation(self):
-        pass
+    def onSelectLocation(self, loc):
+        self.log.info(f'Selected {loc}')
 
     def createWidgets(self):
         """Create user widgets."""
-        columns = ('Nom', 'Région', 'Altitude')
-        self.table.createWidgets(self.oFrame, columns)
+        self.table.createWidgets(self.oFrame)
