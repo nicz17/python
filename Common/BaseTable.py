@@ -15,10 +15,11 @@ class BaseTable():
     """A table widget."""
     log = logging.getLogger(__name__)
 
-    def __init__(self, cbkSelect):
-        """Constructor with selection callback."""
+    def __init__(self, cbkSelectRow):
+        """Constructor with row selection callback."""
         self.log.info('Constructor')
-        self.cbkSelect = cbkSelect
+        self.cbkSelectRow = cbkSelectRow
+        self.nRows = 0
         
     def createWidgets(self, parent: tk.Frame, columns):
         """Create user widgets."""
@@ -35,8 +36,14 @@ class BaseTable():
         for sColName in columns:
             self.tree.heading(sColName, text=sColName, anchor=tk.W)
 
-        self.tree.bind('<<TreeviewSelect>>', self.cbkSelect)
+        self.tree.bind('<<TreeviewSelect>>', self.cbkSelectRow)
         self.tree.pack(pady=5)
+
+    def addRow(self, rowData):
+        """Add a row to this table."""
+        idx = self.nRows
+        self.tree.insert(parent='', index='end', iid=idx, text='', values=rowData)
+        self.nRows += 1
 
     def getSelectedRow(self) -> int:
         """Get the selected row index."""
@@ -46,3 +53,8 @@ class BaseTable():
             return None
         else:
             return int(sel)
+        
+    def clear(self):
+        """Clears the tree contents."""
+        self.tree.delete(*self.tree.get_children())
+        self.nRows = 0
