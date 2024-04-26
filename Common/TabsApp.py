@@ -28,7 +28,7 @@ class TabsApp(BaseApp):
         self.frmBottom.pack(fill=tk.X, side=tk.BOTTOM)
         
         self.tabControl = ttk.Notebook(self.frmTop)
-        self.tabControl.pack(expand=1, fill="both", pady=3)
+        self.tabControl.pack(expand=1, fill="both", pady=3, padx=5)
 
         self.lblStatus = tk.Label(master=self.frmBottom)
         self.lblStatus.pack(fill=tk.X) 

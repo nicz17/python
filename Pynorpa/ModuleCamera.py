@@ -14,7 +14,7 @@ from Renderer import *
 from PynorpaTask import *
 
 class ModuleCamera(TabModule):
-    """Pynorpa App window."""
+    """Pynorpa Module for importing photos from camera."""
     log = logging.getLogger('ModuleCamera')
 
     def __init__(self, parent: TabsApp) -> None:
@@ -69,7 +69,6 @@ class ModuleCamera(TabModule):
             #os.system(f'nautilus {dir}')
             os.system(f'eog {dir} &')
         else:
-            pass
             self.oParent.showErrorMsg(f'Photo directory not found:\n{dir}')
 
     def addButton(self, label: str, cmd):
@@ -92,7 +91,7 @@ class ModuleCamera(TabModule):
         # Canvas
         self.canTasks = tk.Canvas(master=self.oFrame, bd=0, 
                                   #bg='#e0e0e0', 
-                                  height=self.oParent.iHeight-50, 
-                                  width=self.oParent.iWidth-200, 
+                                  height=self.oParent.iHeight-200, 
+                                  width=self.oParent.iWidth-210, 
                                   highlightthickness=0)
         self.canTasks.pack(side=tk.LEFT)
