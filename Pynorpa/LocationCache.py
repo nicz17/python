@@ -18,11 +18,13 @@ class Location:
 
     def __init__(self, row):
         """Constructor from fetched row."""
-        self.idx = row[0]
-        self.name = row[1]
-        self.desc = row[2]
-        self.lat = row[3]
-        self.lon = row[4]
+        self.idx    = row[0]
+        self.name   = row[1]
+        self.desc   = row[2]
+        self.lat    = row[3]
+        self.lon    = row[4]
+        self.alt    = row[5]
+        self.region = row[6]
 
     def getDistance(self, lat: float, lon: float) -> float:
         """Get the distance to another location."""
@@ -46,7 +48,7 @@ class LocationCache:
         """Fetch and store the location records."""
         db = Database(config.dbName)
         db.connect(config.dbUser, config.dbPass)
-        sql  = 'select idxLocation, locName, locDesc, locLatitude, locLongitude '
+        sql  = 'select idxLocation, locName, locDesc, locLatitude, locLongitude, locAltitude, locRegion '
         sql += 'from Location order by locName asc'
         rows = db.fetch(sql)
         for row in rows:

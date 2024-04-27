@@ -32,7 +32,7 @@ class TableLocations(BaseTable):
 
         location: Location
         for location in locations:
-            rowData = (location.name, location.lat, location.lon)
+            rowData = (location.name, location.region, location.alt)
             self.addRow(rowData)
 
     def createWidgets(self, parent: tk.Frame):
