@@ -15,10 +15,11 @@ class BaseTable():
     """A table widget."""
     log = logging.getLogger(__name__)
 
-    def __init__(self, cbkSelectRow):
+    def __init__(self, cbkSelectRow, objectLabel = 'rows'):
         """Constructor with row selection callback."""
         self.log.info('Constructor')
         self.cbkSelectRow = cbkSelectRow
+        self.objectlabel = objectLabel
         self.nRows = 0
         
     def createWidgets(self, parent: tk.Frame, columns):
@@ -37,13 +38,20 @@ class BaseTable():
             self.tree.heading(sColName, text=sColName, anchor=tk.W)
 
         self.tree.bind('<<TreeviewSelect>>', self.cbkSelectRow)
-        self.tree.pack(pady=5)
+        self.tree.pack(pady=5, anchor=tk.W)
+
+        # Status and toolbar frame
+        self.frmToolBar = tk.Frame(parent)
+        self.frmToolBar.pack(fill=tk.X, anchor=tk.W)
+        self.lblStatus = tk.Label(master=self.frmToolBar)
+        self.lblStatus.pack(fill=tk.X, side=tk.LEFT) 
 
     def addRow(self, rowData):
         """Add a row to this table."""
         idx = self.nRows
         self.tree.insert(parent='', index='end', iid=idx, text='', values=rowData)
         self.nRows += 1
+        self.lblStatus.configure(text=f'{self.nRows} {self.objectlabel}')
 
     def getSelectedRow(self) -> int:
         """Get the selected row index."""
