@@ -19,7 +19,7 @@ class TableLocations(BaseTable):
     def __init__(self, cbkSelect):
         """Constructor with selection callback."""
         self.log.info('Constructor')
-        super().__init__(self.onRowSelection)
+        super().__init__(self.onRowSelection, 'locations')
         self.columns = ('Nom', 'Région', 'Altitude')
         self.data = []
         self.cbkSelect = cbkSelect

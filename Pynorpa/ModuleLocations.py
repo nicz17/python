@@ -24,8 +24,10 @@ class ModuleLocations(TabModule):
         self.locationCache.load()
         self.table.loadData(self.locationCache.getLocations())
 
-    def onSelectLocation(self, loc):
-        self.log.info(f'Selected {loc}')
+    def onSelectLocation(self, location: Location):
+        self.log.info(f'Selected {location}')
+        # TODO display in map widget
+        # TODO display in editor
 
     def createWidgets(self):
         """Create user widgets."""

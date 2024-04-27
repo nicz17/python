@@ -22,6 +22,6 @@ class PynorpaTabsApp(TabsApp):
         sGeometry = f'{self.iWidth}x{self.iHeight}'
         super().__init__('Pynorpa Tabs', sGeometry)
 
-        modCamera    = ModuleCamera(self)
         modLocations = ModuleLocations(self)
+        modCamera    = ModuleCamera(self)
         modPictures  = TabModule(self, 'Photos')
