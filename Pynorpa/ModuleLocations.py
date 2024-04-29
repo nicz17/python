@@ -10,6 +10,8 @@ import logging
 from TabsApp import *
 from TableLocations import *
 from LocationCache import *
+from MapWidget import *
+
 
 class ModuleLocations(TabModule):
     """Pynorpa Module for locations."""
@@ -19,6 +21,7 @@ class ModuleLocations(TabModule):
         """Constructor."""
         self.window = parent.window
         self.table = TableLocations(self.onSelectLocation)
+        self.mapWidget = MapWidget()
         super().__init__(parent, 'Lieux')
         self.locationCache = LocationCache()
         self.locationCache.load()
@@ -26,9 +29,24 @@ class ModuleLocations(TabModule):
 
     def onSelectLocation(self, location: Location):
         self.log.info(f'Selected {location}')
-        # TODO display in map widget
+        # Display in map widget
+        self.mapWidget.loadData(location)
         # TODO display in editor
 
     def createWidgets(self):
         """Create user widgets."""
-        self.table.createWidgets(self.oFrame)
+
+        # Frames
+        self.frmLeft = tk.Frame(master=self.oFrame)
+        self.frmLeft.pack(fill=tk.Y, side=tk.LEFT, pady=0)
+        self.frmRight = tk.Frame(master=self.oFrame)
+        self.frmRight.pack(fill=tk.Y, side=tk.LEFT, pady=6, padx=6)
+
+        # Locations table
+        self.table.createWidgets(self.frmLeft)
+
+        # TODO Location editor
+
+
+        # Map widget
+        self.mapWidget.createWidgets(self.frmRight)
