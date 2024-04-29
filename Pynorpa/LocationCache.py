@@ -25,6 +25,7 @@ class Location:
         self.lon    = row[4]
         self.alt    = row[5]
         self.region = row[6]
+        self.zoom   = row[7]
 
     def getDistance(self, lat: float, lon: float) -> float:
         """Get the distance to another location."""
@@ -48,7 +49,8 @@ class LocationCache:
         """Fetch and store the location records."""
         db = Database(config.dbName)
         db.connect(config.dbUser, config.dbPass)
-        sql  = 'select idxLocation, locName, locDesc, locLatitude, locLongitude, locAltitude, locRegion '
+        sql  = 'select idxLocation, locName, locDesc, locLatitude, locLongitude, '
+        sql += 'locAltitude, locRegion, locMapZoom '
         sql += 'from Location order by locName asc'
         rows = db.fetch(sql)
         for row in rows:
