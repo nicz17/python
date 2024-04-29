@@ -24,7 +24,7 @@ class BaseTable():
         
     def createWidgets(self, parent: tk.Frame, columns):
         """Create user widgets."""
-        self.tree = ttk.Treeview(parent, height=32)
+        self.tree = ttk.Treeview(parent, height=36)
         self.tree['columns'] = columns
 
         # Define columns
