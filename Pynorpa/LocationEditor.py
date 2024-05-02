@@ -49,18 +49,13 @@ class LocationEditor():
         self.frmEdit.pack(side=tk.TOP, anchor=tk.N, fill=tk.X, expand=True, pady=5)
 
         # Name
-        self.addLabel(0, 'Nom')
-        self.txtName = self.addEntry(0)
+        self.txtName = self.addText(0, 'Nom')
 
         # Region
-        self.addLabel(1, 'Région')
-        self.txtRegion = self.addEntry(1)
+        self.txtRegion = self.addText(1, 'Région')
 
         # Description
-        self.addLabel(2, 'Description')
-        self.txtDesc = tk.Text(self.frmEdit, width=64, height=6)
-        self.txtDesc.grid(row=2, column=1, padx=4, sticky='ew')
-
+        self.txtDesc = self.addTextArea(2, 'Description', 6)
 
         # Buttons: save, cancel
         frmButtons = ttk.Frame(self.frmEdit, padding=5)
@@ -70,13 +65,21 @@ class LocationEditor():
         self.btnCancel = tk.Button(frmButtons, text = 'Cancel', command = self.onCancel)
         self.btnCancel.grid(row=0, column=1, padx=5)
 
+    def addText(self, iRow: int, sLabel: str) -> ttk.Entry:
+        """Add a single-line text input at the specified row."""
+        self.addLabel(iRow, sLabel)
+        oEntry = ttk.Entry(self.frmEdit, width=64)
+        oEntry.grid(row=iRow, column=1, padx=5, sticky='ew')
+        return oEntry
+    
+    def addTextArea(self, iRow: int, sLabel: str, nLines: int) -> tk.Text:
+        """Add a multi-line text input at the specified row."""
+        self.addLabel(iRow, sLabel)
+        oText = tk.Text(self.frmEdit, width=64, height=nLines)
+        oText.grid(row=2, column=1, padx=4, sticky='ew')
+        return oText
+
     def addLabel(self, iRow: int, sLabel: str):
         """Add an attribute label at the specified row."""
         oLabel = tk.Label(self.frmEdit, text=sLabel)
         oLabel.grid(row=iRow, column=0, sticky='nw')
-
-    def addEntry(self, iRow: int) -> ttk.Entry:
-        """Add a ttk.Entry widget at the specified row."""
-        oEntry = ttk.Entry(self.frmEdit, width=64)
-        oEntry.grid(row=iRow, column=1, padx=5, sticky='ew')
-        return oEntry
