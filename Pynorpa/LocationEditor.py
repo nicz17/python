@@ -27,9 +27,11 @@ class LocationEditor():
         self.location = location
         self.txtName.delete(0, tk.END)
         self.txtRegion.delete(0, tk.END)
+        self.txtDesc.delete(1.0, tk.END)
         if location:
             self.txtName.insert(0, location.name)
             self.txtRegion.insert(0, location.region)
+            self.txtDesc.insert(1.0, location.desc)
 
     def onSave(self, evt = None):
         """Save changes to the edited object."""
@@ -43,26 +45,38 @@ class LocationEditor():
 
     def createWidgets(self, parent: tk.Frame):
         """Add the editor widgets to the parent widget."""
-        frmEdit = ttk.LabelFrame(parent, text='Location Editor')
-        frmEdit.pack(side=tk.TOP, anchor=tk.N, fill=tk.X, expand=True, pady=5)
+        self.frmEdit = ttk.LabelFrame(parent, text='Location Editor')
+        self.frmEdit.pack(side=tk.TOP, anchor=tk.N, fill=tk.X, expand=True, pady=5)
 
         # Name
-        self.lblName = tk.Label(frmEdit, text='Nom')
-        self.lblName.grid(row=0, column=0, sticky='w')
-        self.txtName = ttk.Entry(frmEdit, width=64)
-        self.txtName.grid(row=0, column=1, padx=5, sticky='ew')
+        self.addLabel(0, 'Nom')
+        self.txtName = self.addEntry(0)
 
         # Region
-        self.lblRegion = tk.Label(frmEdit, text='Région')
-        self.lblRegion.grid(row=1, column=0, sticky='w')
-        self.txtRegion = ttk.Entry(frmEdit, width=64)
-        self.txtRegion.grid(row=1, column=1, padx=5, sticky='ew')
+        self.addLabel(1, 'Région')
+        self.txtRegion = self.addEntry(1)
+
+        # Description
+        self.addLabel(2, 'Description')
+        self.txtDesc = tk.Text(self.frmEdit, width=64, height=6)
+        self.txtDesc.grid(row=2, column=1, padx=4, sticky='ew')
 
 
         # Buttons: save, cancel
-        frmButtons = ttk.Frame(frmEdit, padding=5)
-        frmButtons.grid(row=2, column=0, columnspan=2)
+        frmButtons = ttk.Frame(self.frmEdit, padding=5)
+        frmButtons.grid(row=3, column=0, columnspan=2)
         self.btnSave = tk.Button(frmButtons, text = 'Save', command = self.onSave)
         self.btnSave.grid(row=0, column=0)
         self.btnCancel = tk.Button(frmButtons, text = 'Cancel', command = self.onCancel)
         self.btnCancel.grid(row=0, column=1, padx=5)
+
+    def addLabel(self, iRow: int, sLabel: str):
+        """Add an attribute label at the specified row."""
+        oLabel = tk.Label(self.frmEdit, text=sLabel)
+        oLabel.grid(row=iRow, column=0, sticky='nw')
+
+    def addEntry(self, iRow: int) -> ttk.Entry:
+        """Add a ttk.Entry widget at the specified row."""
+        oEntry = ttk.Entry(self.frmEdit, width=64)
+        oEntry.grid(row=iRow, column=1, padx=5, sticky='ew')
+        return oEntry
