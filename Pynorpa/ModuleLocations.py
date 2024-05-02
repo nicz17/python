@@ -10,6 +10,7 @@ import logging
 from TabsApp import *
 from TableLocations import *
 from LocationCache import *
+from LocationEditor import *
 from MapWidget import *
 
 
@@ -22,6 +23,7 @@ class ModuleLocations(TabModule):
         self.window = parent.window
         self.table = TableLocations(self.onSelectLocation)
         self.mapWidget = MapWidget()
+        self.editor = LocationEditor(self.onSaveLocation)
         super().__init__(parent, 'Lieux')
         self.locationCache = LocationCache()
         self.locationCache.load()
@@ -31,7 +33,11 @@ class ModuleLocations(TabModule):
         self.log.info(f'Selected {location}')
         # Display in map widget
         self.mapWidget.loadData(location)
-        # TODO display in editor
+        # Display in editor
+        self.editor.loadData(location)
+
+    def onSaveLocation(self, location: Location):
+        pass
 
     def createWidgets(self):
         """Create user widgets."""
@@ -45,8 +51,8 @@ class ModuleLocations(TabModule):
         # Locations table
         self.table.createWidgets(self.frmLeft)
 
-        # TODO Location editor
-
-
         # Map widget
         self.mapWidget.createWidgets(self.frmRight)
+
+        # Location editor
+        self.editor.createWidgets(self.frmRight)
