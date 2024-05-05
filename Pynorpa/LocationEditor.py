@@ -9,6 +9,7 @@ __version__ = "1.0.0"
 import logging
 import tkinter as tk
 from tkinter import ttk
+from BaseWidgets import *
 from LocationCache import *
 
 
@@ -28,10 +29,12 @@ class LocationEditor():
         self.txtName.delete(0, tk.END)
         self.txtRegion.delete(0, tk.END)
         self.txtDesc.delete(1.0, tk.END)
+        self.intAltitude.setValue(None)
         if location:
             self.txtName.insert(0, location.name)
             self.txtRegion.insert(0, location.region)
             self.txtDesc.insert(1.0, location.desc)
+            self.intAltitude.setValue(location.alt)
 
     def onSave(self, evt = None):
         """Save changes to the edited object."""
@@ -57,9 +60,12 @@ class LocationEditor():
         # Description
         self.txtDesc = self.addTextArea(2, 'Description', 6)
 
+        # Altitude
+        self.intAltitude = self.addIntInput(3, 'Altitude')
+
         # Buttons: save, cancel
         frmButtons = ttk.Frame(self.frmEdit, padding=5)
-        frmButtons.grid(row=3, column=0, columnspan=2)
+        frmButtons.grid(row=4, column=0, columnspan=2)
         self.btnSave = tk.Button(frmButtons, text = 'Save', command = self.onSave)
         self.btnSave.grid(row=0, column=0)
         self.btnCancel = tk.Button(frmButtons, text = 'Cancel', command = self.onCancel)
@@ -78,6 +84,13 @@ class LocationEditor():
         oText = tk.Text(self.frmEdit, width=64, height=nLines)
         oText.grid(row=2, column=1, padx=4, sticky='ew')
         return oText
+    
+    def addIntInput(self, row: int, label: str) -> IntInput:
+        """Add an integer input at the specified row."""
+        self.addLabel(row, label)
+        oInput = IntInput(None)
+        oInput.createWidgets(self.frmEdit, row, 1)
+        return oInput
 
     def addLabel(self, iRow: int, sLabel: str):
         """Add an attribute label at the specified row."""
