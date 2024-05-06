@@ -54,6 +54,10 @@ class LocationEditor():
         """Cancel changes to the edited object."""
         self.loadData(self.location)
 
+    def onDelete(self):
+        """Delete the edited object."""
+        pass
+
     def onModified(self, evt=None):
         """Callback for widget modifications."""
         #self.log.info('Location modified cbk')
@@ -80,9 +84,11 @@ class LocationEditor():
         frmButtons = ttk.Frame(self.frmEdit, padding=5)
         frmButtons.grid(row=4, column=0, columnspan=2)
         self.btnSave = tk.Button(frmButtons, text = 'Save', command = self.onSave)
-        self.btnSave.grid(row=0, column=0)
+        self.btnSave.grid(row=0, column=0, padx=3)
         self.btnCancel = tk.Button(frmButtons, text = 'Cancel', command = self.onCancel)
-        self.btnCancel.grid(row=0, column=1, padx=5)
+        self.btnCancel.grid(row=0, column=1, padx=3)
+        self.btnDelete = tk.Button(frmButtons, text = 'Delete', command = self.onCancel)
+        self.btnDelete.grid(row=0, column=2, padx=3)
 
     def addText(self, row: int, label: str) -> TextInput:
         """Add a single-line text input at the specified row."""
@@ -115,6 +121,7 @@ class LocationEditor():
         modified = self.hasChanges()
         self.enableWidget(self.btnSave, modified)
         self.enableWidget(self.btnCancel, True)  # modified
+        self.enableWidget(self.btnDelete, False)
         #self.enableWidget(self.txtName, self.location is not None)
         #self.txtName.edit_modified(False)
         
