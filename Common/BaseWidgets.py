@@ -16,7 +16,7 @@ class IntInput():
     log = logging.getLogger('IntInput')
 
     def __init__(self, cbkModified):
-        """Constructor with row selection callback."""
+        """Constructor with modification callback."""
         self.log.info('Constructor')
         self.cbkModified = cbkModified
 
@@ -26,7 +26,7 @@ class IntInput():
         if value:
             self.oEntry.insert(0, str(value))
 
-    def getValue(self):
+    def getValue(self) -> int:
         """Get the current integer value."""
         value = int(self.oEntry.get(1.0, tk.END).strip())
         return value
@@ -34,10 +34,38 @@ class IntInput():
     def createWidgets(self, parent: tk.Frame, row: int, col: int):
         """Create widget in parent frame with grid layout."""
         cmdValidate = (parent.register(self.cbkValidate))
-        self.oEntry = ttk.Entry(parent, width=6, validate='all', 
+        self.oEntry = ttk.Entry(parent, width=8, validate='all', 
                                 validatecommand=(cmdValidate, '%P'))
         self.oEntry.grid(row=row, column=col, padx=5, sticky='w')
+        if self.cbkModified:
+            self.oEntry.bind('<KeyRelease>', self.cbkModified)
 
-    def cbkValidate(self, input: str):
+    def cbkValidate(self, input: str) -> bool:
         """Check if input is a digit or empty."""
         return str.isdigit(input) or input == ""
+
+class TextInput():
+    """A single-line text input widget based on ttk.Entry."""
+    log = logging.getLogger('TextInput')
+
+    def __init__(self, cbkModified):
+        """Constructor with modification callback."""
+        self.log.info('Constructor')
+        self.cbkModified = cbkModified
+
+    def setValue(self, value: str):
+        """Set the string value."""
+        self.oEntry.delete(0, tk.END)
+        if value:
+            self.oEntry.insert(0, value)
+
+    def getValue(self) -> str:
+        """Get the current string value."""
+        return self.oEntry.get().strip()
+        
+    def createWidgets(self, parent: tk.Frame, row: int, col: int):
+        """Create widget in parent frame with grid layout."""
+        self.oEntry = ttk.Entry(parent, width=64)
+        self.oEntry.grid(row=row, column=col, padx=5, sticky='we')
+        if self.cbkModified:
+            self.oEntry.bind('<KeyRelease>', self.cbkModified)
