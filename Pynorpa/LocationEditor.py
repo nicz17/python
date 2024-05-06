@@ -26,15 +26,23 @@ class LocationEditor():
     def loadData(self, location: Location):
         """Display the specified object in this editor."""
         self.location = location
-        self.txtName.delete(0, tk.END)
-        self.txtRegion.delete(0, tk.END)
+        self.txtName.setValue(None)
+        self.txtRegion.setValue(None)
         self.txtDesc.delete(1.0, tk.END)
         self.intAltitude.setValue(None)
         if location:
-            self.txtName.insert(0, location.name)
-            self.txtRegion.insert(0, location.region)
+            self.txtName.setValue(location.name)
+            self.txtRegion.setValue(location.region)
             self.txtDesc.insert(1.0, location.desc)
             self.intAltitude.setValue(location.alt)
+        self.enableWidgets()
+
+    def hasChanges(self) -> bool:
+        """Check if the editor has any changes."""
+        if self.location:
+            if self.location.name != self.txtName.getValue():
+                return True
+        return False
 
     def onSave(self, evt = None):
         """Save changes to the edited object."""
@@ -45,6 +53,11 @@ class LocationEditor():
     def onCancel(self):
         """Cancel changes to the edited object."""
         self.loadData(self.location)
+
+    def onModified(self, evt=None):
+        """Callback for widget modifications."""
+        #self.log.info('Location modified cbk')
+        self.enableWidgets()
 
     def createWidgets(self, parent: tk.Frame):
         """Add the editor widgets to the parent widget."""
@@ -71,24 +84,24 @@ class LocationEditor():
         self.btnCancel = tk.Button(frmButtons, text = 'Cancel', command = self.onCancel)
         self.btnCancel.grid(row=0, column=1, padx=5)
 
-    def addText(self, iRow: int, sLabel: str) -> ttk.Entry:
+    def addText(self, row: int, label: str) -> TextInput:
         """Add a single-line text input at the specified row."""
-        self.addLabel(iRow, sLabel)
-        oEntry = ttk.Entry(self.frmEdit, width=64)
-        oEntry.grid(row=iRow, column=1, padx=5, sticky='ew')
-        return oEntry
+        self.addLabel(row, label)
+        oInput = TextInput(self.onModified)
+        oInput.createWidgets(self.frmEdit, row, 1)
+        return oInput
     
     def addTextArea(self, iRow: int, sLabel: str, nLines: int) -> tk.Text:
         """Add a multi-line text input at the specified row."""
         self.addLabel(iRow, sLabel)
         oText = tk.Text(self.frmEdit, width=64, height=nLines)
-        oText.grid(row=2, column=1, padx=4, sticky='ew')
+        oText.grid(row=2, column=1, padx=4, sticky='we')
         return oText
     
     def addIntInput(self, row: int, label: str) -> IntInput:
         """Add an integer input at the specified row."""
         self.addLabel(row, label)
-        oInput = IntInput(None)
+        oInput = IntInput(self.onModified)
         oInput.createWidgets(self.frmEdit, row, 1)
         return oInput
 
@@ -96,3 +109,16 @@ class LocationEditor():
         """Add an attribute label at the specified row."""
         oLabel = tk.Label(self.frmEdit, text=sLabel)
         oLabel.grid(row=iRow, column=0, sticky='nw')
+
+    def enableWidgets(self, evt=None):
+        """Enable our internal widgets."""
+        modified = self.hasChanges()
+        self.enableWidget(self.btnSave, modified)
+        self.enableWidget(self.btnCancel, True)  # modified
+        #self.enableWidget(self.txtName, self.location is not None)
+        #self.txtName.edit_modified(False)
+        
+    def enableWidget(self, widget: tk.Widget, enabled: bool):
+        """Enable the specified tk widget if enabled is true."""
+        if widget:
+            widget['state'] = tk.NORMAL if enabled else tk.DISABLED
