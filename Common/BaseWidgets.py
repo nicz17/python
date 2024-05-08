@@ -23,8 +23,8 @@ class IntInput():
     def setValue(self, value: int):
         """Set the integer value."""
         self.oEntry.delete(0, tk.END)
-        if value:
-            self.oEntry.insert(0, str(value))
+        if value is not None:
+            self.oEntry.insert(0, f'{value}')
 
     def getValue(self) -> int:
         """Get the current integer value."""
@@ -43,6 +43,9 @@ class IntInput():
     def cbkValidate(self, input: str) -> bool:
         """Check if input is a digit or empty."""
         return str.isdigit(input) or input == ""
+    
+    def __str__(self) -> str:
+        return 'IntInput'
 
 class TextInput():
     """A single-line text input widget based on ttk.Entry."""
@@ -69,3 +72,6 @@ class TextInput():
         self.oEntry.grid(row=row, column=col, padx=5, sticky='we')
         if self.cbkModified:
             self.oEntry.bind('<KeyRelease>', self.cbkModified)
+    
+    def __str__(self) -> str:
+        return 'TextInput'
