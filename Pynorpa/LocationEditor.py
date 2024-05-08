@@ -22,16 +22,19 @@ class LocationEditor():
         self.log.info('Constructor')
         self.cbkSave = cbkSave
         self.location = None
+        self.row = 0
 
     def loadData(self, location: LocationCache.Location):
         """Display the specified object in this editor."""
         self.location = location
         self.txtName.setValue(None)
+        self.txtState.setValue(None)
         self.txtRegion.setValue(None)
         self.txtDesc.delete(1.0, tk.END)
         self.intAltitude.setValue(None)
         if location:
             self.txtName.setValue(location.name)
+            self.txtState.setValue(location.state)
             self.txtRegion.setValue(location.region)
             self.txtDesc.insert(1.0, location.desc)
             self.intAltitude.setValue(location.alt)
@@ -68,21 +71,16 @@ class LocationEditor():
         self.frmEdit = ttk.LabelFrame(parent, text='Location Editor')
         self.frmEdit.pack(side=tk.TOP, anchor=tk.N, fill=tk.X, expand=True, pady=5)
 
-        # Name
-        self.txtName = self.addText(0, 'Nom')
-
-        # Region
-        self.txtRegion = self.addText(1, 'Région')
-
-        # Description
-        self.txtDesc = self.addTextArea(2, 'Description', 6)
-
-        # Altitude
-        self.intAltitude = self.addIntInput(3, 'Altitude')
+        # Location attributes
+        self.txtName     = self.addText('Nom')
+        self.txtDesc     = self.addTextArea('Description', 6)
+        self.txtState    = self.addText('Pays')
+        self.txtRegion   = self.addText('Région')
+        self.intAltitude = self.addIntInput('Altitude')
 
         # Buttons: save, cancel
         frmButtons = ttk.Frame(self.frmEdit, padding=5)
-        frmButtons.grid(row=4, column=0, columnspan=2)
+        frmButtons.grid(row=self.row, column=0, columnspan=2)
         self.btnSave = tk.Button(frmButtons, text = 'Save', command = self.onSave)
         self.btnSave.grid(row=0, column=0, padx=3)
         self.btnCancel = tk.Button(frmButtons, text = 'Cancel', command = self.onCancel)
@@ -90,31 +88,34 @@ class LocationEditor():
         self.btnDelete = tk.Button(frmButtons, text = 'Delete', command = self.onCancel)
         self.btnDelete.grid(row=0, column=2, padx=3)
 
-    def addText(self, row: int, label: str) -> BaseWidgets.TextInput:
-        """Add a single-line text input at the specified row."""
-        self.addLabel(row, label)
+    def addText(self, label: str) -> BaseWidgets.TextInput:
+        """Add a single-line text input."""
+        self.addLabel(label)
         oInput = BaseWidgets.TextInput(self.onModified)
-        oInput.createWidgets(self.frmEdit, row, 1)
+        oInput.createWidgets(self.frmEdit, self.row, 1)
+        self.row += 1
         return oInput
     
-    def addTextArea(self, iRow: int, sLabel: str, nLines: int) -> tk.Text:
-        """Add a multi-line text input at the specified row."""
-        self.addLabel(iRow, sLabel)
+    def addTextArea(self, label: str, nLines: int) -> tk.Text:
+        """Add a multi-line text input."""
+        self.addLabel(label)
         oText = tk.Text(self.frmEdit, width=64, height=nLines)
-        oText.grid(row=2, column=1, padx=4, sticky='we')
+        oText.grid(row=self.row, column=1, padx=4, sticky='we')
+        self.row += 1
         return oText
     
-    def addIntInput(self, row: int, label: str) -> BaseWidgets.IntInput:
-        """Add an integer input at the specified row."""
-        self.addLabel(row, label)
+    def addIntInput(self, label: str) -> BaseWidgets.IntInput:
+        """Add an integer input."""
+        self.addLabel(label)
         oInput = BaseWidgets.IntInput(self.onModified)
-        oInput.createWidgets(self.frmEdit, row, 1)
+        oInput.createWidgets(self.frmEdit, self.row, 1)
+        self.row += 1
         return oInput
 
-    def addLabel(self, iRow: int, sLabel: str):
+    def addLabel(self, label: str):
         """Add an attribute label at the specified row."""
-        oLabel = tk.Label(self.frmEdit, text=sLabel)
-        oLabel.grid(row=iRow, column=0, sticky='nw')
+        oLabel = tk.Label(self.frmEdit, text=label)
+        oLabel.grid(row=self.row, column=0, sticky='nw')
 
     def enableWidgets(self, evt=None):
         """Enable our internal widgets."""
