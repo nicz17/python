@@ -45,6 +45,14 @@ class LocationEditor():
         if self.location:
             if self.location.name != self.txtName.getValue():
                 return True
+            #if self.location.desc != self.txtDesc.getValue():
+            #    return True
+            if self.location.state != self.txtState.getValue():
+                return True
+            if self.location.region != self.txtRegion.getValue():
+                return True
+            if self.location.alt != self.intAltitude.getValue():
+                return True
         return False
 
     def onSave(self, evt = None):
