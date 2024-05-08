@@ -9,7 +9,7 @@ __version__ = "1.0.0"
 import config
 import logging
 import math
-from Database import *
+import Database
 
 
 class Location:
@@ -18,14 +18,15 @@ class Location:
 
     def __init__(self, row):
         """Constructor from fetched row."""
-        self.idx    = row[0]
-        self.name   = row[1]
-        self.desc   = row[2]
-        self.lat    = row[3]
-        self.lon    = row[4]
-        self.alt    = row[5]
-        self.region = row[6]
-        self.zoom   = row[7]
+        self.idx     = row[0]
+        self.name    = row[1]
+        self.desc    = row[2]
+        self.lat     = row[3]
+        self.lon     = row[4]
+        self.alt     = row[5]
+        self.region  = row[6]
+        self.zoom    = row[7]
+        self.state   = row[8]
 
     def getDistance(self, lat: float, lon: float) -> float:
         """Get the distance to another location."""
@@ -47,11 +48,11 @@ class LocationCache:
 
     def load(self):
         """Fetch and store the location records."""
-        db = Database(config.dbName)
+        db = Database.Database(config.dbName)
         db.connect(config.dbUser, config.dbPass)
-        sql  = 'select idxLocation, locName, locDesc, locLatitude, locLongitude, '
-        sql += 'locAltitude, locRegion, locMapZoom '
-        sql += 'from Location order by locName asc'
+        sql = '''select idxLocation, locName, locDesc, locLatitude, locLongitude, 
+            locAltitude, locRegion, locMapZoom, locState 
+            from Location order by locName asc'''
         rows = db.fetch(sql)
         for row in rows:
             self.log.debug(row)
