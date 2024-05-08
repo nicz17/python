@@ -9,8 +9,8 @@ __version__ = "1.0.0"
 import logging
 import tkinter as tk
 from tkinter import ttk
-from BaseWidgets import *
-from LocationCache import *
+import BaseWidgets
+import LocationCache
 
 
 class LocationEditor():
@@ -23,7 +23,7 @@ class LocationEditor():
         self.cbkSave = cbkSave
         self.location = None
 
-    def loadData(self, location: Location):
+    def loadData(self, location: LocationCache.Location):
         """Display the specified object in this editor."""
         self.location = location
         self.txtName.setValue(None)
@@ -90,10 +90,10 @@ class LocationEditor():
         self.btnDelete = tk.Button(frmButtons, text = 'Delete', command = self.onCancel)
         self.btnDelete.grid(row=0, column=2, padx=3)
 
-    def addText(self, row: int, label: str) -> TextInput:
+    def addText(self, row: int, label: str) -> BaseWidgets.TextInput:
         """Add a single-line text input at the specified row."""
         self.addLabel(row, label)
-        oInput = TextInput(self.onModified)
+        oInput = BaseWidgets.TextInput(self.onModified)
         oInput.createWidgets(self.frmEdit, row, 1)
         return oInput
     
@@ -104,10 +104,10 @@ class LocationEditor():
         oText.grid(row=2, column=1, padx=4, sticky='we')
         return oText
     
-    def addIntInput(self, row: int, label: str) -> IntInput:
+    def addIntInput(self, row: int, label: str) -> BaseWidgets.IntInput:
         """Add an integer input at the specified row."""
         self.addLabel(row, label)
-        oInput = IntInput(self.onModified)
+        oInput = BaseWidgets.IntInput(self.onModified)
         oInput.createWidgets(self.frmEdit, row, 1)
         return oInput
 
@@ -129,3 +129,6 @@ class LocationEditor():
         """Enable the specified tk widget if enabled is true."""
         if widget:
             widget['state'] = tk.NORMAL if enabled else tk.DISABLED
+
+    def __str__(self) -> str:
+        return 'LocationEditor'
