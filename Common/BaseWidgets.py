@@ -28,7 +28,7 @@ class IntInput():
 
     def getValue(self) -> int:
         """Get the current integer value."""
-        value = int(self.oEntry.get(1.0, tk.END).strip())
+        value = int(self.oEntry.get().strip())
         return value
         
     def createWidgets(self, parent: tk.Frame, row: int, col: int):
