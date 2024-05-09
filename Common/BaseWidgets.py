@@ -106,3 +106,28 @@ class TextArea():
     
     def __str__(self) -> str:
         return f'TextArea for {self.name}'
+
+class TextReadOnly():
+    """A read-only text widget based on tk.Label."""
+    log = logging.getLogger('TextReadOnly')
+
+    def __init__(self, name: str):
+        """Constructor with attribute name."""
+        self.log.info('Constructor for %s', name)
+        self.name = name
+
+    def setValue(self, value: str):
+        """Set the string value."""
+        self.oLabel.configure(text = (value if value is not None else ''))
+
+    def getValue(self) -> str:
+        """Get the current string value."""
+        return self.oLabel.cget('text')
+        
+    def createWidgets(self, parent: tk.Frame, row: int, col: int):
+        """Create widget in parent frame with grid layout."""
+        self.oLabel = tk.Label(parent)
+        self.oLabel.grid(row=row, column=col, padx=5, sticky='w')
+    
+    def __str__(self) -> str:
+        return f'TextReadOnly for {self.name}'
