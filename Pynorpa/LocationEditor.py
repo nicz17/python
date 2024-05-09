@@ -30,13 +30,13 @@ class LocationEditor():
         self.txtName.setValue(None)
         self.txtState.setValue(None)
         self.txtRegion.setValue(None)
-        self.txtDesc.delete(1.0, tk.END)
+        self.txtDesc.setValue(None)
         self.intAltitude.setValue(None)
         if location:
             self.txtName.setValue(location.name)
             self.txtState.setValue(location.state)
             self.txtRegion.setValue(location.region)
-            self.txtDesc.insert(1.0, location.desc)
+            self.txtDesc.setValue(location.desc)
             self.intAltitude.setValue(location.alt)
         self.enableWidgets()
 
@@ -45,8 +45,8 @@ class LocationEditor():
         if self.location:
             if self.location.name != self.txtName.getValue():
                 return True
-            #if self.location.desc != self.txtDesc.getValue():
-            #    return True
+            if self.location.desc != self.txtDesc.getValue():
+                return True
             if self.location.state != self.txtState.getValue():
                 return True
             if self.location.region != self.txtRegion.getValue():
@@ -95,6 +95,8 @@ class LocationEditor():
         self.btnCancel.grid(row=0, column=1, padx=3)
         self.btnDelete = tk.Button(frmButtons, text = 'Delete', command = self.onCancel)
         self.btnDelete.grid(row=0, column=2, padx=3)
+        
+        self.enableWidgets()
 
     def addText(self, label: str) -> BaseWidgets.TextInput:
         """Add a single-line text input."""
@@ -104,13 +106,13 @@ class LocationEditor():
         self.row += 1
         return oInput
     
-    def addTextArea(self, label: str, nLines: int) -> tk.Text:
+    def addTextArea(self, label: str, nLines: int) -> BaseWidgets.TextArea:
         """Add a multi-line text input."""
         self.addLabel(label)
-        oText = tk.Text(self.frmEdit, width=64, height=nLines)
-        oText.grid(row=self.row, column=1, padx=4, sticky='we')
+        oInput = BaseWidgets.TextArea(label, nLines, self.onModified)
+        oInput.createWidgets(self.frmEdit, self.row, 1)
         self.row += 1
-        return oText
+        return oInput
     
     def addIntInput(self, label: str) -> BaseWidgets.IntInput:
         """Add an integer input."""
@@ -129,7 +131,7 @@ class LocationEditor():
         """Enable our internal widgets."""
         modified = self.hasChanges()
         self.enableWidget(self.btnSave, modified)
-        self.enableWidget(self.btnCancel, True)  # modified
+        self.enableWidget(self.btnCancel, modified)
         self.enableWidget(self.btnDelete, False)
         #self.enableWidget(self.txtName, self.location is not None)
         #self.txtName.edit_modified(False)
