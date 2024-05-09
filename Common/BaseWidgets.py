@@ -75,3 +75,34 @@ class TextInput():
     
     def __str__(self) -> str:
         return 'TextInput'
+
+class TextArea():
+    """A multi-line text input widget based on tk.Text."""
+    log = logging.getLogger('TextArea')
+
+    def __init__(self, name: str, nLines=6, cbkModified=None):
+        """Constructor with modification callback."""
+        self.log.info('Constructor for %s', name)
+        self.name = name
+        self.nLines = nLines
+        self.cbkModified = cbkModified
+
+    def setValue(self, value: str):
+        """Set the string value."""
+        self.oText.delete(1.0, tk.END)
+        if value:
+            self.oText.insert(1.0, value)
+
+    def getValue(self) -> str:
+        """Get the current string value."""
+        return self.oText.get(1.0, tk.END).strip()
+        
+    def createWidgets(self, parent: tk.Frame, row: int, col: int):
+        """Create widget in parent frame with grid layout."""
+        self.oText = tk.Text(parent, width=64, height=self.nLines)
+        self.oText.grid(row=row, column=col, padx=4, sticky='we')
+        if self.cbkModified:
+            self.oText.bind("<<Modified>>", self.cbkModified)
+    
+    def __str__(self) -> str:
+        return f'TextArea for {self.name}'
