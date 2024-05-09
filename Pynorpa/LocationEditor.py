@@ -32,12 +32,14 @@ class LocationEditor():
         self.txtRegion.setValue(None)
         self.txtDesc.setValue(None)
         self.intAltitude.setValue(None)
+        self.lblPosition.setValue(None)
         if location:
             self.txtName.setValue(location.name)
             self.txtState.setValue(location.state)
             self.txtRegion.setValue(location.region)
             self.txtDesc.setValue(location.desc)
             self.intAltitude.setValue(location.alt)
+            self.lblPosition.setValue(f'lat {location.lat} lon {location.lon} zoom {location.zoom}')
         self.enableWidgets()
 
     def hasChanges(self) -> bool:
@@ -85,6 +87,7 @@ class LocationEditor():
         self.txtState    = self.addText('Pays')
         self.txtRegion   = self.addText('Région')
         self.intAltitude = self.addIntInput('Altitude')
+        self.lblPosition = self.addTextReadOnly('Position')
 
         # Buttons: save, cancel
         frmButtons = ttk.Frame(self.frmEdit, padding=5)
@@ -95,7 +98,7 @@ class LocationEditor():
         self.btnCancel.grid(row=0, column=1, padx=3)
         self.btnDelete = tk.Button(frmButtons, text = 'Delete', command = self.onCancel)
         self.btnDelete.grid(row=0, column=2, padx=3)
-        
+
         self.enableWidgets()
 
     def addText(self, label: str) -> BaseWidgets.TextInput:
@@ -110,6 +113,14 @@ class LocationEditor():
         """Add a multi-line text input."""
         self.addLabel(label)
         oInput = BaseWidgets.TextArea(label, nLines, self.onModified)
+        oInput.createWidgets(self.frmEdit, self.row, 1)
+        self.row += 1
+        return oInput
+    
+    def addTextReadOnly(self, label: str) -> BaseWidgets.TextReadOnly:
+        """Add a read-only text."""
+        self.addLabel(label)
+        oInput = BaseWidgets.TextReadOnly(label)
         oInput.createWidgets(self.frmEdit, self.row, 1)
         self.row += 1
         return oInput
