@@ -43,7 +43,7 @@ class PynorpaTask(Task):
             if nDone < nTotal:
                 tUsed = time.time() - self.tStart
                 tLeft = (nTotal - nDone)*tUsed/nDone
-                result = ' time left: ' + TextTools.durationToString(tLeft)
+                result = TextTools.durationToString(tLeft) + ' remaining'
         return result
 
 
