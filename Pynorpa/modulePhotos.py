@@ -9,6 +9,7 @@ __version__ = "1.0.0"
 import logging
 import config
 import glob
+import BaseWidgets
 from TabsApp import *
 from PhotoInfo import *
 from BaseTable import *
@@ -23,7 +24,7 @@ class ModulePhotos(TabModule):
         self.window = parent.window
         self.table = TablePhotos(self.onSelectPhoto)
         #self.mapWidget = MapWidget()
-        #self.editor = PhotoEditor()
+        self.editor = PhotoEditor()
         super().__init__(parent, 'Photos')
         self.photos = []
         self.loadData()
@@ -43,7 +44,7 @@ class ModulePhotos(TabModule):
         # Display in map widget
         #self.mapWidget.loadData(photo)
         # Display in editor
-        #self.editor.loadData(photo)
+        self.editor.loadData(photo)
 
     def createWidgets(self):
         """Create user widgets."""
@@ -51,7 +52,7 @@ class ModulePhotos(TabModule):
         # Frames
         self.frmLeft = tk.Frame(master=self.oFrame)
         self.frmLeft.pack(fill=tk.Y, side=tk.LEFT, pady=0)
-        self.frmRight = tk.Frame(master=self.oFrame)
+        self.frmRight = tk.Frame(master=self.oFrame, width=600)
         self.frmRight.pack(fill=tk.Y, side=tk.LEFT, pady=6, padx=6)
 
         # Photos table
@@ -61,7 +62,7 @@ class ModulePhotos(TabModule):
         #self.mapWidget.createWidgets(self.frmRight)
 
         # Photo properties
-        #self.editor.createWidgets(self.frmRight)
+        self.editor.createWidgets(self.frmRight)
 
 class TablePhotos(BaseTable):
     """Table widget for Pynorpa photo."""
@@ -98,3 +99,56 @@ class TablePhotos(BaseTable):
         """Row selection callback."""
         idxRow = self.getSelectedRow()
         self.cbkSelect(self.data[idxRow] if idxRow is not None else None)
+
+    def __str__(self) -> str:
+        return 'TablePhotos'
+
+class PhotoEditor():
+    """A widget for displaying PhotoInfo properties."""
+    log = logging.getLogger('PhotoEditor')
+
+    def __init__(self):
+        """Constructor."""
+        self.log.info('Constructor')
+        self.photo = None
+        self.row = 0
+
+    def loadData(self, photo: PhotoInfo):
+        """Display the specified object in this editor."""
+        self.photo = photo
+        self.lblName.setValue(None)
+        self.lblDate.setValue(None)
+        self.lblPosition.setValue(None)
+        self.lblExposure.setValue(None)
+        if photo:
+            self.lblName.setValue(photo.getNameFull())
+            self.lblDate.setValue(photo.getShotAtString())
+            self.lblPosition.setValue(photo.getGPSString())
+            self.lblExposure.setValue(photo.getExposureDetails())
+
+    def createWidgets(self, parent: tk.Frame):
+        """Add the editor widgets to the parent widget."""
+        self.frmEdit = ttk.LabelFrame(parent, text='Propriétés de la photo', width=600)
+        self.frmEdit.pack(side=tk.TOP, anchor=tk.N, fill=tk.X, expand=True, pady=5)
+
+        # Photo attributes
+        self.lblName = self.addTextReadOnly('Nom')
+        self.lblDate = self.addTextReadOnly('Date')
+        self.lblPosition = self.addTextReadOnly('Position')
+        self.lblExposure = self.addTextReadOnly('Exposition')
+    
+    def addTextReadOnly(self, label: str) -> BaseWidgets.TextReadOnly:
+        """Add a read-only text."""
+        self.addLabel(label)
+        oInput = BaseWidgets.TextReadOnly(label)
+        oInput.createWidgets(self.frmEdit, self.row, 1)
+        self.row += 1
+        return oInput
+
+    def addLabel(self, label: str):
+        """Add an attribute label at the specified row."""
+        oLabel = tk.Label(self.frmEdit, text=label)
+        oLabel.grid(row=self.row, column=0, sticky='nw')
+
+    def __str__(self) -> str:
+        return 'PhotoEditor'
