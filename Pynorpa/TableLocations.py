@@ -42,5 +42,5 @@ class TableLocations(BaseTable):
     def onRowSelection(self, event):
         """Row selection callback."""
         idxRow = self.getSelectedRow()
-        self.cbkSelect(self.data[idxRow] if idxRow else None)
+        self.cbkSelect(self.data[idxRow] if idxRow is not None else None)
     
