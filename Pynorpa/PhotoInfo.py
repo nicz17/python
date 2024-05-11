@@ -33,6 +33,10 @@ class PhotoInfo:
     def getNameShort(self) -> str:
         """Get the base file name of this photo."""
         return os.path.basename(self.filename)
+
+    def getNameFull(self) -> str:
+        """Get the full file name of this photo."""
+        return self.filename
     
     def getShotAtString(self) -> str:
         """Get the shot-at timestamp of this photo as a string."""
@@ -41,6 +45,13 @@ class PhotoInfo:
     def getSizeString(self) -> str:
         """Get the size as width x height string, in pixels."""
         return f'{self.width}x{self.height} px'
+    
+    def getGPSString(self) -> str:
+        """Get GPS data as string."""
+        if self.hasGPSData():
+            return f'GPS {self.lon:.6f}/{self.lat:.6f}'
+        else:
+            return 'No GPS data'
 
     def identify(self):
         """Load details like size, shot-at and GPS from this image's EXIF tags."""
@@ -89,7 +100,7 @@ class PhotoInfo:
                     
     def __str__(self):
         str  = f'PhotoInfo {self.filename} [{self.width}x{self.height}] '
-        str += f'{DateTools.timestampToString(self.tShotAt)} Lon/Lat {self.lon}/{self.lat}'
+        str += f'{DateTools.timestampToString(self.tShotAt)} Lon/Lat {self.lon:.6f}/{self.lat:.6f}'
         return str
     
 def testPhotoInfo():
