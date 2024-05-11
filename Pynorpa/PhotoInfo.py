@@ -10,6 +10,7 @@ __version__ = "1.0.0"
 import logging
 import glob
 import exifread
+import os
 import DateTools
 
 class PhotoInfo:
@@ -17,7 +18,7 @@ class PhotoInfo:
 
     def __init__(self, filename: str):
         """Constructor from full filename."""
-        self.log.info('Constructor from %s', filename)
+        self.log.debug('Constructor from %s', filename)
         self.filename = filename
         self.tShotAt = None
         self.width  = None
@@ -28,6 +29,18 @@ class PhotoInfo:
         self.exposureTime = None
         self.fNumber = None
         self.isoRating = None
+
+    def getNameShort(self) -> str:
+        """Get the base file name of this photo."""
+        return os.path.basename(self.filename)
+    
+    def getShotAtString(self) -> str:
+        """Get the shot-at timestamp of this photo as a string."""
+        return DateTools.timestampToString(self.tShotAt)
+    
+    def getSizeString(self) -> str:
+        """Get the size as width x height string, in pixels."""
+        return f'{self.width}x{self.height} px'
 
     def identify(self):
         """Load details like size, shot-at and GPS from this image's EXIF tags."""
