@@ -10,6 +10,7 @@ import logging
 from TabsApp import *
 from ModuleCamera import *
 from ModuleLocations import *
+import modulePhotos
 
 class PynorpaTabsApp(TabsApp):
     """Pynorpa App window."""
@@ -22,6 +23,6 @@ class PynorpaTabsApp(TabsApp):
         sGeometry = f'{self.iWidth}x{self.iHeight}'
         super().__init__('Pynorpa Tabs', sGeometry)
 
-        modLocations = ModuleLocations(self)
         modCamera    = ModuleCamera(self)
-        modPictures  = TabModule(self, 'Photos')
+        modPhotos    = modulePhotos.ModulePhotos(self)
+        modLocations = ModuleLocations(self)
