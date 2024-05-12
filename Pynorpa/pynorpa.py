@@ -12,10 +12,7 @@ __version__ = "1.0.0"
 import sys
 import logging
 import getopt
-from CopyFromCamera import *
-from GeoTracker import *
 from PynorpaApp import *
-from PynorpaTabsApp import *
 
 
 def configureLogging():
@@ -36,53 +33,27 @@ def configureLogging():
 
 def getOptions():
     """Parse program arguments and store them in a dict."""
-    dOptions = {'dryrun': False, 'upload': False, 'open': False, 'copy': False, 'tabs': False}
+    dOptions = {'dryrun': False, 'upload': False}
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hduoct", ["help", "dry", "upload", 'open', 'copy', 'tabs'])
+        opts, args = getopt.getopt(sys.argv[1:], "hdu", ["help", "dry", "upload"])
     except getopt.GetoptError:
         print("Invalid options: %s", sys.argv[1:])
     for opt, arg in opts:
         log.info("Parsing option %s value %s", opt, arg)
         if opt in ('-h', '--help'):
-            print('pynorpa.py -h (help) -u (upload) -d (upload dry run) -o (open in browser) -c (copy from D800)')
+            print('pynorpa.py -h (help) -u (upload) -d (upload dry run)')
             sys.exit()
         elif opt in ("-d", "--dry"):
             dOptions['dryrun'] = True
         elif opt in ("-u", "--upload"):
             dOptions['upload'] = True
-        elif opt in ("-o", "--open"):
-            dOptions['open'] = True
-        elif opt in ("-c", "--copy"):
-            dOptions['copy'] = True
-        elif opt in ("-t", "--tabs"):
-            dOptions['tabs'] = True
     return dOptions
-
-def checkConfig():
-    """Checks that config dirs exist."""
-    pass
 
 def main():
     """Main function. Builds or uploads depending on options."""
     log.info('Welcome to Pynorpa v' + __version__)
-    checkConfig()
-
-    if (dOptions['copy']):
-        copier = CopyFromCamera()
-        copier.loadImages()
-        copier.copyImages()
-        tracker = GeoTracker()
-        tracker.prepare()
-        tracker.copyFiles()
-        tracker.loadGeoTracks()
-        tracker.setPhotoGPSTags()
-        tracker.buildHtmlPreviews()
-    elif (dOptions['tabs']):
-        app = PynorpaTabsApp()
-        app.run()
-    else:
-        app = PynorpaApp()
-        app.run()
+    app = PynorpaApp()
+    app.run()
 
 log = configureLogging()
 dOptions = getOptions()
