@@ -105,15 +105,14 @@ class TablePhotos(BaseTable):
     def __str__(self) -> str:
         return 'TablePhotos'
 
-class PhotoEditor():
+class PhotoEditor(BaseWidgets.BaseEditor):
     """A widget for displaying PhotoInfo properties."""
     log = logging.getLogger('PhotoEditor')
 
     def __init__(self):
         """Constructor."""
-        self.log.info('Constructor')
+        super().__init__()
         self.photo = None
-        self.row = 0
 
     def loadData(self, photo: PhotoInfo):
         """Display the specified object in this editor."""
@@ -132,8 +131,7 @@ class PhotoEditor():
 
     def createWidgets(self, parent: tk.Frame):
         """Add the editor widgets to the parent widget."""
-        self.frmEdit = ttk.LabelFrame(parent, text='Propriétés de la photo', width=600)
-        self.frmEdit.pack(side=tk.TOP, anchor=tk.N, fill=tk.X, expand=True, pady=5)
+        super().createWidgets(parent, 'Propriétés de la photo')
 
         # Photo attributes
         self.lblName     = self.addTextReadOnly('Nom')
@@ -141,19 +139,6 @@ class PhotoEditor():
         self.lblPicSize  = self.addTextReadOnly('Taille')
         self.lblPosition = self.addTextReadOnly('Position')
         self.lblExposure = self.addTextReadOnly('Exposition')
-    
-    def addTextReadOnly(self, label: str) -> BaseWidgets.TextReadOnly:
-        """Add a read-only text."""
-        self.addLabel(label)
-        oInput = BaseWidgets.TextReadOnly(label)
-        oInput.createWidgets(self.frmEdit, self.row, 1)
-        self.row += 1
-        return oInput
-
-    def addLabel(self, label: str):
-        """Add an attribute label at the specified row."""
-        oLabel = tk.Label(self.frmEdit, text=label)
-        oLabel.grid(row=self.row, column=0, sticky='nw')
 
     def __str__(self) -> str:
         return 'PhotoEditor'

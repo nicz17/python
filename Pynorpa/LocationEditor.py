@@ -13,16 +13,14 @@ import BaseWidgets
 import LocationCache
 
 
-class LocationEditor():
-    """A widget for editing LogBook tasks."""
+class LocationEditor(BaseWidgets.BaseEditor):
+    """A widget for editing Pynorpa locations."""
     log = logging.getLogger(__name__)
 
     def __init__(self, cbkSave):
         """Constructor with save callback."""
-        self.log.info('Constructor')
-        self.cbkSave = cbkSave
+        super().__init__(cbkSave)
         self.location = None
-        self.row = 0
 
     def loadData(self, location: LocationCache.Location):
         """Display the specified object in this editor."""
@@ -71,15 +69,9 @@ class LocationEditor():
         """Delete the edited object."""
         pass
 
-    def onModified(self, evt=None):
-        """Callback for widget modifications."""
-        #self.log.info('Location modified cbk')
-        self.enableWidgets()
-
     def createWidgets(self, parent: tk.Frame):
         """Add the editor widgets to the parent widget."""
-        self.frmEdit = ttk.LabelFrame(parent, text='Location Editor')
-        self.frmEdit.pack(side=tk.TOP, anchor=tk.N, fill=tk.X, expand=True, pady=5)
+        super().createWidgets(parent, 'Location Editor')
 
         # Location attributes
         self.txtName     = self.addText('Nom')
@@ -101,43 +93,6 @@ class LocationEditor():
 
         self.enableWidgets()
 
-    def addText(self, label: str) -> BaseWidgets.TextInput:
-        """Add a single-line text input."""
-        self.addLabel(label)
-        oInput = BaseWidgets.TextInput(self.onModified)
-        oInput.createWidgets(self.frmEdit, self.row, 1)
-        self.row += 1
-        return oInput
-    
-    def addTextArea(self, label: str, nLines: int) -> BaseWidgets.TextArea:
-        """Add a multi-line text input."""
-        self.addLabel(label)
-        oInput = BaseWidgets.TextArea(label, nLines, self.onModified)
-        oInput.createWidgets(self.frmEdit, self.row, 1)
-        self.row += 1
-        return oInput
-    
-    def addTextReadOnly(self, label: str) -> BaseWidgets.TextReadOnly:
-        """Add a read-only text."""
-        self.addLabel(label)
-        oInput = BaseWidgets.TextReadOnly(label)
-        oInput.createWidgets(self.frmEdit, self.row, 1)
-        self.row += 1
-        return oInput
-    
-    def addIntInput(self, label: str) -> BaseWidgets.IntInput:
-        """Add an integer input."""
-        self.addLabel(label)
-        oInput = BaseWidgets.IntInput(self.onModified)
-        oInput.createWidgets(self.frmEdit, self.row, 1)
-        self.row += 1
-        return oInput
-
-    def addLabel(self, label: str):
-        """Add an attribute label at the specified row."""
-        oLabel = tk.Label(self.frmEdit, text=label)
-        oLabel.grid(row=self.row, column=0, sticky='nw')
-
     def enableWidgets(self, evt=None):
         """Enable our internal widgets."""
         modified = self.hasChanges()
@@ -146,11 +101,6 @@ class LocationEditor():
         self.enableWidget(self.btnDelete, False)
         #self.enableWidget(self.txtName, self.location is not None)
         #self.txtName.edit_modified(False)
-        
-    def enableWidget(self, widget: tk.Widget, enabled: bool):
-        """Enable the specified tk widget if enabled is true."""
-        if widget:
-            widget['state'] = tk.NORMAL if enabled else tk.DISABLED
 
     def __str__(self) -> str:
         return 'LocationEditor'

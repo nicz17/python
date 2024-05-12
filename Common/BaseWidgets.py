@@ -11,6 +11,7 @@ import tkinter as tk
 from tkinter import ttk
 
 
+
 class IntInput():
     """A integer input widget based on ttk.Entry."""
     log = logging.getLogger('IntInput')
@@ -131,3 +132,73 @@ class TextReadOnly():
     
     def __str__(self) -> str:
         return f'TextReadOnly for {self.name}'
+
+
+class BaseEditor():
+    """Common superclass for edition widgets."""
+    log = logging.getLogger('BaseEditor')
+
+    def __init__(self, cbkSave=None):
+        """Constructor with save callback."""
+        self.log.info('Constructor')
+        self.cbkSave = cbkSave
+        self.row = 0
+
+    def onModified(self, evt=None):
+        """Callback for widget modifications."""
+        #self.log.info('BaseEditor modified cbk')
+        self.enableWidgets()
+
+    def createWidgets(self, parent: tk.Frame, title: str):
+        """Add the editor widgets to the parent widget."""
+        self.frmEdit = ttk.LabelFrame(parent, text=title)
+        self.frmEdit.pack(side=tk.TOP, anchor=tk.N, fill=tk.X, expand=True, pady=5)
+
+    def addText(self, label: str) -> TextInput:
+        """Add a single-line text input."""
+        self.addLabel(label)
+        oInput = TextInput(self.onModified)
+        oInput.createWidgets(self.frmEdit, self.row, 1)
+        self.row += 1
+        return oInput
+    
+    def addTextArea(self, label: str, nLines: int) -> TextArea:
+        """Add a multi-line text input."""
+        self.addLabel(label)
+        oInput = TextArea(label, nLines, self.onModified)
+        oInput.createWidgets(self.frmEdit, self.row, 1)
+        self.row += 1
+        return oInput
+    
+    def addTextReadOnly(self, label: str) -> TextReadOnly:
+        """Add a read-only text."""
+        self.addLabel(label)
+        oInput = TextReadOnly(label)
+        oInput.createWidgets(self.frmEdit, self.row, 1)
+        self.row += 1
+        return oInput
+    
+    def addIntInput(self, label: str) -> IntInput:
+        """Add an integer input."""
+        self.addLabel(label)
+        oInput = IntInput(self.onModified)
+        oInput.createWidgets(self.frmEdit, self.row, 1)
+        self.row += 1
+        return oInput
+
+    def addLabel(self, label: str):
+        """Add an attribute label at the specified row."""
+        oLabel = tk.Label(self.frmEdit, text=label)
+        oLabel.grid(row=self.row, column=0, sticky='nw')
+
+    def enableWidgets(self, evt=None):
+        """Enable our internal widgets."""
+        pass
+        
+    def enableWidget(self, widget: tk.Widget, enabled: bool):
+        """Enable the specified tk widget if enabled is true."""
+        if widget:
+            widget['state'] = tk.NORMAL if enabled else tk.DISABLED
+
+    def __str__(self) -> str:
+        return 'BaseEditor'
