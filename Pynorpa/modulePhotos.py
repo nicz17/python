@@ -10,6 +10,7 @@ import logging
 import config
 import glob
 import BaseWidgets
+import imageWidget
 import DateTools
 from TabsApp import *
 from PhotoInfo import *
@@ -25,6 +26,7 @@ class ModulePhotos(TabModule):
         self.window = parent.window
         self.table = TablePhotos(self.onSelectPhoto)
         #self.mapWidget = MapWidget()
+        self.imageWidget = imageWidget.ImageWidget()
         self.editor = PhotoEditor()
         super().__init__(parent, 'Photos')
         self.photos = []
@@ -43,9 +45,11 @@ class ModulePhotos(TabModule):
 
     def onSelectPhoto(self, photo: PhotoInfo):
         self.log.info(f'Selected {photo}')
-        # Display in map widget
+        thumbfile = None
+        if photo is not None:
+            thumbfile = photo.filename.replace('orig/', 'thumbs/')
+        self.imageWidget.loadData(thumbfile)
         #self.mapWidget.loadData(photo)
-        # Display in editor
         self.editor.loadData(photo)
 
     def createWidgets(self):
@@ -57,13 +61,9 @@ class ModulePhotos(TabModule):
         self.frmRight = tk.Frame(master=self.oFrame, width=600)
         self.frmRight.pack(fill=tk.Y, side=tk.LEFT, pady=6, padx=6)
 
-        # Photos table
+        # Widgets
         self.table.createWidgets(self.frmLeft)
-
-        # Map widget
-        #self.mapWidget.createWidgets(self.frmRight)
-
-        # Photo properties
+        self.imageWidget.createWidgets(self.frmRight)
         self.editor.createWidgets(self.frmRight)
 
 class TablePhotos(BaseTable):
