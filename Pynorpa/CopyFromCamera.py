@@ -6,11 +6,11 @@ __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
-import datetime
 import glob
 import os
 import config
 import logging
+import DateTools
 from PhotoInfo import *
 from Timer import *
 
@@ -117,11 +117,8 @@ class CopyFromCamera:
 
     def getCurrentTarget(self) -> None:
         """Build current target image directory. Name is based on year and month."""
-        currentDateTime = datetime.datetime.now()
-        date = currentDateTime.date()
-        year  = date.strftime("%Y")
-        month = date.strftime("%m")
-        self.targetDir = f'{config.dirPhotosBase}Nature-{year}-{month}/'
+        yearMonth = DateTools.nowAsString('%Y-%m')
+        self.targetDir = f'{config.dirPhotosBase}Nature-{yearMonth}/'
         self.log.debug('Photo destination dir is %s', self.targetDir)
     
     def createNatureDirs(self, dir):

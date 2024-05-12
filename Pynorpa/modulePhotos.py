@@ -10,6 +10,7 @@ import logging
 import config
 import glob
 import BaseWidgets
+import DateTools
 from TabsApp import *
 from PhotoInfo import *
 from BaseTable import *
@@ -31,7 +32,8 @@ class ModulePhotos(TabModule):
 
     def loadData(self):
         """Load the photos to display."""
-        dirPhotosOrig = f'{config.dirPhotosBase}Nature-2024-04/orig/'
+        yearMonth = DateTools.nowAsString('%Y-%m')
+        dirPhotosOrig = f'{config.dirPhotosBase}Nature-{yearMonth}/orig/'
         files = sorted(glob.glob(f'{dirPhotosOrig}*.JPG'))
         for file in files:
             photo = PhotoInfo(file)
@@ -118,11 +120,13 @@ class PhotoEditor():
         self.photo = photo
         self.lblName.setValue(None)
         self.lblDate.setValue(None)
+        self.lblPicSize.setValue(None)
         self.lblPosition.setValue(None)
         self.lblExposure.setValue(None)
         if photo:
             self.lblName.setValue(photo.getNameFull())
             self.lblDate.setValue(photo.getShotAtString())
+            self.lblPicSize.setValue(photo.getSizeString())
             self.lblPosition.setValue(photo.getGPSString())
             self.lblExposure.setValue(photo.getExposureDetails())
 
@@ -132,8 +136,9 @@ class PhotoEditor():
         self.frmEdit.pack(side=tk.TOP, anchor=tk.N, fill=tk.X, expand=True, pady=5)
 
         # Photo attributes
-        self.lblName = self.addTextReadOnly('Nom')
-        self.lblDate = self.addTextReadOnly('Date')
+        self.lblName     = self.addTextReadOnly('Nom')
+        self.lblDate     = self.addTextReadOnly('Date')
+        self.lblPicSize  = self.addTextReadOnly('Taille')
         self.lblPosition = self.addTextReadOnly('Position')
         self.lblExposure = self.addTextReadOnly('Exposition')
     
