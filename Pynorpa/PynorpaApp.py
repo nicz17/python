@@ -9,7 +9,7 @@ __version__ = "1.0.0"
 import logging
 from TabsApp import *
 from ModuleCamera import *
-from ModuleLocations import *
+import moduleLocations
 import modulePhotos
 
 class PynorpaApp(TabsApp):
@@ -25,4 +25,4 @@ class PynorpaApp(TabsApp):
 
         modCamera    = ModuleCamera(self)
         modPhotos    = modulePhotos.ModulePhotos(self)
-        modLocations = ModuleLocations(self)
+        modLocations = moduleLocations.ModuleLocations(self)
