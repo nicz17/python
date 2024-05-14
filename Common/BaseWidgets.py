@@ -156,6 +156,41 @@ class TextReadOnly():
     def __str__(self) -> str:
         return f'TextReadOnly for {self.name}'
 
+class ComboBox():
+    """A multiple-choice widget based on ttk.Combobox."""
+    log = logging.getLogger('ComboBox')
+
+    def __init__(self, cbkModified):
+        """Constructor with modification callback."""
+        self.log.info('Constructor')
+        self.cbkModified = cbkModified
+
+    def setValues(self, values):
+        """Set the possible values."""
+        self.oCombo['values'] = values
+
+    def setValue(self, value: str):
+        """Set the string value."""
+        if value is not None:
+            self.oCombo.set(value)
+
+    def getValue(self) -> str:
+        """Get the current string value."""
+        return self.oCombo.get()
+        
+    def createWidgets(self, parent: tk.Frame, row: int, col: int):
+        """Create widget in parent frame with grid layout."""
+        self.oCombo = ttk.Combobox(parent, state='readonly', values=[])
+        self.oCombo.grid(row=row, column=col, padx=5, sticky='we')
+        if self.cbkModified:
+            self.oCombo.bind("<<ComboboxSelected>>", self.cbkModified)
+
+    def enableWidget(self, enabled: bool):
+        """Enable or disable this widget."""
+        enableWidget(self.oCombo, enabled)
+    
+    def __str__(self) -> str:
+        return 'ComboBox'
 
 class BaseEditor():
     """Common superclass for edition widgets."""
@@ -208,6 +243,15 @@ class BaseEditor():
         oInput.createWidgets(self.frmEdit, self.row, 1)
         self.row += 1
         return oInput
+    
+    def addComboBox(self, label: str, values) -> ComboBox:
+        """Add a combo box."""
+        self.addLabel(label)
+        oCombo = ComboBox(self.onModified)
+        oCombo.createWidgets(self.frmEdit, self.row, 1)
+        oCombo.setValues(values)
+        self.row += 1
+        return oCombo
 
     def addLabel(self, label: str):
         """Add an attribute label at the specified row."""
