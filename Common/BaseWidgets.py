@@ -10,7 +10,11 @@ import logging
 import tkinter as tk
 from tkinter import ttk
 
-
+        
+def enableWidget(widget: tk.Widget, enabled: bool):
+    """Enable the specified tk widget if enabled is true."""
+    if widget:
+        widget['state'] = tk.NORMAL if enabled else tk.DISABLED
 
 class IntInput():
     """A integer input widget based on ttk.Entry."""
@@ -29,7 +33,10 @@ class IntInput():
 
     def getValue(self) -> int:
         """Get the current integer value."""
-        value = int(self.oEntry.get().strip())
+        value = None
+        sValue = self.oEntry.get().strip()
+        if sValue:
+            value = int(sValue)
         return value
         
     def createWidgets(self, parent: tk.Frame, row: int, col: int):
@@ -40,6 +47,10 @@ class IntInput():
         self.oEntry.grid(row=row, column=col, padx=5, sticky='w')
         if self.cbkModified:
             self.oEntry.bind('<KeyRelease>', self.cbkModified)
+
+    def enableWidget(self, enabled: bool):
+        """Enable or disable this widget."""
+        enableWidget(self.oEntry, enabled)
 
     def cbkValidate(self, input: str) -> bool:
         """Check if input is a digit or empty."""
@@ -73,6 +84,10 @@ class TextInput():
         self.oEntry.grid(row=row, column=col, padx=5, sticky='we')
         if self.cbkModified:
             self.oEntry.bind('<KeyRelease>', self.cbkModified)
+
+    def enableWidget(self, enabled: bool):
+        """Enable or disable this widget."""
+        enableWidget(self.oEntry, enabled)
     
     def __str__(self) -> str:
         return 'TextInput'
@@ -104,6 +119,14 @@ class TextArea():
         self.oText.grid(row=row, column=col, padx=4, sticky='we')
         if self.cbkModified:
             self.oText.bind("<<Modified>>", self.cbkModified)
+
+    def enableWidget(self, enabled: bool):
+        """Enable or disable this widget."""
+        enableWidget(self.oText, enabled)
+
+    def resetModified(self):
+        """Reset the modified flag."""
+        self.oText.edit_modified(False)
     
     def __str__(self) -> str:
         return f'TextArea for {self.name}'
@@ -195,10 +218,10 @@ class BaseEditor():
         """Enable our internal widgets."""
         pass
         
-    def enableWidget(self, widget: tk.Widget, enabled: bool):
-        """Enable the specified tk widget if enabled is true."""
-        if widget:
-            widget['state'] = tk.NORMAL if enabled else tk.DISABLED
+    # def enableWidget(self, widget: tk.Widget, enabled: bool):
+    #     """Enable the specified tk widget if enabled is true."""
+    #     if widget:
+    #         widget['state'] = tk.NORMAL if enabled else tk.DISABLED
 
     def __str__(self) -> str:
         return 'BaseEditor'

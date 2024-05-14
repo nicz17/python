@@ -98,6 +98,7 @@ class LocationEditor(BaseWidgets.BaseEditor):
     def loadData(self, location: Location):
         """Display the specified object in this editor."""
         self.location = location
+        self.enableWidgets()
         self.txtName.setValue(None)
         self.txtState.setValue(None)
         self.txtRegion.setValue(None)
@@ -110,8 +111,7 @@ class LocationEditor(BaseWidgets.BaseEditor):
             self.txtRegion.setValue(location.region)
             self.txtDesc.setValue(location.desc)
             self.intAltitude.setValue(location.alt)
-            self.lblPosition.setValue(f'lat {location.lat} lon {location.lon} zoom {location.zoom}')
-        self.enableWidgets()
+            self.lblPosition.setValue(location.getGPSString())
 
     def hasChanges(self) -> bool:
         """Check if the editor has any changes."""
@@ -168,12 +168,17 @@ class LocationEditor(BaseWidgets.BaseEditor):
 
     def enableWidgets(self, evt=None):
         """Enable our internal widgets."""
+        editing  = self.location is not None
         modified = self.hasChanges()
-        self.enableWidget(self.btnSave, modified)
-        self.enableWidget(self.btnCancel, modified)
-        self.enableWidget(self.btnDelete, False)
-        #self.enableWidget(self.txtName, self.location is not None)
-        #self.txtName.edit_modified(False)
+        self.txtName.enableWidget(editing)
+        self.txtDesc.enableWidget(editing)
+        self.txtState.enableWidget(editing)
+        self.txtRegion.enableWidget(editing)
+        self.intAltitude.enableWidget(editing)
+        BaseWidgets.enableWidget(self.btnSave, modified)
+        BaseWidgets.enableWidget(self.btnCancel, modified)
+        BaseWidgets.enableWidget(self.btnDelete, False)
+        self.txtDesc.resetModified()
 
     def __str__(self) -> str:
         return 'LocationEditor'
