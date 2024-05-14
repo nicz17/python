@@ -31,6 +31,10 @@ class Location:
     def getDistance(self, lat: float, lon: float) -> float:
         """Get the distance to another location."""
         return math.sqrt((self.lat - lat) ** 2 + (self.lon - lon) ** 2)
+    
+    def getGPSString(self):
+        """Get the GPS coordinates as a string."""
+        return f'lat {self.lat} lon {self.lon} zoom {self.zoom}'
 
     def __str__(self):
         str = f'Location {self.idx} {self.name}'
