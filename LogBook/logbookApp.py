@@ -22,6 +22,7 @@ from TaskEditor import *
 from BookSelector import *
 from Importer import *
 from Exporter import *
+import logbookWidgets
 
 
 class LogBookApp(BaseApp):
@@ -32,7 +33,7 @@ class LogBookApp(BaseApp):
         """Constructor."""
         LogBook.initDefaultDir()
         self.iHeight = 800
-        self.iWidth  = 1300
+        self.iWidth  = 1400
         self.book = None
         self.archive = None
         self.task = None
@@ -42,7 +43,8 @@ class LogBookApp(BaseApp):
         self.stepInput = TextInputBox(self.addStep)
         self.stepsTable = StepsTable(self.onStepSelection)
         self.stepEditor = StepEditor(self.onStepSave)
-        self.taskEditor = TaskEditor(self.onTaskSave)
+        #self.taskEditor = TaskEditor(self.onTaskSave)
+        self.taskEditor = logbookWidgets.TaskEditor(self.onTaskSave)
         self.bookSelector = BookSelector(self.onBookSelection)
         geometry = f'{self.iWidth}x{self.iHeight}'
         super().__init__('LogBook', geometry, LogBook.dir + 'LogBook.png')
@@ -241,7 +243,7 @@ class LogBookApp(BaseApp):
         self.frmBook.pack(fill=tk.Y, side=tk.LEFT,  pady=5)
         self.frmTasks = tk.Frame(master=self.frmMain, width=500)#, bg='#f0fff0')
         self.frmTasks.pack(fill=tk.Y, side=tk.LEFT, padx=5, pady=5)
-        self.frmEdit = tk.Frame(master=self.frmMain,  width=300)#, bg='#fff0f0')
+        self.frmEdit = tk.Frame(master=self.frmMain,  width=400)#, bg='#fff0f0')
         self.frmEdit.pack(fill=tk.Y, side=tk.LEFT,  padx=5, pady=5)
 
         # LogBook title label
@@ -273,7 +275,8 @@ class LogBookApp(BaseApp):
         self.lblEdit.pack()
 
         # Task editor
-        self.taskEditor.build(self.frmEdit)
+        #self.taskEditor.build(self.frmEdit)
+        self.taskEditor.createWidgets(self.frmEdit)
 
         # Step editor
         self.stepEditor.build(self.frmEdit)
