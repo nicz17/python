@@ -113,9 +113,9 @@ class TextArea():
         """Get the current string value."""
         return self.oText.get(1.0, tk.END).strip()
         
-    def createWidgets(self, parent: tk.Frame, row: int, col: int):
+    def createWidgets(self, parent: tk.Frame, row: int, col: int, width=64):
         """Create widget in parent frame with grid layout."""
-        self.oText = tk.Text(parent, width=64, height=self.nLines)
+        self.oText = tk.Text(parent, width=width, height=self.nLines)
         self.oText.grid(row=row, column=col, padx=4, sticky='we')
         if self.cbkModified:
             self.oText.bind("<<Modified>>", self.cbkModified)
@@ -220,11 +220,11 @@ class BaseEditor():
         self.row += 1
         return oInput
     
-    def addTextArea(self, label: str, nLines: int) -> TextArea:
+    def addTextArea(self, label: str, nLines: int, width=64) -> TextArea:
         """Add a multi-line text input."""
         self.addLabel(label)
         oInput = TextArea(label, nLines, self.onModified)
-        oInput.createWidgets(self.frmEdit, self.row, 1)
+        oInput.createWidgets(self.frmEdit, self.row, 1, width)
         self.row += 1
         return oInput
     
