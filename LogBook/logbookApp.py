@@ -17,8 +17,6 @@ from LogBookTask import *
 from TaskList import *
 from TextInputBox import *
 from StepsTable import *
-from StepEditor import *
-from TaskEditor import *
 from BookSelector import *
 from Importer import *
 from Exporter import *
@@ -42,9 +40,10 @@ class LogBookApp(BaseApp):
         self.taskInput = TextInputBox(self.addTask)
         self.stepInput = TextInputBox(self.addStep)
         self.stepsTable = StepsTable(self.onStepSelection)
-        self.stepEditor = StepEditor(self.onStepSave)
+        #self.stepEditor = StepEditor(self.onStepSave)
         #self.taskEditor = TaskEditor(self.onTaskSave)
         self.taskEditor = logbookWidgets.TaskEditor(self.onTaskSave)
+        self.stepEditor = logbookWidgets.StepEditor(self.onStepSave)
         self.bookSelector = BookSelector(self.onBookSelection)
         geometry = f'{self.iWidth}x{self.iHeight}'
         super().__init__('LogBook', geometry, LogBook.dir + 'LogBook.png')
@@ -275,11 +274,10 @@ class LogBookApp(BaseApp):
         self.lblEdit.pack()
 
         # Task editor
-        #self.taskEditor.build(self.frmEdit)
         self.taskEditor.createWidgets(self.frmEdit)
 
         # Step editor
-        self.stepEditor.build(self.frmEdit)
+        self.stepEditor.createWidgets(self.frmEdit)
 
         # Book selector
         self.bookSelector.build(self.frmEdit)
