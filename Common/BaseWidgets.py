@@ -105,6 +105,7 @@ class TextArea():
 
     def setValue(self, value: str):
         """Set the string value."""
+        self.oText['state'] = tk.NORMAL
         self.oText.delete(1.0, tk.END)
         if value:
             self.oText.insert(1.0, value)
