@@ -32,7 +32,7 @@ class PynorpaTask(Task):
 
     def getStatus(self) -> str:
         sLeft = self.getRemainingTime()
-        return f'{self.status} [{self.nStepsDone}/{self.nStepsTotal}]{sLeft}'
+        return f'{self.status} [{self.nStepsDone}/{self.nStepsTotal}] {sLeft}'
     
     def getRemainingTime(self):
         """Estimate the remaining time."""
