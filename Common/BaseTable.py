@@ -66,3 +66,4 @@ class BaseTable():
         """Clears the tree contents."""
         self.tree.delete(*self.tree.get_children())
         self.nRows = 0
+        self.lblStatus.configure(text=f'No {self.objectlabel}')
