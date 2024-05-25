@@ -15,6 +15,7 @@ import DateTools
 from TabsApp import *
 from PhotoInfo import *
 from BaseTable import *
+from tkinter import filedialog as fd
 
 
 class ModulePhotos(TabModule):
@@ -30,13 +31,18 @@ class ModulePhotos(TabModule):
         self.editor = PhotoEditor()
         super().__init__(parent, 'Photos')
         self.photos = []
+        self.getDefaultDir()
         self.loadData()
+
+    def getDefaultDir(self):
+        """Find the default photo dir."""
+        yearMonth = DateTools.nowAsString('%Y-%m')
+        self.dir = f'{config.dirPhotosBase}Nature-{yearMonth}/orig'
 
     def loadData(self):
         """Load the photos to display."""
-        yearMonth = DateTools.nowAsString('%Y-%m')
-        dirPhotosOrig = f'{config.dirPhotosBase}Nature-{yearMonth}/orig/'
-        files = sorted(glob.glob(f'{dirPhotosOrig}*.JPG'))
+        self.photos = []
+        files = sorted(glob.glob(f'{self.dir}/*.JPG'))
         for file in files:
             photo = PhotoInfo(file)
             photo.identify()
@@ -44,6 +50,7 @@ class ModulePhotos(TabModule):
         self.table.loadData(self.photos)
 
     def onSelectPhoto(self, photo: PhotoInfo):
+        """Photo selection callback."""
         self.log.info(f'Selected {photo}')
         thumbfile = None
         if photo is not None:
@@ -51,6 +58,12 @@ class ModulePhotos(TabModule):
         self.imageWidget.loadData(thumbfile)
         #self.mapWidget.loadData(photo)
         self.editor.loadData(photo)
+
+    def selectDir(self):
+        """Display a dialog to choose a photo dir."""
+        self.dir = fd.askdirectory(mustexist=True, initialdir=config.dirPhotosBase)
+        self.oParent.setStatus(f'Selected {self.dir}')
+        self.loadData()
 
     def createWidgets(self):
         """Create user widgets."""
@@ -65,6 +78,20 @@ class ModulePhotos(TabModule):
         self.table.createWidgets(self.frmLeft)
         self.imageWidget.createWidgets(self.frmRight)
         self.editor.createWidgets(self.frmRight)
+
+        # Buttons frame
+        self.frmButtons = ttk.Frame(self.frmLeft, padding=5)
+        self.frmButtons.pack(anchor=tk.W)
+
+        # Buttons
+        self.btnReload = self.addButton('Reload',     self.loadData)
+        self.btnOpen   = self.addButton('Change dir', self.selectDir)
+
+    def addButton(self, label: str, cmd):
+        """Add a Tk Button to this module's frmButtons."""
+        btn = tk.Button(self.frmButtons, text = label, command = cmd)
+        btn.pack(side=tk.LEFT)
+        return btn
 
 class TablePhotos(BaseTable):
     """Table widget for Pynorpa photo."""
