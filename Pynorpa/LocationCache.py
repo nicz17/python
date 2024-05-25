@@ -69,6 +69,13 @@ class LocationCache:
     def getLocations(self):
         """Returns the fetched locations."""
         return self.locations
+    
+    def getById(self, idxLocation: int) -> Location:
+        """Get a Location by primary key."""
+        for location in self.locations:
+            if location.idx == idxLocation:
+                return location
+        return None
 
     def getClosest(self, lat: float, lon: float) -> Location:
         """Find the closest location in this cache to the specified lat/lon."""
@@ -91,9 +98,11 @@ def testLocationCache():
     cache = LocationCache()
     cache.load()
     closest = cache.getClosest(46.52219597, 6.57062216)
-    print(closest)
+    cache.log.info(closest)
     closest = cache.getClosest(46.6011348, 6.7310774)
-    print(closest)
+    cache.log.info(closest)
+    locById = cache.getById(67)
+    cache.log.info(locById)
 
 
 if __name__ == '__main__':
