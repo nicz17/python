@@ -36,6 +36,7 @@ class GeoTracker:
         self.files = []
         self.geoTracks = []
         self.locationCache = None
+        self.defLocation = None
         self.jpgFiles = []
         self.photos = []
         self.statusMsg = 'Init'
@@ -46,6 +47,11 @@ class GeoTracker:
         # Load LocationCache
         self.locationCache = LocationCache()
         self.locationCache.load()
+
+        # Load a default location
+        # TODO take from an option
+        #self.defLocation = self.locationCache.getById(67)
+        #self.log.info('Using default location %s', self.defLocation)
 
         # Check dirs exist
         if not os.path.exists(self.dirTarget):
@@ -135,6 +141,9 @@ class GeoTracker:
                     nUpdated += 1
                     photo.identify()
                     self.statusMsg = f'Added GPS data to {photo.filename}'
+                elif self.defLocation is not None:
+                    nUntracked += 1
+                    self.setGPSFromDefLocation(file)
                 else:
                     nUntracked += 1
                     self.statusMsg = f'No GPS data for {photo.filename}'
@@ -155,6 +164,12 @@ class GeoTracker:
         self.log.debug(cmd)
         os.system(cmd)
         return True
+    
+    def setGPSFromDefLocation(self, file: str):
+        """Set EXIF GPS tags from default location using exiftool."""
+        if self.defLocation is not None:
+            cmd = f'exiftool -GPSLatitude*={self.defLocation.lat} -GPSLongitude*={self.defLocation.lon} -overwrite_original {file}'
+            os.system(cmd)
     
     def addPhotoToTrack(self, photo: PhotoInfo):
         """Add the photo to a GeoTrack if it contains its timestamp."""
