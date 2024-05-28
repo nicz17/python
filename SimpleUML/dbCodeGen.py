@@ -12,7 +12,9 @@ __version__ = "1.0.0"
 import logging
 import getopt
 import sys
+import TextTools
 from Database import *
+from DatabaseField import *
 from SettingsLoader import *
 from SimpleUMLClass import *
 
@@ -42,36 +44,34 @@ class DatabaseCodeGen():
         db = self.connectToDb(dbName)
         sql = f'describe {dbName}.{table}'
         rows = db.fetch(sql)
+        fields = []
         for row in rows:
             self.log.info(row)
-            fieldName = row[0]
-            fieldType = row[1]
-            fieldNull = row[2]
-            pyType = DatabaseCodeGen.getPythonType(fieldType)
-            self.clss.addMember(fieldName, pyType)
-            self.clss.addMethod(f'get{fieldName}', None, pyType, False)
+            fields.append(DatabaseField(row[0], row[1], row[2], row[3]))
         db.disconnect()
 
         # TODO find the table prefix, adapt names
+        prefix = 'tax'
 
         # Add the Constructor
-        # TODO add it first
         members = []
-        for member in self.clss.members:
-            members.append(member)
+        field: DatabaseField
+        for field in fields:
+            name = field.getPythonName(prefix)
+            type = field.getPythonType()
+            members.append(SimpleUMLParam(name, type))
         self.clss.addMethod(table, members, None, False)
+
+        # Add getters
+        for field in fields:
+            name = field.getPythonName(prefix)
+            type = field.getPythonType()
+            ucName = TextTools.upperCaseFirst(name)
+            self.clss.addMember(name, type)
+            self.clss.addMethod(f'get{ucName}', None, type, False)
 
         # Write the class
         self.clss.generate()
-
-    def getPythonType(dbType: str):
-        """Get the python type for the specified SQL type."""
-        type = dbType
-        if dbType == 'tinyint(1)':
-            type = 'bool'
-        if dbType.startswith('varchar'):
-            type = 'str'
-        return type
 
     def connectToDb(self, dbName: str):
         """Connect to the specified database."""
