@@ -24,7 +24,7 @@ class DatabaseField():
         """Get the python name"""
         name = self.name.removeprefix(prefix)
         name = TextTools.lowerCaseFirst(name)
-        if self.role == 'PRI':
+        if self.isPrimaryKey():
             return 'idx'
         return name
 
@@ -36,6 +36,10 @@ class DatabaseField():
         if self.type.startswith('varchar'):
             type = 'str'
         return type
+
+    def isPrimaryKey(self):
+        """Check if this field is the table's primary key."""
+        return self.role == 'PRI'
 
     def __str__(self):
         str = "DatabaseField"

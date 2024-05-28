@@ -62,13 +62,15 @@ class DatabaseCodeGen():
             members.append(SimpleUMLParam(name, type))
         self.clss.addMethod(table, members, None, False)
 
-        # Add getters
+        # Add getters and setters
         for field in fields:
             name = field.getPythonName(prefix)
             type = field.getPythonType()
             ucName = TextTools.upperCaseFirst(name)
             self.clss.addMember(name, type)
             self.clss.addMethod(f'get{ucName}', None, type, False)
+            if not field.isPrimaryKey():
+                self.clss.addMethod(f'set{ucName}', [SimpleUMLParam(name, type)], None, False)
 
         # Write the class
         self.clss.generate()
