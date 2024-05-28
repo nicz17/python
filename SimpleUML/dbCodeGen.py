@@ -50,8 +50,9 @@ class DatabaseCodeGen():
             fields.append(DatabaseField(row[0], row[1], row[2], row[3]))
         db.disconnect()
 
-        # TODO find the table prefix, adapt names
-        prefix = 'tax'
+        # Find the table prefix
+        prefix = self.getPrefix(fields)
+        self.log.info('Table prefix is %s', prefix)
 
         # Add the Constructor
         members = []
@@ -74,6 +75,23 @@ class DatabaseCodeGen():
 
         # Write the class
         self.clss.generate()
+
+    def getPrefix(self, fields) -> str:
+        """Find the largest common prefix to the specified DB fields."""
+        field: DatabaseField
+        for len in range(7, 1, -1):
+            prefix = ''
+            found = True
+            for field in fields:
+                if not field.isPrimaryKey():
+                    if prefix == '':
+                        prefix = field.name[:len]
+                        self.log.debug('Trying prefix %s', prefix)
+                    if not field.name.startswith(prefix):
+                        found = False
+            if found:
+                return prefix
+        return ''
 
     def connectToDb(self, dbName: str):
         """Connect to the specified database."""
