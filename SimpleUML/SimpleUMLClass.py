@@ -216,7 +216,7 @@ class SimpleUMLClassPython(SimpleUMLClass):
         if constr:
             values = []
             for param in constr.params:
-                values.append('None')
+                values.append(self.getDefaultValue(param.type))
             svalues = ', '.join(values)
             file.write(f'obj = {self.name}({svalues})', 1)
             file.write('obj.log.info(obj)', 1)
@@ -230,6 +230,17 @@ class SimpleUMLClassPython(SimpleUMLClass):
         file.newline()
 
         file.close()
+
+    def getDefaultValue(self, type: str) -> str:
+        """Get a default value for the specified type."""
+        if type == 'str':
+            return '"SomeText"'
+        if type == 'int':
+            return '42'
+        if type == 'bool':
+            return 'True'
+        return 'None'
+
 
 
 class SimpleUMLClassCpp(SimpleUMLClass):
