@@ -127,7 +127,9 @@ class SimpleUMLClassPython(SimpleUMLClass):
 
     def generate(self, file: CodeFilePython = None):
         """Generate the code."""
+        bStandAlone = False
         if file is None:
+            bStandAlone = True
             filename = f'{self.dir}/{self.name}.py'
             self.log.info('Generating %s', filename)
             file = CodeFilePython(filename)
@@ -230,7 +232,8 @@ class SimpleUMLClassPython(SimpleUMLClass):
         file.write(f'test{self.name}()', 1)
         file.newline()
 
-        file.close()
+        if bStandAlone:
+            file.close()
 
     def getDefaultValue(self, type: str) -> str:
         """Get a default value for the specified type."""
@@ -461,6 +464,8 @@ class SimpleUMLPythonModule():
         clss: SimpleUMLClassPython
         for clss in self.classes:
             clss.generate(file)
+
+        file.close()
 
     def __str__(self) -> str:
         str = f'Python module {self.name} with {len(self.classes)} classes'

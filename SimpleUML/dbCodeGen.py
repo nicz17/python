@@ -43,6 +43,7 @@ class DatabaseCodeGen():
         module = SimpleUMLPythonModule(TextTools.lowerCaseFirst(table))
         self.clss = SimpleUMLClassPython()
         self.clss.setName(table)
+        module.addClass(self.clss)
 
         # Get table structure from DB
         db = self.connectToDb(dbName)
@@ -80,9 +81,23 @@ class DatabaseCodeGen():
         # Write the class
         #self.clss.generate()
 
+        # Generate the Cache class
+        module.addClass(self.createCache(table))
+
         # Write the module
-        module.addClass(self.clss)
         module.generate()
+
+    def createCache(self, table: str) -> SimpleUMLClassPython:
+        """Create a class for caching the table records."""
+        name = TextTools.upperCaseFirst(table) + 'Cache'
+        self.log.info('Generating %s', name)
+
+        clss = SimpleUMLClassPython()
+        clss.setName(name)
+
+        clss.addMethod('load', None, None, False)
+
+        return clss
 
     def getPrefix(self, fields) -> str:
         """Find the largest common prefix to the specified DB fields."""
