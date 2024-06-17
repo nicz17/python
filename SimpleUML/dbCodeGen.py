@@ -34,10 +34,14 @@ class DatabaseCodeGen():
         self.log.info('Parsing %s.%s', dbName, table)
 
         # Create class object
-        if self.lang == 'cpp':
-            self.clss = SimpleUMLClassCpp()
-        else:
-            self.clss = SimpleUMLClassPython()
+        # if self.lang == 'cpp':
+        #     self.clss = SimpleUMLClassCpp()
+        # else:
+        #     self.clss = SimpleUMLClassPython()
+
+        # Create module and class
+        module = SimpleUMLPythonModule(TextTools.lowerCaseFirst(table))
+        self.clss = SimpleUMLClassPython()
         self.clss.setName(table)
 
         # Get table structure from DB
@@ -74,7 +78,11 @@ class DatabaseCodeGen():
                 self.clss.addMethod(f'set{ucName}', [SimpleUMLParam(name, type)], None, False)
 
         # Write the class
-        self.clss.generate()
+        #self.clss.generate()
+
+        # Write the module
+        module.addClass(self.clss)
+        module.generate()
 
     def getPrefix(self, fields) -> str:
         """Find the largest common prefix to the specified DB fields."""

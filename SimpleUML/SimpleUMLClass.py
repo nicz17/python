@@ -125,24 +125,25 @@ class SimpleUMLClassPython(SimpleUMLClass):
         """Constructor."""
         super().__init__()
 
-    def generate(self):
+    def generate(self, file: CodeFilePython = None):
         """Generate the code."""
-        filename = f'{self.dir}/{self.name}.py'
-        self.log.info('Generating %s', filename)
-        file = CodeFilePython(filename)
+        if file is None:
+            filename = f'{self.dir}/{self.name}.py'
+            self.log.info('Generating %s', filename)
+            file = CodeFilePython(filename)
 
-        # Header
-        year = DateTools.nowAsString('%Y')
-        file.addDoc(f'Module {self.name}')
-        file.newline()
-        file.write('__author__ = "Nicolas Zwahlen"')
-        file.write(f'__copyright__ = "Copyright {year} N. Zwahlen"')
-        file.write('__version__ = "1.0.0"')
-        file.newline()
+            # Header
+            year = DateTools.nowAsString('%Y')
+            file.addDoc(f'Module {self.name}')
+            file.newline()
+            file.write('__author__ = "Nicolas Zwahlen"')
+            file.write(f'__copyright__ = "Copyright {year} N. Zwahlen"')
+            file.write('__version__ = "1.0.0"')
+            file.newline()
 
-        # Imports
-        file.write('import logging')
-        file.newline(2)
+            # Imports
+            file.write('import logging')
+            file.newline(2)
 
         # Class declaration
         file.write(f'class {self.name}():')
@@ -424,3 +425,43 @@ class SimpleUMLClassCpp(SimpleUMLClass):
         self.log.info('Header guard: %s', guard)
         return guard
 
+class SimpleUMLPythonModule():
+    """A python module that can contain classes."""
+    log = logging.getLogger('SimpleUMLPythonModule')
+    dir = 'test'
+
+    def __init__(self, name: str) -> None:
+        """Constructor."""
+        self.name = name
+        self.classes = []
+
+    def addClass(self, clss: SimpleUMLClassPython):
+        self.classes.append(clss)
+
+    def generate(self):
+        """Generate the code."""
+        filename = f'{self.dir}/{self.name}.py'
+        self.log.info('Generating %s', self)
+        file = CodeFilePython(filename)
+
+        # Generate module header
+        year = DateTools.nowAsString('%Y')
+        file.addDoc(f'Module {self.name}')
+        file.newline()
+        file.write('__author__ = "Nicolas Zwahlen"')
+        file.write(f'__copyright__ = "Copyright {year} N. Zwahlen"')
+        file.write('__version__ = "1.0.0"')
+        file.newline()
+
+        # Imports
+        file.write('import logging')
+        file.newline(2)
+
+        # Generate classes code
+        clss: SimpleUMLClassPython
+        for clss in self.classes:
+            clss.generate(file)
+
+    def __str__(self) -> str:
+        str = f'Python module {self.name} with {len(self.classes)} classes'
+        return str
