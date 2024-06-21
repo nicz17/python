@@ -84,22 +84,34 @@ class DatabaseCodeGen():
         #self.clss.generate()
 
         # Generate the Cache class
-        module.addClass(self.createCache(table))
+        module.addClass(self.createCache(table, fields))
 
         # Write the module
         module.generate()
 
-    def createCache(self, table: str) -> SimpleUMLClassPython:
+    def createCache(self, table: str, fields) -> SimpleUMLClassPython:
         """Create a class for caching the table records."""
         name = TextTools.upperCaseFirst(table) + 'Cache'
         self.log.info('Generating %s', name)
 
+        # Cache class and its constructor
         clss = SimpleUMLClassPython()
         clss.setName(name)
+        clss.addMethod(name, None, None, False)
 
+        # Array to store fetched records
+        sCollName = TextTools.lowerCaseFirst(table) + 's'
+        clss.addMember(sCollName, 'array')
+
+        # Database fetch method
+        sFieldNames = ', '.join([field.name for field in fields])
         oLoad = clss.addMethod('load', None, None, False)
         oLoad.addCodeLine('db = Database.Database(config.dbName)')
         oLoad.addCodeLine('db.connect(config.dbUser, config.dbPass)')
+        oLoad.addCodeLine(f'sql = "select {sFieldNames} from {table}"')
+        oLoad.addCodeLine('rows = db.fetch(sql)')
+        oLoad.addCodeLine('for row in rows:')
+        oLoad.addCodeLine(f'    self.{sCollName}.append[{table}(*row)]')
         oLoad.addCodeLine('db.disconnect()')
 
         return clss
