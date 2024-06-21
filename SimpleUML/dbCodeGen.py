@@ -41,6 +41,8 @@ class DatabaseCodeGen():
 
         # Create module and class
         module = SimpleUMLPythonModule(TextTools.lowerCaseFirst(table))
+        module.addImport('config')
+        module.addImport('Database')
         self.clss = SimpleUMLClassPython()
         self.clss.setName(table)
         module.addClass(self.clss)
@@ -95,7 +97,10 @@ class DatabaseCodeGen():
         clss = SimpleUMLClassPython()
         clss.setName(name)
 
-        clss.addMethod('load', None, None, False)
+        oLoad = clss.addMethod('load', None, None, False)
+        oLoad.addCodeLine('db = Database.Database(config.dbName)')
+        oLoad.addCodeLine('db.connect(config.dbUser, config.dbPass)')
+        oLoad.addCodeLine('db.disconnect()')
 
         return clss
 

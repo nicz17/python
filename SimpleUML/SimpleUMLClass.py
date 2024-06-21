@@ -51,6 +51,12 @@ class SimpleUMLMethod():
             self.params = []
         self.type = type
         self.isPrivate = isPrivate
+        self.codeLines = []
+
+    def addCodeLine(self, line: str):
+        """Add the specified code to this method."""
+        if line:
+            self.codeLines.append(line)
 
     def isConstructor(self, className: str):
         """Check if this method is a constructor."""
@@ -89,11 +95,12 @@ class SimpleUMLClass():
         self.log.info('Adding member %s type %s', name, type)
         self.members.append(SimpleUMLMember(name, type))
 
-    def addMethod(self, name: str, params, type: str, isPrivate = True):
+    def addMethod(self, name: str, params, type: str, isPrivate = True) -> SimpleUMLMethod:
         """Add a class method of the specified name and type."""
         method = SimpleUMLMethod(name, params, type, isPrivate)
         self.log.info('Adding %s', method)
         self.methods.append(method)
+        return method
 
     def getMember(self, name: str) -> SimpleUMLMember:
         """Return the class member with the specified name, or None."""
@@ -172,6 +179,13 @@ class SimpleUMLClassPython(SimpleUMLClass):
                         file.write(f'self.{member.name} = {member.name}', 2)
                     else:
                         file.write(f'self.{member.name} = None', 2)
+            elif len(method.codeLines) > 0:
+                self.log.info('Generating method %s body from %d code lines', 
+                              method.name, len(method.codeLines))
+                file.write(definition, 1)
+                file.addDoc(f'{TextTools.upperCaseFirst(method.name)}', 2)
+                for line in method.codeLines:
+                    file.write(line, 2)
             elif method.isGetter():
                 memberName = TextTools.lowerCaseFirst(method.name[3:])
                 member = self.getMember(memberName)
@@ -193,14 +207,15 @@ class SimpleUMLClassPython(SimpleUMLClass):
             file.newline()
 
         # toJson method
-        file.write('def toJson(self):', 1)
-        file.addDoc(f'Create a dict of this {self.name} for json export.', 2)
-        file.write('data = {', 2)
-        for member in self.members:
-            file.write(f"'{member.name}': self.{member.name},", 3)
-        file.write('}', 2)
-        file.write('return data', 2)
-        file.newline()
+        if len(self.members) > 0:
+            file.write('def toJson(self):', 1)
+            file.addDoc(f'Create a dict of this {self.name} for json export.', 2)
+            file.write('data = {', 2)
+            for member in self.members:
+                file.write(f"'{member.name}': self.{member.name},", 3)
+            file.write('}', 2)
+            file.write('return data', 2)
+            file.newline()
 
         # toString method
         file.write('def __str__(self):', 1)
@@ -437,9 +452,15 @@ class SimpleUMLPythonModule():
         """Constructor."""
         self.name = name
         self.classes = []
+        self.imports = ['logging']
 
     def addClass(self, clss: SimpleUMLClassPython):
+        """Add the specified class to this module."""
         self.classes.append(clss)
+
+    def addImport(self, name: str):
+        """Import the specified module."""
+        self.imports.append(name)
 
     def generate(self):
         """Generate the code."""
@@ -457,7 +478,8 @@ class SimpleUMLPythonModule():
         file.newline()
 
         # Imports
-        file.write('import logging')
+        for moduleName in self.imports:
+            file.write(f'import {moduleName}')
         file.newline(2)
 
         # Generate classes code
