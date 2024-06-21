@@ -40,8 +40,6 @@ class LogBookApp(BaseApp):
         self.taskInput = TextInputBox(self.addTask)
         self.stepInput = TextInputBox(self.addStep)
         self.stepsTable = StepsTable(self.onStepSelection)
-        #self.stepEditor = StepEditor(self.onStepSave)
-        #self.taskEditor = TaskEditor(self.onTaskSave)
         self.taskEditor = logbookWidgets.TaskEditor(self.onTaskSave)
         self.stepEditor = logbookWidgets.StepEditor(self.onStepSave)
         self.bookSelector = BookSelector(self.onBookSelection)
@@ -118,7 +116,6 @@ class LogBookApp(BaseApp):
 
     def onTaskSelection(self, sel: LogBookTask):
         """TaskList selection handling."""
-        #sel = self.taskList.getSelection()
         if sel:
             self.task = sel
             self.log.info('Task selection: %s', self.task)
@@ -238,7 +235,7 @@ class LogBookApp(BaseApp):
         self.btnArchive = self.addButton('Archive', self.onTaskArchive)
 
         # Frames
-        self.frmBook = tk.Frame(master=self.frmMain,  width=300)#, bg='#f0f0ff')
+        self.frmBook = tk.Frame(master=self.frmMain,  width=400)#, bg='#f0f0ff')
         self.frmBook.pack(fill=tk.Y, side=tk.LEFT,  pady=5)
         self.frmTasks = tk.Frame(master=self.frmMain, width=500)#, bg='#f0fff0')
         self.frmTasks.pack(fill=tk.Y, side=tk.LEFT, padx=5, pady=5)
@@ -246,7 +243,7 @@ class LogBookApp(BaseApp):
         self.frmEdit.pack(fill=tk.Y, side=tk.LEFT,  padx=5, pady=5)
 
         # LogBook title label
-        self.lblBook = tk.Label(self.frmBook, width=21, 
+        self.lblBook = tk.Label(self.frmBook, width=25, 
             text='LogBook title', font='Helvetica 16 bold')
         self.lblBook.pack()
 
@@ -258,7 +255,7 @@ class LogBookApp(BaseApp):
         self.taskInput.build(self.frmBook)
 
         # Steps title label
-        self.lblTasks = tk.Label(self.frmTasks, width=38, 
+        self.lblTasks = tk.Label(self.frmTasks, width=42, 
             text='Steps table', font='Helvetica 16 bold')
         self.lblTasks.pack()
 

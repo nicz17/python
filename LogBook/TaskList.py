@@ -59,7 +59,7 @@ class TaskList():
     def build(self, parent: tk.Frame):
         """Add the widgets to the parent frame."""
         self.listTasks = tk.Listbox(parent, 
-            height = 20, width = 36,
+            height = 20, width = 42,
             bg = "white", fg = "black")
         self.listTasks.bind('<<ListboxSelect>>', self.onSelection)
         self.listTasks.pack(fill=tk.Y, expand=True, pady=5)
