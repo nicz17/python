@@ -174,11 +174,13 @@ class SimpleUMLClassPython(SimpleUMLClass):
             if method.isConstructor(self.name):
                 file.write(f'def __init__({params}):', 1)
                 file.addDoc('Constructor.', 2)
+                member: SimpleUMLMember
                 for member in self.members:
                     if member.name in params:
                         file.write(f'self.{member.name} = {member.name}', 2)
                     else:
-                        file.write(f'self.{member.name} = None', 2)
+                        sDefaultValue = self.getDefaultValue(member.type)
+                        file.write(f'self.{member.name} = {sDefaultValue}', 2)
             elif len(method.codeLines) > 0:
                 self.log.info('Generating method %s body from %d code lines', 
                               method.name, len(method.codeLines))
@@ -252,12 +254,16 @@ class SimpleUMLClassPython(SimpleUMLClass):
 
     def getDefaultValue(self, type: str) -> str:
         """Get a default value for the specified type."""
+        if type is None:
+            return 'None'
         if type == 'str':
             return '"SomeText"'
         if type == 'int':
             return '42'
         if type == 'bool':
             return 'True'
+        if type == 'array':
+            return '[]'
         return 'None'
 
 
