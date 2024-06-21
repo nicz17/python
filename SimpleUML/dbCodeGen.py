@@ -84,12 +84,12 @@ class DatabaseCodeGen():
         #self.clss.generate()
 
         # Generate the Cache class
-        module.addClass(self.createCache(table, fields))
+        module.addClass(self.createCache(table, fields, prefix))
 
         # Write the module
         module.generate()
 
-    def createCache(self, table: str, fields) -> SimpleUMLClassPython:
+    def createCache(self, table: str, fields, prefix: str) -> SimpleUMLClassPython:
         """Create a class for caching the table records."""
         name = TextTools.upperCaseFirst(table) + 'Cache'
         self.log.info('Generating %s', name)
@@ -104,11 +104,17 @@ class DatabaseCodeGen():
         clss.addMember(sCollName, 'array')
 
         # Database fetch method
+        # TODO use StringIO for sql: from io import StringIO
         sFieldNames = ', '.join([field.name for field in fields])
+        sNameField = f'{prefix}Name'
         oLoad = clss.addMethod('load', None, None, False)
         oLoad.addCodeLine('db = Database.Database(config.dbName)')
         oLoad.addCodeLine('db.connect(config.dbUser, config.dbPass)')
         oLoad.addCodeLine(f'sql = "select {sFieldNames} from {table}"')
+        for field in fields:
+            if field.name == sNameField:
+                oLoad.addCodeLine(f'sql += " order by {sNameField} asc"')
+                break
         oLoad.addCodeLine('rows = db.fetch(sql)')
         oLoad.addCodeLine('for row in rows:')
         oLoad.addCodeLine(f'    self.{sCollName}.append[{table}(*row)]')
