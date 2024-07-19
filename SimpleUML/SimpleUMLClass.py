@@ -293,6 +293,8 @@ class SimpleUMLClassCpp(SimpleUMLClass):
         file.write(f'#ifndef {guard}')
         file.write(f'#define {guard}')
         file.newline()
+        file.write(f'#include <string>')
+        file.newline()
         file.write(f'class {self.name} ' + '{')
 
         # Public methods
@@ -330,7 +332,6 @@ class SimpleUMLClassCpp(SimpleUMLClass):
         # Heading
         self.buildCopyright(file, False)
         file.write(f'#include <iostream>')
-        file.write(f'#include <string>')
         file.write(f'#include "{self.name}.h"')
         file.newline(2)
 
