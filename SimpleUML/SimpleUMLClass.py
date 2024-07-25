@@ -314,7 +314,7 @@ class SimpleUMLClassCpp(SimpleUMLClass):
 
         # Private members
         for member in self.members:
-            file.write(f'{member.type} {member.name};', 1)
+            file.write(f'{member.type} _{member.name};', 1)
         file.newline()
 
         # Ending
@@ -394,15 +394,15 @@ class SimpleUMLClassCpp(SimpleUMLClass):
         if isConstructor:
             for member in self.members:
                 if member.name in params:
-                    file.write(f'{member.name} = {member.name};', 1)
+                    file.write(f'_{member.name} = {member.name};', 1)
                 else:
-                    file.write(f'{member.name} = nullptr;', 1)
+                    file.write(f'_{member.name} = nullptr;', 1)
         elif method.isGetter():
             memberName = TextTools.lowerCaseFirst(method.name[3:])
-            file.write(f'return {memberName};', 1)
+            file.write(f'return _{memberName};', 1)
         elif method.isSetter():
             memberName = TextTools.lowerCaseFirst(method.name[3:])
-            file.write(f'{memberName} = {method.params[0].name};', 1)
+            file.write(f'_{memberName} = {method.params[0].name};', 1)
         else:
             file.addComment('TODO: implement', 1)
         file.write('}')
