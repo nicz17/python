@@ -1,5 +1,5 @@
 """
- Subclass of BaseApp using tabbed frames.
+ Subclass of BaseApp with tabbed frames, using a ttk Notebook widget.
 """
 
 __author__ = "Nicolas Zwahlen"
@@ -16,6 +16,7 @@ class TabsApp(BaseApp):
     log = logging.getLogger('TabsApp')
 
     def __init__(self, sTitle, sGeometry = '1200x800') -> None:
+        """Constructor with title and sizes."""
         super().__init__(sTitle, sGeometry)
         self.dictTabs = {}
 
@@ -36,6 +37,7 @@ class TabsApp(BaseApp):
         self.lblStatus.pack(fill=tk.X) 
         
     def addTab(self, oTab):
+        """Add a TabModule object to our tabs. Returns the added frame."""
         self.log.info('Adding tab %s', oTab.getTitle())
         tab = ttk.Frame(self.tabControl)
         self.tabControl.add(tab, text = oTab.getTitle())

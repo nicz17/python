@@ -1,5 +1,5 @@
 """
-Superclass for table widget, using a Ttk Tree.
+Superclass for table widget, using a Ttk Treeview.
 """
 
 __author__ = "Nicolas Zwahlen"
