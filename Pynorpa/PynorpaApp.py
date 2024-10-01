@@ -11,6 +11,7 @@ from TabsApp import *
 from ModuleCamera import *
 import moduleLocations
 import modulePhotos
+import moduleTaxon
 
 class PynorpaApp(TabsApp):
     """Pynorpa App window."""
@@ -26,3 +27,4 @@ class PynorpaApp(TabsApp):
         modCamera    = ModuleCamera(self)
         modPhotos    = modulePhotos.ModulePhotos(self)
         modLocations = moduleLocations.ModuleLocations(self)
+        modTaxon     = moduleTaxon.ModuleTaxon(self)
