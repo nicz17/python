@@ -17,6 +17,7 @@ class TabsApp(BaseApp):
 
     def __init__(self, sTitle, sGeometry = '1200x800') -> None:
         super().__init__(sTitle, sGeometry)
+        self.dictTabs = {}
 
     def createBaseWidgets(self):
         """Create base widgets"""
@@ -29,15 +30,29 @@ class TabsApp(BaseApp):
         
         self.tabControl = ttk.Notebook(self.frmTop)
         self.tabControl.pack(expand=1, fill="both", pady=3, padx=5)
+        self.tabControl.bind("<<NotebookTabChanged>>", self.onTabSelection)
 
         self.lblStatus = tk.Label(master=self.frmBottom)
         self.lblStatus.pack(fill=tk.X) 
         
-    def addTab(self, sName):
-        self.log.info('Adding tab %s', sName)
+    def addTab(self, oTab):
+        self.log.info('Adding tab %s', oTab.getTitle())
         tab = ttk.Frame(self.tabControl)
-        self.tabControl.add(tab, text = sName)
+        self.tabControl.add(tab, text = oTab.getTitle())
+        self.dictTabs[oTab.getTitle()] = oTab
         return tab
+    
+    def onTabSelection(self, event):
+        """Notebook widget tab selection event."""
+        selectedTab = event.widget.select()
+        tabText = event.widget.tab(selectedTab, "text")
+        self.log.info('Tab selected: %s', tabText)
+        oTab: TabModule
+        oTab = self.dictTabs[tabText]
+        if oTab is None:
+            self.log.error('Could not find tab %s', tabText)
+        else:
+            oTab.loadTab()
 
     def createWidgets(self):
         """Create user widgets"""
@@ -63,14 +78,32 @@ class TabModule:
     def __init__(self, oParent: TabsApp, sTitle: str):
         self.sTitle = sTitle
         self.oParent = oParent
-        self.oFrame = oParent.addTab(sTitle)
-        self.createWidgets()
+        self.isLoaded = False
+        self.oFrame = oParent.addTab(self)
+        #self.createWidgets()
+
+    def getTitle(self) -> str:
+        return self.sTitle
+    
+    def loadData(self):
+        pass
+    
+    def loadTab(self):
+        """Load this tab only if needed. Creates the user widgets."""
+        if not self.isLoaded:
+            self.log.info('Loading %s', self)
+            self.createWidgets()
+            self.isLoaded = True
+            self.loadData()
 
     def createWidgets(self):
         """Create user widgets"""
         self.lblTest = tk.Label(master=self.oFrame)
         self.lblTest.pack(fill=tk.X)
         self.lblTest.configure(text = f'Test for {self.sTitle} tab')
+
+    def __str__(self) -> str:
+        return f'TabModule {self.sTitle}'
 
 def testTabsApp():
     app = TabsApp('Test')
@@ -81,4 +114,6 @@ def testTabsApp():
     app.run()
 
 if __name__ == '__main__':
+    logging.basicConfig(format="%(levelname)s %(name)s: %(message)s", 
+        level=logging.INFO, handlers=[logging.StreamHandler()])
     testTabsApp()
