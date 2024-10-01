@@ -25,7 +25,8 @@ class ModuleTaxon(TabModule):
         self.tree.addTestItems()
 
     def onSelectTaxon(self, taxon):
-        self.log.info(f'Selected {taxon}')
+        #self.log.info(f'Selected {taxon}')
+        self.log.info(f'Selected {self.tree.getSelectedId()}')
         # Display in widgets
         #self.editor.loadData(taxon)
 
