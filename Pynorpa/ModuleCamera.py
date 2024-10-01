@@ -25,6 +25,9 @@ class ModuleCamera(TabModule):
 
         self.copier = CopyFromCamera()
         self.tracker = GeoTracker()
+
+    def loadData(self):
+        # Renderer and tasks
         self.renderer = Renderer(self.canTasks, None)
         self.loadTasks()
         self.renderer.drawTasks(self.tasks)

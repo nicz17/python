@@ -25,6 +25,8 @@ class ModuleLocations(TabModule):
         self.mapWidget = MapWidget()
         self.editor = LocationEditor(self.onSaveLocation)
         super().__init__(parent, 'Lieux')
+
+    def loadData(self):
         self.locationCache = LocationCache()
         self.locationCache.load()
         self.table.loadData(self.locationCache.getLocations())

@@ -32,7 +32,7 @@ class ModulePhotos(TabModule):
         super().__init__(parent, 'Photos')
         self.photos = []
         self.getDefaultDir()
-        self.loadData()
+        #self.loadData()
 
     def getDefaultDir(self):
         """Find the default photo dir."""
