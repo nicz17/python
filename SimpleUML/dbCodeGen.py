@@ -108,6 +108,7 @@ class DatabaseCodeGen():
         sFieldNames = ', '.join([field.name for field in fields])
         sNameField = f'{prefix}Name'
         oLoad = clss.addMethod('load', None, None, False)
+        oLoad.setDoc(f'Fetch and store the {table} records.')
         oLoad.addCodeLine('db = Database.Database(config.dbName)')
         oLoad.addCodeLine('db.connect(config.dbUser, config.dbPass)')
         oLoad.addCodeLine(f'sql = "select {sFieldNames} from {table}"')
@@ -119,6 +120,26 @@ class DatabaseCodeGen():
         oLoad.addCodeLine('for row in rows:')
         oLoad.addCodeLine(f'    self.{sCollName}.append[{table}(*row)]')
         oLoad.addCodeLine('db.disconnect()')
+
+        # Find-by-id method
+        params = [SimpleUMLParam('idx', 'int')]
+        oMeth = clss.addMethod('findById', params, table, False)
+        oMeth.setDoc(f'Find a {table} from its primary key.')
+        oMeth.addCodeLine(f'item: {table}')
+        oMeth.addCodeLine(f'for item in self.{sCollName}:')
+        oMeth.addCodeLine('    if item.idx == idx:')
+        oMeth.addCodeLine('        return item')
+        oMeth.addCodeLine('return None')
+
+        # Find-by-name method
+        params = [SimpleUMLParam('name', 'str')]
+        oMeth = clss.addMethod('findByName', params, table, False)
+        oMeth.setDoc(f'Find a {table} from its unique name.')
+        oMeth.addCodeLine(f'item: {table}')
+        oMeth.addCodeLine(f'for item in self.{sCollName}:')
+        oMeth.addCodeLine('    if item.name == name:')
+        oMeth.addCodeLine('        return item')
+        oMeth.addCodeLine('return None')
 
         return clss
 

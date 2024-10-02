@@ -52,11 +52,18 @@ class SimpleUMLMethod():
         self.type = type
         self.isPrivate = isPrivate
         self.codeLines = []
+        self.doc = TextTools.upperCaseFirst(name)
 
     def addCodeLine(self, line: str):
         """Add the specified code to this method."""
         if line:
             self.codeLines.append(line)
+
+    def getDoc(self) -> str:
+        return self.doc
+    
+    def setDoc(self, doc: str):
+        self.doc = doc
 
     def isConstructor(self, className: str):
         """Check if this method is a constructor."""
@@ -170,7 +177,10 @@ class SimpleUMLClassPython(SimpleUMLClass):
                     params += f', {member.name}: {member.type}'
                 else:
                     params += f', {param.name}'
-            definition = f'def {method.name}({params}):'
+            returnType = ''
+            if method.type is not None:
+                returnType = f' -> {method.type}'
+            definition = f'def {method.name}({params}){returnType}:'
             if method.isConstructor(self.name):
                 file.write(f'def __init__({params}):', 1)
                 file.addDoc('Constructor.', 2)
@@ -185,7 +195,7 @@ class SimpleUMLClassPython(SimpleUMLClass):
                 self.log.info('Generating method %s body from %d code lines', 
                               method.name, len(method.codeLines))
                 file.write(definition, 1)
-                file.addDoc(f'{TextTools.upperCaseFirst(method.name)}', 2)
+                file.addDoc(method.getDoc(), 2)
                 for line in method.codeLines:
                     file.write(line, 2)
             elif method.isGetter():
@@ -228,6 +238,12 @@ class SimpleUMLClassPython(SimpleUMLClass):
         file.write('return str', 2)
         file.newline(2)
 
+        if bStandAlone:
+            self.generateTestingCode(file)
+            file.close()
+
+    def generateTestingCode(self, file: CodeFilePython = None):
+        """Generate and call some testing code."""
         # Testing method
         file.write(f'def test{self.name}():')
         file.addDoc(f'Unit test for {self.name}', 1)
@@ -242,15 +258,13 @@ class SimpleUMLClassPython(SimpleUMLClass):
             file.write('obj.log.info(obj)', 1)
             file.write('obj.log.info(obj.toJson())', 1)
         file.newline()
-        file.write("if __name__ == '__main__':")
 
+        # Logging config and call the test
+        file.write("if __name__ == '__main__':")
         file.write('logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",', 1)
         file.write('level=logging.INFO, handlers=[logging.StreamHandler()])', 2)
         file.write(f'test{self.name}()', 1)
         file.newline()
-
-        if bStandAlone:
-            file.close()
 
     def getDefaultValue(self, type: str) -> str:
         """Get a default value for the specified type."""
@@ -493,6 +507,10 @@ class SimpleUMLPythonModule():
         clss: SimpleUMLClassPython
         for clss in self.classes:
             clss.generate(file)
+
+        # Generate testing code
+        for clss in self.classes:
+            clss.generateTestingCode(file)
 
         file.close()
 
