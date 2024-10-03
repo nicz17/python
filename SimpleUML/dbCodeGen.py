@@ -118,7 +118,7 @@ class DatabaseCodeGen():
                 break
         oLoad.addCodeLine('rows = db.fetch(sql)')
         oLoad.addCodeLine('for row in rows:')
-        oLoad.addCodeLine(f'    self.{sCollName}.append[{table}(*row)]')
+        oLoad.addCodeLine(f'    self.{sCollName}.append({table}(*row))')
         oLoad.addCodeLine('db.disconnect()')
 
         # Find-by-id method
