@@ -23,6 +23,7 @@ class BaseTree():
     def createWidgets(self, parent: tk.Frame):
         """Create user widgets."""
         self.tree = ttk.Treeview(parent, height=36)
+        self.tree.column('#0', width=500)
         self.tree.bind('<<TreeviewSelect>>', self.cbkSelectionEvent)
         self.tree.pack(pady=5, anchor=tk.W)
 
