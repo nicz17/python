@@ -118,7 +118,6 @@ class TaxonCache():
 
     def __init__(self):
         """Constructor."""
-        #self.taxons = []
         self.topLevel = []
         self.dictById = {}
 
@@ -126,12 +125,11 @@ class TaxonCache():
         """Fetch and store the Taxon records from database."""
         db = Database.Database(config.dbName)
         db.connect(config.dbUser, config.dbPass)
-        sql = "select idxTaxon, taxName, taxNameFr, taxRank, taxParent, taxOrder, taxTypical from Taxon"
-        sql += " order by taxOrder asc"
+        sql = "select idxTaxon, taxName, taxNameFr, taxRank, taxParent, taxOrder, taxTypical"
+        sql += " from Taxon order by taxOrder asc, taxName asc"
         rows = db.fetch(sql)
         for row in rows:
             taxon = Taxon(*row)
-            #self.taxons.append(taxon)
             self.dictById[taxon.getIdx()] = taxon
             if taxon.isTopLevel():
                 self.topLevel.append(taxon)
@@ -154,12 +152,7 @@ class TaxonCache():
 
     def findById(self, idx: int) -> Taxon:
         """Find a Taxon from its primary key."""
-        #item: Taxon
-        #for item in self.taxons:
-        #    if item.idx == idx:
-        #        return item
         return self.dictById[idx]
-        #return None
 
     def findByName(self, name: str) -> Taxon:
         """Find a Taxon from its unique name."""

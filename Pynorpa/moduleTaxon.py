@@ -31,7 +31,6 @@ class ModuleTaxon(TabModule):
         for tax in self.cache.getTopLevelTaxa():
             self.tree.addTaxon(tax)
 
-
     def onSelectTaxon(self, id: str):
         """Callback for selection of taxon with specified id."""
         taxon: Taxon
@@ -68,7 +67,7 @@ class TaxonTree(BaseTree):
         self.cbkSelectItem = cbkSelectItem
 
     def addTaxon(self, taxon: Taxon):
-        """Adds a taxon to the tree."""
+        """Adds a taxon and its children to the tree."""
         parentId = None
         if taxon.getParent() is not None:
             parentId = str(taxon.getParent())
@@ -94,16 +93,25 @@ class TaxonEditor(BaseWidgets.BaseEditor):
         self.enableWidgets()
         self.txtName.setValue(None)
         self.txtNameFr.setValue(None)
+        self.txtRank.setValue(None)
+        self.intOrder.setValue(None)
         if taxon:
-            self.txtName.setValue(taxon.name)
-            self.txtNameFr.setValue(taxon.nameFr)
+            self.txtName.setValue(taxon.getName())
+            self.txtNameFr.setValue(taxon.getNameFr())
+            self.txtRank.setValue(taxon.getRank())
+            self.intOrder.setValue(taxon.getOrder())
+        self.enableWidgets()
 
     def hasChanges(self) -> bool:
         """Check if the editor has any changes."""
         if self.taxon:
-            if self.taxon.name != self.txtName.getValue():
+            if self.taxon.getName() != self.txtName.getValue():
                 return True
-            if self.taxon.nameFr != self.txtNameFr.getValue():
+            if self.taxon.getNameFr() != self.txtNameFr.getValue():
+                return True
+            if self.taxon.getRank() != self.txtRank.getValue():
+                return True
+            if self.taxon.getOrder() != self.intOrder.getValue():
                 return True
         return False
 
@@ -123,11 +131,13 @@ class TaxonEditor(BaseWidgets.BaseEditor):
         """Add the editor widgets to the parent widget."""
         super().createWidgets(parent, 'Taxon Editor')
 
-        # Location attributes
+        # Taxon attributes
         self.txtName     = self.addText('Nom latin')
         self.txtNameFr   = self.addText('Nom français')
+        self.txtRank     = self.addText('Rang')
+        self.intOrder    = self.addIntInput('Ordre')
 
-        # Buttons: save, cancel
+        # Buttons: save, cancel, delete
         frmButtons = ttk.Frame(self.frmEdit, padding=5)
         frmButtons.grid(row=self.row, column=0, columnspan=2)
         self.btnSave = tk.Button(frmButtons, text = 'Save', command = self.onSave)
@@ -145,6 +155,8 @@ class TaxonEditor(BaseWidgets.BaseEditor):
         modified = self.hasChanges()
         self.txtName.enableWidget(editing)
         self.txtNameFr.enableWidget(editing)
+        self.txtRank.enableWidget(editing)
+        self.intOrder.enableWidget(editing)
         BaseWidgets.enableWidget(self.btnSave, modified)
         BaseWidgets.enableWidget(self.btnCancel, modified)
         BaseWidgets.enableWidget(self.btnDelete, False)
