@@ -22,6 +22,14 @@ class Taxon():
         self.parent = parent
         self.order = order
         self.typical = typical
+        self.children = []
+
+    def addChild(self, child):
+        if child is not None:
+            self.children.append(child)
+
+    def getChildren(self):
+        return self.children
 
     def getIdx(self) -> int:
         """Getter for idx"""
@@ -110,46 +118,59 @@ class TaxonCache():
 
     def __init__(self):
         """Constructor."""
-        self.taxons = []
+        #self.taxons = []
         self.topLevel = []
+        self.dictById = {}
 
     def load(self):
         """Fetch and store the Taxon records from database."""
         db = Database.Database(config.dbName)
         db.connect(config.dbUser, config.dbPass)
         sql = "select idxTaxon, taxName, taxNameFr, taxRank, taxParent, taxOrder, taxTypical from Taxon"
-        sql += " order by taxName asc"
+        sql += " order by taxOrder asc"
         rows = db.fetch(sql)
         for row in rows:
             taxon = Taxon(*row)
-            self.taxons.append(taxon)
+            #self.taxons.append(taxon)
+            self.dictById[taxon.getIdx()] = taxon
             if taxon.isTopLevel():
                 self.topLevel.append(taxon)
         db.disconnect()
-        self.log.info(f'Fetched {len(self.taxons)} taxa from DB')
+        self.log.info(f'Fetched {len(self.dictById)} taxa from DB')
+
+        # Add children to their parents
+        taxon: Taxon
+        for taxon in self.dictById.values():
+            if taxon.parent is not None:
+                parent = self.findById(taxon.parent)
+                if parent is not None:
+                    parent.addChild(taxon)
+                else:
+                    self.log.error('Could not find parent of %s', taxon)
 
     def getTopLevelTaxa(self):
         """Get all taxa without parent."""
         return self.topLevel
 
-    def findById(self, idx) -> Taxon:
+    def findById(self, idx: int) -> Taxon:
         """Find a Taxon from its primary key."""
-        item: Taxon
-        for item in self.taxons:
-            if item.idx == idx:
-                return item
-        return None
+        #item: Taxon
+        #for item in self.taxons:
+        #    if item.idx == idx:
+        #        return item
+        return self.dictById[idx]
+        #return None
 
-    def findByName(self, name) -> Taxon:
+    def findByName(self, name: str) -> Taxon:
         """Find a Taxon from its unique name."""
         item: Taxon
-        for item in self.taxons:
+        for item in self.dictById.values():
             if item.name == name:
                 return item
         return None
 
     def __str__(self):
-        str = f'TaxonCache with {len(self.taxons)} taxons'
+        str = f'TaxonCache with {len(self.dictById)} taxons'
         return str
 
 

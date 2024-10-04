@@ -9,6 +9,7 @@ __version__ = "1.0.0"
 import logging
 from TabsApp import *
 from BaseTree import *
+from taxon import Taxon, TaxonCache
 
 
 class ModuleTaxon(TabModule):
@@ -19,14 +20,26 @@ class ModuleTaxon(TabModule):
         """Constructor."""
         self.window = parent.window
         super().__init__(parent, 'Taxons')
-        self.tree = BaseTree(self.onSelectTaxon)
+        self.cache = TaxonCache()
+        self.tree = TaxonTree(self.onSelectTaxon)
 
     def loadData(self):
-        self.tree.addTestItems()
+        self.cache.load()
+        tax: Taxon
+        for tax in self.cache.getTopLevelTaxa():
+            self.tree.addTaxon(tax)
+        #self.tree.addTestItems()
 
-    def onSelectTaxon(self, taxon):
-        #self.log.info(f'Selected {taxon}')
-        self.log.info(f'Selected {self.tree.getSelectedId()}')
+
+    def onSelectTaxon(self, event):
+        taxon: Taxon
+        taxon = None
+        sel = self.tree.getSelectedId()
+        #self.log.info(f'Selected {sel}')
+        if sel is not None:
+            taxon = self.cache.findById(int(sel))
+        self.log.info('Selected %s', taxon)
+
         # Display in widgets
         #self.editor.loadData(taxon)
 
@@ -39,6 +52,22 @@ class ModuleTaxon(TabModule):
         self.frmRight = tk.Frame(master=self.oFrame)
         self.frmRight.pack(fill=tk.Y, side=tk.LEFT, pady=6, padx=6)
 
-        # Location widgets
+        # Taxon tree and editor
         self.tree.createWidgets(self.frmLeft)
         #self.editor.createWidgets(self.frmRight)
+
+class TaxonTree(BaseTree):
+    """Subclass of BaseTree displaying taxa."""
+    log = logging.getLogger('TaxonTree')
+
+    def __init__(self, cbkSelectItem):
+        super().__init__(cbkSelectItem)
+
+    def addTaxon(self, taxon: Taxon):
+        """Adds a taxon to the tree."""
+        parentId = None
+        if taxon.getParent() is not None:
+            parentId = str(taxon.getParent())
+        self.addItem(str(taxon.getIdx()), taxon.getName(), parentId)
+        for child in taxon.getChildren():
+            self.addTaxon(child)
