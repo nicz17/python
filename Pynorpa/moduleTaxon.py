@@ -31,13 +31,12 @@ class ModuleTaxon(TabModule):
         #self.tree.addTestItems()
 
 
-    def onSelectTaxon(self, event):
+    def onSelectTaxon(self, id: str):
+        """Callback for selection of taxon with specified id."""
         taxon: Taxon
         taxon = None
-        sel = self.tree.getSelectedId()
-        #self.log.info(f'Selected {sel}')
-        if sel is not None:
-            taxon = self.cache.findById(int(sel))
+        if id is not None:
+            taxon = self.cache.findById(int(id))
         self.log.info('Selected %s', taxon)
 
         # Display in widgets
@@ -61,7 +60,8 @@ class TaxonTree(BaseTree):
     log = logging.getLogger('TaxonTree')
 
     def __init__(self, cbkSelectItem):
-        super().__init__(cbkSelectItem)
+        super().__init__(self.onSelectEvent)
+        self.cbkSelectItem = cbkSelectItem
 
     def addTaxon(self, taxon: Taxon):
         """Adds a taxon to the tree."""
@@ -71,3 +71,6 @@ class TaxonTree(BaseTree):
         self.addItem(str(taxon.getIdx()), taxon.getName(), parentId)
         for child in taxon.getChildren():
             self.addTaxon(child)
+
+    def onSelectEvent(self, event):
+        self.cbkSelectItem(self.getSelectedId())

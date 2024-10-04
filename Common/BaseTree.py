@@ -15,15 +15,15 @@ class BaseTree():
     """A tree widget."""
     log = logging.getLogger(__name__)
 
-    def __init__(self, cbkSelectItem):
+    def __init__(self, cbkSelectionEvent):
         """Constructor with item selection callback."""
         self.log.info('Constructor')
-        self.cbkSelectItem = cbkSelectItem
+        self.cbkSelectionEvent = cbkSelectionEvent
 
     def createWidgets(self, parent: tk.Frame):
         """Create user widgets."""
         self.tree = ttk.Treeview(parent, height=36)
-        self.tree.bind('<<TreeviewSelect>>', self.cbkSelectItem)
+        self.tree.bind('<<TreeviewSelect>>', self.cbkSelectionEvent)
         self.tree.pack(pady=5, anchor=tk.W)
 
     def addItem(self, id: str, text: str, parentId: str):
@@ -34,7 +34,7 @@ class BaseTree():
             self.log.error('Could not find parent item %s, aborting', parentId)
             return None
         iid = self.tree.insert(parentId, tk.END, text=text, iid=id)
-        self.log.info('Added item %s %s', iid, text)
+        #self.log.info('Added item %s %s', iid, text)
         return iid
 
     def addTestItems(self):
@@ -57,7 +57,6 @@ class BaseTree():
     def getSelectedRow(self) -> int:
         """Get the selected row index."""
         sel = self.tree.focus()
-        #self.log.info('Table selection: %s', sel)
         if len(sel) == 0:
             return None
         else:
