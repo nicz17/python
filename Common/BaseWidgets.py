@@ -192,6 +192,40 @@ class ComboBox():
     
     def __str__(self) -> str:
         return 'ComboBox'
+    
+class CheckBox():
+    """A boolean check-box based on ttk.Checkbutton."""
+    log = logging.getLogger('CheckBox')
+
+    def __init__(self, cbkModified, label = ''):
+        """Constructor with modification callback."""
+        self.log.info('Constructor')
+        self.cbkModified = cbkModified
+        self.label = label
+        self.varValue = tk.BooleanVar(value = False)
+
+    def setValue(self, value: bool):
+        """Set the boolean value."""
+        if value is None:
+            self.varValue.set(False)
+        else:
+            self.varValue.set(value)
+        enableWidget(self.oCheckBox, value is not None)
+
+    def getValue(self) -> bool:
+        """Get the current boolean value."""
+        return self.varValue.get()
+        
+    def createWidgets(self, parent: tk.Frame, row: int, col: int):
+        """Create widget in parent frame with grid layout."""
+        self.oCheckBox = ttk.Checkbutton(parent, 
+            text = self.label, command = self.cbkModified,
+            variable = self.varValue)
+        self.oCheckBox.grid(row=row, column=col, padx=5, sticky='we')
+
+    def enableWidget(self, enabled: bool):
+        """Enable or disable this widget."""
+        enableWidget(self.oCheckBox, enabled)
 
 class BaseEditor():
     """Common superclass for edition widgets."""
@@ -253,6 +287,14 @@ class BaseEditor():
         oCombo.setValues(values)
         self.row += 1
         return oCombo
+    
+    def addCheckBox(self, label: str, text = '') -> CheckBox:
+        """Add a check box."""
+        self.addLabel(label)
+        oCheckBox = CheckBox(self.onModified, text)
+        oCheckBox.createWidgets(self.frmEdit, self.row, 1)
+        self.row += 1
+        return oCheckBox
 
     def addLabel(self, label: str):
         """Add an attribute label at the specified row."""
@@ -262,11 +304,6 @@ class BaseEditor():
     def enableWidgets(self, evt=None):
         """Enable our internal widgets."""
         pass
-        
-    # def enableWidget(self, widget: tk.Widget, enabled: bool):
-    #     """Enable the specified tk widget if enabled is true."""
-    #     if widget:
-    #         widget['state'] = tk.NORMAL if enabled else tk.DISABLED
 
     def __str__(self) -> str:
         return 'BaseEditor'
