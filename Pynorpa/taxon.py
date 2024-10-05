@@ -167,7 +167,6 @@ class TaxonCache():
         return str
 
 
-
 def testTaxonCache():
     """Unit test for TaxonCache"""
     TaxonCache.log.info("Testing TaxonCache")
@@ -177,8 +176,16 @@ def testTaxonCache():
     for tax in cache.getTopLevelTaxa():
         cache.log.info('Top-level: %s', tax)
 
+def testReflection():
+    """Simple reflection test"""
+    taxon = Taxon(42, 'Test42', 'Bingo', 'NoRank', None, 1, False)
+    mtdGetter = Taxon.getNameFr
+    result = mtdGetter(taxon)
+    taxon.log.info(result)
+
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",
         level=logging.INFO, handlers=[logging.StreamHandler()])
     testTaxonCache()
+    testReflection()
 
