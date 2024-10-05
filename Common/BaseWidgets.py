@@ -92,6 +92,50 @@ class TextInput():
     def __str__(self) -> str:
         return 'TextInput'
 
+class TextInputRefl():
+    """A single-line text input widget based on ttk.Entry."""
+    log = logging.getLogger('TextInput')
+
+    def __init__(self, cbkModified, mtdGetter):
+        """Constructor with modification callback."""
+        self.log.info('Constructor')
+        self.cbkModified = cbkModified
+        self.mtdGetter = mtdGetter
+
+    def setValue(self, object):
+        """Set the string value."""
+        self.oEntry.delete(0, tk.END)
+        value = None
+        if object:
+            value = self.mtdGetter(object)
+        if value:
+            self.oEntry.insert(0, value)
+
+    def getValue(self) -> str:
+        """Get the current string value."""
+        return self.oEntry.get().strip()
+    
+    def hasChanges(self, object) -> bool:
+        """Check if this widget has changes from the specified object."""
+        if object:
+            value = self.mtdGetter(object)
+            return self.getValue() != value
+        return False
+        
+    def createWidgets(self, parent: tk.Frame, row: int, col: int):
+        """Create widget in parent frame with grid layout."""
+        self.oEntry = ttk.Entry(parent, width=64)
+        self.oEntry.grid(row=row, column=col, padx=5, sticky='we')
+        if self.cbkModified:
+            self.oEntry.bind('<KeyRelease>', self.cbkModified)
+
+    def enableWidget(self, enabled: bool):
+        """Enable or disable this widget."""
+        enableWidget(self.oEntry, enabled)
+    
+    def __str__(self) -> str:
+        return 'TextInput'
+
 class TextArea():
     """A multi-line text input widget based on tk.Text."""
     log = logging.getLogger('TextArea')
@@ -251,6 +295,14 @@ class BaseEditor():
         """Add a single-line text input."""
         self.addLabel(label)
         oInput = TextInput(self.onModified)
+        oInput.createWidgets(self.frmEdit, self.row, 1)
+        self.row += 1
+        return oInput
+    
+    def addTextRefl(self, label: str, mtdGetter) -> TextInputRefl:
+        """Add a single-line text input."""
+        self.addLabel(label)
+        oInput = TextInputRefl(self.onModified, mtdGetter)
         oInput.createWidgets(self.frmEdit, self.row, 1)
         self.row += 1
         return oInput

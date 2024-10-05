@@ -58,6 +58,9 @@ class ModuleTaxon(TabModule):
         self.tree.createWidgets(self.frmLeft)
         self.editor.createWidgets(self.frmRight)
 
+        self.editor.loadData(None)
+
+
 class TaxonTree(BaseTree):
     """Subclass of BaseTree displaying taxa."""
     log = logging.getLogger('TaxonTree')
@@ -77,6 +80,7 @@ class TaxonTree(BaseTree):
 
     def onSelectEvent(self, event):
         self.cbkSelectItem(self.getSelectedId())
+
 
 class TaxonEditor(BaseWidgets.BaseEditor):
     """A widget for editing Pynorpa taxa."""
@@ -102,6 +106,7 @@ class TaxonEditor(BaseWidgets.BaseEditor):
             self.txtRank.setValue(taxon.getRank())
             self.intOrder.setValue(taxon.getOrder())
             self.chkTypical.setValue(taxon.getTypical())
+        self.txtNameFrRf.setValue(taxon)
         self.enableWidgets()
 
     def hasChanges(self) -> bool:
@@ -114,6 +119,8 @@ class TaxonEditor(BaseWidgets.BaseEditor):
             if self.taxon.getOrder() != self.intOrder.getValue():
                 return True
             if self.taxon.getTypical() != self.chkTypical.getValue():
+                return True
+            if self.txtNameFrRf.hasChanges(self.taxon):
                 return True
         return False
 
@@ -136,6 +143,7 @@ class TaxonEditor(BaseWidgets.BaseEditor):
         # Taxon attributes
         self.txtName     = self.addText('Nom latin')
         self.txtNameFr   = self.addText('Nom français')
+        self.txtNameFrRf = self.addTextRefl('Nom français refl', Taxon.getNameFr)
         self.txtRank     = self.addTextReadOnly('Rang')
         self.intOrder    = self.addIntInput('Ordre')
         self.chkTypical  = self.addCheckBox('Taxon type', 'Taxon type du parent')
@@ -158,6 +166,7 @@ class TaxonEditor(BaseWidgets.BaseEditor):
         modified = self.hasChanges()
         self.txtName.enableWidget(editing)
         self.txtNameFr.enableWidget(editing)
+        self.txtNameFrRf.enableWidget(editing)
         self.intOrder.enableWidget(editing)
         BaseWidgets.enableWidget(self.btnSave, modified)
         BaseWidgets.enableWidget(self.btnCancel, modified)
