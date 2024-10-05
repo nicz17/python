@@ -95,11 +95,13 @@ class TaxonEditor(BaseWidgets.BaseEditor):
         self.txtNameFr.setValue(None)
         self.txtRank.setValue(None)
         self.intOrder.setValue(None)
+        self.chkTypical.setValue(None)
         if taxon:
             self.txtName.setValue(taxon.getName())
             self.txtNameFr.setValue(taxon.getNameFr())
             self.txtRank.setValue(taxon.getRank())
             self.intOrder.setValue(taxon.getOrder())
+            self.chkTypical.setValue(taxon.getTypical())
         self.enableWidgets()
 
     def hasChanges(self) -> bool:
@@ -109,9 +111,9 @@ class TaxonEditor(BaseWidgets.BaseEditor):
                 return True
             if self.taxon.getNameFr() != self.txtNameFr.getValue():
                 return True
-            if self.taxon.getRank() != self.txtRank.getValue():
-                return True
             if self.taxon.getOrder() != self.intOrder.getValue():
+                return True
+            if self.taxon.getTypical() != self.chkTypical.getValue():
                 return True
         return False
 
@@ -134,8 +136,9 @@ class TaxonEditor(BaseWidgets.BaseEditor):
         # Taxon attributes
         self.txtName     = self.addText('Nom latin')
         self.txtNameFr   = self.addText('Nom français')
-        self.txtRank     = self.addText('Rang')
+        self.txtRank     = self.addTextReadOnly('Rang')
         self.intOrder    = self.addIntInput('Ordre')
+        self.chkTypical  = self.addCheckBox('Taxon type', 'Taxon type du parent')
 
         # Buttons: save, cancel, delete
         frmButtons = ttk.Frame(self.frmEdit, padding=5)
@@ -155,7 +158,6 @@ class TaxonEditor(BaseWidgets.BaseEditor):
         modified = self.hasChanges()
         self.txtName.enableWidget(editing)
         self.txtNameFr.enableWidget(editing)
-        self.txtRank.enableWidget(editing)
         self.intOrder.enableWidget(editing)
         BaseWidgets.enableWidget(self.btnSave, modified)
         BaseWidgets.enableWidget(self.btnCancel, modified)
