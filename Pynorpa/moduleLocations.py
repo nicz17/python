@@ -101,22 +101,23 @@ class LocationEditor(BaseWidgets.BaseEditor):
         """Display the specified object in this editor."""
         self.location = location
         self.enableWidgets()
+        self.setValue(location)
         self.txtName.setValue(None)
         self.txtState.setValue(None)
         self.txtRegion.setValue(None)
         self.txtDesc.setValue(None)
-        self.intAltitude.setValue(None)
         self.lblPosition.setValue(None)
         if location:
             self.txtName.setValue(location.name)
             self.txtState.setValue(location.state)
             self.txtRegion.setValue(location.region)
             self.txtDesc.setValue(location.desc)
-            self.intAltitude.setValue(location.alt)
             self.lblPosition.setValue(location.getGPSString())
 
     def hasChanges(self) -> bool:
         """Check if the editor has any changes."""
+        if super().hasChanges(self.location):
+            return True
         if self.location:
             if self.location.name != self.txtName.getValue():
                 return True
@@ -125,8 +126,6 @@ class LocationEditor(BaseWidgets.BaseEditor):
             if self.location.state != self.txtState.getValue():
                 return True
             if self.location.region != self.txtRegion.getValue():
-                return True
-            if self.location.alt != self.intAltitude.getValue():
                 return True
         return False
 
@@ -153,7 +152,7 @@ class LocationEditor(BaseWidgets.BaseEditor):
         self.txtDesc     = self.addTextArea('Description', 6)
         self.txtState    = self.addText('Pays')
         self.txtRegion   = self.addText('Région')
-        self.intAltitude = self.addIntInput('Altitude')
+        self.intAltitude = self.addIntInput('Altitude', Location.getAltitude)
         self.lblPosition = self.addTextReadOnly('Position')
 
         # Buttons: save, cancel

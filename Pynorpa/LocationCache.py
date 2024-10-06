@@ -28,6 +28,9 @@ class Location:
         self.zoom    = row[7]
         self.state   = row[8]
 
+    def getAltitude(self) -> int:
+        return self.alt
+
     def getDistance(self, lat: float, lon: float) -> float:
         """Get the distance to another location."""
         return math.sqrt((self.lat - lat) ** 2 + (self.lon - lon) ** 2)

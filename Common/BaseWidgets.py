@@ -58,26 +58,25 @@ class BaseWidget():
         return 'BaseWidget'
 
     
-
-class IntInput():
-    """A integer input widget based on ttk.Entry."""
+class IntInput(BaseWidget):
+    """An integer input widget based on ttk.Entry."""
     log = logging.getLogger('IntInput')
 
-    def __init__(self, cbkModified):
+    def __init__(self, cbkModified, mtdGetter):
         """Constructor with modification callback."""
-        self.log.info('Constructor')
-        self.cbkModified = cbkModified
+        super().__init__(cbkModified, mtdGetter)
 
-    def setValue(self, value: int):
+    def setValue(self, object):
         """Set the integer value."""
-        self.oEntry.delete(0, tk.END)
+        self.oWidget.delete(0, tk.END)
+        value = self.getObjectValue(object)
         if value is not None:
-            self.oEntry.insert(0, f'{value}')
+            self.oWidget.insert(0, f'{value}')
 
     def getValue(self) -> int:
         """Get the current integer value."""
         value = None
-        sValue = self.oEntry.get().strip()
+        sValue = self.oWidget.get().strip()
         if sValue:
             value = int(sValue)
         return value
@@ -85,15 +84,11 @@ class IntInput():
     def createWidgets(self, parent: tk.Frame, row: int, col: int):
         """Create widget in parent frame with grid layout."""
         cmdValidate = (parent.register(self.cbkValidate))
-        self.oEntry = ttk.Entry(parent, width=8, validate='all', 
+        self.oWidget = ttk.Entry(parent, width=8, validate='all', 
                                 validatecommand=(cmdValidate, '%P'))
-        self.oEntry.grid(row=row, column=col, padx=5, sticky='w')
+        self.oWidget.grid(row=row, column=col, padx=5, sticky='w')
         if self.cbkModified:
-            self.oEntry.bind('<KeyRelease>', self.cbkModified)
-
-    def enableWidget(self, enabled: bool):
-        """Enable or disable this widget."""
-        enableWidget(self.oEntry, enabled)
+            self.oWidget.bind('<KeyRelease>', self.cbkModified)
 
     def cbkValidate(self, input: str) -> bool:
         """Check if input is a digit or empty."""
@@ -363,11 +358,12 @@ class BaseEditor():
         self.row += 1
         return oInput
     
-    def addIntInput(self, label: str) -> IntInput:
+    def addIntInput(self, label: str, mtdGetter) -> IntInput:
         """Add an integer input."""
         self.addLabel(label)
-        oInput = IntInput(self.onModified)
+        oInput = IntInput(self.onModified, mtdGetter)
         oInput.createWidgets(self.frmEdit, self.row, 1)
+        self.widgets.append(oInput)
         self.row += 1
         return oInput
     

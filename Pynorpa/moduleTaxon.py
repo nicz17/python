@@ -97,20 +97,9 @@ class TaxonEditor(BaseWidgets.BaseEditor):
         self.enableWidgets()
         self.setValue(taxon)
         self.txtRank.setValue(None)
-        self.intOrder.setValue(None)
         if taxon:
             self.txtRank.setValue(taxon.getRank())
-            self.intOrder.setValue(taxon.getOrder())
         self.enableWidgets()
-
-    def hasChanges(self) -> bool:
-        """Check if the editor has any changes."""
-        if super().hasChanges(self.taxon):
-            return True
-        if self.taxon:
-            if self.taxon.getOrder() != self.intOrder.getValue():
-                return True
-        return False
 
     def onSave(self, evt = None):
         """Save changes to the edited object."""
@@ -132,7 +121,7 @@ class TaxonEditor(BaseWidgets.BaseEditor):
         self.txtName     = self.addTextRefl('Nom latin', Taxon.getName)
         self.txtNameFr   = self.addTextRefl('Nom français', Taxon.getNameFr)
         self.txtRank     = self.addTextReadOnly('Rang')
-        self.intOrder    = self.addIntInput('Ordre')
+        self.intOrder    = self.addIntInput('Ordre', Taxon.getOrder)
         self.chkTypical  = self.addCheckBox('Taxon type', Taxon.getTypical, 'Taxon type du parent')
 
         # Buttons: save, cancel, delete
@@ -150,7 +139,7 @@ class TaxonEditor(BaseWidgets.BaseEditor):
     def enableWidgets(self, evt=None):
         """Enable our internal widgets."""
         editing  = self.taxon is not None
-        modified = self.hasChanges()
+        modified = self.hasChanges(self.taxon)
         self.txtName.enableWidget(editing)
         self.txtNameFr.enableWidget(editing)
         self.intOrder.enableWidget(editing)
