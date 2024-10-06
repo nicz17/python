@@ -16,6 +16,49 @@ def enableWidget(widget: tk.Widget, enabled: bool):
     if widget:
         widget['state'] = tk.NORMAL if enabled else tk.DISABLED
 
+class BaseWidget():
+    """Base superclass for custom input widgets."""
+    log = logging.getLogger('BaseWidget')
+
+    def __init__(self, cbkModified, mtdGetter):
+        """Constructor with modification callback and value getter method."""
+        self.log.info('Constructor')
+        self.cbkModified = cbkModified
+        self.mtdGetter = mtdGetter
+        self.oWidget = None  # the Tk/Ttk widget
+
+    def getObjectValue(self, object):
+        """Get the object value using our getter method."""
+        value = None
+        if object:
+            value = self.mtdGetter(object)
+        return value
+
+    def getValue(self):
+        """Get the current widget value."""
+        return None
+
+    def setValue(self, object):
+        """Set the widget value from the specified object."""
+        pass
+    
+    def hasChanges(self, object) -> bool:
+        """Check if this widget has changes from the specified object."""
+        if object:
+            value = self.mtdGetter(object)
+            return self.getValue() != value
+        return False
+
+    def enableWidget(self, enabled: bool):
+        """Enable or disable this widget."""
+        if self.oWidget:
+            self.oWidget['state'] = tk.NORMAL if enabled else tk.DISABLED
+    
+    def __str__(self) -> str:
+        return 'BaseWidget'
+
+    
+
 class IntInput():
     """A integer input widget based on ttk.Entry."""
     log = logging.getLogger('IntInput')
@@ -92,46 +135,31 @@ class TextInput():
     def __str__(self) -> str:
         return 'TextInput'
 
-class TextInputRefl():
+class TextInputRefl(BaseWidget):
     """A single-line text input widget based on ttk.Entry."""
     log = logging.getLogger('TextInput')
 
     def __init__(self, cbkModified, mtdGetter):
         """Constructor with modification callback."""
-        self.log.info('Constructor')
-        self.cbkModified = cbkModified
-        self.mtdGetter = mtdGetter
+        super().__init__(cbkModified, mtdGetter)
 
     def setValue(self, object):
         """Set the string value."""
-        self.oEntry.delete(0, tk.END)
-        value = None
-        if object:
-            value = self.mtdGetter(object)
+        self.oWidget.delete(0, tk.END)
+        value = self.getObjectValue(object)
         if value:
-            self.oEntry.insert(0, value)
+            self.oWidget.insert(0, value)
 
     def getValue(self) -> str:
         """Get the current string value."""
-        return self.oEntry.get().strip()
-    
-    def hasChanges(self, object) -> bool:
-        """Check if this widget has changes from the specified object."""
-        if object:
-            value = self.mtdGetter(object)
-            return self.getValue() != value
-        return False
+        return self.oWidget.get().strip()
         
     def createWidgets(self, parent: tk.Frame, row: int, col: int):
         """Create widget in parent frame with grid layout."""
-        self.oEntry = ttk.Entry(parent, width=64)
-        self.oEntry.grid(row=row, column=col, padx=5, sticky='we')
+        self.oWidget = ttk.Entry(parent, width=64)
+        self.oWidget.grid(row=row, column=col, padx=5, sticky='we')
         if self.cbkModified:
-            self.oEntry.bind('<KeyRelease>', self.cbkModified)
-
-    def enableWidget(self, enabled: bool):
-        """Enable or disable this widget."""
-        enableWidget(self.oEntry, enabled)
+            self.oWidget.bind('<KeyRelease>', self.cbkModified)
     
     def __str__(self) -> str:
         return 'TextInput'
@@ -279,7 +307,22 @@ class BaseEditor():
         """Constructor with save callback."""
         self.log.info('Constructor')
         self.cbkSave = cbkSave
+        self.widgets = []
         self.row = 0
+
+    def setValue(self, object):
+        """Set each widget value from the specified object."""
+        oWidget: BaseWidget
+        for oWidget in self.widgets:
+            oWidget.setValue(object)
+
+    def hasChanges(self, object) -> bool:
+        """Check if this editor has changes compared to the specified object."""
+        oWidget: BaseWidget
+        for oWidget in self.widgets:
+            if oWidget.hasChanges(object):
+                return True
+        return False
 
     def onModified(self, evt=None):
         """Callback for widget modifications."""
@@ -304,6 +347,7 @@ class BaseEditor():
         self.addLabel(label)
         oInput = TextInputRefl(self.onModified, mtdGetter)
         oInput.createWidgets(self.frmEdit, self.row, 1)
+        self.widgets.append(oInput)
         self.row += 1
         return oInput
     

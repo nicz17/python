@@ -95,32 +95,24 @@ class TaxonEditor(BaseWidgets.BaseEditor):
         """Display the specified object in this editor."""
         self.taxon = taxon
         self.enableWidgets()
-        self.txtName.setValue(None)
-        self.txtNameFr.setValue(None)
+        self.setValue(taxon)
         self.txtRank.setValue(None)
         self.intOrder.setValue(None)
         self.chkTypical.setValue(None)
         if taxon:
-            self.txtName.setValue(taxon.getName())
-            self.txtNameFr.setValue(taxon.getNameFr())
             self.txtRank.setValue(taxon.getRank())
             self.intOrder.setValue(taxon.getOrder())
             self.chkTypical.setValue(taxon.getTypical())
-        self.txtNameFrRf.setValue(taxon)
         self.enableWidgets()
 
     def hasChanges(self) -> bool:
         """Check if the editor has any changes."""
+        if super().hasChanges(self.taxon):
+            return True
         if self.taxon:
-            if self.taxon.getName() != self.txtName.getValue():
-                return True
-            if self.taxon.getNameFr() != self.txtNameFr.getValue():
-                return True
             if self.taxon.getOrder() != self.intOrder.getValue():
                 return True
             if self.taxon.getTypical() != self.chkTypical.getValue():
-                return True
-            if self.txtNameFrRf.hasChanges(self.taxon):
                 return True
         return False
 
@@ -141,9 +133,8 @@ class TaxonEditor(BaseWidgets.BaseEditor):
         super().createWidgets(parent, 'Taxon Editor')
 
         # Taxon attributes
-        self.txtName     = self.addText('Nom latin')
-        self.txtNameFr   = self.addText('Nom français')
-        self.txtNameFrRf = self.addTextRefl('Nom français refl', Taxon.getNameFr)
+        self.txtName     = self.addTextRefl('Nom latin', Taxon.getName)
+        self.txtNameFr   = self.addTextRefl('Nom français', Taxon.getNameFr)
         self.txtRank     = self.addTextReadOnly('Rang')
         self.intOrder    = self.addIntInput('Ordre')
         self.chkTypical  = self.addCheckBox('Taxon type', 'Taxon type du parent')
@@ -166,8 +157,8 @@ class TaxonEditor(BaseWidgets.BaseEditor):
         modified = self.hasChanges()
         self.txtName.enableWidget(editing)
         self.txtNameFr.enableWidget(editing)
-        self.txtNameFrRf.enableWidget(editing)
         self.intOrder.enableWidget(editing)
+        self.chkTypical.enableWidget(editing)
         BaseWidgets.enableWidget(self.btnSave, modified)
         BaseWidgets.enableWidget(self.btnCancel, modified)
         BaseWidgets.enableWidget(self.btnDelete, False)
