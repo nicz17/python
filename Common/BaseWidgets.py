@@ -265,24 +265,24 @@ class ComboBox():
     def __str__(self) -> str:
         return 'ComboBox'
     
-class CheckBox():
+class CheckBox(BaseWidget):
     """A boolean check-box based on ttk.Checkbutton."""
     log = logging.getLogger('CheckBox')
 
-    def __init__(self, cbkModified, label = ''):
+    def __init__(self, cbkModified, mtdGetter, label = ''):
         """Constructor with modification callback."""
-        self.log.info('Constructor')
-        self.cbkModified = cbkModified
+        super().__init__(cbkModified, mtdGetter)
         self.label = label
         self.varValue = tk.BooleanVar(value = False)
 
-    def setValue(self, value: bool):
+    def setValue(self, object):
         """Set the boolean value."""
+        value = self.getObjectValue(object)
         if value is None:
             self.varValue.set(False)
         else:
             self.varValue.set(value)
-        enableWidget(self.oCheckBox, value is not None)
+        self.enableWidget(value is not None)
 
     def getValue(self) -> bool:
         """Get the current boolean value."""
@@ -290,14 +290,10 @@ class CheckBox():
         
     def createWidgets(self, parent: tk.Frame, row: int, col: int):
         """Create widget in parent frame with grid layout."""
-        self.oCheckBox = ttk.Checkbutton(parent, 
+        self.oWidget = ttk.Checkbutton(parent, 
             text = self.label, command = self.cbkModified,
             variable = self.varValue)
-        self.oCheckBox.grid(row=row, column=col, padx=5, sticky='we')
-
-    def enableWidget(self, enabled: bool):
-        """Enable or disable this widget."""
-        enableWidget(self.oCheckBox, enabled)
+        self.oWidget.grid(row=row, column=col, padx=5, sticky='we')
 
 class BaseEditor():
     """Common superclass for edition widgets."""
@@ -384,11 +380,12 @@ class BaseEditor():
         self.row += 1
         return oCombo
     
-    def addCheckBox(self, label: str, text = '') -> CheckBox:
+    def addCheckBox(self, label: str, mtdGetter, text = '') -> CheckBox:
         """Add a check box."""
         self.addLabel(label)
-        oCheckBox = CheckBox(self.onModified, text)
+        oCheckBox = CheckBox(self.onModified, mtdGetter, text)
         oCheckBox.createWidgets(self.frmEdit, self.row, 1)
+        self.widgets.append(oCheckBox)
         self.row += 1
         return oCheckBox
 

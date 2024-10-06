@@ -98,11 +98,9 @@ class TaxonEditor(BaseWidgets.BaseEditor):
         self.setValue(taxon)
         self.txtRank.setValue(None)
         self.intOrder.setValue(None)
-        self.chkTypical.setValue(None)
         if taxon:
             self.txtRank.setValue(taxon.getRank())
             self.intOrder.setValue(taxon.getOrder())
-            self.chkTypical.setValue(taxon.getTypical())
         self.enableWidgets()
 
     def hasChanges(self) -> bool:
@@ -111,8 +109,6 @@ class TaxonEditor(BaseWidgets.BaseEditor):
             return True
         if self.taxon:
             if self.taxon.getOrder() != self.intOrder.getValue():
-                return True
-            if self.taxon.getTypical() != self.chkTypical.getValue():
                 return True
         return False
 
@@ -137,7 +133,7 @@ class TaxonEditor(BaseWidgets.BaseEditor):
         self.txtNameFr   = self.addTextRefl('Nom français', Taxon.getNameFr)
         self.txtRank     = self.addTextReadOnly('Rang')
         self.intOrder    = self.addIntInput('Ordre')
-        self.chkTypical  = self.addCheckBox('Taxon type', 'Taxon type du parent')
+        self.chkTypical  = self.addCheckBox('Taxon type', Taxon.getTypical, 'Taxon type du parent')
 
         # Buttons: save, cancel, delete
         frmButtons = ttk.Frame(self.frmEdit, padding=5)
