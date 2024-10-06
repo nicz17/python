@@ -105,7 +105,7 @@ class CopyFromCamera:
         if not os.path.exists(dirBase):
             self.log.error('Camera is not mounted at %s.', dirBase)
             return
-        for nDir in range(101, 120):
+        for nDir in range(106, 120):
             dirCamera = f'{dirBase}{nDir}ND800/'
             if os.path.exists(dirCamera):
                 self.sourceDir = dirCamera
