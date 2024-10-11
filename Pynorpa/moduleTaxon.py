@@ -94,12 +94,7 @@ class TaxonEditor(BaseWidgets.BaseEditor):
     def loadData(self, taxon: Taxon):
         """Display the specified object in this editor."""
         self.taxon = taxon
-        self.enableWidgets()
         self.setValue(taxon)
-        self.txtRank.setValue(None)
-        if taxon:
-            self.txtRank.setValue(taxon.getRank())
-        self.enableWidgets()
 
     def onSave(self, evt = None):
         """Save changes to the edited object."""
@@ -120,7 +115,7 @@ class TaxonEditor(BaseWidgets.BaseEditor):
         # Taxon attributes
         self.txtName     = self.addTextRefl('Nom latin', Taxon.getName)
         self.txtNameFr   = self.addTextRefl('Nom français', Taxon.getNameFr)
-        self.txtRank     = self.addTextReadOnly('Rang')
+        self.txtRank     = self.addTextReadOnlyRefl('Rang', Taxon.getRank)
         self.intOrder    = self.addIntInput('Ordre', Taxon.getOrder)
         self.chkTypical  = self.addCheckBox('Taxon type', Taxon.getTypical, 'Taxon type du parent')
 

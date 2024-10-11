@@ -224,6 +224,33 @@ class TextReadOnly():
     def __str__(self) -> str:
         return f'TextReadOnly for {self.name}'
 
+class TextReadOnlyRefl(BaseWidget):
+    """A read-only text widget based on tk.Label."""
+    log = logging.getLogger('TextReadOnly')
+
+    def __init__(self, name: str, mtdGetter):
+        """Constructor with attribute name."""
+        super().__init__(None, mtdGetter)
+        self.log.info('Constructor for %s', name)
+        self.name = name
+
+    def setValue(self, object):
+        """Set the string value."""
+        value = self.getObjectValue(object)
+        self.oLabel.configure(text = (value if value is not None else ''))
+
+    def getValue(self) -> str:
+        """Get the current string value."""
+        return self.oLabel.cget('text')
+        
+    def createWidgets(self, parent: tk.Frame, row: int, col: int):
+        """Create widget in parent frame with grid layout."""
+        self.oLabel = tk.Label(parent)
+        self.oLabel.grid(row=row, column=col, padx=5, sticky='w')
+    
+    def __str__(self) -> str:
+        return f'TextReadOnly for {self.name}'
+
 class ComboBox():
     """A multiple-choice widget based on ttk.Combobox."""
     log = logging.getLogger('ComboBox')
@@ -303,9 +330,11 @@ class BaseEditor():
 
     def setValue(self, object):
         """Set each widget value from the specified object."""
+        self.enableWidgets()
         oWidget: BaseWidget
         for oWidget in self.widgets:
             oWidget.setValue(object)
+        self.enableWidgets()
 
     def hasChanges(self, object) -> bool:
         """Check if this editor has changes compared to the specified object."""
@@ -338,8 +367,7 @@ class BaseEditor():
         self.addLabel(label)
         oInput = TextInputRefl(self.onModified, mtdGetter)
         oInput.createWidgets(self.frmEdit, self.row, 1)
-        self.widgets.append(oInput)
-        self.row += 1
+        self.addWidget(oInput)
         return oInput
     
     def addTextArea(self, label: str, nLines: int, width=64) -> TextArea:
@@ -358,13 +386,20 @@ class BaseEditor():
         self.row += 1
         return oInput
     
+    def addTextReadOnlyRefl(self, label: str, mtdGetter) -> TextReadOnlyRefl:
+        """Add a read-only text."""
+        self.addLabel(label)
+        oInput = TextReadOnlyRefl(label, mtdGetter)
+        oInput.createWidgets(self.frmEdit, self.row, 1)
+        self.addWidget(oInput)
+        return oInput
+    
     def addIntInput(self, label: str, mtdGetter) -> IntInput:
         """Add an integer input."""
         self.addLabel(label)
         oInput = IntInput(self.onModified, mtdGetter)
         oInput.createWidgets(self.frmEdit, self.row, 1)
-        self.widgets.append(oInput)
-        self.row += 1
+        self.addWidget(oInput)
         return oInput
     
     def addComboBox(self, label: str, values) -> ComboBox:
@@ -381,14 +416,18 @@ class BaseEditor():
         self.addLabel(label)
         oCheckBox = CheckBox(self.onModified, mtdGetter, text)
         oCheckBox.createWidgets(self.frmEdit, self.row, 1)
-        self.widgets.append(oCheckBox)
-        self.row += 1
+        self.addWidget(oCheckBox)
         return oCheckBox
 
     def addLabel(self, label: str):
         """Add an attribute label at the specified row."""
         oLabel = tk.Label(self.frmEdit, text=label)
         oLabel.grid(row=self.row, column=0, sticky='nw')
+
+    def addWidget(self, oWidget: BaseWidget):
+        """Add a widget and bump the row count."""
+        self.widgets.append(oWidget)
+        self.row += 1
 
     def enableWidgets(self, evt=None):
         """Enable our internal widgets."""
