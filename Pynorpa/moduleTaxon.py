@@ -115,7 +115,7 @@ class TaxonEditor(BaseWidgets.BaseEditor):
         # Taxon attributes
         self.txtName     = self.addTextRefl('Nom latin', Taxon.getName)
         self.txtNameFr   = self.addTextRefl('Nom français', Taxon.getNameFr)
-        self.txtRank     = self.addTextReadOnlyRefl('Rang', Taxon.getRank)
+        self.txtRank     = self.addTextReadOnlyRefl('Rang', Taxon.getRankFr)
         self.intOrder    = self.addIntInput('Ordre', Taxon.getOrder)
         self.chkTypical  = self.addCheckBox('Taxon type', Taxon.getTypical, 'Taxon type du parent')
 

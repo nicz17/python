@@ -7,8 +7,34 @@ __version__ = "1.0.0"
 import logging
 import config
 import Database
+from enum import Enum
 
 
+class TaxonRank(Enum):
+    """Enum of taxon ranks."""
+    KINGDOM  = 0
+    PHYLUM   = 1
+    CLASS    = 2
+    ORDER    = 3
+    FAMILY   = 4
+    GENUS    = 5
+    SPECIES  = 6
+
+    def getNameFr(self):
+        name = 'Inconnu'
+        match self:
+            case TaxonRank.KINGDOM: name = 'Règne'
+            case TaxonRank.PHYLUM:  name = 'Phylum'
+            case TaxonRank.CLASS:   name = 'Classe'
+            case TaxonRank.ORDER:   name = 'Ordre'
+            case TaxonRank.FAMILY:  name = 'Famille'
+            case TaxonRank.GENUS:   name = 'Genre'
+            case TaxonRank.SPECIES: name = 'Espèce'
+        return name
+
+    def __str__(self):
+        return self.name
+    
 class Taxon():
     """Class Taxon"""
     log = logging.getLogger("Taxon")
@@ -18,7 +44,7 @@ class Taxon():
         self.idx = idx
         self.name = name
         self.nameFr = nameFr
-        self.rank = rank
+        self.rank = TaxonRank[rank]
         self.parent = parent
         self.order = order
         self.typical = typical
@@ -51,11 +77,15 @@ class Taxon():
         """Setter for nameFr"""
         self.nameFr = nameFr
 
-    def getRank(self) -> str:
+    def getRank(self) -> TaxonRank:
         """Getter for rank"""
         return self.rank
+    
+    def getRankFr(self) -> str:
+        """Get translated taxon rank name"""
+        return self.rank.getNameFr()
 
-    def setRank(self, rank: str):
+    def setRank(self, rank: TaxonRank):
         """Setter for rank"""
         self.rank = rank
 
@@ -105,7 +135,7 @@ class Taxon():
         str += f' idx: {self.idx}'
         str += f' name: {self.name}'
         str += f' nameFr: {self.nameFr}'
-        str += f' rank: {self.rank}'
+        str += f' rank: {self.rank.name}'
         str += f' parent: {self.parent}'
         str += f' order: {self.order}'
         str += f' typical: {self.typical}'
