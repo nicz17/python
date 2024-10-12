@@ -135,10 +135,7 @@ class TaxonEditor(BaseWidgets.BaseEditor):
         """Enable our internal widgets."""
         editing  = self.taxon is not None
         modified = self.hasChanges(self.taxon)
-        self.txtName.enableWidget(editing)
-        self.txtNameFr.enableWidget(editing)
-        self.intOrder.enableWidget(editing)
-        self.chkTypical.enableWidget(editing)
+        super().enableWidgets(editing)
         BaseWidgets.enableWidget(self.btnSave, modified)
         BaseWidgets.enableWidget(self.btnCancel, modified)
         BaseWidgets.enableWidget(self.btnDelete, False)

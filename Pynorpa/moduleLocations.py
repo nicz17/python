@@ -100,39 +100,10 @@ class LocationEditor(BaseWidgets.BaseEditor):
     def loadData(self, location: Location):
         """Display the specified object in this editor."""
         self.location = location
-        self.enableWidgets()
         self.setValue(location)
-        self.txtName.setValue(None)
-        self.txtState.setValue(None)
-        self.txtRegion.setValue(None)
-        self.txtDesc.setValue(None)
-        self.lblPosition.setValue(None)
-        if location:
-            self.txtName.setValue(location.name)
-            self.txtState.setValue(location.state)
-            self.txtRegion.setValue(location.region)
-            self.txtDesc.setValue(location.desc)
-            self.lblPosition.setValue(location.getGPSString())
-
-    def hasChanges(self) -> bool:
-        """Check if the editor has any changes."""
-        if super().hasChanges(self.location):
-            return True
-        if self.location:
-            if self.location.name != self.txtName.getValue():
-                return True
-            if self.location.desc != self.txtDesc.getValue():
-                return True
-            if self.location.state != self.txtState.getValue():
-                return True
-            if self.location.region != self.txtRegion.getValue():
-                return True
-        return False
 
     def onSave(self, evt = None):
         """Save changes to the edited object."""
-        #textEdit = self.txtInput.get(1.0, tk.END).strip()
-        #self.task.title = textEdit
         self.cbkSave(self.location)
 
     def onCancel(self):
@@ -148,12 +119,12 @@ class LocationEditor(BaseWidgets.BaseEditor):
         super().createWidgets(parent, 'Location Editor')
 
         # Location attributes
-        self.txtName     = self.addText('Nom')
-        self.txtDesc     = self.addTextArea('Description', 6)
-        self.txtState    = self.addText('Pays')
-        self.txtRegion   = self.addText('Région')
+        self.txtName     = self.addTextRefl('Nom', Location.getName)
+        self.txtDesc     = self.addTextAreaRefl('Description', Location.getDesc, 6)
+        self.txtState    = self.addTextRefl('Pays', Location.getState)
+        self.txtRegion   = self.addTextRefl('Région', Location.getRegion)
         self.intAltitude = self.addIntInput('Altitude', Location.getAltitude)
-        self.lblPosition = self.addTextReadOnly('Position')
+        self.lblPosition = self.addTextReadOnlyRefl('Position', Location.getGPSString)
 
         # Buttons: save, cancel
         frmButtons = ttk.Frame(self.frmEdit, padding=5)
@@ -170,12 +141,8 @@ class LocationEditor(BaseWidgets.BaseEditor):
     def enableWidgets(self, evt=None):
         """Enable our internal widgets."""
         editing  = self.location is not None
-        modified = self.hasChanges()
-        self.txtName.enableWidget(editing)
-        self.txtDesc.enableWidget(editing)
-        self.txtState.enableWidget(editing)
-        self.txtRegion.enableWidget(editing)
-        self.intAltitude.enableWidget(editing)
+        modified = self.hasChanges(self.location)
+        super().enableWidgets(editing)
         BaseWidgets.enableWidget(self.btnSave, modified)
         BaseWidgets.enableWidget(self.btnCancel, modified)
         BaseWidgets.enableWidget(self.btnDelete, False)

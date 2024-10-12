@@ -199,6 +199,43 @@ class TextArea():
     def __str__(self) -> str:
         return f'TextArea for {self.name}'
 
+class TextAreaRefl(BaseWidget):
+    """A multi-line text input widget based on tk.Text."""
+    log = logging.getLogger('TextArea')
+
+    def __init__(self, name: str, mtdGetter, nLines=6, cbkModified=None):
+        """Constructor with modification callback."""
+        self.log.info('Constructor for %s', name)
+        super().__init__(cbkModified, mtdGetter)
+        self.name = name
+        self.nLines = nLines
+
+    def setValue(self, object):
+        """Set the string value."""
+        value = self.getObjectValue(object)
+        self.oWidget['state'] = tk.NORMAL
+        self.oWidget.delete(1.0, tk.END)
+        if value:
+            self.oWidget.insert(1.0, value)
+
+    def getValue(self) -> str:
+        """Get the current string value."""
+        return self.oWidget.get(1.0, tk.END).strip()
+        
+    def createWidgets(self, parent: tk.Frame, row: int, col: int, width=64):
+        """Create widget in parent frame with grid layout."""
+        self.oWidget = tk.Text(parent, width=width, height=self.nLines)
+        self.oWidget.grid(row=row, column=col, padx=4, sticky='we')
+        if self.cbkModified:
+            self.oWidget.bind("<<Modified>>", self.cbkModified)
+
+    def resetModified(self):
+        """Reset the modified flag."""
+        self.oWidget.edit_modified(False)
+    
+    def __str__(self) -> str:
+        return f'TextArea for {self.name}'
+
 class TextReadOnly():
     """A read-only text widget based on tk.Label."""
     log = logging.getLogger('TextReadOnly')
@@ -242,6 +279,9 @@ class TextReadOnlyRefl(BaseWidget):
     def getValue(self) -> str:
         """Get the current string value."""
         return self.oLabel.cget('text')
+    
+    def hasChanges(self, object) -> bool:
+        return False
         
     def createWidgets(self, parent: tk.Frame, row: int, col: int):
         """Create widget in parent frame with grid layout."""
@@ -378,6 +418,14 @@ class BaseEditor():
         self.row += 1
         return oInput
     
+    def addTextAreaRefl(self, label: str, mtdGetter, nLines: int, width=64) -> TextAreaRefl:
+        """Add a multi-line text input."""
+        self.addLabel(label)
+        oInput = TextAreaRefl(label, mtdGetter, nLines, self.onModified)
+        oInput.createWidgets(self.frmEdit, self.row, 1, width)
+        self.addWidget(oInput)
+        return oInput
+    
     def addTextReadOnly(self, label: str) -> TextReadOnly:
         """Add a read-only text."""
         self.addLabel(label)
@@ -429,9 +477,15 @@ class BaseEditor():
         self.widgets.append(oWidget)
         self.row += 1
 
-    def enableWidgets(self, evt=None):
+    # def enableWidgets(self, evt=None):
+    #     """Enable our internal widgets."""
+    #     pass
+
+    def enableWidgets(self, enabled: bool):
         """Enable our internal widgets."""
-        pass
+        oWidget: BaseWidget
+        for oWidget in self.widgets:
+            oWidget.enableWidget(enabled)
 
     def __str__(self) -> str:
         return 'BaseEditor'

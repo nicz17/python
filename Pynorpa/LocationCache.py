@@ -28,6 +28,46 @@ class Location:
         self.zoom    = row[7]
         self.state   = row[8]
 
+    def getIdx(self) -> int:
+        """Getter for idx"""
+        return self.idx
+
+    def getName(self) -> str:
+        """Getter for name"""
+        return self.name
+
+    def setName(self, name: str):
+        """Setter for name"""
+        self.name = name
+
+    def getDesc(self) -> str:
+        """Getter for desc"""
+        return self.desc
+
+    def setDesc(self, desc: str):
+        """Setter for desc"""
+        self.desc = desc
+
+    def getKind(self) -> str:
+        """Getter for kind"""
+        return self.kind
+
+    def setKind(self, kind: str):
+        """Setter for kind"""
+        self.kind = kind
+
+    def getRegion(self) -> str:
+        """Getter for region"""
+        return self.region
+
+    def setRegion(self, region: str):
+        """Setter for region"""
+        self.region = region
+
+    def getState(self) -> str:
+        """Getter for state"""
+        return self.state
+
     def getAltitude(self) -> int:
         return self.alt
 
