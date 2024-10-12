@@ -144,28 +144,18 @@ class PhotoEditor(BaseWidgets.BaseEditor):
     def loadData(self, photo: PhotoInfo):
         """Display the specified object in this editor."""
         self.photo = photo
-        self.lblName.setValue(None)
-        self.lblDate.setValue(None)
-        self.lblPicSize.setValue(None)
-        self.lblPosition.setValue(None)
-        self.lblExposure.setValue(None)
-        if photo:
-            self.lblName.setValue(photo.getNameFull())
-            self.lblDate.setValue(photo.getShotAtString())
-            self.lblPicSize.setValue(photo.getSizeString())
-            self.lblPosition.setValue(photo.getGPSString())
-            self.lblExposure.setValue(photo.getExposureDetails())
+        self.setValue(photo)
 
     def createWidgets(self, parent: tk.Frame):
         """Add the editor widgets to the parent widget."""
         super().createWidgets(parent, 'Propriétés de la photo')
 
         # Photo attributes
-        self.lblName     = self.addTextReadOnly('Nom')
-        self.lblDate     = self.addTextReadOnly('Date')
-        self.lblPicSize  = self.addTextReadOnly('Taille')
-        self.lblPosition = self.addTextReadOnly('Position')
-        self.lblExposure = self.addTextReadOnly('Exposition')
+        self.lblName     = self.addTextReadOnlyRefl('Nom',        PhotoInfo.getNameFull)
+        self.lblDate     = self.addTextReadOnlyRefl('Date',       PhotoInfo.getShotAtString)
+        self.lblPicSize  = self.addTextReadOnlyRefl('Taille',     PhotoInfo.getSizeString)
+        self.lblPosition = self.addTextReadOnlyRefl('Position',   PhotoInfo.getGPSString)
+        self.lblExposure = self.addTextReadOnlyRefl('Exposition', PhotoInfo.getExposureDetails)
 
     def __str__(self) -> str:
         return 'PhotoEditor'

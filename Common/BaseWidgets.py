@@ -481,7 +481,7 @@ class BaseEditor():
     #     """Enable our internal widgets."""
     #     pass
 
-    def enableWidgets(self, enabled: bool):
+    def enableWidgets(self, enabled = False):
         """Enable our internal widgets."""
         oWidget: BaseWidget
         for oWidget in self.widgets:
