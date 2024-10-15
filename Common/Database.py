@@ -6,9 +6,11 @@ __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
+import io
 import logging
 from mysql.connector import connect, Error
 from getpass import getpass
+
 
 class Database:
     """Connect to a MySQL database."""
@@ -49,6 +51,32 @@ class Database:
             rows = cursor.fetchall()
             self.log.info('Fetched %d records', len(rows))
             return rows
+        
+class Query():
+    """Class for building an SQL query."""
+    log = logging.getLogger("Query")
+
+    def __init__(self, name: str):
+        """Constructor."""
+        self.sio = io.StringIO()
+        self.name = name
+
+    def add(self, sql: str):
+        """Add some SQL"""
+        if len(self.sio.getvalue()) > 0:
+            self.sio.write(' ')
+        self.sio.write(sql.strip())
+
+    def getSQL(self):
+        """Return the accumulated SQL"""
+        return self.sio.getvalue()
+
+    def close(self):
+        self.sio.close()
+
+    def __str__(self):
+        return f'Query for {self.name}'
+
 
 def testDatabase():
     """Simple test case for database connection."""
@@ -63,7 +91,19 @@ def testDatabase():
         print(row)
     db.disconnect()
 
+def testQuery():
+    """Unit test for Query"""
+    Query.log.info("Testing Query")
+    obj = Query("SomeTable")
+    obj.add('select * from Bleu')
+    obj.add('where idxBleu = 42 ')
+    obj.add(' order by blName asc')
+    obj.log.info(obj)
+    obj.log.info(obj.getSQL())
+    obj.close() 
+
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s", 
         level=logging.INFO, handlers=[logging.StreamHandler()])
     testDatabase()
+    testQuery()
