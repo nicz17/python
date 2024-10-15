@@ -155,14 +155,16 @@ class TaxonCache():
         """Fetch and store the Taxon records from database."""
         db = Database.Database(config.dbName)
         db.connect(config.dbUser, config.dbPass)
-        sql = "select idxTaxon, taxName, taxNameFr, taxRank, taxParent, taxOrder, taxTypical"
-        sql += " from Taxon order by taxOrder asc, taxName asc"
-        rows = db.fetch(sql)
+        query = Database.Query('Taxon')
+        query.add('select idxTaxon, taxName, taxNameFr, taxRank, taxParent, taxOrder, taxTypical')
+        query.add('from Taxon order by taxOrder asc, taxName asc')
+        rows = db.fetch(query.getSQL())
         for row in rows:
             taxon = Taxon(*row)
             self.dictById[taxon.getIdx()] = taxon
             if taxon.isTopLevel():
                 self.topLevel.append(taxon)
+        query.close()
         db.disconnect()
         self.log.info(f'Fetched {len(self.dictById)} taxa from DB')
 
