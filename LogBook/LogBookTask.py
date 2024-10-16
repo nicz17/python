@@ -129,7 +129,7 @@ class LogBookTask:
     def getStatusName(self):
         return self.status.name
     
-    def getCreateString(self):
+    def getCreatedString(self):
         return DateTools.timestampToString(self.created)
 
     def toJson(self):

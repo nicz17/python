@@ -25,23 +25,7 @@ class TaskEditor(BaseWidgets.BaseEditor):
     def loadData(self, task: LogBookTask):
         """Display the specified object in this editor."""
         self.task = task
-        self.enableWidgets()
-        self.txtTitle.setValue(None)
-        self.lblStatus.setValue(None)
-        self.lblCreated.setValue(None)
-        if task is not None:
-            sCreated = DateTools.timestampToString(task.created)
-            self.txtTitle.setValue(task.title)
-            self.lblCreated.setValue(sCreated)
-            self.lblStatus.setValue(task.status.name)
-
-    def hasChanges(self) -> bool:
-        """Check if the editor has any changes."""
-        if self.task is None:
-            return False
-        if self.task.title != self.txtTitle.getValue():
-            return True
-        return False
+        self.setValue(task)
 
     def onSave(self, evt = None):
         """Save changes to the edited object."""
@@ -62,10 +46,10 @@ class TaskEditor(BaseWidgets.BaseEditor):
         super().createWidgets(parent, 'Task Editor')
 
         # Task attributes
-        self.lblCreated = self.addTextReadOnly('Created')
-        self.lblStatus  = self.addTextReadOnly('Status')
-        self.txtTitle   = self.addTextArea('Title', 2, 42)
-        self.txtTitle.oText.bind("<Return>", self.onSave)
+        self.lblCreated = self.addTextReadOnlyRefl('Created', LogBookTask.getCreatedString)
+        self.lblStatus  = self.addTextReadOnlyRefl('Status', LogBookTask.getStatusName)
+        self.txtTitle   = self.addTextAreaRefl('Title', LogBookTask.getTitle, 2, 42)
+        self.txtTitle.oWidget.bind("<Return>", self.onSave)
 
         # Buttons: save, cancel
         frmButtons = ttk.Frame(self.frmEdit, padding=5)
@@ -79,7 +63,7 @@ class TaskEditor(BaseWidgets.BaseEditor):
 
     def enableWidgets(self, evt = None):
         """Enable our internal widgets."""
-        modified = self.hasChanges()
+        modified = self.hasChanges(self.task)
         BaseWidgets.enableWidget(self.btnSave, modified)
         BaseWidgets.enableWidget(self.btnCancel, modified)
         self.txtTitle.enableWidget(self.task is not None)
@@ -98,12 +82,7 @@ class StepEditor(BaseWidgets.BaseEditor):
     def loadData(self, step: LogBookStep):
         """Display the specified object in this editor."""
         self.step = step
-        self.enableWidgets()
-        self.txtText.setValue(None)
-        self.lblStatus.setValue(None)
-        if step is not None:
-            self.txtText.setValue(self.step.text)
-            self.lblStatus.setValue(step.status.name)
+        self.setValue(step)
 
     def onSave(self, evt = None):
         """Save changes to the edited object."""
@@ -119,22 +98,14 @@ class StepEditor(BaseWidgets.BaseEditor):
         self.step.status = Status.Done
         self.onSave()
 
-    def hasChanges(self) -> bool:
-        """Check if the editor has any changes."""
-        if self.step is None:
-            return False
-        if self.step.text != self.txtText.getValue():
-            return True
-        return False
-
     def createWidgets(self, parent: tk.Frame):
         """Add the editor widgets to the parent widget."""
         super().createWidgets(parent, 'Step Editor')
 
         # Step attributes
-        self.lblStatus = self.addTextReadOnly('Status')
-        self.txtText   = self.addTextArea('Text', 6, 42)
-        self.txtText.oText.bind("<Return>", self.onSave)
+        self.lblStatus = self.addTextReadOnlyRefl('Status', LogBookStep.getStatusName)
+        self.txtText   = self.addTextAreaRefl('Text', LogBookStep.getText, 6, 42)
+        self.txtText.oWidget.bind("<Return>", self.onSave)
 
         # Buttons: save, cancel
         frmButtons = ttk.Frame(self.frmEdit, padding=5)
@@ -150,7 +121,7 @@ class StepEditor(BaseWidgets.BaseEditor):
 
     def enableWidgets(self, evt = None):
         """Enable our internal widgets."""
-        modified = self.hasChanges()
+        modified = self.hasChanges(self.step)
         enableDone = self.step and self.step.status is not Status.Done
         BaseWidgets.enableWidget(self.btnSave, modified)
         BaseWidgets.enableWidget(self.btnCancel, modified)
