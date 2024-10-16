@@ -33,12 +33,6 @@ class DatabaseCodeGen():
         """Parse the specified database table."""
         self.log.info('Parsing %s.%s', dbName, table)
 
-        # Create class object
-        # if self.lang == 'cpp':
-        #     self.clss = SimpleUMLClassCpp()
-        # else:
-        #     self.clss = SimpleUMLClassPython()
-
         # Create module and class
         module = SimpleUMLPythonModule(TextTools.lowerCaseFirst(table))
         module.addImport('config')
@@ -80,9 +74,6 @@ class DatabaseCodeGen():
             if not field.isPrimaryKey():
                 self.clss.addMethod(f'set{ucName}', [SimpleUMLParam(name, type)], None, False)
 
-        # Write the class
-        #self.clss.generate()
-
         # Generate the Cache class
         module.addClass(self.createCache(table, fields, prefix))
 
@@ -104,7 +95,7 @@ class DatabaseCodeGen():
         clss.addMember(sCollName, 'array')
 
         # Database fetch method
-        # TODO use StringIO for sql: from io import StringIO
+        # TODO use Query for sql
         sFieldNames = ', '.join([field.name for field in fields])
         sNameField = f'{prefix}Name'
         oLoad = clss.addMethod('load', None, None, False)
