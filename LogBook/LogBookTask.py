@@ -41,6 +41,12 @@ class LogBookStep:
             status = Status.Todo
         self.status = status
 
+    def getText(self):
+        return self.text
+    
+    def getStatusName(self):
+        return self.status.name
+
     def toJson(self):
         """Export this step as JSON."""
         data = {
@@ -116,6 +122,15 @@ class LogBookTask:
     def sort(self):
         """Sort the steps in this task."""
         self.steps = sorted(self.steps)
+
+    def getTitle(self):
+        return self.title
+    
+    def getStatusName(self):
+        return self.status.name
+    
+    def getCreateString(self):
+        return DateTools.timestampToString(self.created)
 
     def toJson(self):
         """Export this task as JSON."""
