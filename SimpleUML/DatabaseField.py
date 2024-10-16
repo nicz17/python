@@ -37,28 +37,35 @@ class DatabaseField():
             type = 'str'
         return type
 
+    def getEditionKind(self):
+        """Guess the kind of widget to use in editor for this field."""
+        kind = 'TextArea'
+        ptype = self.getPythonType()
+        if ptype == 'int':
+            kind = 'IntInput'
+        elif ptype == 'bool':
+            kind = 'CheckBox'
+        return kind
+
     def isPrimaryKey(self):
         """Check if this field is the table's primary key."""
         return self.role == 'PRI'
 
     def __str__(self):
-        str = "DatabaseField"
-        str += f' name: {self.name}'
-        str += f' type: {self.type}'
-        str += f' role: {self.role}'
-        str += f' size: {self.size}'
-        str += f' nullable: {self.nullable}'
+        str = f'DatabaseField name: {self.name} type: {self.type}'
         return str
 
 
 def testDatabaseField():
     """Unit test for DatabaseField"""
     DatabaseField.log.info("Testing DatabaseField")
-    obj = DatabaseField('name', 'str', False, None)
+    obj = DatabaseField('prfOrder', 'int', False, None)
     obj.log.info(obj)
+    obj.log.info('Python name: %s',  obj.getPythonName('prf'))
+    obj.log.info('Python type: %s',  obj.getPythonType())
+    obj.log.info('Edition kind: %s', obj.getEditionKind())
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",
         level=logging.INFO, handlers=[logging.StreamHandler()])
     testDatabaseField()
-
