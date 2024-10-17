@@ -269,6 +269,9 @@ class BaseEditor():
         self.cbkSave = cbkSave
         self.widgets = []
         self.row = 0
+        self.btnSave = None
+        self.btnCancel = None
+        self.btnDelete = None
 
     def setValue(self, object):
         """Set each widget value from the specified object."""
@@ -286,15 +289,41 @@ class BaseEditor():
                 return True
         return False
 
-    def onModified(self, evt=None):
+    def onModified(self, evt = None):
         """Callback for widget modifications."""
         #self.log.info('BaseEditor modified cbk')
         self.enableWidgets()
+
+    def onSave(self, evt = None):
+        """Save changes to the edited object."""
+        pass
+
+    def onCancel(self):
+        """Cancel changes to the edited object."""
+        pass
+
+    def onDelete(self):
+        """Delete the edited object."""
+        pass
 
     def createWidgets(self, parent: tk.Frame, title: str):
         """Add the editor widgets to the parent widget."""
         self.frmEdit = ttk.LabelFrame(parent, text=title)
         self.frmEdit.pack(side=tk.TOP, anchor=tk.N, fill=tk.X, expand=True, pady=5)
+
+    def createButtons(self, bSave: bool, bCancel: bool, bDelete: bool):
+        """Add save, cancel and delete buttons."""
+        frmButtons = ttk.Frame(self.frmEdit, padding=5)
+        frmButtons.grid(row=self.row, column=0, columnspan=2)
+        if bSave:
+            self.btnSave = tk.Button(frmButtons, text = 'Save', command = self.onSave)
+            self.btnSave.grid(row=0, column=0, padx=3)
+        if bCancel:
+            self.btnCancel = tk.Button(frmButtons, text = 'Cancel', command = self.onCancel)
+            self.btnCancel.grid(row=0, column=1, padx=3)
+        if bDelete:
+            self.btnDelete = tk.Button(frmButtons, text = 'Delete', command = self.onDelete)
+            self.btnDelete.grid(row=0, column=2, padx=3)
 
     def addText(self, label: str, mtdGetter) -> TextInput:
         """Add a single-line text input."""
@@ -354,10 +383,6 @@ class BaseEditor():
         """Add a widget and bump the row count."""
         self.widgets.append(oWidget)
         self.row += 1
-
-    # def enableWidgets(self, evt=None):
-    #     """Enable our internal widgets."""
-    #     pass
 
     def enableWidgets(self, enabled = False):
         """Enable our internal widgets."""

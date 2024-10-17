@@ -110,10 +110,6 @@ class LocationEditor(BaseWidgets.BaseEditor):
         """Cancel changes to the edited object."""
         self.loadData(self.location)
 
-    def onDelete(self):
-        """Delete the edited object."""
-        pass
-
     def createWidgets(self, parent: tk.Frame):
         """Add the editor widgets to the parent widget."""
         super().createWidgets(parent, 'Location Editor')
@@ -127,15 +123,7 @@ class LocationEditor(BaseWidgets.BaseEditor):
         self.lblPosition = self.addTextReadOnly('Position', Location.getGPSString)
 
         # Buttons: save, cancel
-        frmButtons = ttk.Frame(self.frmEdit, padding=5)
-        frmButtons.grid(row=self.row, column=0, columnspan=2)
-        self.btnSave = tk.Button(frmButtons, text = 'Save', command = self.onSave)
-        self.btnSave.grid(row=0, column=0, padx=3)
-        self.btnCancel = tk.Button(frmButtons, text = 'Cancel', command = self.onCancel)
-        self.btnCancel.grid(row=0, column=1, padx=3)
-        self.btnDelete = tk.Button(frmButtons, text = 'Delete', command = self.onCancel)
-        self.btnDelete.grid(row=0, column=2, padx=3)
-
+        self.createButtons(True, True, False)
         self.enableWidgets()
 
     def enableWidgets(self, evt=None):
