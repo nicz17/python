@@ -189,7 +189,7 @@ class SimpleUMLClassPython(SimpleUMLClass):
                     if member.name in params:
                         file.write(f'self.{member.name} = {member.name}', 2)
                     else:
-                        sDefaultValue = self.getDefaultValue(member.type)
+                        sDefaultValue = self.getDefaultValue(member.type, member.name)
                         file.write(f'self.{member.name} = {sDefaultValue}', 2)
             elif len(method.codeLines) > 0:
                 self.log.info('Generating method %s body from %d code lines', 
@@ -252,7 +252,7 @@ class SimpleUMLClassPython(SimpleUMLClass):
         if constr:
             values = []
             for param in constr.params:
-                values.append(self.getDefaultValue(param.type))
+                values.append(self.getDefaultValue(param.type, param.name))
             svalues = ', '.join(values)
             file.write(f'obj = {self.name}({svalues})', 1)
             file.write('obj.log.info(obj)', 1)
@@ -266,18 +266,22 @@ class SimpleUMLClassPython(SimpleUMLClass):
         file.write(f'test{self.name}()', 1)
         file.newline()
 
-    def getDefaultValue(self, type: str) -> str:
+    def getDefaultValue(self, type: str, name: str) -> str:
         """Get a default value for the specified type."""
         if type is None:
             return 'None'
-        if type == 'str':
-            return '"SomeText"'
-        if type == 'int':
+        elif type == 'str':
+            return f'"{name}Example"'
+        elif type == 'int':
             return '42'
-        if type == 'bool':
+        elif type == 'float':
+            return '3.14'
+        elif type == 'bool':
             return 'True'
-        if type == 'array':
+        elif type == 'array':
             return '[]'
+        else:
+            self.log.warning('No default value for type %s', type)
         return 'None'
 
 
