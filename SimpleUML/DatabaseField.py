@@ -33,6 +33,8 @@ class DatabaseField():
         type = self.type
         if self.type == 'tinyint(1)':
             type = 'bool'
+        if self.type == 'datetime':
+            type = 'float'
         if self.type.startswith('varchar'):
             type = 'str'
         return type
@@ -45,6 +47,8 @@ class DatabaseField():
             kind = 'IntInput'
         elif ptype == 'bool':
             kind = 'CheckBox'
+        elif self.type == 'datetime':
+            kind = 'DateTime'
         return kind
 
     def isPrimaryKey(self):

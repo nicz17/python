@@ -95,22 +95,24 @@ class DatabaseCodeGen():
         clss.addMember(sCollName, 'array')
 
         # Database fetch method
-        # TODO use Query for sql
         sFieldNames = ', '.join([field.name for field in fields])
         sNameField = f'{prefix}Name'
         oLoad = clss.addMethod('load', None, None, False)
         oLoad.setDoc(f'Fetch and store the {table} records.')
         oLoad.addCodeLine('db = Database.Database(config.dbName)')
         oLoad.addCodeLine('db.connect(config.dbUser, config.dbPass)')
-        oLoad.addCodeLine(f'sql = "select {sFieldNames} from {table}"')
+        oLoad.addCodeLine(f'query = Database.Query("{table}")')
+        oLoad.addCodeLine(f'query.add("select {sFieldNames} from {table}")')
+        field: DatabaseField
         for field in fields:
-            if field.name == sNameField:
-                oLoad.addCodeLine(f'sql += " order by {sNameField} asc"')
+            if field.name == sNameField or 'name' in field.name:
+                oLoad.addCodeLine(f'query.add(" order by {field.name} asc")')
                 break
-        oLoad.addCodeLine('rows = db.fetch(sql)')
+        oLoad.addCodeLine('rows = db.fetch(query.getSQL())')
         oLoad.addCodeLine('for row in rows:')
         oLoad.addCodeLine(f'    self.{sCollName}.append({table}(*row))')
         oLoad.addCodeLine('db.disconnect()')
+        oLoad.addCodeLine('query.close()')
 
         # Find-by-id method
         params = [SimpleUMLParam('idx', 'int')]
