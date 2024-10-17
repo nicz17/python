@@ -113,10 +113,10 @@ class TaxonEditor(BaseWidgets.BaseEditor):
         super().createWidgets(parent, 'Taxon Editor')
 
         # Taxon attributes
-        self.txtName     = self.addTextRefl('Nom latin', Taxon.getName)
-        self.txtNameFr   = self.addTextRefl('Nom français', Taxon.getNameFr)
-        self.txtRank     = self.addTextReadOnlyRefl('Rang', Taxon.getRankFr)
-        self.intOrder    = self.addIntInput('Ordre', Taxon.getOrder)
+        self.txtName     = self.addText('Nom latin',      Taxon.getName)
+        self.txtNameFr   = self.addText('Nom français',   Taxon.getNameFr)
+        self.txtRank     = self.addTextReadOnly('Rang',   Taxon.getRankFr)
+        self.intOrder    = self.addIntInput('Ordre',      Taxon.getOrder)
         self.chkTypical  = self.addCheckBox('Taxon type', Taxon.getTypical, 'Taxon type du parent')
 
         # Buttons: save, cancel, delete
@@ -126,7 +126,7 @@ class TaxonEditor(BaseWidgets.BaseEditor):
         self.btnSave.grid(row=0, column=0, padx=3)
         self.btnCancel = tk.Button(frmButtons, text = 'Cancel', command = self.onCancel)
         self.btnCancel.grid(row=0, column=1, padx=3)
-        self.btnDelete = tk.Button(frmButtons, text = 'Delete', command = self.onCancel)
+        self.btnDelete = tk.Button(frmButtons, text = 'Delete', command = self.onDelete)
         self.btnDelete.grid(row=0, column=2, padx=3)
 
         self.enableWidgets()

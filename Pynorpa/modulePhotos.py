@@ -151,11 +151,11 @@ class PhotoEditor(BaseWidgets.BaseEditor):
         super().createWidgets(parent, 'Propriétés de la photo')
 
         # Photo attributes
-        self.lblName     = self.addTextReadOnlyRefl('Nom',        PhotoInfo.getNameFull)
-        self.lblDate     = self.addTextReadOnlyRefl('Date',       PhotoInfo.getShotAtString)
-        self.lblPicSize  = self.addTextReadOnlyRefl('Taille',     PhotoInfo.getSizeString)
-        self.lblPosition = self.addTextReadOnlyRefl('Position',   PhotoInfo.getGPSString)
-        self.lblExposure = self.addTextReadOnlyRefl('Exposition', PhotoInfo.getExposureDetails)
+        self.lblName     = self.addTextReadOnly('Nom',        PhotoInfo.getNameFull)
+        self.lblDate     = self.addTextReadOnly('Date',       PhotoInfo.getShotAtString)
+        self.lblPicSize  = self.addTextReadOnly('Taille',     PhotoInfo.getSizeString)
+        self.lblPosition = self.addTextReadOnly('Position',   PhotoInfo.getGPSString)
+        self.lblExposure = self.addTextReadOnly('Exposition', PhotoInfo.getExposureDetails)
 
     def __str__(self) -> str:
         return 'PhotoEditor'

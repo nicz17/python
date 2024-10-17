@@ -46,9 +46,9 @@ class TaskEditor(BaseWidgets.BaseEditor):
         super().createWidgets(parent, 'Task Editor')
 
         # Task attributes
-        self.lblCreated = self.addTextReadOnlyRefl('Created', LogBookTask.getCreatedString)
-        self.lblStatus  = self.addTextReadOnlyRefl('Status', LogBookTask.getStatusName)
-        self.txtTitle   = self.addTextAreaRefl('Title', LogBookTask.getTitle, 2, 42)
+        self.lblCreated = self.addTextReadOnly('Created', LogBookTask.getCreatedString)
+        self.lblStatus  = self.addTextReadOnly('Status', LogBookTask.getStatusName)
+        self.txtTitle   = self.addTextArea('Title', LogBookTask.getTitle, 2, 42)
         self.txtTitle.oWidget.bind("<Return>", self.onSave)
 
         # Buttons: save, cancel
@@ -103,8 +103,8 @@ class StepEditor(BaseWidgets.BaseEditor):
         super().createWidgets(parent, 'Step Editor')
 
         # Step attributes
-        self.lblStatus = self.addTextReadOnlyRefl('Status', LogBookStep.getStatusName)
-        self.txtText   = self.addTextAreaRefl('Text', LogBookStep.getText, 6, 42)
+        self.lblStatus = self.addTextReadOnly('Status', LogBookStep.getStatusName)
+        self.txtText   = self.addTextArea('Text', LogBookStep.getText, 6, 42)
         self.txtText.oWidget.bind("<Return>", self.onSave)
 
         # Buttons: save, cancel

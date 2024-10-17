@@ -119,12 +119,12 @@ class LocationEditor(BaseWidgets.BaseEditor):
         super().createWidgets(parent, 'Location Editor')
 
         # Location attributes
-        self.txtName     = self.addTextRefl('Nom', Location.getName)
-        self.txtDesc     = self.addTextAreaRefl('Description', Location.getDesc, 6)
-        self.txtState    = self.addTextRefl('Pays', Location.getState)
-        self.txtRegion   = self.addTextRefl('Région', Location.getRegion)
+        self.txtName     = self.addText('Nom', Location.getName)
+        self.txtDesc     = self.addTextArea('Description', Location.getDesc, 6)
+        self.txtState    = self.addText('Pays', Location.getState)
+        self.txtRegion   = self.addText('Région', Location.getRegion)
         self.intAltitude = self.addIntInput('Altitude', Location.getAltitude)
-        self.lblPosition = self.addTextReadOnlyRefl('Position', Location.getGPSString)
+        self.lblPosition = self.addTextReadOnly('Position', Location.getGPSString)
 
         # Buttons: save, cancel
         frmButtons = ttk.Frame(self.frmEdit, padding=5)

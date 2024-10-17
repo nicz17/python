@@ -97,40 +97,7 @@ class IntInput(BaseWidget):
     def __str__(self) -> str:
         return 'IntInput'
 
-class TextInput():
-    """A single-line text input widget based on ttk.Entry."""
-    log = logging.getLogger('TextInput')
-
-    def __init__(self, cbkModified):
-        """Constructor with modification callback."""
-        self.log.info('Constructor')
-        self.cbkModified = cbkModified
-
-    def setValue(self, value: str):
-        """Set the string value."""
-        self.oEntry.delete(0, tk.END)
-        if value:
-            self.oEntry.insert(0, value)
-
-    def getValue(self) -> str:
-        """Get the current string value."""
-        return self.oEntry.get().strip()
-        
-    def createWidgets(self, parent: tk.Frame, row: int, col: int):
-        """Create widget in parent frame with grid layout."""
-        self.oEntry = ttk.Entry(parent, width=64)
-        self.oEntry.grid(row=row, column=col, padx=5, sticky='we')
-        if self.cbkModified:
-            self.oEntry.bind('<KeyRelease>', self.cbkModified)
-
-    def enableWidget(self, enabled: bool):
-        """Enable or disable this widget."""
-        enableWidget(self.oEntry, enabled)
-    
-    def __str__(self) -> str:
-        return 'TextInput'
-
-class TextInputRefl(BaseWidget):
+class TextInput(BaseWidget):
     """A single-line text input widget based on ttk.Entry."""
     log = logging.getLogger('TextInput')
 
@@ -159,47 +126,7 @@ class TextInputRefl(BaseWidget):
     def __str__(self) -> str:
         return 'TextInput'
 
-class TextArea():
-    """A multi-line text input widget based on tk.Text."""
-    log = logging.getLogger('TextArea')
-
-    def __init__(self, name: str, nLines=6, cbkModified=None):
-        """Constructor with modification callback."""
-        self.log.info('Constructor for %s', name)
-        self.name = name
-        self.nLines = nLines
-        self.cbkModified = cbkModified
-
-    def setValue(self, value: str):
-        """Set the string value."""
-        self.oText['state'] = tk.NORMAL
-        self.oText.delete(1.0, tk.END)
-        if value:
-            self.oText.insert(1.0, value)
-
-    def getValue(self) -> str:
-        """Get the current string value."""
-        return self.oText.get(1.0, tk.END).strip()
-        
-    def createWidgets(self, parent: tk.Frame, row: int, col: int, width=64):
-        """Create widget in parent frame with grid layout."""
-        self.oText = tk.Text(parent, width=width, height=self.nLines)
-        self.oText.grid(row=row, column=col, padx=4, sticky='we')
-        if self.cbkModified:
-            self.oText.bind("<<Modified>>", self.cbkModified)
-
-    def enableWidget(self, enabled: bool):
-        """Enable or disable this widget."""
-        enableWidget(self.oText, enabled)
-
-    def resetModified(self):
-        """Reset the modified flag."""
-        self.oText.edit_modified(False)
-    
-    def __str__(self) -> str:
-        return f'TextArea for {self.name}'
-
-class TextAreaRefl(BaseWidget):
+class TextArea(BaseWidget):
     """A multi-line text input widget based on tk.Text."""
     log = logging.getLogger('TextArea')
 
@@ -236,32 +163,7 @@ class TextAreaRefl(BaseWidget):
     def __str__(self) -> str:
         return f'TextArea for {self.name}'
 
-class TextReadOnly():
-    """A read-only text widget based on tk.Label."""
-    log = logging.getLogger('TextReadOnly')
-
-    def __init__(self, name: str):
-        """Constructor with attribute name."""
-        self.log.info('Constructor for %s', name)
-        self.name = name
-
-    def setValue(self, value: str):
-        """Set the string value."""
-        self.oLabel.configure(text = (value if value is not None else ''))
-
-    def getValue(self) -> str:
-        """Get the current string value."""
-        return self.oLabel.cget('text')
-        
-    def createWidgets(self, parent: tk.Frame, row: int, col: int):
-        """Create widget in parent frame with grid layout."""
-        self.oLabel = tk.Label(parent)
-        self.oLabel.grid(row=row, column=col, padx=5, sticky='w')
-    
-    def __str__(self) -> str:
-        return f'TextReadOnly for {self.name}'
-
-class TextReadOnlyRefl(BaseWidget):
+class TextReadOnly(BaseWidget):
     """A read-only text widget based on tk.Label."""
     log = logging.getLogger('TextReadOnly')
 
@@ -394,50 +296,26 @@ class BaseEditor():
         self.frmEdit = ttk.LabelFrame(parent, text=title)
         self.frmEdit.pack(side=tk.TOP, anchor=tk.N, fill=tk.X, expand=True, pady=5)
 
-    def addText(self, label: str) -> TextInput:
+    def addText(self, label: str, mtdGetter) -> TextInput:
         """Add a single-line text input."""
         self.addLabel(label)
-        oInput = TextInput(self.onModified)
-        oInput.createWidgets(self.frmEdit, self.row, 1)
-        self.row += 1
-        return oInput
-    
-    def addTextRefl(self, label: str, mtdGetter) -> TextInputRefl:
-        """Add a single-line text input."""
-        self.addLabel(label)
-        oInput = TextInputRefl(self.onModified, mtdGetter)
+        oInput = TextInput(self.onModified, mtdGetter)
         oInput.createWidgets(self.frmEdit, self.row, 1)
         self.addWidget(oInput)
         return oInput
     
-    def addTextArea(self, label: str, nLines: int, width=64) -> TextArea:
+    def addTextArea(self, label: str, mtdGetter, nLines: int, width=64) -> TextArea:
         """Add a multi-line text input."""
         self.addLabel(label)
-        oInput = TextArea(label, nLines, self.onModified)
-        oInput.createWidgets(self.frmEdit, self.row, 1, width)
-        self.row += 1
-        return oInput
-    
-    def addTextAreaRefl(self, label: str, mtdGetter, nLines: int, width=64) -> TextAreaRefl:
-        """Add a multi-line text input."""
-        self.addLabel(label)
-        oInput = TextAreaRefl(label, mtdGetter, nLines, self.onModified)
+        oInput = TextArea(label, mtdGetter, nLines, self.onModified)
         oInput.createWidgets(self.frmEdit, self.row, 1, width)
         self.addWidget(oInput)
         return oInput
     
-    def addTextReadOnly(self, label: str) -> TextReadOnly:
+    def addTextReadOnly(self, label: str, mtdGetter) -> TextReadOnly:
         """Add a read-only text."""
         self.addLabel(label)
-        oInput = TextReadOnly(label)
-        oInput.createWidgets(self.frmEdit, self.row, 1)
-        self.row += 1
-        return oInput
-    
-    def addTextReadOnlyRefl(self, label: str, mtdGetter) -> TextReadOnlyRefl:
-        """Add a read-only text."""
-        self.addLabel(label)
-        oInput = TextReadOnlyRefl(label, mtdGetter)
+        oInput = TextReadOnly(label, mtdGetter)
         oInput.createWidgets(self.frmEdit, self.row, 1)
         self.addWidget(oInput)
         return oInput
