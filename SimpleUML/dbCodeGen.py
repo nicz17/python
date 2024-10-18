@@ -23,70 +23,85 @@ class DatabaseCodeGen():
     """Parse a MySQL table structure to generate a class."""
     log = logging.getLogger('DatabaseCodeGen')
 
-    def __init__(self, lang: str) -> None:
-        """Constructor with language."""
+    def __init__(self, lang: str, table: str) -> None:
+        """Constructor with language and database table."""
         self.lang = lang
-        self.clss: SimpleUMLClass
+        self.table = table
+        self.prefix = None
+        self.fields = []
         self.log.info(self)
 
-    def parse(self, dbName: str, table: str):
+    def parse(self, dbName: str):
         """Parse the specified database table."""
-        self.log.info('Parsing %s.%s', dbName, table)
+        self.log.info('Parsing %s.%s', dbName, self.table)
+
+        # Get table structure from DB
+        db = self.connectToDb(dbName)
+        sql = f'describe {dbName}.{self.table}'
+        rows = db.fetch(sql)
+        for row in rows:
+            self.log.info(row)
+            self.fields.append(DatabaseField(row[0], row[1], row[2], row[3]))
+        db.disconnect()
+
+        # Find the table prefix
+        self.prefix = self.getPrefix()
+        self.log.info('Table prefix is %s', self.prefix)
+
+    def generateModel(self):
+        """Generate a python module with the object and cache classes."""
+        table = self.table
 
         # Create module and class
         module = SimpleUMLPythonModule(TextTools.lowerCaseFirst(table))
         module.addImport('config')
         module.addImport('Database')
-        module.addImport('BaseWidgets')
-        self.clss = SimpleUMLClassPython()
-        self.clss.setName(table)
-        module.addClass(self.clss)
-
-        # Get table structure from DB
-        db = self.connectToDb(dbName)
-        sql = f'describe {dbName}.{table}'
-        rows = db.fetch(sql)
-        fields = []
-        for row in rows:
-            self.log.info(row)
-            fields.append(DatabaseField(row[0], row[1], row[2], row[3]))
-        db.disconnect()
-
-        # Find the table prefix
-        prefix = self.getPrefix(fields)
-        self.log.info('Table prefix is %s', prefix)
+        clss = SimpleUMLClassPython()
+        clss.setName(table)
+        module.addClass(clss)
 
         # Add the Constructor
         members = []
         field: DatabaseField
-        for field in fields:
-            name = field.getPythonName(prefix)
+        for field in self.fields:
+            name = field.getPythonName(self.prefix)
             type = field.getPythonType()
             members.append(SimpleUMLParam(name, type))
-        self.clss.addMethod(table, members, None, False)
+        clss.addMethod(table, members, None, False)
 
         # Add getters and setters
-        for field in fields:
-            name = field.getPythonName(prefix)
+        for field in self.fields:
+            name = field.getPythonName(self.prefix)
             type = field.getPythonType()
             ucName = TextTools.upperCaseFirst(name)
-            self.clss.addMember(name, type)
-            self.clss.addMethod(f'get{ucName}', None, type, False)
+            clss.addMember(name, type)
+            clss.addMethod(f'get{ucName}', None, type, False)
             if not field.isPrimaryKey():
-                self.clss.addMethod(f'set{ucName}', [SimpleUMLParam(name, type)], None, False)
+                clss.addMethod(f'set{ucName}', [SimpleUMLParam(name, type)], None, False)
 
         # Generate the Cache class
-        module.addClass(self.createCache(table, fields, prefix))
-
-        # Generate the Editor class
-        module.addClass(self.createEditor(table, fields, prefix))
+        module.addClass(self.createCache())
 
         # Write the module
         module.generate()
 
-    def createCache(self, table: str, fields, prefix: str) -> SimpleUMLClassPython:
+    def generateUserInterface(self):
+        """Generate a python module with the table and editor classes."""
+        table = self.table
+
+        # Create module and class
+        module = SimpleUMLPythonModule(f'module{table}')
+        module.addImport('BaseWidgets')
+
+        # Generate the Editor class
+        module.addClass(self.createEditor())
+
+        # Write the module
+        module.generate()
+
+    def createCache(self) -> SimpleUMLClassPython:
         """Create a class for caching the table records."""
-        name = TextTools.upperCaseFirst(table) + 'Cache'
+        name = TextTools.upperCaseFirst(self.table) + 'Cache'
         self.log.info('Generating %s', name)
 
         # Cache class and its constructor
@@ -95,34 +110,34 @@ class DatabaseCodeGen():
         clss.addMethod(name, None, None, False)
 
         # Array to store fetched records
-        sCollName = TextTools.lowerCaseFirst(table) + 's'
+        sCollName = TextTools.lowerCaseFirst(self.table) + 's'
         clss.addMember(sCollName, 'array')
 
         # Database fetch method
-        sFieldNames = ', '.join([field.name for field in fields])
-        sNameField = f'{prefix}Name'
+        sFieldNames = ', '.join([field.name for field in self.fields])
+        sNameField = f'{self.prefix}Name'
         oLoad = clss.addMethod('load', None, None, False)
-        oLoad.setDoc(f'Fetch and store the {table} records.')
+        oLoad.setDoc(f'Fetch and store the {self.table} records.')
         oLoad.addCodeLine('db = Database.Database(config.dbName)')
         oLoad.addCodeLine('db.connect(config.dbUser, config.dbPass)')
-        oLoad.addCodeLine(f'query = Database.Query("{table}")')
-        oLoad.addCodeLine(f'query.add("select {sFieldNames} from {table}")')
+        oLoad.addCodeLine(f'query = Database.Query("{self.table}")')
+        oLoad.addCodeLine(f'query.add("select {sFieldNames} from {self.table}")')
         field: DatabaseField
-        for field in fields:
+        for field in self.fields:
             if field.name == sNameField or 'name' in field.name:
                 oLoad.addCodeLine(f'query.add(" order by {field.name} asc")')
                 break
         oLoad.addCodeLine('rows = db.fetch(query.getSQL())')
         oLoad.addCodeLine('for row in rows:')
-        oLoad.addCodeLine(f'    self.{sCollName}.append({table}(*row))')
+        oLoad.addCodeLine(f'    self.{sCollName}.append({self.table}(*row))')
         oLoad.addCodeLine('db.disconnect()')
         oLoad.addCodeLine('query.close()')
 
         # Find-by-id method
         params = [SimpleUMLParam('idx', 'int')]
-        oMeth = clss.addMethod('findById', params, table, False)
-        oMeth.setDoc(f'Find a {table} from its primary key.')
-        oMeth.addCodeLine(f'item: {table}')
+        oMeth = clss.addMethod('findById', params, self.table, False)
+        oMeth.setDoc(f'Find a {self.table} from its primary key.')
+        oMeth.addCodeLine(f'item: {self.table}')
         oMeth.addCodeLine(f'for item in self.{sCollName}:')
         oMeth.addCodeLine('    if item.idx == idx:')
         oMeth.addCodeLine('        return item')
@@ -130,9 +145,9 @@ class DatabaseCodeGen():
 
         # Find-by-name method
         params = [SimpleUMLParam('name', 'str')]
-        oMeth = clss.addMethod('findByName', params, table, False)
-        oMeth.setDoc(f'Find a {table} from its unique name.')
-        oMeth.addCodeLine(f'item: {table}')
+        oMeth = clss.addMethod('findByName', params, self.table, False)
+        oMeth.setDoc(f'Find a {self.table} from its unique name.')
+        oMeth.addCodeLine(f'item: {self.table}')
         oMeth.addCodeLine(f'for item in self.{sCollName}:')
         oMeth.addCodeLine('    if item.name == name:')
         oMeth.addCodeLine('        return item')
@@ -140,10 +155,10 @@ class DatabaseCodeGen():
 
         return clss
 
-    def createEditor(self, table: str, fields, prefix: str) -> SimpleUMLClassPython:
+    def createEditor(self) -> SimpleUMLClassPython:
         """Create a class for editing the table records."""
-        name = f'{table}Editor'
-        nameObject = TextTools.lowerCaseFirst(table)
+        name = f'{self.table}Editor'
+        nameObject = TextTools.lowerCaseFirst(self.table)
         self.log.info('Generating %s', name)
 
         # Cache class and its constructor
@@ -159,15 +174,15 @@ class DatabaseCodeGen():
         params = [SimpleUMLParam('parent', 'tk.Frame')]
         oMeth = clss.addMethod('createWidgets', params, None, False)
         oMeth.setDoc('Add the editor widgets to the parent widget.')
-        oMeth.addCodeLine(f'super().createWidgets(parent, \'{table} Editor\')')
+        oMeth.addCodeLine(f'super().createWidgets(parent, \'{self.table} Editor\')')
         oMeth.addCodeLine('')
         field: DatabaseField
-        for field in fields:
+        for field in self.fields:
             if field.isPrimaryKey():
                 continue
-            nameField = TextTools.upperCaseFirst(field.getPythonName(prefix).replace('idx', ''))
+            nameField = TextTools.upperCaseFirst(field.getPythonName(self.prefix).replace('idx', ''))
             nameWidget = f'wid{nameField}'
-            nameGetter = f'{table}.get{nameField}'
+            nameGetter = f'{self.table}.get{nameField}'
             oMeth.addCodeLine(f'self.{nameWidget} = self.add{field.getEditionKind()}(\'{nameField}\', {nameGetter})')
         oMeth.addCodeLine('')
         oMeth.addCodeLine('self.createButtons(True, True, False)')
@@ -175,13 +190,13 @@ class DatabaseCodeGen():
 
         return clss
 
-    def getPrefix(self, fields) -> str:
+    def getPrefix(self) -> str:
         """Find the largest common prefix to the specified DB fields."""
         field: DatabaseField
         for len in range(7, 1, -1):
             prefix = ''
             found = True
-            for field in fields:
+            for field in self.fields:
                 if not field.isPrimaryKey():
                     if prefix == '':
                         prefix = field.name[:len]
@@ -244,8 +259,10 @@ def main():
     
     if (dOptions['table']):
         log.info('Parsing table %s to generate %s code', dOptions['table'], dOptions['lang'])
-        parser = DatabaseCodeGen(dOptions['lang'])
-        parser.parse(dOptions['db'], dOptions['table'])
+        generator = DatabaseCodeGen(dOptions['lang'], dOptions['table'])
+        generator.parse(dOptions['db'])
+        generator.generateModel()
+        generator.generateUserInterface()
     else:
         log.error('Please enter a table name with -t')
 
