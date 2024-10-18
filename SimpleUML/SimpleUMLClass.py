@@ -56,7 +56,7 @@ class SimpleUMLMethod():
 
     def addCodeLine(self, line: str):
         """Add the specified code to this method."""
-        if line:
+        if line is not None:
             self.codeLines.append(line)
 
     def getDoc(self) -> str:
@@ -90,12 +90,17 @@ class SimpleUMLClass():
         """Constructor."""
         self.log.info('Constructor')
         self.name = None
+        self.super = None
         self.members = []
         self.methods = []
 
     def setName(self, name: str):
         """Define the class name."""
         self.name = name
+
+    def setSuperClass(self, name: str):
+        """Define the super-class."""
+        self.super = name
 
     def addMember(self, name: str, type = None):
         """Add a class member of the specified name and type."""
@@ -162,7 +167,8 @@ class SimpleUMLClassPython(SimpleUMLClass):
             file.newline(2)
 
         # Class declaration
-        file.write(f'class {self.name}():')
+        sSuperClass = '' if self.super is None else self.super
+        file.write(f'class {self.name}({sSuperClass}):')
         file.addDoc(f'Class {self.name}', 1)
         file.write(f'log = logging.getLogger("{self.name}")', 1)
         file.newline()
@@ -184,6 +190,8 @@ class SimpleUMLClassPython(SimpleUMLClass):
             if method.isConstructor(self.name):
                 file.write(f'def __init__({params}):', 1)
                 file.addDoc('Constructor.', 2)
+                for line in method.codeLines:
+                    file.write(line, 2)
                 member: SimpleUMLMember
                 for member in self.members:
                     if member.name in params:

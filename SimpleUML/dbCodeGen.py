@@ -37,6 +37,7 @@ class DatabaseCodeGen():
         module = SimpleUMLPythonModule(TextTools.lowerCaseFirst(table))
         module.addImport('config')
         module.addImport('Database')
+        module.addImport('BaseWidgets')
         self.clss = SimpleUMLClassPython()
         self.clss.setName(table)
         module.addClass(self.clss)
@@ -76,6 +77,9 @@ class DatabaseCodeGen():
 
         # Generate the Cache class
         module.addClass(self.createCache(table, fields, prefix))
+
+        # Generate the Editor class
+        module.addClass(self.createEditor(table, fields, prefix))
 
         # Write the module
         module.generate()
@@ -133,6 +137,41 @@ class DatabaseCodeGen():
         oMeth.addCodeLine('    if item.name == name:')
         oMeth.addCodeLine('        return item')
         oMeth.addCodeLine('return None')
+
+        return clss
+
+    def createEditor(self, table: str, fields, prefix: str) -> SimpleUMLClassPython:
+        """Create a class for editing the table records."""
+        name = f'{table}Editor'
+        nameObject = TextTools.lowerCaseFirst(table)
+        self.log.info('Generating %s', name)
+
+        # Cache class and its constructor
+        params = [SimpleUMLParam('cbkSave', None)]
+        clss = SimpleUMLClassPython()
+        clss.setName(name)
+        clss.setSuperClass('BaseWidgets.BaseEditor')
+        oConstr = clss.addMethod(name, params, None, False)
+        oConstr.addCodeLine('super().__init__(cbkSave)')
+        oConstr.addCodeLine(f'self.{nameObject} = None')
+
+        # createWidgets method
+        params = [SimpleUMLParam('parent', 'tk.Frame')]
+        oMeth = clss.addMethod('createWidgets', params, None, False)
+        oMeth.setDoc('Add the editor widgets to the parent widget.')
+        oMeth.addCodeLine(f'super().createWidgets(parent, \'{table} Editor\')')
+        oMeth.addCodeLine('')
+        field: DatabaseField
+        for field in fields:
+            if field.isPrimaryKey():
+                continue
+            nameField = TextTools.upperCaseFirst(field.getPythonName(prefix).replace('idx', ''))
+            nameWidget = f'wid{nameField}'
+            nameGetter = f'{table}.get{nameField}'
+            oMeth.addCodeLine(f'self.{nameWidget} = self.add{field.getEditionKind()}(\'{nameField}\', {nameGetter})')
+        oMeth.addCodeLine('')
+        oMeth.addCodeLine('self.createButtons(True, True, False)')
+        oMeth.addCodeLine('self.enableWidgets()')
 
         return clss
 
