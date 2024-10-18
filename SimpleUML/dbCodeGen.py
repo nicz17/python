@@ -48,17 +48,44 @@ class DatabaseCodeGen():
         self.prefix = self.getPrefix()
         self.log.info('Table prefix is %s', self.prefix)
 
-    def generateModel(self):
+    def generateModuleModel(self):
         """Generate a python module with the object and cache classes."""
         table = self.table
 
-        # Create module and class
+        # Create module
         module = SimpleUMLPythonModule(TextTools.lowerCaseFirst(table))
         module.addImport('config')
         module.addImport('Database')
+
+        # Generate the Object and Cache classes
+        module.addClass(self.generateClassObject())
+        module.addClass(self.generateClassCache())
+
+        # Write the module
+        module.generate()
+
+    def generateModuleUserInterface(self):
+        """Generate a python module with the table and editor classes."""
+        table = self.table
+
+        # Create module
+        module = SimpleUMLPythonModule(f'module{table}')
+        module.addImport('BaseTable')
+        module.addImport('BaseWidgets')
+        module.addImport(f'from {TextTools.lowerCaseFirst(table)} import {table}, {table}Cache')
+        module.setGenerateTests(False)
+
+        # Generate the Table and Editor class
+        module.addClass(self.generateClassTable())
+        module.addClass(self.generateClassEditor())
+
+        # Write the module
+        module.generate()
+
+    def generateClassObject(self) -> SimpleUMLClassPython:
+        """Create a class representing the table records."""
         clss = SimpleUMLClassPython()
-        clss.setName(table)
-        module.addClass(clss)
+        clss.setName(self.table)
 
         # Add the Constructor
         members = []
@@ -67,7 +94,7 @@ class DatabaseCodeGen():
             name = field.getPythonName(self.prefix)
             type = field.getPythonType()
             members.append(SimpleUMLParam(name, type))
-        clss.addMethod(table, members, None, False)
+        clss.addMethod(self.table, members, None, False)
 
         # Add getters and setters
         for field in self.fields:
@@ -79,29 +106,9 @@ class DatabaseCodeGen():
             if not field.isPrimaryKey():
                 clss.addMethod(f'set{ucName}', [SimpleUMLParam(name, type)], None, False)
 
-        # Generate the Cache class
-        module.addClass(self.createCache())
+        return clss
 
-        # Write the module
-        module.generate()
-
-    def generateUserInterface(self):
-        """Generate a python module with the table and editor classes."""
-        table = self.table
-
-        # Create module and class
-        module = SimpleUMLPythonModule(f'module{table}')
-        module.addImport('BaseWidgets')
-        module.addImport(f'from {TextTools.lowerCaseFirst(table)} import {table}, {table}Cache')
-        module.setGenerateTests(False)
-
-        # Generate the Editor class
-        module.addClass(self.createEditor())
-
-        # Write the module
-        module.generate()
-
-    def createCache(self) -> SimpleUMLClassPython:
+    def generateClassCache(self) -> SimpleUMLClassPython:
         """Create a class for caching the table records."""
         name = TextTools.upperCaseFirst(self.table) + 'Cache'
         self.log.info('Generating %s', name)
@@ -157,7 +164,25 @@ class DatabaseCodeGen():
 
         return clss
 
-    def createEditor(self) -> SimpleUMLClassPython:
+    def generateClassTable(self) -> SimpleUMLClassPython:
+        """Create a class for displaying records in a table."""
+        name = f'{self.table}Table'
+        nameObject = TextTools.lowerCaseFirst(self.table)
+        self.log.info('Generating %s', name)
+
+        # Table class
+        clss = SimpleUMLClassPython()
+        clss.setName(name)
+        clss.setSuperClass('BaseTable')
+
+        # Constructor
+        params = [SimpleUMLParam('cbkSelect', None)]
+        oConstr = clss.addMethod(name, params, None, False)
+        oConstr.addCodeLine('super().__init__(cbkSelect)')
+
+        return clss
+
+    def generateClassEditor(self) -> SimpleUMLClassPython:
         """Create a class for editing the table records."""
         name = f'{self.table}Editor'
         nameObject = TextTools.lowerCaseFirst(self.table)
@@ -263,8 +288,8 @@ def main():
         log.info('Parsing table %s to generate %s code', dOptions['table'], dOptions['lang'])
         generator = DatabaseCodeGen(dOptions['lang'], dOptions['table'])
         generator.parse(dOptions['db'])
-        generator.generateModel()
-        generator.generateUserInterface()
+        generator.generateModuleModel()
+        generator.generateModuleUserInterface()
     else:
         log.error('Please enter a table name with -t')
 
