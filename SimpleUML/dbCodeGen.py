@@ -92,6 +92,8 @@ class DatabaseCodeGen():
         # Create module and class
         module = SimpleUMLPythonModule(f'module{table}')
         module.addImport('BaseWidgets')
+        module.addImport(f'from {TextTools.lowerCaseFirst(table)} import {table}, {table}Cache')
+        module.setGenerateTests(False)
 
         # Generate the Editor class
         module.addClass(self.createEditor())

@@ -248,6 +248,8 @@ class SimpleUMLClassPython(SimpleUMLClass):
 
         if bStandAlone:
             self.generateTestingCode(file)
+            self.generateDefaultMain(file)
+            self.generateCallTest(file)
             file.close()
 
     def generateTestingCode(self, file: CodeFilePython = None):
@@ -267,12 +269,15 @@ class SimpleUMLClassPython(SimpleUMLClass):
             file.write('obj.log.info(obj.toJson())', 1)
         file.newline()
 
-        # Logging config and call the test
+    def generateDefaultMain(self, file: CodeFilePython):
+        """Generate a default main with logging config"""
         file.write("if __name__ == '__main__':")
         file.write('logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",', 1)
         file.write('level=logging.INFO, handlers=[logging.StreamHandler()])', 2)
+
+    def generateCallTest(self, file: CodeFilePython):
+        """Call the test method"""
         file.write(f'test{self.name}()', 1)
-        file.newline()
 
     def getDefaultValue(self, type: str, name: str) -> str:
         """Get a default value for the specified type."""
@@ -484,6 +489,7 @@ class SimpleUMLPythonModule():
     def __init__(self, name: str) -> None:
         """Constructor."""
         self.name = name
+        self.bGenerateTests = True
         self.classes = []
         self.imports = ['logging']
 
@@ -494,6 +500,10 @@ class SimpleUMLPythonModule():
     def addImport(self, name: str):
         """Import the specified module."""
         self.imports.append(name)
+
+    def setGenerateTests(self, bGenerate):
+        """Set flag to generate test methods in this module."""
+        self.bGenerateTests = bGenerate
 
     def generate(self):
         """Generate the code."""
@@ -512,7 +522,10 @@ class SimpleUMLPythonModule():
 
         # Imports
         for moduleName in self.imports:
-            file.write(f'import {moduleName}')
+            if moduleName.startswith('from '):
+                file.write(moduleName)
+            else:
+                file.write(f'import {moduleName}')
         file.newline(2)
 
         # Generate classes code
@@ -521,8 +534,14 @@ class SimpleUMLPythonModule():
             clss.generate(file)
 
         # Generate testing code
-        for clss in self.classes:
-            clss.generateTestingCode(file)
+        if self.bGenerateTests:
+            for clss in self.classes:
+                clss.generateTestingCode(file)
+            if len(self.classes) > 0:
+                clss = self.classes[0]
+                clss.generateDefaultMain(file)
+            for clss in self.classes:
+                clss.generateCallTest(file)
 
         file.close()
 
