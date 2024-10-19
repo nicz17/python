@@ -19,6 +19,8 @@ class DatabaseField():
         self.role = role
         self.size = 0
         self.nullable = nullable
+        if self.type.startswith('varchar('):
+            self.size = int(self.type.replace('varchar(', '').replace(')', ''))
 
     def getPythonName(self, prefix: str):
         """Get the python name"""

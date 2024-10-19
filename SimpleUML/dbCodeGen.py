@@ -70,7 +70,7 @@ class DatabaseCodeGen():
 
         # Create module
         module = SimpleUMLPythonModule(f'module{table}')
-        module.addImport('BaseTable')
+        module.addImport('from BaseTable import *')
         module.addImport('BaseWidgets')
         module.addImport(f'from {TextTools.lowerCaseFirst(table)} import {table}, {table}Cache')
         module.setGenerateTests(False)
@@ -167,8 +167,16 @@ class DatabaseCodeGen():
     def generateClassTable(self) -> SimpleUMLClassPython:
         """Create a class for displaying records in a table."""
         name = f'{self.table}Table'
-        nameObject = TextTools.lowerCaseFirst(self.table)
         self.log.info('Generating %s', name)
+        nameObject = TextTools.lowerCaseFirst(self.table)
+
+        # Table columns
+        colNames = [ ]
+        field: DatabaseField
+        for field in self.fields:
+            if not (field.isPrimaryKey() or field.size > 64):
+                colNames.append(field.getPythonName(self.prefix))
+        sColNames = "', '".join(colNames)
 
         # Table class
         clss = SimpleUMLClassPython()
@@ -178,7 +186,16 @@ class DatabaseCodeGen():
         # Constructor
         params = [SimpleUMLParam('cbkSelect', None)]
         oConstr = clss.addMethod(name, params, None, False)
-        oConstr.addCodeLine('super().__init__(cbkSelect)')
+        oConstr.addCodeLine(f'super().__init__(self.onRowSelection, "{nameObject}s")')
+        oConstr.addCodeLine('self.data = []')
+        oConstr.addCodeLine('self.cbkSelect = cbkSelect')
+        oConstr.addCodeLine(f"self.columns = ('{sColNames}')")
+
+        # createWidgets method
+        params = [SimpleUMLParam('parent', 'tk.Frame')]
+        oMeth = clss.addMethod('createWidgets', params, None, False)
+        oMeth.setDoc('Create user widgets.')
+        oMeth.addCodeLine('super().createWidgets(parent, self.columns)')
 
         return clss
 
