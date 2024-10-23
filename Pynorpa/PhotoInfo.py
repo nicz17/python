@@ -42,6 +42,10 @@ class PhotoInfo:
         """Get the shot-at timestamp of this photo as a string."""
         return DateTools.timestampToString(self.tShotAt)
     
+    def getShotAt(self) -> float:
+        """Get the shot-at timestamp of this photo as a float."""
+        return self.tShotAt
+    
     def getSizeString(self) -> str:
         """Get the size as width x height string, in pixels."""
         return f'{self.width}x{self.height} px'

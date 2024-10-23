@@ -9,6 +9,7 @@ __version__ = "1.0.0"
 import logging
 import tkinter as tk
 from tkinter import ttk
+import DateTools
 
         
 def enableWidget(widget: tk.Widget, enabled: bool):
@@ -104,6 +105,7 @@ class TextInput(BaseWidget):
     def __init__(self, cbkModified, mtdGetter):
         """Constructor with modification callback."""
         super().__init__(cbkModified, mtdGetter)
+        self.nChars = 64
 
     def setValue(self, object):
         """Set the string value."""
@@ -118,13 +120,37 @@ class TextInput(BaseWidget):
         
     def createWidgets(self, parent: tk.Frame, row: int, col: int):
         """Create widget in parent frame with grid layout."""
-        self.oWidget = ttk.Entry(parent, width=64)
+        self.oWidget = ttk.Entry(parent, width=self.nChars)
         self.oWidget.grid(row=row, column=col, padx=5, sticky='we')
         if self.cbkModified:
             self.oWidget.bind('<KeyRelease>', self.cbkModified)
     
     def __str__(self) -> str:
         return 'TextInput'
+    
+class DateTime(TextInput):
+    """A text input widget displaying a float value as date and time."""
+    log = logging.getLogger('DateTime')
+
+    def __init__(self, cbkModified, mtdGetter):
+        """Constructor with modification callback."""
+        super().__init__(cbkModified, mtdGetter)
+        self.nChars = 20
+
+    def setValue(self, object):
+        """Set the string value."""
+        self.oWidget.delete(0, tk.END)
+        fvalue = self.getObjectValue(object)
+        if fvalue:
+            self.oWidget.insert(0, DateTools.timestampToString(fvalue))
+
+    def getValue(self) -> str:
+        """Get the current timestamp value."""
+        svalue = self.oWidget.get().strip()
+        return DateTools.stringToTimestamp(svalue)
+    
+    def __str__(self) -> str:
+        return 'DateTime'
 
 class TextArea(BaseWidget):
     """A multi-line text input widget based on tk.Text."""
@@ -373,6 +399,14 @@ class BaseEditor():
         oCheckBox.createWidgets(self.frmEdit, self.row, 1)
         self.addWidget(oCheckBox)
         return oCheckBox
+
+    def addDateTime(self, label: str, mtdGetter) -> DateTime:
+        """Add a single-line date-time input."""
+        self.addLabel(label)
+        oInput = DateTime(self.onModified, mtdGetter)
+        oInput.createWidgets(self.frmEdit, self.row, 1)
+        self.addWidget(oInput)
+        return oInput
 
     def addLabel(self, label: str):
         """Add an attribute label at the specified row."""
