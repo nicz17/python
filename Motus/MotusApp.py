@@ -88,7 +88,7 @@ class MotusApp(BaseApp):
             isValid = True
             if not self.guess.word() in self.words:
                 isValid = False
-                self.log.error('Invalid guess %s: unknown word', self.guess)
+                self.log.error('Invalid guess %s: unknown word', self.guess.word())
                 for letter in self.guess.letters:
                     letter.status = LetterStatus.Invalid
             else:
@@ -107,11 +107,18 @@ class MotusApp(BaseApp):
 
             if isValid:
                 if self.word == self.guess.word():
+                    # Success: word found
                     self.gameOver(True)
                 elif len(self.guesses) < self.gridH:
+                    # Not found yet, try again
                     self.newGuess()
                 else:
+                    # Failed: not found, no more guesses
                     self.gameOver(False)
+            else:
+                # Unknown word
+                msg = f'Le mot {self.guess.word()} n\'est pas connu du jeu!'
+                messagebox.showerror(title='Motus', message=msg)
         else:
             self.log.error('Trying to validate incomplete guess %s', self.guess)
 

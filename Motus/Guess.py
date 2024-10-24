@@ -5,6 +5,7 @@ Each letter may be correct, close, or wrong.
 """
 
 from enum import Enum
+import logging
 
 class LetterStatus(Enum):
     """Enum of status for guess letters."""
@@ -23,13 +24,17 @@ class Letter:
         self.status = LetterStatus.Pending
     
 class Guess:
+    log = logging.getLogger("Guess")
+
     def __init__(self) -> None:
+        """No-arg constructor."""
         self.letters = []
 
     def addLetter(self, letter: str):
         """Adds a letter to this guess."""
         if not self.isComplete():
             self.letters.append(Letter(letter))
+        return self
 
     def delete(self):
         """Deletes the last letter from this guess."""
@@ -39,21 +44,34 @@ class Guess:
                 letter.status = LetterStatus.Pending
 
     def isComplete(self):
-        """Cecks if all letters are defined."""
+        """Checks if all letters are defined."""
         return self.size() == 5
     
     def size(self):
+        """Returns the letter count."""
         return len(self.letters)
     
     def word(self) -> str:
-        word = ''
-        for letter in self.letters:
-            word += letter.char
-        return word
+        """Combines the letters to form a word."""
+        return ''.join(letter.char for letter in self.letters)
     
     def __iter__(self):
+        """Iterates on our letters."""
         for letter in self.letters:
             yield letter
     
     def __str__(self):
-        return self.word()
+        return f'Guess {self.word()}'
+    
+
+def testGuess():
+    """Simple unit test"""
+    guess = Guess()
+    guess.addLetter('B').addLetter('R').addLetter('A').addLetter('V').addLetter('O')
+    guess.log.info('%s is complete: %s', guess, guess.isComplete())
+    guess.log.info(guess.word())
+
+if __name__ == '__main__':
+    logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",
+        level=logging.INFO, handlers=[logging.StreamHandler()])
+    testGuess()
