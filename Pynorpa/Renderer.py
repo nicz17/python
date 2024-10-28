@@ -30,10 +30,8 @@ class Renderer:
     def drawTasks(self, tasks):
         """Draw the specified tasks on the canvas."""
         self.canvas.delete('all')
-        iTask = 0
-        for task in tasks:
-            self.drawTask(task, iTask)
-            iTask += 1
+        for count, task in enumerate(tasks):
+            self.drawTask(task, count)
 
     def drawTask(self, task: Task, iTask: int):
         """Draw the specified task on the canvas."""

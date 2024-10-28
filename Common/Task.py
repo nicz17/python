@@ -31,6 +31,7 @@ class Task:
             self.status = 'Running'
         if self.nStepsDone >= self.nStepsTotal:
             self.status = 'Done'
+            self.onDone()
 
     def setDesc(self, desc: str):
         self.desc = desc
@@ -44,6 +45,10 @@ class Task:
     def isOver(self):
         """Check if this task is done."""
         return self.nStepsDone >= self.nStepsTotal
+    
+    def onDone(self):
+        """Called when this task is done."""
+        pass
 
     def __str__(self):
         str = f'Task {self.title} at {self.nStepsDone}/{self.nStepsTotal}'

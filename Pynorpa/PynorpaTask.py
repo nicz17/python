@@ -20,6 +20,7 @@ class PynorpaTask(Task):
     def __init__(self, title: str, desc: str, nStepsTotal: int):
         super().__init__(title, desc, nStepsTotal)
         self.tStart = None
+        self.tEnd   = None
 
     def prepare(self):
         """Prepare this task. Must be done before running."""
@@ -29,6 +30,10 @@ class PynorpaTask(Task):
         """Run this task."""
         self.tStart = time.time()
         self.log.info('Running')
+
+    def onDone(self):
+        if not self.tEnd:
+            self.tEnd = time.time()
 
     def getStatus(self) -> str:
         sLeft = self.getRemainingTime()
@@ -43,7 +48,10 @@ class PynorpaTask(Task):
             if nDone < nTotal:
                 tUsed = time.time() - self.tStart
                 tLeft = (nTotal - nDone)*tUsed/nDone
-                result = TextTools.durationToString(tLeft) + ' remaining'
+                result = f'{TextTools.durationToString(tLeft)} remaining'
+            elif nDone >= nTotal and self.tEnd:
+                tUsed = self.tEnd - self.tStart
+                result = f'in {TextTools.durationToString(tUsed)}'
         return result
 
 
