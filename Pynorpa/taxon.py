@@ -131,14 +131,8 @@ class Taxon():
         return data
 
     def __str__(self):
-        str = "Taxon"
-        str += f' idx: {self.idx}'
-        str += f' name: {self.name}'
-        str += f' nameFr: {self.nameFr}'
-        str += f' rank: {self.rank.name}'
-        str += f' parent: {self.parent}'
-        str += f' order: {self.order}'
-        str += f' typical: {self.typical}'
+        str = f'Taxon {self.idx} {self.name} -- {self.nameFr} {self.rank.name}'
+        str += f' parent: {self.parent} order: {self.order} typical: {self.typical}'
         return str
 
 
@@ -178,6 +172,23 @@ class TaxonCache():
                 else:
                     self.log.error('Could not find parent of %s', taxon)
 
+    def fetchFromWhere(self, where: str):
+        """Fetch Taxon records from a SQL where-clause. Return a list of ids."""
+        result = []
+        self.log.info(f'Fetching from Taxon where {where}')
+        db = Database.Database(config.dbName)
+        db.connect(config.dbUser, config.dbPass)
+        query = Database.Query('Taxon')
+        query.add(f'select idxTaxon from Taxon where {where}')
+        query.add('order by taxOrder asc, taxName asc')
+        rows = db.fetch(query.getSQL())
+        for row in rows:
+            result.append(row[0])
+        query.close()
+        db.disconnect()
+        self.log.info(f'Fetched {len(self.dictById)} taxa from DB where {where}')
+        return result
+
     def getTopLevelTaxa(self):
         """Get all taxa without parent."""
         return self.topLevel
@@ -195,7 +206,7 @@ class TaxonCache():
         return None
 
     def __str__(self):
-        str = f'TaxonCache with {len(self.dictById)} taxons'
+        str = f'TaxonCache with {len(self.dictById)} taxa'
         return str
 
 
@@ -207,10 +218,16 @@ def testTaxonCache():
     tax: Taxon
     for tax in cache.getTopLevelTaxa():
         cache.log.info('Top-level: %s', tax)
+    where = "taxName like '%anth%pe%'"
+    ids = cache.fetchFromWhere(where)
+    for idx in ids:
+        taxon = cache.findById(idx)
+        if taxon:
+            cache.log.info(taxon)
 
 def testReflection():
     """Simple reflection test"""
-    taxon = Taxon(42, 'Test42', 'Bingo', 'NoRank', None, 1, False)
+    taxon = Taxon(42, 'Test42', 'Bingo', 'FAMILY', None, 1, False)
     mtdGetter = Taxon.getNameFr
     result = mtdGetter(taxon)
     taxon.log.info(result)
