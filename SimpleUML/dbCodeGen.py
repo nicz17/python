@@ -71,11 +71,13 @@ class DatabaseCodeGen():
         # Create module
         module = SimpleUMLPythonModule(f'module{table}')
         module.addImport('from BaseTable import *')
+        module.addImport('from TabsApp import *')
         module.addImport('BaseWidgets')
         module.addImport(f'from {TextTools.lowerCaseFirst(table)} import {table}, {table}Cache')
         module.setGenerateTests(False)
 
-        # Generate the Table and Editor class
+        # Generate the TabModule, Table and Editor class
+        module.addClass(self.generateClassTabModule())
         module.addClass(self.generateClassTable())
         module.addClass(self.generateClassEditor())
 
@@ -116,19 +118,24 @@ class DatabaseCodeGen():
         # Cache class and its constructor
         clss = SimpleUMLClassPython()
         clss.setName(name)
-        clss.addMethod(name, None, None, False)
+        oConstr = clss.addMethod(name, None, None, False)
+        oConstr.addCodeLine('self.db = Database.Database(config.dbName)')
 
         # Array to store fetched records
         sCollName = TextTools.lowerCaseFirst(self.table) + 's'
         clss.addMember(sCollName, 'array')
+
+        # getArray method
+        oGet = clss.addMethod(f'get{self.table}s', None, None, False)
+        oGet.setDoc('Return all objects in cache.')
+        oGet.addCodeLine(f'return self.{sCollName}')
 
         # Database fetch method
         sFieldNames = ', '.join([field.name for field in self.fields])
         sNameField = f'{self.prefix}Name'
         oLoad = clss.addMethod('load', None, None, False)
         oLoad.setDoc(f'Fetch and store the {self.table} records.')
-        oLoad.addCodeLine('db = Database.Database(config.dbName)')
-        oLoad.addCodeLine('db.connect(config.dbUser, config.dbPass)')
+        oLoad.addCodeLine('self.db.connect(config.dbUser, config.dbPass)')
         oLoad.addCodeLine(f'query = Database.Query("{self.table}")')
         oLoad.addCodeLine(f'query.add("select {sFieldNames} from {self.table}")')
         field: DatabaseField
@@ -136,11 +143,25 @@ class DatabaseCodeGen():
             if field.name == sNameField or 'name' in field.name:
                 oLoad.addCodeLine(f'query.add(" order by {field.name} asc")')
                 break
-        oLoad.addCodeLine('rows = db.fetch(query.getSQL())')
+        oLoad.addCodeLine('rows = self.db.fetch(query.getSQL())')
         oLoad.addCodeLine('for row in rows:')
         oLoad.addCodeLine(f'    self.{sCollName}.append({self.table}(*row))')
-        oLoad.addCodeLine('db.disconnect()')
+        oLoad.addCodeLine('self.db.disconnect()')
         oLoad.addCodeLine('query.close()')
+
+        # fetchFromWhere(self, where: str): method
+        params = [SimpleUMLParam('where', 'str')]
+        oFetch = clss.addMethod('fetchFromWhere', params, None, False)
+        oFetch.setDoc(f'Fetch {self.table} records from a SQL where-clause. Return a list of ids.')
+        oFetch.addCodeLine('result = []')
+        oFetch.addCodeLine('self.db.connect(config.dbUser, config.dbPass)')
+        oFetch.addCodeLine(f'query = Database.Query("{self.table}")')
+        oFetch.addCodeLine(f"query.add('select idx{self.table} from {self.table} where ' + where)")
+        oFetch.addCodeLine('rows = self.db.fetch(query.getSQL())')
+        oFetch.addCodeLine('result = list(row[0] for row in rows)')
+        oFetch.addCodeLine('query.close()')
+        oFetch.addCodeLine('self.db.disconnect()')
+        oFetch.addCodeLine('return result')
 
         # Find-by-id method
         params = [SimpleUMLParam('idx', 'int')]
@@ -164,19 +185,74 @@ class DatabaseCodeGen():
 
         return clss
 
+    def generateClassTabModule(self) -> SimpleUMLClassPython:
+        """Create a TabModule subclass for managing the records."""
+        name = f'Module{self.table}s'
+        self.log.info('Generating %s', name)
+        nameObject = TextTools.lowerCaseFirst(self.table)
+        nameCache  = f'{nameObject}Cache'
+        nameTable  = f'{self.table}Table'
+        nameEditor = f'{self.table}Editor'
+
+        # TabModule subclass
+        clss = SimpleUMLClassPython()
+        clss.setName(name)
+        clss.setSuperClass('TabModule')
+
+        # Constructor
+        params = [SimpleUMLParam('parent', 'TabsApp')]
+        oConstr = clss.addMethod(name, params, None, False)
+        oConstr.addCodeLine('self.window = parent.window')
+        oConstr.addCodeLine(f"self.table  = {nameTable}(self.onSelect{self.table})")
+        oConstr.addCodeLine(f"self.editor = {nameEditor}(self.onSave{self.table})")
+        oConstr.addCodeLine(f"super().__init__(parent, '{self.table}s')")
+
+        # loadData method
+        oLoad = clss.addMethod('loadData', None, None, False)
+        oLoad.setDoc('Load data from cache and populate table.')
+        oLoad.addCodeLine(f'self.{nameCache} = {self.table}Cache()')
+        oLoad.addCodeLine(f'self.{nameCache}.load()')
+        oLoad.addCodeLine(f'self.table.loadData(self.{nameCache}.get{self.table}s())')
+
+        # onSelectObject method
+        params = [SimpleUMLParam(nameObject, self.table)]
+        oSel = clss.addMethod(f'onSelect{self.table}', params, None, False)
+        oSel.setDoc('Display selected object in editor.')
+        oSel.addCodeLine(f'self.editor.loadData({nameObject})')
+
+        # onSaveObject method
+        params = [SimpleUMLParam(nameObject, self.table)]
+        oSave = clss.addMethod(f'onSave{self.table}', params, None, False)
+        oSave.setDoc('Save changes to edited object.')
+        oSave.addCodeLine('pass')
+
+        # createWidgets method
+        oWid = clss.addMethod('createWidgets', None, None, False)
+        oWid.setDoc('Create user widgets.')
+        oWid.addCodeLine('self.createLeftRightFrames()')
+        oWid.addCodeLine('self.table.createWidgets(self.frmLeft)')
+        oWid.addCodeLine('self.editor.createWidgets(self.frmRight)')
+
+        return clss
+
     def generateClassTable(self) -> SimpleUMLClassPython:
         """Create a class for displaying records in a table."""
         name = f'{self.table}Table'
         self.log.info('Generating %s', name)
         nameObject = TextTools.lowerCaseFirst(self.table)
+        nameArray = f'{nameObject}s'
 
         # Table columns
-        colNames = [ ]
+        colNames = []
+        colData = []
         field: DatabaseField
         for field in self.fields:
             if not (field.isPrimaryKey() or field.size > 64):
-                colNames.append(field.getPythonName(self.prefix))
+                pName = field.getPythonName(self.prefix)
+                colNames.append(pName)
+                colData.append(f'{nameObject}.{pName}')
         sColNames = "', '".join(colNames)
+        sColData = ', '.join(colData)
 
         # Table class
         clss = SimpleUMLClassPython()
@@ -190,6 +266,16 @@ class DatabaseCodeGen():
         oConstr.addCodeLine('self.data = []')
         oConstr.addCodeLine('self.cbkSelect = cbkSelect')
         oConstr.addCodeLine(f"self.columns = ('{sColNames}')")
+
+        # loadData method
+        params = [SimpleUMLParam(nameArray, None)]
+        oLoad = clss.addMethod('loadData', params, None, False)
+        oLoad.setDoc('Display the specified objects in this table.')
+        oLoad.addCodeLine('self.clear()')
+        oLoad.addCodeLine(f'self.data = {nameArray}')
+        oLoad.addCodeLine(f'for {nameObject} in {nameArray}:')
+        oLoad.addCodeLine(f'    rowData = ({sColData})')
+        oLoad.addCodeLine('    self.addRow(rowData)')
 
         # createWidgets method
         params = [SimpleUMLParam('parent', 'tk.Frame')]
