@@ -181,6 +181,8 @@ class SimpleUMLClassPython(SimpleUMLClass):
                 member = self.getMember(param.name)
                 if member and member.type:
                     params += f', {member.name}: {member.type}'
+                elif param.type:
+                    params += f', {param.name}: {param.type}'
                 else:
                     params += f', {param.name}'
             returnType = ''
