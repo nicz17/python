@@ -142,24 +142,24 @@ class TaxonCache():
 
     def __init__(self):
         """Constructor."""
+        self.db = Database.Database(config.dbName)
         self.topLevel = []
         self.dictById = {}
 
     def load(self):
         """Fetch and store the Taxon records from database."""
-        db = Database.Database(config.dbName)
-        db.connect(config.dbUser, config.dbPass)
+        self.db.connect(config.dbUser, config.dbPass)
         query = Database.Query('Taxon')
         query.add('select idxTaxon, taxName, taxNameFr, taxRank, taxParent, taxOrder, taxTypical')
         query.add('from Taxon order by taxOrder asc, taxName asc')
-        rows = db.fetch(query.getSQL())
+        rows = self.db.fetch(query.getSQL())
         for row in rows:
             taxon = Taxon(*row)
             self.dictById[taxon.getIdx()] = taxon
             if taxon.isTopLevel():
                 self.topLevel.append(taxon)
         query.close()
-        db.disconnect()
+        self.db.disconnect()
         self.log.info(f'Fetched {len(self.dictById)} taxa from DB')
 
         # Add children to their parents
@@ -176,17 +176,15 @@ class TaxonCache():
         """Fetch Taxon records from a SQL where-clause. Return a list of ids."""
         result = []
         self.log.info(f'Fetching from Taxon where {where}')
-        db = Database.Database(config.dbName)
-        db.connect(config.dbUser, config.dbPass)
+        self.db.connect(config.dbUser, config.dbPass)
         query = Database.Query('Taxon')
         query.add(f'select idxTaxon from Taxon where {where}')
         query.add('order by taxOrder asc, taxName asc')
-        rows = db.fetch(query.getSQL())
-        for row in rows:
-            result.append(row[0])
+        rows = self.db.fetch(query.getSQL())
+        result = list(row[0] for row in rows)
         query.close()
-        db.disconnect()
-        self.log.info(f'Fetched {len(self.dictById)} taxa from DB where {where}')
+        self.db.disconnect()
+        self.log.info(f'Fetched {len(result)} taxa from DB where {where}')
         return result
 
     def getTopLevelTaxa(self):
