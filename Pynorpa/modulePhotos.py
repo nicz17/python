@@ -29,7 +29,7 @@ class ModulePhotos(TabModule):
         #self.mapWidget = MapWidget()
         self.imageWidget = imageWidget.ImageWidget()
         self.editor = PhotoEditor()
-        super().__init__(parent, 'Photos')
+        super().__init__(parent, 'Sélection')
         self.photos = []
         self.getDefaultDir()
         #self.loadData()
