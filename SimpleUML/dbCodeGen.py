@@ -262,9 +262,7 @@ class DatabaseCodeGen():
         # Constructor
         params = [SimpleUMLParam('cbkSelect', None)]
         oConstr = clss.addMethod(name, params, None, False)
-        oConstr.addCodeLine(f'super().__init__(self.onRowSelection, "{nameObject}s")')
-        oConstr.addCodeLine('self.data = []')
-        oConstr.addCodeLine('self.cbkSelect = cbkSelect')
+        oConstr.addCodeLine(f'super().__init__(cbkSelect, "{nameObject}s")')
         oConstr.addCodeLine(f"self.columns = ('{sColNames}')")
 
         # loadData method
@@ -291,7 +289,7 @@ class DatabaseCodeGen():
         nameObject = TextTools.lowerCaseFirst(self.table)
         self.log.info('Generating %s', name)
 
-        # Cache class and its constructor
+        # Editor class and its constructor
         params = [SimpleUMLParam('cbkSave', None)]
         clss = SimpleUMLClassPython()
         clss.setName(name)
@@ -299,6 +297,13 @@ class DatabaseCodeGen():
         oConstr = clss.addMethod(name, params, None, False)
         oConstr.addCodeLine('super().__init__(cbkSave)')
         oConstr.addCodeLine(f'self.{nameObject} = None')
+
+        # loadData method
+        params = [SimpleUMLParam(nameObject, self.table)]
+        oLoad = clss.addMethod('loadData', params, None, False)
+        oLoad.setDoc('Display the specified object in this editor.')
+        oLoad.addCodeLine(f'self.{nameObject} = {nameObject}')
+        oLoad.addCodeLine(f'self.setValue({nameObject})')
 
         # createWidgets method
         params = [SimpleUMLParam('parent', 'tk.Frame')]
