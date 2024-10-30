@@ -4,10 +4,12 @@ __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
+import config
 import logging
 from BaseTable import *
 from TabsApp import *
 import BaseWidgets
+import imageWidget
 from picture import Picture, PictureCache
 
 
@@ -20,6 +22,7 @@ class ModulePictures(TabModule):
         self.window = parent.window
         self.table  = PictureTable(self.onSelectPicture)
         self.editor = PictureEditor(self.onSavePicture)
+        self.imageWidget = imageWidget.ImageWidget()
         super().__init__(parent, 'Photos')
 
     def loadData(self):
@@ -33,6 +36,11 @@ class ModulePictures(TabModule):
         self.log.info(f'Selected {picture}')
         self.editor.loadData(picture)
 
+        fileMedium = None
+        if picture is not None:
+            fileMedium = f'{config.dirPicsBase}medium/{picture.filename}'
+        self.imageWidget.loadData(fileMedium)
+
     def onSavePicture(self, picture: Picture):
         """Save changes to edited object."""
         pass
@@ -42,6 +50,7 @@ class ModulePictures(TabModule):
         self.createLeftRightFrames()
         self.table.createWidgets(self.frmLeft)
         self.editor.createWidgets(self.frmRight)
+        self.imageWidget.createWidgets(self.frmRight)
         self.editor.loadData(None)
 
     def __str__(self):
