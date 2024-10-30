@@ -42,12 +42,7 @@ class ModuleLocations(TabModule):
 
     def createWidgets(self):
         """Create user widgets."""
-
-        # Frames
-        self.frmLeft = tk.Frame(master=self.oFrame)
-        self.frmLeft.pack(fill=tk.Y, side=tk.LEFT, pady=0)
-        self.frmRight = tk.Frame(master=self.oFrame)
-        self.frmRight.pack(fill=tk.Y, side=tk.LEFT, pady=6, padx=6)
+        self.createLeftRightFrames()
 
         # Location widgets
         self.table.createWidgets(self.frmLeft)

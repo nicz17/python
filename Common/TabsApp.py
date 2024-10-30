@@ -82,7 +82,8 @@ class TabModule:
         self.oParent = oParent
         self.isLoaded = False
         self.oFrame = oParent.addTab(self)
-        #self.createWidgets()
+        self.frmLeft  = None
+        self.frmRight = None
 
     def getTitle(self) -> str:
         return self.sTitle
@@ -103,6 +104,13 @@ class TabModule:
         self.lblTest = tk.Label(master=self.oFrame)
         self.lblTest.pack(fill=tk.X)
         self.lblTest.configure(text = f'Test for {self.sTitle} tab')
+
+    def createLeftRightFrames(self):
+        """Create frmLeft and frmRight in this tab."""
+        self.frmLeft  = tk.Frame(master=self.oFrame)
+        self.frmRight = tk.Frame(master=self.oFrame)
+        self.frmLeft.pack(fill=tk.Y, side=tk.LEFT, pady=0)
+        self.frmRight.pack(fill=tk.Y, side=tk.LEFT, pady=6, padx=6)
 
     def __str__(self) -> str:
         return f'TabModule {self.sTitle}'
