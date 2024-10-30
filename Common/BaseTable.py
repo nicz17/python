@@ -20,7 +20,14 @@ class BaseTable():
         self.log.info('Constructor')
         self.cbkSelectRow = cbkSelectRow
         self.objectlabel = objectLabel
+        self.data = []
         self.nRows = 0
+
+    def onRowSelection(self, event = None):
+        """Row selection callback."""
+        idxRow = self.getSelectedRow()
+        if self.cbkSelectRow:
+            self.cbkSelectRow(self.data[idxRow] if idxRow is not None else None)
         
     def createWidgets(self, parent: tk.Frame, columns):
         """Create user widgets."""
@@ -37,7 +44,7 @@ class BaseTable():
         for sColName in columns:
             self.tree.heading(sColName, text=sColName, anchor=tk.W)
 
-        self.tree.bind('<<TreeviewSelect>>', self.cbkSelectRow)
+        self.tree.bind('<<TreeviewSelect>>', self.onRowSelection)
         self.tree.pack(pady=5, anchor=tk.W)
 
         # Status and toolbar frame

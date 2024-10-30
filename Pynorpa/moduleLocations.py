@@ -62,10 +62,8 @@ class TableLocations(BaseTable):
     def __init__(self, cbkSelect):
         """Constructor with selection callback."""
         self.log.info('Constructor')
-        super().__init__(self.onRowSelection, 'locations')
+        super().__init__(cbkSelect, 'locations')
         self.columns = ('Nom', 'Région', 'Altitude')
-        self.data = []
-        self.cbkSelect = cbkSelect
 
     def loadData(self, locations):
         """Display the specified locations in this table."""
@@ -81,11 +79,6 @@ class TableLocations(BaseTable):
     def createWidgets(self, parent: tk.Frame):
         """Create user widgets."""
         super().createWidgets(parent, self.columns)
-
-    def onRowSelection(self, event):
-        """Row selection callback."""
-        idxRow = self.getSelectedRow()
-        self.cbkSelect(self.data[idxRow] if idxRow is not None else None)
 
 
 class LocationEditor(BaseWidgets.BaseEditor):

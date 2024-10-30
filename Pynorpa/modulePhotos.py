@@ -100,10 +100,8 @@ class TablePhotos(BaseTable):
     def __init__(self, cbkSelect):
         """Constructor with selection callback."""
         self.log.info('Constructor')
-        super().__init__(self.onRowSelection, 'photos')
+        super().__init__(cbkSelect, 'photos')
         self.columns = ('Nom', 'Date', 'Taille')
-        self.data = []
-        self.cbkSelect = cbkSelect
 
     def loadData(self, photos):
         """Display the specified photos in this table."""
@@ -123,11 +121,6 @@ class TablePhotos(BaseTable):
     def createWidgets(self, parent: tk.Frame):
         """Create user widgets."""
         super().createWidgets(parent, self.columns)
-
-    def onRowSelection(self, event):
-        """Row selection callback."""
-        idxRow = self.getSelectedRow()
-        self.cbkSelect(self.data[idxRow] if idxRow is not None else None)
 
     def __str__(self) -> str:
         return 'TablePhotos'
