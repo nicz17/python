@@ -40,7 +40,7 @@ class ImageWidget():
         
     def createWidgets(self, parent: tk.Frame):
         """Create user widgets."""
-        self.lblImage = tk.Label(master=parent, text='Choisir une photo')
-        self.lblImage.pack()
+        self.lblImage = tk.Label(master=parent, anchor=tk.CENTER, text='Choisir une photo')
+        self.lblImage.pack(side=tk.TOP)
         self.setDefaultImage()
     

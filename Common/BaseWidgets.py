@@ -342,7 +342,7 @@ class BaseEditor():
     def createWidgets(self, parent: tk.Frame, title: str):
         """Add the editor widgets to the parent widget."""
         self.frmEdit = ttk.LabelFrame(parent, text=title)
-        self.frmEdit.pack(side=tk.TOP, anchor=tk.N, fill=tk.X, expand=True, pady=5)
+        self.frmEdit.pack(side=tk.TOP, anchor=tk.N, fill=tk.X, expand=False, pady=5)
 
     def createButtons(self, bSave: bool, bCancel: bool, bDelete: bool):
         """Add save, cancel and delete buttons."""
