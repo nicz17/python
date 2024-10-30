@@ -9,6 +9,7 @@ __version__ = "1.0.0"
 import logging
 import tkinter as tk
 from tkinter import ttk
+import datetime
 import DateTools
 
         
@@ -142,7 +143,13 @@ class DateTime(TextInput):
         self.oWidget.delete(0, tk.END)
         fvalue = self.getObjectValue(object)
         if fvalue:
-            self.oWidget.insert(0, DateTools.timestampToString(fvalue))
+            if isinstance(fvalue, float):
+                self.oWidget.insert(0, DateTools.timestampToString(fvalue))
+            elif isinstance(fvalue, datetime.datetime):
+                self.oWidget.insert(0, DateTools.datetimeToString(fvalue))
+            else:
+                self.log.error('Unhandled date type %s', fvalue)
+                self.oWidget.insert(0, 'Error')
 
     def getValue(self) -> str:
         """Get the current timestamp value."""
@@ -359,7 +366,7 @@ class BaseEditor():
         self.addWidget(oInput)
         return oInput
     
-    def addTextArea(self, label: str, mtdGetter, nLines: int, width=64) -> TextArea:
+    def addTextArea(self, label: str, mtdGetter, nLines=6, width=64) -> TextArea:
         """Add a multi-line text input."""
         self.addLabel(label)
         oInput = TextArea(label, mtdGetter, nLines, self.onModified)

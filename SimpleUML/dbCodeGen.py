@@ -69,7 +69,7 @@ class DatabaseCodeGen():
         table = self.table
 
         # Create module
-        module = SimpleUMLPythonModule(f'module{table}')
+        module = SimpleUMLPythonModule(f'module{table}s')
         module.addImport('from BaseTable import *')
         module.addImport('from TabsApp import *')
         module.addImport('BaseWidgets')
@@ -322,6 +322,8 @@ class DatabaseCodeGen():
         oMeth.addCodeLine('')
         oMeth.addCodeLine('self.createButtons(True, True, False)')
         oMeth.addCodeLine('self.enableWidgets()')
+
+        # TODO enableWidgets method
 
         return clss
 

@@ -43,7 +43,7 @@ class DatabaseField():
 
     def getEditionKind(self):
         """Guess the kind of widget to use in editor for this field."""
-        kind = 'TextArea'
+        kind = 'Text'
         ptype = self.getPythonType()
         if ptype == 'int':
             kind = 'IntInput'
@@ -51,6 +51,8 @@ class DatabaseField():
             kind = 'CheckBox'
         elif self.type == 'datetime':
             kind = 'DateTime'
+        elif ptype == 'str' and self.size > 100:
+            kind = 'TextArea'
         return kind
 
     def isPrimaryKey(self):
