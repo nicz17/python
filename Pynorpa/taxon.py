@@ -137,17 +137,27 @@ class Taxon():
 
 
 class TaxonCache():
-    """Class TaxonCache"""
+    """Singleton class to fetch Taxon records from database and cache them."""
     log = logging.getLogger("TaxonCache")
+    _instance = None
+
+    def __new__(cls):
+        """Create a singleton object."""
+        if cls._instance is None:
+            cls._instance = super(TaxonCache, cls).__new__(cls)
+            cls._instance.log.info('Created the TaxonCache singleton')
+            cls._instance.load()
+        return cls._instance
 
     def __init__(self):
-        """Constructor."""
-        self.db = Database.Database(config.dbName)
-        self.topLevel = []
-        self.dictById = {}
+        """Constructor. Unused as all is done in new."""
+        pass
 
     def load(self):
         """Fetch and store the Taxon records from database."""
+        self.db = Database.Database(config.dbName)
+        self.topLevel = []
+        self.dictById = {}
         self.db.connect(config.dbUser, config.dbPass)
         query = Database.Query('Taxon')
         query.add('select idxTaxon, taxName, taxNameFr, taxRank, taxParent, taxOrder, taxTypical')
@@ -212,7 +222,6 @@ def testTaxonCache():
     """Unit test for TaxonCache"""
     TaxonCache.log.info("Testing TaxonCache")
     cache = TaxonCache()
-    cache.load()
     tax: Taxon
     for tax in cache.getTopLevelTaxa():
         cache.log.info('Top-level: %s', tax)
@@ -225,6 +234,7 @@ def testTaxonCache():
 
 def testReflection():
     """Simple reflection test"""
+    TaxonCache.log.info("Testing reflection")
     taxon = Taxon(42, 'Test42', 'Bingo', 'FAMILY', None, 1, False)
     mtdGetter = Taxon.getNameFr
     result = mtdGetter(taxon)

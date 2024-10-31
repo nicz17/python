@@ -21,12 +21,12 @@ class ModuleTaxon(TabModule):
         """Constructor."""
         self.window = parent.window
         super().__init__(parent, 'Taxons')
-        self.cache  = TaxonCache()
+        self.cache  = None
         self.tree   = TaxonTree(self.onSelectTaxon)
         self.editor = TaxonEditor(self.onSaveTaxon)
 
     def loadData(self):
-        self.cache.load()
+        self.cache  = TaxonCache()
         tax: Taxon
         for tax in self.cache.getTopLevelTaxa():
             self.tree.addTaxon(tax)
