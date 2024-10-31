@@ -7,23 +7,24 @@ __version__ = "1.0.0"
 import logging
 import config
 import Database
+from taxon import Taxon, TaxonCache
 
 
 class Picture():
     """Class Picture"""
     log = logging.getLogger("Picture")
 
-    def __init__(self, idx: int, filename: str, shotAt: float, location: str, remarks: str, taxon: int, updatedAt: float, idxLocation: int, rating: int):
+    def __init__(self, idx: int, filename: str, shotAt: float, remarks: str, idxTaxon: int, updatedAt: float, idxLocation: int, rating: int):
         """Constructor."""
         self.idx = idx
         self.filename = filename
         self.shotAt = shotAt
-        self.location = location
         self.remarks = remarks
-        self.taxon = taxon
+        self.idxTaxon = idxTaxon
         self.updatedAt = updatedAt
         self.idxLocation = idxLocation
         self.rating = rating
+        self.taxon = None
 
     def getIdx(self) -> int:
         """Getter for idx"""
@@ -45,13 +46,10 @@ class Picture():
         """Setter for shotAt"""
         self.shotAt = shotAt
 
-    def getLocation(self) -> str:
-        """Getter for location"""
-        return self.location
-
-    def setLocation(self, location: str):
-        """Setter for location"""
-        self.location = location
+    def getLocationName(self) -> str:
+        """Get location name"""
+        return 'Not implemented yet'
+        #return self.location.name
 
     def getRemarks(self) -> str:
         """Getter for remarks"""
@@ -61,13 +59,19 @@ class Picture():
         """Setter for remarks"""
         self.remarks = remarks
 
-    def getTaxon(self) -> int:
+    def getIdxTaxon(self) -> int:
         """Getter for taxon"""
         return self.taxon
 
-    def setTaxon(self, taxon: int):
+    def setIdxTaxon(self, idxTaxon: int):
         """Setter for taxon"""
-        self.taxon = taxon
+        self.idxTaxon = idxTaxon
+
+    def getTaxonName(self) -> str:
+        """Get taxon name"""
+        if self.taxon:
+            return self.taxon.getName()
+        return 'Error: undefined taxon'
 
     def getUpdatedAt(self) -> float:
         """Getter for updatedAt"""
@@ -108,14 +112,7 @@ class Picture():
         return data
 
     def __str__(self):
-        str = "Picture"
-        str += f' idx: {self.idx}'
-        str += f' filename: {self.filename}'
-        str += f' shotAt: {self.shotAt}'
-        str += f' taxon: {self.taxon}'
-        str += f' updatedAt: {self.updatedAt}'
-        str += f' idxLocation: {self.idxLocation}'
-        str += f' rating: {self.rating}'
+        str = f'Picture {self.idx} {self.filename} shotAt: {self.shotAt} idxLocation: {self.idxLocation} rating: {self.rating}'
         return str
 
 
@@ -126,6 +123,7 @@ class PictureCache():
     def __init__(self):
         """Constructor."""
         self.db = Database.Database(config.dbName)
+        self.taxonCache = TaxonCache()
         self.pictures = []
 
     def getPictures(self):
@@ -136,13 +134,19 @@ class PictureCache():
         """Fetch and store the Picture records."""
         self.db.connect(config.dbUser, config.dbPass)
         query = Database.Query("Picture")
-        query.add("select idxPicture, picFilename, picShotAt, picLocation, picRemarks, picTaxon, picUpdatedAt, picIdxLocation, picRating from Picture")
-        query.add(" order by picFilename asc")
+        query.add("select idxPicture, picFilename, picShotAt, picRemarks, picTaxon, picUpdatedAt, picIdxLocation, picRating")
+        query.add("from Picture order by picFilename asc")
         rows = self.db.fetch(query.getSQL())
         for row in rows:
             self.pictures.append(Picture(*row))
         self.db.disconnect()
         query.close()
+
+        # Set picture taxa
+        pic: Picture
+        for pic in self.pictures:
+            taxon = self.taxonCache.findById(pic.idxTaxon)
+            pic.taxon = taxon
 
     def fetchFromWhere(self, where: str):
         """Fetch Picture records from a SQL where-clause. Return a list of ids."""
@@ -168,7 +172,7 @@ class PictureCache():
         """Find a Picture from its unique name."""
         item: Picture
         for item in self.pictures:
-            if item.name == name:
+            if item.filename == name:
                 return item
         return None
 
@@ -180,15 +184,14 @@ class PictureCache():
         return data
 
     def __str__(self):
-        str = "PictureCache"
-        str += f' pictures: {self.pictures}'
+        str = 'PictureCache'
         return str
 
 
 def testPicture():
     """Unit test for Picture"""
     Picture.log.info("Testing Picture")
-    obj = Picture(42, "filenameExample", 3.14, "locationExample", "remarksExample", 42, 3.14, 42, 42)
+    obj = Picture(42, "filenameExample", 3.14, "remarksExample", 42, 3.14, 42, 42)
     obj.log.info(obj)
     obj.log.info(obj.toJson())
 

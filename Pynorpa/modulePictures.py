@@ -73,7 +73,7 @@ class PictureTable(BaseTable):
         self.data = pictures
         picture: Picture
         for picture in pictures:
-            rowData = (picture.filename, picture.shotAt, picture.location, picture.taxon)
+            rowData = (picture.getFilename(), picture.getShotAt(), picture.getLocationName(), picture.getTaxonName())
             self.addRow(rowData)
 
     def createWidgets(self, parent: tk.Frame):
@@ -103,13 +103,12 @@ class PictureEditor(BaseWidgets.BaseEditor):
         """Add the editor widgets to the parent widget."""
         super().createWidgets(parent, 'Picture Editor')
         
-        self.widFilename = self.addText('Nom', Picture.getFilename)
+        self.widFilename = self.addTextReadOnly('Nom', Picture.getFilename)
         self.widShotAt = self.addDateTime('Date', Picture.getShotAt)
-        self.widLocation = self.addText('Lieux', Picture.getLocation)
+        self.widLocation = self.addText('Lieu', Picture.getLocationName)
         self.widRemarks = self.addTextArea('Remarques', Picture.getRemarks)
-        self.widTaxon = self.addIntInput('Taxon', Picture.getTaxon)
+        self.widTaxon = self.addTextReadOnly('Taxon', Picture.getTaxonName)
         self.widUpdatedAt = self.addDateTime('Modifié', Picture.getUpdatedAt)
-        self.widLocation = self.addIntInput('idxLocation', Picture.getIdxLocation)
         self.widRating = self.addIntInput('Qualité', Picture.getRating)
         
         self.createButtons(True, True, False)
