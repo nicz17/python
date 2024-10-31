@@ -156,6 +156,9 @@ class DateTime(TextInput):
         svalue = self.oWidget.get().strip()
         return DateTools.stringToTimestamp(svalue)
     
+    def hasChanges(self, object) -> bool:
+        return False
+    
     def __str__(self) -> str:
         return 'DateTime'
 
