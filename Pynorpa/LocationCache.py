@@ -85,16 +85,25 @@ class Location:
     
 
 class LocationCache:
-    """Fetch and store Location records from Panorpa database."""
+    """Singleton to fetch and store Location records from Panorpa database."""
     log = logging.getLogger('LocationCache')
+    _instance = None
+
+    def __new__(cls):
+        """Create a singleton object."""
+        if cls._instance is None:
+            cls._instance = super(LocationCache, cls).__new__(cls)
+            cls._instance.log.info('Created the LocationCache singleton')
+            cls._instance.load()
+        return cls._instance
 
     def __init__(self):
-        """Constructor."""
-        self.log.info('Constructor')
-        self.locations = []
+        """Constructor. Unused as all is done in new."""
+        pass
 
     def load(self):
         """Fetch and store the location records."""
+        self.locations = []
         db = Database.Database(config.dbName)
         db.connect(config.dbUser, config.dbPass)
         sql = '''select idxLocation, locName, locDesc, locLatitude, locLongitude, 
@@ -139,7 +148,6 @@ class LocationCache:
 def testLocationCache():
     """Simple test case for LocationCache class."""
     cache = LocationCache()
-    cache.load()
     closest = cache.getClosest(46.52219597, 6.57062216)
     cache.log.info(closest)
     closest = cache.getClosest(46.6011348, 6.7310774)

@@ -28,7 +28,6 @@ class ModuleLocations(TabModule):
 
     def loadData(self):
         self.locationCache = LocationCache()
-        self.locationCache.load()
         self.table.loadData(self.locationCache.getLocations())
 
     def onSelectLocation(self, location: Location):

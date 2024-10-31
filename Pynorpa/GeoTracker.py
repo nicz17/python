@@ -46,7 +46,6 @@ class GeoTracker:
 
         # Load LocationCache
         self.locationCache = LocationCache()
-        self.locationCache.load()
 
         # Load a default location
         # TODO take from an option
