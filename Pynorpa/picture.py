@@ -8,6 +8,7 @@ import logging
 import config
 import Database
 from taxon import Taxon, TaxonCache
+from LocationCache import *
 
 
 class Picture():
@@ -24,6 +25,7 @@ class Picture():
         self.updatedAt = updatedAt
         self.idxLocation = idxLocation
         self.rating = rating
+        self.location = None
         self.taxon = None
 
     def getIdx(self) -> int:
@@ -48,8 +50,9 @@ class Picture():
 
     def getLocationName(self) -> str:
         """Get location name"""
-        return 'Not implemented yet'
-        #return self.location.name
+        if self.location:
+            return self.location.getName()
+        return 'Error: undefined location'
 
     def getRemarks(self) -> str:
         """Getter for remarks"""
@@ -124,6 +127,7 @@ class PictureCache():
         """Constructor."""
         self.db = Database.Database(config.dbName)
         self.taxonCache = TaxonCache()
+        self.locationCache = LocationCache()
         self.pictures = []
 
     def getPictures(self):
@@ -142,11 +146,11 @@ class PictureCache():
         self.db.disconnect()
         query.close()
 
-        # Set picture taxa
+        # Set picture locations and taxa
         pic: Picture
         for pic in self.pictures:
-            taxon = self.taxonCache.findById(pic.idxTaxon)
-            pic.taxon = taxon
+            pic.location = self.locationCache.getById(pic.idxLocation)
+            pic.taxon = self.taxonCache.findById(pic.idxTaxon)
 
     def fetchFromWhere(self, where: str):
         """Fetch Picture records from a SQL where-clause. Return a list of ids."""

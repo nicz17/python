@@ -64,7 +64,7 @@ class PictureTable(BaseTable):
 
     def __init__(self, cbkSelect):
         """Constructor."""
-        super().__init__(cbkSelect, "pictures")
+        super().__init__(cbkSelect, "photos")
         self.columns = ('Nom', 'Date', 'Lieu', 'Taxon')
 
     def loadData(self, pictures):
@@ -105,7 +105,7 @@ class PictureEditor(BaseWidgets.BaseEditor):
         
         self.widFilename = self.addTextReadOnly('Nom', Picture.getFilename)
         self.widShotAt = self.addDateTime('Date', Picture.getShotAt)
-        self.widLocation = self.addText('Lieu', Picture.getLocationName)
+        self.widLocation = self.addTextReadOnly('Lieu', Picture.getLocationName)
         self.widRemarks = self.addTextArea('Remarques', Picture.getRemarks)
         self.widTaxon = self.addTextReadOnly('Taxon', Picture.getTaxonName)
         self.widUpdatedAt = self.addDateTime('Modifié', Picture.getUpdatedAt)
