@@ -80,8 +80,7 @@ class Location:
         return f'lat {self.lat} lon {self.lon} zoom {self.zoom}'
 
     def __str__(self):
-        str = f'Location {self.idx} {self.name}'
-        return str
+        return f'Location {self.idx} {self.name}'
     
 
 class LocationCache:
@@ -106,16 +105,15 @@ class LocationCache:
         self.locations = []
         db = Database.Database(config.dbName)
         db.connect(config.dbUser, config.dbPass)
-        sql = '''select idxLocation, locName, locDesc, locLatitude, locLongitude, 
-            locAltitude, locRegion, locMapZoom, locState 
-            from Location order by locName asc'''
-        rows = db.fetch(sql)
+        query = Database.Query("Locations")
+        query.add('select idxLocation, locName, locDesc, locLatitude, locLongitude,')
+        query.add('locAltitude, locRegion, locMapZoom, locState')
+        query.add('from Location order by locName asc')
+        rows = db.fetch(query.getSQL())
         for row in rows:
-            self.log.debug(row)
-            loc = Location(row)
-            self.locations.append(loc)
-            self.log.debug(loc)
+            self.locations.append(Location(row))
         db.disconnect()
+        query.close()
         self.log.info('Done loading %s', self)
 
     def getLocations(self):
@@ -141,8 +139,7 @@ class LocationCache:
         return closest
 
     def __str__(self):
-        str = f'LocationCache with {len(self.locations)} locations'
-        return str
+        return f'LocationCache with {len(self.locations)} locations'
 
 
 def testLocationCache():
