@@ -17,6 +17,13 @@ from PhotoInfo import *
 from BaseTable import *
 from tkinter import filedialog as fd
 
+# TODO:
+# rename to ModuleSelection
+# add Taxon assignment section:
+# add input text for Taxon lookup, trigger when at least 2 chars, fetch limit 1
+# suggest selection name based on current taxon
+# no need for Taxon tree, maybe ComboBox with child taxa ?
+# if no matching taxon, take user input
 
 class ModulePhotos(TabModule):
     """Pynorpa Module for photos."""
