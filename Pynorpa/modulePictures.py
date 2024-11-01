@@ -104,11 +104,11 @@ class PictureEditor(BaseWidgets.BaseEditor):
         super().createWidgets(parent, 'Picture Editor')
         
         self.widFilename = self.addTextReadOnly('Nom', Picture.getFilename)
-        self.widShotAt = self.addDateTime('Date', Picture.getShotAt)
+        self.widShotAt = self.addDateTimeReadOnly('Date', Picture.getShotAt)
         self.widLocation = self.addTextReadOnly('Lieu', Picture.getLocationName)
         self.widRemarks = self.addTextArea('Remarques', Picture.getRemarks)
         self.widTaxon = self.addTextReadOnly('Taxon', Picture.getTaxonName)
-        self.widUpdatedAt = self.addDateTime('Modifié', Picture.getUpdatedAt)
+        self.widUpdatedAt = self.addDateTimeReadOnly('Modifié', Picture.getUpdatedAt)
         self.widRating = self.addIntInput('Qualité', Picture.getRating)
         
         self.createButtons(True, True, False)

@@ -228,6 +228,30 @@ class TextReadOnly(BaseWidget):
     
     def __str__(self) -> str:
         return f'TextReadOnly for {self.name}'
+    
+class DateTimeReadOnly(TextReadOnly):
+    """A read-only label displaying a float value as date and time."""
+    log = logging.getLogger('DateTime')
+
+    def __init__(self, name: str, mtdGetter):
+        """Constructor with modification callback."""
+        super().__init__(name, mtdGetter)
+
+    def setValue(self, object):
+        """Set the string value."""
+        self.oLabel.configure(text = '')
+        fvalue = self.getObjectValue(object)
+        if fvalue:
+            if isinstance(fvalue, float):
+                self.oLabel.configure(text = DateTools.timestampToString(fvalue))
+            elif isinstance(fvalue, datetime.datetime):
+                self.oLabel.configure(text = DateTools.datetimeToString(fvalue))
+            else:
+                self.log.error('Unhandled date type %s', fvalue)
+                self.oLabel.configure(text = 'Error')
+    
+    def __str__(self) -> str:
+        return f'DateTimeReadOnly for {self.name}'
 
 class ComboBox():
     """A multiple-choice widget based on ttk.Combobox."""
@@ -414,6 +438,14 @@ class BaseEditor():
         """Add a single-line date-time input."""
         self.addLabel(label)
         oInput = DateTime(self.onModified, mtdGetter)
+        oInput.createWidgets(self.frmEdit, self.row, 1)
+        self.addWidget(oInput)
+        return oInput
+    
+    def addDateTimeReadOnly(self, label: str, mtdGetter) -> TextReadOnly:
+        """Add a read-only text."""
+        self.addLabel(label)
+        oInput = DateTimeReadOnly(label, mtdGetter)
         oInput.createWidgets(self.frmEdit, self.row, 1)
         self.addWidget(oInput)
         return oInput
