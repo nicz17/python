@@ -117,7 +117,7 @@ class MotusApp(BaseApp):
                     self.gameOver(False)
             else:
                 # Unknown word
-                msg = f'Le mot {self.guess.word()} n\'est pas connu du jeu!'
+                msg = f'Je ne connais pas le mot\n{self.guess.word()} !\nEfface-le !'
                 messagebox.showerror(title='Motus', message=msg)
         else:
             self.log.error('Trying to validate incomplete guess %s', self.guess)
@@ -151,10 +151,14 @@ class MotusApp(BaseApp):
         # Buttons
         #self.btnStart  = self.addButton('Démarrer', self.newGame)
 
+        # Title label
+        title = 'Trouve le mot de 5 lettres !'
+        tk.Label(self.frmMain, width=25, text=title, font='Helvetica 18 bold').pack(pady=5)
+
         # Canvas
         self.canGrid = tk.Canvas(master=self.frmMain, bg='#c0f0f0', bd=0, 
                                     height=self.iHeight, width=self.iWidth, highlightthickness=0)
-        self.canGrid.pack(side=tk.LEFT)
+        self.canGrid.pack()
 
         # Keyboard bindings
         self.window.bind("<Key>", self.onKeyUp)
