@@ -36,13 +36,21 @@ def nowAsString(format = "%Y.%m.%d %H:%M:%S") -> str:
     """Formats the current local timestamp like 2023.12.28 13:15:36."""
     return timestampToString(time.time(), format)
 
+def now() -> float:
+    """Returns the current timestamp as float."""
+    return time.time()
+
+def addDays(tAt: float, nDays: int) -> float:
+    """Adds the specified number of days to the float timestamp."""
+    return tAt + 24*3600*nDays
 
 def testDateTools():
     log = logging.getLogger('DateTools')
-    tNow = time.time()
+    tNow = now()
     log.info('Now as timestamp is %f', tNow)
     log.info('Now as local str is %s', timestampToString(tNow))
-    log.info('Now as UTC datet is %s', timestampToDatetimeUTC(tNow))
+    log.info('Now as UTC date  is %s', timestampToDatetimeUTC(tNow))
+    log.info('Tomorrow is %s', timestampToString(addDays(tNow, 1)))
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(asctime)s %(levelname)s %(name)s: %(message)s", 
