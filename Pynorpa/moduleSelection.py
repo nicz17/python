@@ -38,16 +38,23 @@ class ModuleSelection(TabModule):
         self.editor = PhotoEditor()
         super().__init__(parent, 'Sélection')
         self.photos = []
-        self.getDefaultDir()
+        self.dir = None
 
     def getDefaultDir(self):
         """Find the default photo dir."""
         yearMonth = DateTools.nowAsString('%Y-%m')
         self.dir = f'{config.dirPhotosBase}Nature-{yearMonth}/orig'
+        self.log.info('Default dir: %s', self.dir)
+        if not os.path.exists(self.dir):
+            self.log.info('Revert to previous month for default dir')
+            yearMonth = DateTools.timestampToString(DateTools.addDays(DateTools.now(), -28), '%Y-%m')
+            self.dir = f'{config.dirPhotosBase}Nature-{yearMonth}/orig'
+            self.log.info('Default dir last month: %s', self.dir)
 
     def loadData(self):
         """Load the photos to display."""
         self.photos = []
+        self.getDefaultDir()
         files = sorted(glob.glob(f'{self.dir}/*.JPG'))
         for file in files:
             photo = PhotoInfo(file)
@@ -79,6 +86,9 @@ class ModuleSelection(TabModule):
         self.table.createWidgets(self.frmLeft)
         self.imageWidget.createWidgets(self.frmRight)
         self.editor.createWidgets(self.frmRight)
+
+        self.frmSelect = ttk.LabelFrame(self.frmRight, text='Sélection de taxon')
+        self.frmSelect.pack(side=tk.TOP, anchor=tk.N, fill=tk.X, expand=False, pady=5)
 
         # Buttons frame
         self.frmButtons = ttk.Frame(self.frmLeft, padding=5)
