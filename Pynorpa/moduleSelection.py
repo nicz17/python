@@ -16,7 +16,7 @@ import TextTools
 from TabsApp import *
 from PhotoInfo import *
 from BaseTable import *
-from taxon import Taxon, TaxonCache
+from taxon import Taxon, TaxonRank, TaxonCache
 from tkinter import filedialog as fd
 
 # TODO:
@@ -24,6 +24,7 @@ from tkinter import filedialog as fd
 # suggest selection name based on current taxon
 # no need for Taxon tree, maybe ComboBox with child taxa ?
 # if no matching taxon, take user input
+# option to set GPS data from default location if missing
 
 class ModuleSelection(TabModule):
     """Pynorpa Module for photos."""
@@ -105,16 +106,28 @@ class ModuleSelection(TabModule):
         return btn
     
 class TaxonSelector():
-    """Widget to assign a taxon to an orig photo."""
+    """Widget to assign a taxon to an original photo."""
     log = logging.getLogger("TaxonSelector")
 
     def __init__(self):
+        """Constructor. Loads the Taxon cache."""
         self.cache = TaxonCache()
         self.photo = None # PhotoInfo to rename
         self.newName = None
         self.lastSelected = None
 
+    def buildNewName(self, taxon: Taxon, input: str):
+        """Build a new filename from the specified taxon or user input."""
+        basename = input.replace(' ', '-')
+        if taxon:
+            basename = TextTools.lowerCaseFirst(taxon.getName()).replace(' ', '-')
+            if taxon.getRank() == TaxonRank.GENUS:
+                basename += '-sp'
+        seq = '00x'
+        self.newName = f'{basename}{seq}.jpg'
+
     def loadData(self, photo: PhotoInfo):
+        """Sets the original photo to select and rename."""
         self.photo = photo
 
     def onSelect(self):
@@ -132,20 +145,21 @@ class TaxonSelector():
         self.enableWidgets()
 
     def onModified(self, event):
+        """Callabck for user input. Look for a matching taxon."""
         input = self.txtInput.get().strip()
         if input and len(input) > 2:
             self.log.info('Looking for taxon named like %s', f'%{input}%')
             where = f"taxName like '%{input.replace(' ', '%')}%'"
             ids = self.cache.fetchFromWhere(where)
+            taxon = None
             if ids and len(ids) > 0:
                 taxon = self.cache.findById(ids[0])
-                name = f"{taxon.getName().replace(' ', '-')}00x.jpg"
-                self.newName = TextTools.lowerCaseFirst(name)
                 taxonName = f'{taxon.getRankFr()} : {taxon.getName()} ({taxon.getNameFr()})'
                 self.lblTaxon.configure(text=taxonName)
             else:
                 self.newName = f'{input}-sp00x.jpg'
                 self.lblTaxon.configure(text='Pas de taxon trouvé')
+            self.buildNewName(taxon, input)
             self.lblName.configure(text=self.newName)
         self.enableWidgets()
 
@@ -154,8 +168,8 @@ class TaxonSelector():
         self.frmSelect = ttk.LabelFrame(parent, text='Sélection de taxon')
         self.frmSelect.pack(side=tk.TOP, anchor=tk.N, fill=tk.X, expand=False, pady=5)
 
-        self.txtInput = ttk.Entry(self.frmSelect, width=64)
-        self.txtInput.pack()
+        self.txtInput = ttk.Entry(self.frmSelect, width=50)
+        self.txtInput.pack(fill=tk.X, padx=3)
         self.txtInput.bind('<KeyRelease>', self.onModified)
 
         self.lblTaxon = tk.Label(self.frmSelect, text='Taxon non défini')
@@ -164,20 +178,25 @@ class TaxonSelector():
         self.lblName = tk.Label(self.frmSelect, text='Choisir un taxon ou un nom')
         self.lblName.pack()
 
-        self.btnSelect = tk.Button(self.frmSelect, text='Sélectionner', command=self.onSelect)
-        self.btnSelect.pack(side=tk.LEFT)
-        self.btnGimp = tk.Button(self.frmSelect, text='Ouvrir avec Gimp', command=self.onOpenGimp)
-        self.btnGimp.pack(side=tk.LEFT)
-        self.btnClear = tk.Button(self.frmSelect, text='Effacer', command=self.onClear)
-        self.btnClear.pack(side=tk.LEFT)
+        self.btnSelect = self.addButton('Sélectionner', self.onSelect)
+        self.btnGimp   = self.addButton('Ouvrir avec Gimp', self.onOpenGimp)
+        self.btnClear  = self.addButton('Effacer', self.onClear)
         self.enableWidgets()
 
+    def addButton(self, label: str, cmd):
+        """Add a Tk Button to this module's frmButtons."""
+        btn = tk.Button(self.frmSelect, text=label, command=cmd)
+        btn.pack(side=tk.LEFT, padx=3, pady=3)
+        return btn
+
     def enableWidgets(self):
+        """Enable or disable our widgets."""
         self.enableWidget(self.btnSelect, self.photo is not None and self.newName is not None)
         self.enableWidget(self.btnGimp, self.lastSelected is not None)
+        self.enableWidget(self.btnClear, self.newName is not None)
 
     def enableWidget(self, oWidget, enabled: bool):
-        """Enable or disable this widget."""
+        """Enable or disable the widget."""
         if oWidget:
             oWidget['state'] = tk.NORMAL if enabled else tk.DISABLED
 
