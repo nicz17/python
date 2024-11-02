@@ -10,7 +10,7 @@ import logging
 from TabsApp import *
 from ModuleCamera import *
 import moduleLocations
-import modulePhotos
+import moduleSelection
 import modulePictures
 import moduleTaxon
 
@@ -26,7 +26,7 @@ class PynorpaApp(TabsApp):
         super().__init__('Pynorpa App', sGeometry)
 
         modCamera    = ModuleCamera(self)
-        modPhotos    = modulePhotos.ModulePhotos(self)
+        modSelection = moduleSelection.ModuleSelection(self)
         modLocations = moduleLocations.ModuleLocations(self)
         modTaxon     = moduleTaxon.ModuleTaxon(self)
         modPictures  = modulePictures.ModulePictures(self)

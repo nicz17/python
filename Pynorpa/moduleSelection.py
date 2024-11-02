@@ -1,5 +1,5 @@
 """
- Pynorpa Module for displaying photo previews.
+ Pynorpa Module for displaying photo previews and assigning them to a Taxon.
 """
 
 __author__ = "Nicolas Zwahlen"
@@ -25,9 +25,9 @@ from tkinter import filedialog as fd
 # no need for Taxon tree, maybe ComboBox with child taxa ?
 # if no matching taxon, take user input
 
-class ModulePhotos(TabModule):
+class ModuleSelection(TabModule):
     """Pynorpa Module for photos."""
-    log = logging.getLogger('ModulePhotos')
+    log = logging.getLogger('ModuleSelection')
 
     def __init__(self, parent: TabsApp) -> None:
         """Constructor."""
@@ -39,7 +39,6 @@ class ModulePhotos(TabModule):
         super().__init__(parent, 'Sélection')
         self.photos = []
         self.getDefaultDir()
-        #self.loadData()
 
     def getDefaultDir(self):
         """Find the default photo dir."""
