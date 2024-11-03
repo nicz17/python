@@ -28,7 +28,6 @@ class ModulePictures(TabModule):
     def loadData(self):
         """Load data from cache and populate table."""
         self.pictureCache = PictureCache()
-        self.pictureCache.load()
         self.table.loadData(self.pictureCache.getPictures())
 
     def onSelectPicture(self, picture: Picture):

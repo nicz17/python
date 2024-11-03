@@ -120,22 +120,42 @@ class Picture():
 
 
 class PictureCache():
-    """Class PictureCache"""
+    """Singleton class to fetch Picture records from database and cache them."""
     log = logging.getLogger("PictureCache")
+    _instance = None
+
+    def __new__(cls):
+        """Create a singleton object."""
+        if cls._instance is None:
+            cls._instance = super(PictureCache, cls).__new__(cls)
+            cls._instance.log.info('Created the PictureCache singleton')
+            cls._instance.load()
+        return cls._instance
 
     def __init__(self):
-        """Constructor."""
+        """Constructor. Unused as all is done in new."""
+        pass
+
+    def getPictures(self):
+        """Return all objects in cache."""
+        return self.pictures
+    
+    def getForTaxon(self, idxTaxon) -> list[Picture]:
+        """Return all pictures of the specified taxon."""
+        result = []
+        pic: Picture
+        for pic in self.pictures:
+            if pic.idxTaxon == idxTaxon:
+                result.append(pic)
+        return result
+
+    def load(self):
+        """Fetch and store the Picture records."""
         self.db = Database.Database(config.dbName)
         self.taxonCache = TaxonCache()
         self.locationCache = LocationCache()
         self.pictures = []
 
-    def getPictures(self):
-        """Return all objects in cache."""
-        return self.pictures
-
-    def load(self):
-        """Fetch and store the Picture records."""
         self.db.connect(config.dbUser, config.dbPass)
         query = Database.Query("Picture")
         query.add("select idxPicture, picFilename, picShotAt, picRemarks, picTaxon, picUpdatedAt, picIdxLocation, picRating")
@@ -180,16 +200,8 @@ class PictureCache():
                 return item
         return None
 
-    def toJson(self):
-        """Create a dict of this PictureCache for json export."""
-        data = {
-            'pictures': self.pictures,
-        }
-        return data
-
     def __str__(self):
-        str = 'PictureCache'
-        return str
+        return 'PictureCache'
 
 
 def testPicture():
