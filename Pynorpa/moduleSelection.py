@@ -17,6 +17,7 @@ from TabsApp import *
 from PhotoInfo import *
 from BaseTable import *
 from taxon import Taxon, TaxonRank, TaxonCache
+from picture import Picture, PictureCache
 from tkinter import filedialog as fd
 
 # TODO:
@@ -46,12 +47,12 @@ class ModuleSelection(TabModule):
         """Find the default photo dir."""
         yearMonth = DateTools.nowAsString('%Y-%m')
         self.dir = f'{config.dirPhotosBase}Nature-{yearMonth}/orig'
-        self.log.info('Default dir: %s', self.dir)
         if not os.path.exists(self.dir):
             self.log.info('Revert to previous month for default dir')
             yearMonth = DateTools.timestampToString(DateTools.addDays(DateTools.now(), -28), '%Y-%m')
             self.dir = f'{config.dirPhotosBase}Nature-{yearMonth}/orig'
-            self.log.info('Default dir last month: %s', self.dir)
+        self.selector.setDir(f'{config.dirPhotosBase}Nature-{yearMonth}')
+        self.log.info('Default dir: %s', self.dir)
 
     def loadData(self):
         """Load the photos to display."""
@@ -78,6 +79,7 @@ class ModuleSelection(TabModule):
     def selectDir(self):
         """Display a dialog to choose a photo dir."""
         self.dir = fd.askdirectory(mustexist=True, initialdir=config.dirPhotosBase)
+        self.selector.setDir(self.dir.replace('orig', ''))
         self.oParent.setStatus(f'Selected {self.dir}')
         self.loadData()
 
@@ -111,10 +113,12 @@ class TaxonSelector():
 
     def __init__(self):
         """Constructor. Loads the Taxon cache."""
-        self.cache = TaxonCache()
+        self.taxonCache = TaxonCache()
+        self.picCache = PictureCache()
         self.photo = None # PhotoInfo to rename
         self.newName = None
         self.lastSelected = None
+        self.dir = None  # For example Pictures/Nature-2024-10
 
     def buildNewName(self, taxon: Taxon, input: str):
         """Build a new filename from the specified taxon or user input."""
@@ -123,15 +127,38 @@ class TaxonSelector():
             basename = TextTools.lowerCaseFirst(taxon.getName()).replace(' ', '-')
             if taxon.getRank() == TaxonRank.GENUS:
                 basename += '-sp'
-        seq = '00x'
-        self.newName = f'{basename}{seq}.jpg'
+        seq = self.getSequenceNext(basename, taxon)
+        self.newName = f'{basename}{seq:03d}.jpg'
+
+    def getSequenceNext(self, basename: str, taxon: Taxon) -> int:
+        """Get the next number in sequence for renaming the photo."""
+        imax = 0
+        if taxon:
+            picsDb = self.picCache.getForTaxon(taxon.getIdx())
+            self.log.info(f'Found {len(picsDb)} pictures for {taxon}:')
+            for pic in picsDb:
+                self.log.info(f'  {pic}')
+                seq = int(pic.getFilename()[-7:-4])
+                imax = max(seq, imax)
+        picsLocal = glob.glob(f'{self.dir}/photos/{basename}*.jpg')
+        self.log.info(f'Found {len(picsLocal)} local files for {basename}:')
+        for file in picsLocal:
+            self.log.info(f'  {file}')
+            seq = int(file[-7:-4])
+            imax = max(seq, imax)
+        return imax+1
 
     def loadData(self, photo: PhotoInfo):
         """Sets the original photo to select and rename."""
         self.photo = photo
 
+    def setDir(self, dir: str):
+        """Set the base dir, for example Pictures/Nature-2024-10"""
+        self.dir = dir
+
     def onSelect(self):
-        pass
+        cmd = f'cp {self.photo.filename} {self.dir}/photos/{self.newName}'
+        self.log.info(cmd)
 
     def onOpenGimp(self):
         pass
@@ -150,10 +177,10 @@ class TaxonSelector():
         if input and len(input) > 2:
             self.log.info('Looking for taxon named like %s', f'%{input}%')
             where = f"taxName like '%{input.replace(' ', '%')}%'"
-            ids = self.cache.fetchFromWhere(where)
+            ids = self.taxonCache.fetchFromWhere(where)
             taxon = None
             if ids and len(ids) > 0:
-                taxon = self.cache.findById(ids[0])
+                taxon = self.taxonCache.findById(ids[0])
                 taxonName = f'{taxon.getRankFr()} : {taxon.getName()} ({taxon.getNameFr()})'
                 self.lblTaxon.configure(text=taxonName)
             else:
