@@ -151,17 +151,26 @@ class TaxonSelector():
     def loadData(self, photo: PhotoInfo):
         """Sets the original photo to select and rename."""
         self.photo = photo
+        if self.newName:
+            self.onModified()
 
     def setDir(self, dir: str):
         """Set the base dir, for example Pictures/Nature-2024-10"""
         self.dir = dir
 
     def onSelect(self):
-        cmd = f'cp {self.photo.filename} {self.dir}/photos/{self.newName}'
+        """Selection button command."""
+        target = f'{self.dir}/photos/{self.newName}'
+        cmd = f'cp {self.photo.filename} {target}'
         self.log.info(cmd)
+        os.system(cmd)
+        self.lastSelected = target
 
     def onOpenGimp(self):
-        pass
+        """Open with Gimp button command."""
+        if self.lastSelected:
+            cmd = f'gimp {self.lastSelected} &'
+            os.system(cmd)
 
     def onClear(self):
         """Clear any user inputs."""
@@ -172,7 +181,7 @@ class TaxonSelector():
         self.enableWidgets()
 
     def onModified(self, event):
-        """Callabck for user input. Look for a matching taxon."""
+        """Callback for user input. Look for a matching taxon."""
         input = self.txtInput.get().strip()
         if input and len(input) > 2:
             self.log.info('Looking for taxon named like %s', f'%{input}%')

@@ -49,8 +49,8 @@ class GeoTracker:
 
         # Load a default location
         # TODO take from an option
-        #self.defLocation = self.locationCache.getById(67)
-        #self.log.info('Using default location %s', self.defLocation)
+        self.defLocation = self.locationCache.getById(65)
+        self.log.info('Using default location %s', self.defLocation)
 
         # Check dirs exist
         if not os.path.exists(self.dirTarget):
