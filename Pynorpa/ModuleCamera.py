@@ -36,7 +36,7 @@ class ModuleCamera(TabModule):
         """Load the tasks to perform."""
         self.copier.loadImages()
         self.tracker.prepare()
-        #self.tasks.append(TestPynorpaTask(5, self.updateTaskDisplay))
+        self.tasks.append(TestPynorpaTask(5, self.updateTaskDisplay))
         self.tasks.append(MountCameraTask(self.copier, self.updateTaskDisplay))
         self.tasks.append(CopyFromCameraTask(self.copier, self.updateTaskDisplay))
         self.tasks.append(GeoTrackerTask(self.tracker, self.copier.getNumberImages(), self.updateTaskDisplay))
@@ -45,6 +45,8 @@ class ModuleCamera(TabModule):
     def copyFiles(self):
         """Start the file copy tasks."""
         self.log.info('Starting %d tasks', len(self.tasks))
+        self.setLoadingIcon()
+
         task: PynorpaTask
         for task in self.tasks:
             if not task.isOver():
@@ -57,6 +59,7 @@ class ModuleCamera(TabModule):
                 if not task.isOver():
                     break
         self.renderer.drawTasks(self.tasks)
+        self.setLoadingIcon(True)
 
     def updateTaskDisplay(self):
         """Update the task rendering."""

@@ -99,6 +99,14 @@ class TabModule:
             self.isLoaded = True
             self.loadData()
 
+    def setLoadingIcon(self, isOver = False):
+        """Set the window icon to waiting, or reset it to normal."""
+        if isOver:
+            self.oParent.window.configure(cursor='')
+        else:
+            self.oParent.window.configure(cursor='watch')
+            self.oParent.window.update()
+
     def createWidgets(self):
         """Create user widgets"""
         self.lblTest = tk.Label(master=self.oFrame)
