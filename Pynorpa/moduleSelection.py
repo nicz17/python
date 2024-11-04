@@ -128,6 +128,8 @@ class TaxonSelector():
             if taxon.getRank() == TaxonRank.GENUS:
                 basename += '-sp'
         seq = self.getSequenceNext(basename, taxon)
+        if taxon and taxon.getRank().value < TaxonRank.GENUS.value:
+            seq = int(self.photo.getNameShort()[-8:-4])
         self.newName = f'{basename}{seq:03d}.jpg'
 
     def getSequenceNext(self, basename: str, taxon: Taxon) -> int:
@@ -165,6 +167,7 @@ class TaxonSelector():
         self.log.info(cmd)
         os.system(cmd)
         self.lastSelected = target
+        self.enableWidgets()
 
     def onOpenGimp(self):
         """Open with Gimp button command."""
@@ -179,8 +182,9 @@ class TaxonSelector():
         self.lblName.configure(text='Choisir un taxon ou un nom')
         self.lblTaxon.configure(text='Taxon non défini')
         self.enableWidgets()
+        self.txtInput.focus_set()
 
-    def onModified(self, event):
+    def onModified(self, event = None):
         """Callback for user input. Look for a matching taxon."""
         input = self.txtInput.get().strip()
         if input and len(input) > 2:
