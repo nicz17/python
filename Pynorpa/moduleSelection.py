@@ -219,8 +219,8 @@ class TaxonSelector():
         self.lblName.pack()
 
         self.btnSelect = self.addButton('Sélectionner', self.onSelect)
-        self.btnGimp   = self.addButton('Ouvrir avec Gimp', self.onOpenGimp)
         self.btnClear  = self.addButton('Effacer', self.onClear)
+        self.btnGimp   = self.addButton('Ouvrir avec Gimp', self.onOpenGimp)
         self.enableWidgets()
 
     def addButton(self, label: str, cmd):
