@@ -36,7 +36,7 @@ class ModuleCamera(TabModule):
         """Load the tasks to perform."""
         self.copier.loadImages()
         self.tracker.prepare()
-        self.tasks.append(TestPynorpaTask(5, self.updateTaskDisplay))
+        #self.tasks.append(TestPynorpaTask(5, self.updateTaskDisplay))
         self.tasks.append(MountCameraTask(self.copier, self.updateTaskDisplay))
         self.tasks.append(CopyFromCameraTask(self.copier, self.updateTaskDisplay))
         self.tasks.append(GeoTrackerTask(self.tracker, self.copier.getNumberImages(), self.updateTaskDisplay))
