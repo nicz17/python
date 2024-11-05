@@ -27,13 +27,11 @@ class ModuleTaxon(TabModule):
 
     def loadData(self):
         self.cache  = TaxonCache()
-        tax: Taxon
         for tax in self.cache.getTopLevelTaxa():
             self.tree.addTaxon(tax)
 
     def onSelectTaxon(self, id: str):
         """Callback for selection of taxon with specified id."""
-        taxon: Taxon
         taxon = None
         if id is not None:
             taxon = self.cache.findById(int(id))

@@ -20,12 +20,6 @@ from taxon import Taxon, TaxonRank, TaxonCache
 from picture import Picture, PictureCache
 from tkinter import filedialog as fd
 
-# TODO:
-# add Taxon assignment section:
-# suggest selection name based on current taxon
-# no need for Taxon tree, maybe ComboBox with child taxa ?
-# if no matching taxon, take user input
-# option to set GPS data from default location if missing
 
 class ModuleSelection(TabModule):
     """Pynorpa Module for photos."""
