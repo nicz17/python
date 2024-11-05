@@ -136,7 +136,7 @@ class PictureCache():
         """Constructor. Unused as all is done in new."""
         pass
 
-    def getPictures(self):
+    def getPictures(self) -> list[Picture]:
         """Return all objects in cache."""
         return self.pictures
     
@@ -172,7 +172,7 @@ class PictureCache():
             pic.location = self.locationCache.getById(pic.idxLocation)
             pic.taxon = self.taxonCache.findById(pic.idxTaxon)
 
-    def fetchFromWhere(self, where: str):
+    def fetchFromWhere(self, where: str) -> list[int]:
         """Fetch Picture records from a SQL where-clause. Return a list of ids."""
         result = []
         self.db.connect(config.dbUser, config.dbPass)

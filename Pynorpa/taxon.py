@@ -182,7 +182,7 @@ class TaxonCache():
                 else:
                     self.log.error('Could not find parent of %s', taxon)
 
-    def fetchFromWhere(self, where: str):
+    def fetchFromWhere(self, where: str) -> list[int]:
         """Fetch Taxon records from a SQL where-clause. Return a list of ids."""
         result = []
         self.log.info(f'Fetching from Taxon where {where}')
@@ -197,7 +197,7 @@ class TaxonCache():
         self.log.info(f'Fetched {len(result)} taxa from DB where {where}')
         return result
 
-    def getTopLevelTaxa(self):
+    def getTopLevelTaxa(self) -> list[Taxon]:
         """Get all taxa without parent."""
         return self.topLevel
 
@@ -214,8 +214,7 @@ class TaxonCache():
         return None
 
     def __str__(self):
-        str = f'TaxonCache with {len(self.dictById)} taxa'
-        return str
+        return f'TaxonCache with {len(self.dictById)} taxa'
 
 
 def testTaxonCache():
