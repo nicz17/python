@@ -12,6 +12,8 @@ from TabsApp import *
 from CopyFromCamera import *
 from Renderer import *
 from PynorpaTask import *
+from BaseWidgets import ComboBox
+from LocationCache import *
 
 class ModuleCamera(TabModule):
     """Pynorpa Module for importing photos from camera."""
@@ -26,6 +28,7 @@ class ModuleCamera(TabModule):
 
         self.copier = CopyFromCamera()
         self.tracker = GeoTracker()
+        self.cache = LocationCache()
 
     def loadData(self):
         # Renderer and tasks
@@ -82,10 +85,17 @@ class ModuleCamera(TabModule):
         else:
             self.oParent.showErrorMsg(f'Photo directory not found:\n{dir}')
 
+    def onSelectLocation(self, event=None):
+        defLocation = None
+        name = self.cboDefLoc.getValue()
+        if name:
+            defLocation = self.cache.getByName(name)
+        self.tracker.setDefaultLocation(defLocation)
+
     def addButton(self, label: str, cmd):
         """Add a Tk Button to this module's frmButtons."""
         btn = tk.Button(self.frmButtons, text = label, command = cmd)
-        btn.pack(side=tk.LEFT)
+        btn.pack(side=tk.LEFT, padx=3, pady=5)
         return btn
 
     def createWidgets(self):
@@ -98,6 +108,13 @@ class ModuleCamera(TabModule):
         # Buttons
         self.btnCopy = self.addButton('Copier', self.copyFiles)
         self.btnOpen = self.addButton('Ouvrir', self.openPhotoDir)
+
+        # Default location selector
+        self.frmDefLoc = ttk.LabelFrame(self.frmButtons, text='Lieu par défaut')
+        self.frmDefLoc.pack(side=tk.LEFT, padx=5, pady=0)
+        self.cboDefLoc = ComboBox(self.onSelectLocation)
+        self.cboDefLoc.createWidgets(self.frmDefLoc, 0, 0)
+        self.cboDefLoc.setValues([loc.name for loc in self.cache.getLocations()])
 
         # Canvas
         self.canTasks = tk.Canvas(master=self.oFrame, bd=0, 
