@@ -116,7 +116,7 @@ class LocationCache:
         query.close()
         self.log.info('Done loading %s', self)
 
-    def getLocations(self):
+    def getLocations(self) -> list[Location]:
         """Returns the fetched locations."""
         return self.locations
     
@@ -125,6 +125,13 @@ class LocationCache:
         for location in self.locations:
             if location.idx == idxLocation:
                 return location
+        return None
+
+    def getByName(self, name: str) -> Location:
+        """Find a Location from its unique name."""
+        for loc in self.getLocations():
+            if loc.name == name:
+                return loc
         return None
 
     def getClosest(self, lat: float, lon: float) -> Location:
