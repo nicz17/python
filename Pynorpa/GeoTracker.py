@@ -71,6 +71,11 @@ class GeoTracker:
         self.log.info('Found %d GeoTrack files in %s', len(self.files), filter)
         self.statusMsg = 'Prepared'
 
+    def setDefaultLocation(self, defLocation: Location):
+        """Set the default location to use if there is no GeoTrack."""
+        self.log.info('Setting default location to %s', defLocation)
+        self.defLocation = defLocation
+
     def copyFiles(self):
         """Copy GPX GeoTrack files from DropBox."""
         for file in self.files:
@@ -167,6 +172,7 @@ class GeoTracker:
     def setGPSFromDefLocation(self, file: str):
         """Set EXIF GPS tags from default location using exiftool."""
         if self.defLocation is not None:
+            self.log.info('Setting GPS data from default location %s', self.defLocation)
             cmd = f'exiftool -GPSLatitude*={self.defLocation.lat} -GPSLongitude*={self.defLocation.lon} -overwrite_original {file}'
             os.system(cmd)
     
