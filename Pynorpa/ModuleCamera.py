@@ -21,6 +21,7 @@ class ModuleCamera(TabModule):
         """Constructor."""
         self.window = parent.window
         self.tasks = []
+        self.isRunning = False
         super().__init__(parent, 'Caméra')
 
         self.copier = CopyFromCamera()
@@ -45,6 +46,8 @@ class ModuleCamera(TabModule):
     def copyFiles(self):
         """Start the file copy tasks."""
         self.log.info('Starting %d tasks', len(self.tasks))
+        self.isRunning = True
+        self.enableWidgets()
         self.setLoadingIcon()
 
         task: PynorpaTask
@@ -60,6 +63,8 @@ class ModuleCamera(TabModule):
                     break
         self.renderer.drawTasks(self.tasks)
         self.setLoadingIcon(True)
+        self.isRunning = False
+        self.enableWidgets()
 
     def updateTaskDisplay(self):
         """Update the task rendering."""
@@ -91,8 +96,8 @@ class ModuleCamera(TabModule):
         self.frmButtons.pack(anchor=tk.W)
 
         # Buttons
-        self.btnCopy = self.addButton('Start', self.copyFiles)
-        self.btnOpen = self.addButton('Open',  self.openPhotoDir)
+        self.btnCopy = self.addButton('Copier', self.copyFiles)
+        self.btnOpen = self.addButton('Ouvrir', self.openPhotoDir)
 
         # Canvas
         self.canTasks = tk.Canvas(master=self.oFrame, bd=0, 
@@ -101,3 +106,7 @@ class ModuleCamera(TabModule):
                                   width=self.oParent.iWidth-210, 
                                   highlightthickness=0)
         self.canTasks.pack(side=tk.LEFT)
+
+    def enableWidgets(self):
+        self.enableWidget(self.btnCopy, not self.isRunning)
+        self.enableWidget(self.btnOpen, not self.isRunning)

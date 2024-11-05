@@ -120,6 +120,11 @@ class TabModule:
         self.frmLeft.pack(fill=tk.Y, side=tk.LEFT, pady=0)
         self.frmRight.pack(fill=tk.Y, side=tk.LEFT, pady=6, padx=6)
 
+    def enableWidget(self, oWidget, enabled: bool):
+        """Enable or disable the widget."""
+        if oWidget:
+            oWidget['state'] = tk.NORMAL if enabled else tk.DISABLED
+
     def __str__(self) -> str:
         return f'TabModule {self.sTitle}'
 
