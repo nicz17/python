@@ -16,8 +16,9 @@ import TextTools
 from TabsApp import *
 from PhotoInfo import *
 from BaseTable import *
+import LocationCache
 from taxon import Taxon, TaxonRank, TaxonCache
-from picture import Picture, PictureCache
+from picture import PictureCache
 from tkinter import filedialog as fd
 
 
@@ -33,9 +34,11 @@ class ModuleSelection(TabModule):
         self.imageWidget = imageWidget.ImageWidget()
         self.editor = PhotoEditor()
         self.selector = TaxonSelector()
+        self.locationCache = LocationCache.LocationCache()
         super().__init__(parent, 'Sélection')
         self.photos = []
         self.dir = None
+        self.getDefaultDir()
 
     def getDefaultDir(self):
         """Find the default photo dir."""
@@ -51,11 +54,12 @@ class ModuleSelection(TabModule):
     def loadData(self):
         """Load the photos to display."""
         self.photos = []
-        self.getDefaultDir()
+        #self.getDefaultDir()
         files = sorted(glob.glob(f'{self.dir}/*.JPG'))
         for file in files:
             photo = PhotoInfo(file)
             photo.identify()
+            photo.setCloseTo(self.locationCache.getClosest(photo.lat, photo.lon))
             self.photos.append(photo)
         self.table.loadData(self.photos)
 
@@ -242,20 +246,19 @@ class TablePhotos(BaseTable):
         """Constructor with selection callback."""
         self.log.info('Constructor')
         super().__init__(cbkSelect, 'photos')
-        self.columns = ('Nom', 'Date', 'Taille')
+        self.columns = ('Nom', 'Date', 'Près de')
 
-    def loadData(self, photos):
+    def loadData(self, photos: list[PhotoInfo]):
         """Display the specified photos in this table."""
         self.log.info('Loading %d photos', len(photos))
         self.clear()
         self.data = photos
 
-        photo: PhotoInfo
         for photo in photos:
             rowData = (
                 photo.getNameShort(), 
                 photo.getShotAtString(),
-                photo.getSizeString()
+                photo.getCloseTo()
             )
             self.addRow(rowData)
 

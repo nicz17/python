@@ -12,6 +12,7 @@ import glob
 import exifread
 import os
 import DateTools
+from LocationCache import Location
 
 class PhotoInfo:
     log = logging.getLogger(__name__)
@@ -29,6 +30,7 @@ class PhotoInfo:
         self.exposureTime = None
         self.fNumber = None
         self.isoRating = None
+        self.closeTo = None
 
     def getNameShort(self) -> str:
         """Get the base file name of this photo."""
@@ -56,6 +58,14 @@ class PhotoInfo:
             return f'GPS {self.lon:.6f}/{self.lat:.6f}'
         else:
             return 'No GPS data'
+        
+    def getCloseTo(self) -> str:
+        """Get closest known location."""
+        return self.closeTo if self.closeTo else 'Inconnu'
+    
+    def setCloseTo(self, location: Location):
+        if location:
+            self.closeTo = location.getName()
 
     def identify(self):
         """Load details like size, shot-at and GPS from this image's EXIF tags."""
