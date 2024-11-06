@@ -136,9 +136,11 @@ class LocationCache:
 
     def getClosest(self, lat: float, lon: float) -> Location:
         """Find the closest location in this cache to the specified lat/lon."""
+        if lat is None or lon is None:
+            return None
         closest = None
         minDist = 100000
-        for loc in self.locations:
+        for loc in self.getLocations():
             dist = loc.getDistance(lat, lon)
             if dist < minDist:
                 closest = loc
