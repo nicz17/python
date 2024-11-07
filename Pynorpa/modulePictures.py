@@ -22,7 +22,7 @@ class ModulePictures(TabModule):
         self.window = parent.window
         self.table  = PictureTable(self.onSelectPicture)
         self.editor = PictureEditor(self.onSavePicture)
-        self.imageWidget = imageWidget.ImageWidget()
+        self.imageWidget = imageWidget.ImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
         super().__init__(parent, 'Photos')
 
     def loadData(self):

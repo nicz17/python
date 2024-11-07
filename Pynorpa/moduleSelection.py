@@ -31,7 +31,7 @@ class ModuleSelection(TabModule):
         self.window = parent.window
         self.table = TablePhotos(self.onSelectPhoto)
         #self.mapWidget = MapWidget()
-        self.imageWidget = imageWidget.ImageWidget()
+        self.imageWidget = imageWidget.ImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
         self.editor = PhotoEditor()
         self.selector = TaxonSelector()
         self.locationCache = LocationCache.LocationCache()
@@ -66,7 +66,7 @@ class ModuleSelection(TabModule):
     def onSelectPhoto(self, photo: PhotoInfo):
         """Photo selection callback."""
         self.log.info(f'Selected {photo}')
-        thumbfile = None
+        thumbfile = None  # Thumb size: 500x500px
         if photo is not None:
             thumbfile = photo.filename.replace('orig/', 'thumbs/')
         self.imageWidget.loadData(thumbfile)

@@ -16,9 +16,10 @@ class ImageWidget():
     """A widget displaying an image from a file."""
     log = logging.getLogger('ImageWidget')
 
-    def __init__(self):
+    def __init__(self, defImage = None):
         """Constructor"""
         self.log.info('Constructor')
+        self.defImage = defImage
 
     def loadData(self, filename: str):
         """Display the specified image if it exists."""
@@ -35,8 +36,13 @@ class ImageWidget():
 
     def setDefaultImage(self):
         """Display the default image."""
-        self.lblImage.configure(image='')
-        self.lblImage.image = None
+        if self.defImage and os.path.exists(self.defImage):
+            img = ImageTk.PhotoImage(Image.open(self.defImage))
+            self.lblImage.configure(image=img)
+            self.lblImage.image = img
+        else:
+            self.lblImage.configure(image='')
+            self.lblImage.image = None
         
     def createWidgets(self, parent: tk.Frame):
         """Create user widgets."""
