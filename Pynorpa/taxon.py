@@ -49,13 +49,47 @@ class Taxon():
         self.order = order
         self.typical = typical
         self.children = []
+        self.pictures = []
 
-    def addChild(self, child):
+    def addChild(self, child: 'Taxon'):
+        """Add a child of this taxon."""
         if child is not None:
             self.children.append(child)
 
-    def getChildren(self):
+    def addPicture(self, picture):
+        """Add a picture of this taxon."""
+        if picture:
+            self.pictures.append(picture)
+
+    def getChildren(self) -> list['Taxon']:
+        """Get all children of this taxon."""
         return self.children
+    
+    def getTypicalChild(self) -> 'Taxon':
+        """Get the typical child of this taxon, or None."""
+        for child in self.getChildren():
+            if child.isTypical():
+                return child
+        if len(self.children) > 0:
+            return self.getChildren()[0]
+        return None
+    
+    def getAnyPicture(self):
+        """Get any picture of this taxon or its children."""
+        if len(self.pictures) > 0:
+            return self.pictures[0]
+        if len(self.children) > 0:
+            return self.getChildren()[0].getAnyPicture()
+        return None
+    
+    def getTypicalPicture(self):
+        """Get the most representative picture of this taxon or its children."""
+        if len(self.pictures) > 0:
+            return self.pictures[0]
+        typicalChild = self.getTypicalChild()
+        if typicalChild:
+            return typicalChild.getTypicalPicture()
+        return None
 
     def getIdx(self) -> int:
         """Getter for idx"""
@@ -108,6 +142,10 @@ class Taxon():
     def setOrder(self, order: int):
         """Setter for order"""
         self.order = order
+
+    def isTypical(self) -> bool:
+        """Check if this taxon is the type of its parent."""
+        return self.typical
 
     def getTypical(self) -> bool:
         """Getter for typical"""

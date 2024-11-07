@@ -171,6 +171,8 @@ class PictureCache():
         for pic in self.pictures:
             pic.location = self.locationCache.getById(pic.idxLocation)
             pic.taxon = self.taxonCache.findById(pic.idxTaxon)
+            if pic.taxon:
+                pic.taxon.addPicture(pic)
 
     def fetchFromWhere(self, where: str) -> list[int]:
         """Fetch Picture records from a SQL where-clause. Return a list of ids."""

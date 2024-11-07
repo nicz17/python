@@ -6,10 +6,12 @@ __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
+import config
 import logging
 from TabsApp import *
 from BaseTree import *
 import BaseWidgets
+import imageWidget
 from taxon import Taxon, TaxonCache
 
 
@@ -24,6 +26,7 @@ class ModuleTaxon(TabModule):
         self.cache  = None
         self.tree   = TaxonTree(self.onSelectTaxon)
         self.editor = TaxonEditor(self.onSaveTaxon)
+        self.imageWidget = imageWidget.ImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
 
     def loadData(self):
         self.cache  = TaxonCache()
@@ -39,6 +42,10 @@ class ModuleTaxon(TabModule):
 
         # Display in widgets
         self.editor.loadData(taxon)
+        if taxon:
+            self.imageWidget.loadThumb(taxon.getTypicalPicture())
+        else:
+            self.imageWidget.loadThumb(None)
 
     def onSaveTaxon(self, taxon: Taxon):
         pass
@@ -50,6 +57,7 @@ class ModuleTaxon(TabModule):
         # Taxon tree and editor
         self.tree.createWidgets(self.frmLeft)
         self.editor.createWidgets(self.frmRight)
+        self.imageWidget.createWidgets(self.frmRight)
         self.editor.loadData(None)
 
 
