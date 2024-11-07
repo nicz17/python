@@ -34,11 +34,7 @@ class ModulePictures(TabModule):
         """Display selected object in editor."""
         self.log.info(f'Selected {picture}')
         self.editor.loadData(picture)
-
-        fileMedium = None
-        if picture is not None:
-            fileMedium = f'{config.dirPicsBase}medium/{picture.filename}'
-        self.imageWidget.loadData(fileMedium)
+        self.imageWidget.loadThumb(picture)
 
     def onSavePicture(self, picture: Picture):
         """Save changes to edited object."""
