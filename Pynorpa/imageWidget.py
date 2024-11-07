@@ -6,10 +6,12 @@ __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
+import config
 import logging
 import os
 import tkinter as tk
 from PIL import ImageTk, Image
+from picture import Picture
 
 
 class ImageWidget():
@@ -33,6 +35,13 @@ class ImageWidget():
                 self.lblImage.configure(text=f'Could not find\n{filename}')
             else:
                 self.lblImage.configure(text='Choisir une photo')
+
+    def loadThumb(self, picture: Picture):
+        """Display the thumbnail of the specified picture."""
+        fileMedium = None
+        if picture is not None:
+            fileMedium = f'{config.dirPicsBase}medium/{picture.filename}'
+        self.loadData(fileMedium)
 
     def setDefaultImage(self):
         """Display the default image."""
