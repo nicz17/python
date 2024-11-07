@@ -82,10 +82,20 @@ class Taxon():
             return self.getChildren()[0].getAnyPicture()
         return None
     
+    def getBestPicture(self):
+        """Get the highest quality picture of this taxon."""
+        result = None
+        maxRating = 0
+        for pic in self.pictures:
+            if pic.getRating() > maxRating:
+                result = pic
+                maxRating = pic.getRating()
+        return result
+    
     def getTypicalPicture(self):
         """Get the most representative picture of this taxon or its children."""
         if len(self.pictures) > 0:
-            return self.pictures[0]
+            return self.getBestPicture()
         typicalChild = self.getTypicalChild()
         if typicalChild:
             return typicalChild.getTypicalPicture()
