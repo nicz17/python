@@ -18,6 +18,23 @@ def enableWidget(widget: tk.Widget, enabled: bool):
     if widget:
         widget['state'] = tk.NORMAL if enabled else tk.DISABLED
 
+class Button():
+    """A button with label, optional icon and tooltip."""
+
+    def __init__(self, parent: tk.Frame, label: str, cmd, icon=None, tooltip=None):
+        self.btn = tk.Button(parent, text=label, command=cmd)
+        self.icon = icon
+        self.tooltip = None
+        if tooltip:
+            self.tooltip = ToolTip(self.btn, tooltip)
+            
+        #icon = tk.PhotoImage(file = '/home/nicz/prog/icons/add.png') 
+        #self.btnAdd = tk.Button(parent, image=icon, command = self.cbkAdd)
+        #self.btnAdd.image = icon
+
+    def pack(self):
+        self.btn.pack(side=tk.LEFT, padx=3, pady=3)
+
 class BaseWidget():
     """Base superclass for custom input widgets."""
     log = logging.getLogger('BaseWidget')

@@ -12,7 +12,7 @@ from TabsApp import *
 from CopyFromCamera import *
 from Renderer import *
 from PynorpaTask import *
-from BaseWidgets import ComboBox, ToolTip
+from BaseWidgets import ComboBox, ToolTip, Button
 from LocationCache import *
 
 class ModuleCamera(TabModule):
@@ -94,7 +94,7 @@ class ModuleCamera(TabModule):
 
     def addButton(self, label: str, cmd):
         """Add a Tk Button to this module's frmButtons."""
-        btn = tk.Button(self.frmButtons, text = label, command = cmd)
+        btn = tk.Button(self.frmButtons, text=label, command=cmd)
         btn.pack(side=tk.LEFT, padx=3, pady=7)
         return btn
 
@@ -108,6 +108,8 @@ class ModuleCamera(TabModule):
         # Buttons
         self.btnCopy = self.addButton('Copier', self.copyFiles)
         self.btnOpen = self.addButton('Ouvrir', self.openPhotoDir)
+        self.btnTest = Button(self.frmButtons, 'Test', self.openPhotoDir, 'open', 'Test open photo viewer')
+        self.btnTest.pack()
         ToolTip(self.btnCopy, 'Copier les photos depuis la carte mémoire')
 
         # Default location selector
