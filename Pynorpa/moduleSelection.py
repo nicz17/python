@@ -54,7 +54,6 @@ class ModuleSelection(TabModule):
     def loadData(self):
         """Load the photos to display."""
         self.photos = []
-        #self.getDefaultDir()
         files = sorted(glob.glob(f'{self.dir}/*.JPG'))
         for file in files:
             photo = PhotoInfo(file)
@@ -196,7 +195,7 @@ class TaxonSelector():
                 taxonName = f'{taxon.getRankFr()} : {taxon.getName()} ({taxon.getNameFr()})'
                 self.lblTaxon.configure(text=taxonName)
             else:
-                self.newName = f'{input}-sp00x.jpg'
+                #self.newName = f'{input}-sp00x.jpg'
                 self.lblTaxon.configure(text='Pas de taxon trouvé')
             self.buildNewName(taxon, input)
             self.lblName.configure(text=self.newName)
@@ -247,7 +246,6 @@ class TablePhotos(TableWithColumns):
         """Constructor with selection callback."""
         self.log.info('Constructor')
         super().__init__(cbkSelect, 'photos')
-        #self.columns = ('Nom', 'Date', 'Près de')
         self.addColumn(TableColumn('Nom',     PhotoInfo.getNameShort,    120))
         self.addColumn(TableColumn('Date',    PhotoInfo.getShotAtString, 150))
         self.addColumn(TableColumn('Près de', PhotoInfo.getCloseTo,      300))
@@ -258,13 +256,6 @@ class TablePhotos(TableWithColumns):
         self.clear()
         self.data = photos
         self.addRows(photos)
-        # for photo in photos:
-        #     rowData = (
-        #         photo.getNameShort(), 
-        #         photo.getShotAtString(),
-        #         photo.getCloseTo()
-        #     )
-        #     self.addRow(rowData)
 
     def createWidgets(self, parent: tk.Frame):
         """Create user widgets."""
