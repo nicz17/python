@@ -106,8 +106,19 @@ class TableWithColumns(BaseTable):
         
     def createWidgets(self, parent: tk.Frame):
         """Create user widgets."""
-        self.tree = ttk.Treeview(parent, height=36)
+
+        # Scrolling frame
+        frmScroll = tk.Frame(parent)
+        frmScroll.pack(pady=5, anchor=tk.W)
+
+        # Treeview
+        self.tree = ttk.Treeview(frmScroll, height=36)
         self.tree['columns'] = [col.label for col in self.getColumns()]
+        self.tree.bind('<<TreeviewSelect>>', self.onRowSelection)
+        
+        # Scroll bar
+        self.scrollbar = ttk.Scrollbar(frmScroll, orient=tk.VERTICAL, command=self.tree.yview)
+        self.tree.configure(yscrollcommand = self.scrollbar.set)
 
         # Define columns
         self.tree.column('#0', width=0, stretch=tk.NO)
@@ -119,8 +130,9 @@ class TableWithColumns(BaseTable):
         for col in self.getColumns():
             self.tree.heading(col.label, text=col.label, anchor=tk.W)
 
-        self.tree.bind('<<TreeviewSelect>>', self.onRowSelection)
-        self.tree.pack(pady=5, anchor=tk.W)
+        # Pack
+        self.tree.pack(side=tk.LEFT)
+        self.scrollbar.pack(side=tk.LEFT, fill=tk.Y)
 
         # Status and toolbar frame
         self.frmToolBar = tk.Frame(parent)
