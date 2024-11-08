@@ -323,7 +323,16 @@ class DatabaseCodeGen():
         oMeth.addCodeLine('self.createButtons(True, True, False)')
         oMeth.addCodeLine('self.enableWidgets()')
 
-        # TODO enableWidgets method
+        # enableWidgets method
+        params = [SimpleUMLParam('evt=None')]
+        oMeth = clss.addMethod('enableWidgets', params, None, False)
+        oMeth.setDoc('Enable or disable widgets of this editor.')
+        oMeth.addCodeLine(f'editing  = self.{nameObject} is not None')
+        oMeth.addCodeLine(f'modified = self.hasChanges(self.{nameObject})')
+        oMeth.addCodeLine('super().enableWidgets(editing)')
+        oMeth.addCodeLine('BaseWidgets.enableWidget(self.btnSave, modified)')
+        oMeth.addCodeLine('BaseWidgets.enableWidget(self.btnCancel, modified)')
+        oMeth.addCodeLine('BaseWidgets.enableWidget(self.btnDelete, False)')
 
         return clss
 
