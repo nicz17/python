@@ -74,3 +74,64 @@ class BaseTable():
         self.tree.delete(*self.tree.get_children())
         self.nRows = 0
         self.lblStatus.configure(text=f'No {self.objectlabel}')
+
+    def __str__(self) -> str:
+        return f'BaseTable for {self.objectlabel}'
+
+class TableColumn():
+    """A table column."""
+    log = logging.getLogger('TableColumn')
+
+    def __init__(self, label: str, mtdGetter, width=100):
+        """Constructor with label, getter method, and width in pixels."""
+        self.label = label
+        self.mtdGetter = mtdGetter
+        self.width = width
+    
+class TableWithColumns(BaseTable):
+    """A table configured with columns."""
+    log = logging.getLogger('TableWithColumns')
+
+    def __init__(self, cbkSelectRow, objectLabel = 'rows'):
+        super().__init__(cbkSelectRow, objectLabel)
+        self.columns = []
+
+    def addColumn(self, column: TableColumn):
+        """Add a column definition to this table."""
+        self.columns.append(column)
+
+    def getColumns(self) -> list[TableColumn]:
+        """Get all columns of this table."""
+        return self.columns
+        
+    def createWidgets(self, parent: tk.Frame):
+        """Create user widgets."""
+        self.tree = ttk.Treeview(parent, height=36)
+        self.tree['columns'] = [col.label for col in self.getColumns()]
+
+        # Define columns
+        self.tree.column('#0', width=0, stretch=tk.NO)
+        for col in self.getColumns():
+            self.tree.column(col.label, width=col.width, anchor=tk.W)
+
+        # Define headings
+        self.tree.heading('#0', text='', anchor=tk.W)
+        for col in self.getColumns():
+            self.tree.heading(col.label, text=col.label, anchor=tk.W)
+
+        self.tree.bind('<<TreeviewSelect>>', self.onRowSelection)
+        self.tree.pack(pady=5, anchor=tk.W)
+
+        # Status and toolbar frame
+        self.frmToolBar = tk.Frame(parent)
+        self.frmToolBar.pack(fill=tk.X, anchor=tk.W)
+        self.lblStatus = tk.Label(master=self.frmToolBar)
+        self.lblStatus.pack(fill=tk.X, side=tk.LEFT) 
+
+    def addRows(self, data):
+        """Add on table row for each object in data."""
+        for object in data:
+            rowdata = []
+            for col in self.getColumns():
+                rowdata.append(col.mtdGetter(object))
+            self.addRow(rowdata)
