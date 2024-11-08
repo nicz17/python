@@ -182,12 +182,13 @@ class TaxonSelector():
         self.enableWidgets()
         self.txtInput.focus_set()
 
-    def onModified(self, event = None):
+    def onModified(self, event=None):
         """Callback for user input. Look for a matching taxon."""
-        input = self.txtInput.get().strip()
+        input = self.txtInput.get()
         if input and len(input) > 2:
             self.log.info('Looking for taxon named like %s', f'%{input}%')
-            where = f"taxName like '%{input.replace(' ', '%')}%'"
+            #where = f"taxName like '%{input.replace(' ', '%')}%'"
+            where = f"taxName like '%{input.replace(' ', '% %')}%'"
             ids = self.taxonCache.fetchFromWhere(where)
             taxon = None
             if ids and len(ids) > 0:
