@@ -238,7 +238,7 @@ class TaxonSelector():
         if oWidget:
             oWidget['state'] = tk.NORMAL if enabled else tk.DISABLED
 
-class TablePhotos(BaseTable):
+class TablePhotos(TableWithColumns):
     """Table widget for Pynorpa photo."""
     log = logging.getLogger("TablePhotos")
 
@@ -246,25 +246,28 @@ class TablePhotos(BaseTable):
         """Constructor with selection callback."""
         self.log.info('Constructor')
         super().__init__(cbkSelect, 'photos')
-        self.columns = ('Nom', 'Date', 'Près de')
+        #self.columns = ('Nom', 'Date', 'Près de')
+        self.addColumn(TableColumn('Nom',     PhotoInfo.getNameShort,    120))
+        self.addColumn(TableColumn('Date',    PhotoInfo.getShotAtString, 150))
+        self.addColumn(TableColumn('Près de', PhotoInfo.getCloseTo,      300))
 
     def loadData(self, photos: list[PhotoInfo]):
         """Display the specified photos in this table."""
         self.log.info('Loading %d photos', len(photos))
         self.clear()
         self.data = photos
-
-        for photo in photos:
-            rowData = (
-                photo.getNameShort(), 
-                photo.getShotAtString(),
-                photo.getCloseTo()
-            )
-            self.addRow(rowData)
+        self.addRows(photos)
+        # for photo in photos:
+        #     rowData = (
+        #         photo.getNameShort(), 
+        #         photo.getShotAtString(),
+        #         photo.getCloseTo()
+        #     )
+        #     self.addRow(rowData)
 
     def createWidgets(self, parent: tk.Frame):
         """Create user widgets."""
-        super().createWidgets(parent, self.columns)
+        super().createWidgets(parent)
 
     def __str__(self) -> str:
         return 'TablePhotos'
