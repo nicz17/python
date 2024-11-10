@@ -7,6 +7,7 @@ __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
 import logging
+import os
 import tkinter as tk
 from tkinter import ttk
 import datetime
@@ -21,19 +22,29 @@ def enableWidget(widget: tk.Widget, enabled: bool):
 class Button():
     """A button with label, optional icon and tooltip."""
 
-    def __init__(self, parent: tk.Frame, label: str, cmd, icon=None, tooltip=None):
-        self.btn = tk.Button(parent, text=label, command=cmd)
-        self.icon = icon
+    def __init__(self, parent: tk.Frame, label: str, cmd, iconName=None, tooltip=None):
+        self.icon = self.getIcon(iconName)
+        if self.icon:
+            self.btn = tk.Button(parent, text=label, image=self.icon, compound=tk.LEFT, command=cmd)
+        else:
+            self.btn = tk.Button(parent, text=label, command=cmd)
+
         self.tooltip = None
         if tooltip:
             self.tooltip = ToolTip(self.btn, tooltip)
-            
-        #icon = tk.PhotoImage(file = '/home/nicz/prog/icons/add.png') 
-        #self.btnAdd = tk.Button(parent, image=icon, command = self.cbkAdd)
-        #self.btnAdd.image = icon
 
-    def pack(self):
-        self.btn.pack(side=tk.LEFT, padx=3, pady=3)
+    def pack(self, pady=3):
+        self.btn.pack(side=tk.LEFT, padx=3, pady=pady)
+
+    def getIcon(self, iconName: str):
+        if iconName:
+            file = f'/home/nicz/prog/icons/{iconName}.png'
+            if os.path.exists(file):
+                return tk.PhotoImage(file=file)
+        return None
+    
+    def enableWidget(self, enabled: bool):
+        self.btn['state'] = tk.NORMAL if enabled else tk.DISABLED
 
 class BaseWidget():
     """Base superclass for custom input widgets."""
@@ -393,13 +404,13 @@ class BaseEditor():
         frmButtons = ttk.Frame(self.frmEdit, padding=5)
         frmButtons.grid(row=self.row, column=0, columnspan=2)
         if bSave:
-            self.btnSave = tk.Button(frmButtons, text = 'Save', command = self.onSave)
+            self.btnSave = tk.Button(frmButtons, text = 'Sauver', command = self.onSave)
             self.btnSave.grid(row=0, column=0, padx=3)
         if bCancel:
-            self.btnCancel = tk.Button(frmButtons, text = 'Cancel', command = self.onCancel)
+            self.btnCancel = tk.Button(frmButtons, text = 'Annuler', command = self.onCancel)
             self.btnCancel.grid(row=0, column=1, padx=3)
         if bDelete:
-            self.btnDelete = tk.Button(frmButtons, text = 'Delete', command = self.onDelete)
+            self.btnDelete = tk.Button(frmButtons, text = 'Effacer', command = self.onDelete)
             self.btnDelete.grid(row=0, column=2, padx=3)
 
     def addText(self, label: str, mtdGetter) -> TextInput:
