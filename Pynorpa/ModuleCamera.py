@@ -92,10 +92,12 @@ class ModuleCamera(TabModule):
             defLocation = self.cache.getByName(name)
         self.tracker.setDefaultLocation(defLocation)
 
-    def addButton(self, label: str, cmd):
+    def addButton(self, label: str, icon: str, cmd) -> Button:
         """Add a Tk Button to this module's frmButtons."""
-        btn = tk.Button(self.frmButtons, text=label, command=cmd)
-        btn.pack(side=tk.LEFT, padx=3, pady=7)
+        #btn = tk.Button(self.frmButtons, text=label, command=cmd)
+        #btn.pack(side=tk.LEFT, padx=3, pady=7)
+        btn = Button(self.frmButtons, label, cmd, icon)
+        btn.pack(9)
         return btn
 
     def createWidgets(self):
@@ -106,11 +108,9 @@ class ModuleCamera(TabModule):
         self.frmButtons.pack(anchor=tk.W)
 
         # Buttons
-        self.btnCopy = self.addButton('Copier', self.copyFiles)
-        self.btnOpen = self.addButton('Ouvrir', self.openPhotoDir)
-        self.btnTest = Button(self.frmButtons, 'Test', self.openPhotoDir, 'open', 'Test open photo viewer')
-        self.btnTest.pack()
-        ToolTip(self.btnCopy, 'Copier les photos depuis la carte mémoire')
+        self.btnCopy = self.addButton('Copier', 'run',  self.copyFiles)
+        self.btnOpen = self.addButton('Ouvrir', 'open', self.openPhotoDir)
+        #ToolTip(self.btnCopy, 'Copier les photos depuis la carte mémoire')
 
         # Default location selector
         self.frmDefLoc = ttk.LabelFrame(self.frmButtons, text='Lieu par défaut')
@@ -128,5 +128,7 @@ class ModuleCamera(TabModule):
         self.canTasks.pack(side=tk.LEFT)
 
     def enableWidgets(self):
-        self.enableWidget(self.btnCopy, not self.isRunning)
-        self.enableWidget(self.btnOpen, not self.isRunning)
+        #self.enableWidget(self.btnCopy, not self.isRunning)
+        #self.enableWidget(self.btnOpen, not self.isRunning)
+        self.btnCopy.enableWidget(not self.isRunning)
+        self.btnOpen.enableWidget(not self.isRunning)

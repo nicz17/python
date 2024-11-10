@@ -216,22 +216,22 @@ class TaxonSelector():
         self.lblName = tk.Label(self.frmSelect, text='Choisir un taxon ou un nom')
         self.lblName.pack()
 
-        self.btnSelect = self.addButton('Sélectionner', self.onSelect)
-        self.btnClear  = self.addButton('Effacer', self.onClear)
-        self.btnGimp   = self.addButton('Ouvrir avec Gimp', self.onOpenGimp)
+        self.btnSelect = self.addButton('Sélectionner', self.onSelect, 'ok')
+        self.btnClear  = self.addButton('Effacer', self.onClear, 'clear-bar')
+        self.btnGimp   = self.addButton('Ouvrir dans Gimp', self.onOpenGimp, 'gimp')
         self.enableWidgets()
 
-    def addButton(self, label: str, cmd):
+    def addButton(self, label: str, cmd, icon: str) -> BaseWidgets.Button:
         """Add a Tk Button to this module's frmButtons."""
-        btn = tk.Button(self.frmSelect, text=label, command=cmd)
-        btn.pack(side=tk.LEFT, padx=3, pady=3)
+        btn = BaseWidgets.Button(self.frmSelect, label, cmd, icon)
+        btn.pack()
         return btn
 
     def enableWidgets(self):
         """Enable or disable our widgets."""
-        self.enableWidget(self.btnSelect, self.photo is not None and self.newName is not None)
-        self.enableWidget(self.btnGimp, self.lastSelected is not None)
-        self.enableWidget(self.btnClear, self.newName is not None)
+        self.btnSelect.enableWidget(self.photo is not None and self.newName is not None)
+        self.btnGimp.enableWidget(self.lastSelected is not None)
+        self.btnClear.enableWidget(self.newName is not None)
 
     def enableWidget(self, oWidget, enabled: bool):
         """Enable or disable the widget."""
