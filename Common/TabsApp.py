@@ -22,18 +22,18 @@ class TabsApp(BaseApp):
 
     def createBaseWidgets(self):
         """Create base widgets"""
-        self.frmTop = tk.Frame(master=self.window, width=1200, height=800)
-        self.frmTop.pack(fill=tk.X, side=tk.TOP)
-        self.frmButtons = tk.Frame(master=self.frmTop, width=100, height=800)
+        self.frmTop = ttk.Frame(master=self.window, width=1200, height=800)
+        self.frmTop.pack(fill=tk.BOTH, side=tk.TOP)
+        self.frmButtons = ttk.Frame(master=self.frmTop, width=100, height=800)
         self.frmButtons.pack(fill=tk.Y, side=tk.LEFT)
-        self.frmBottom = tk.Frame(master=self.window, width=1200, height=50, bg='red')
+        self.frmBottom = ttk.Frame(master=self.window, width=1200, height=50)
         self.frmBottom.pack(fill=tk.X, side=tk.BOTTOM)
         
-        self.tabControl = ttk.Notebook(self.frmTop)
-        self.tabControl.pack(expand=1, fill="both", pady=3, padx=5)
+        self.tabControl = ttk.Notebook(self.frmTop, height=940)
+        self.tabControl.pack(expand=1, fill=tk.BOTH, pady=3, padx=5)
         self.tabControl.bind("<<NotebookTabChanged>>", self.onTabSelection)
 
-        self.lblStatus = tk.Label(master=self.frmBottom)
+        self.lblStatus = ttk.Label(master=self.frmBottom)
         self.lblStatus.pack(fill=tk.X) 
         
     def addTab(self, oTab):
@@ -109,14 +109,14 @@ class TabModule:
 
     def createWidgets(self):
         """Create user widgets"""
-        self.lblTest = tk.Label(master=self.oFrame)
+        self.lblTest = ttk.Label(master=self.oFrame)
         self.lblTest.pack(fill=tk.X)
         self.lblTest.configure(text = f'Test for {self.sTitle} tab')
 
     def createLeftRightFrames(self):
         """Create frmLeft and frmRight in this tab."""
-        self.frmLeft  = tk.Frame(master=self.oFrame)
-        self.frmRight = tk.Frame(master=self.oFrame)
+        self.frmLeft  = ttk.Frame(master=self.oFrame)
+        self.frmRight = ttk.Frame(master=self.oFrame)
         self.frmLeft.pack(fill=tk.Y, side=tk.LEFT, pady=0)
         self.frmRight.pack(fill=tk.Y, side=tk.LEFT, pady=6, padx=6)
 

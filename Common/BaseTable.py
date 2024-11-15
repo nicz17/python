@@ -29,7 +29,7 @@ class BaseTable():
         if self.cbkSelectRow:
             self.cbkSelectRow(self.data[idxRow] if idxRow is not None else None)
         
-    def createWidgets(self, parent: tk.Frame, columns):
+    def createWidgets(self, parent: ttk.Frame, columns):
         """Create user widgets."""
         self.tree = ttk.Treeview(parent, height=36)
         self.tree['columns'] = columns
@@ -48,9 +48,9 @@ class BaseTable():
         self.tree.pack(pady=5, anchor=tk.W)
 
         # Status and toolbar frame
-        self.frmToolBar = tk.Frame(parent)
+        self.frmToolBar = ttk.Frame(parent)
         self.frmToolBar.pack(fill=tk.X, anchor=tk.W)
-        self.lblStatus = tk.Label(master=self.frmToolBar)
+        self.lblStatus = ttk.Label(master=self.frmToolBar)
         self.lblStatus.pack(fill=tk.X, side=tk.LEFT) 
 
     def addRow(self, rowData):
@@ -108,11 +108,11 @@ class TableWithColumns(BaseTable):
         """Create user widgets."""
 
         # Scrolling frame
-        frmScroll = tk.Frame(parent)
+        frmScroll = ttk.Frame(parent)
         frmScroll.pack(pady=5, anchor=tk.W)
 
         # Treeview
-        self.tree = ttk.Treeview(frmScroll, height=36)
+        self.tree = ttk.Treeview(frmScroll, height=40)
         self.tree['columns'] = [col.label for col in self.getColumns()]
         self.tree.bind('<<TreeviewSelect>>', self.onRowSelection)
         
@@ -135,9 +135,9 @@ class TableWithColumns(BaseTable):
         self.scrollbar.pack(side=tk.LEFT, fill=tk.Y)
 
         # Status and toolbar frame
-        self.frmToolBar = tk.Frame(parent)
+        self.frmToolBar = ttk.Frame(parent)
         self.frmToolBar.pack(fill=tk.X, anchor=tk.W)
-        self.lblStatus = tk.Label(master=self.frmToolBar)
+        self.lblStatus = ttk.Label(master=self.frmToolBar)
         self.lblStatus.pack(fill=tk.X, side=tk.LEFT) 
 
     def addRows(self, data):

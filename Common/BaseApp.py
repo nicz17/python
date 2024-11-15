@@ -7,7 +7,7 @@ __copyright__ = "Copyright 2023 N. Zwahlen"
 __version__ = "1.0.0"
 
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import ttk, messagebox
 import logging
 import os
 
@@ -42,7 +42,7 @@ class BaseApp:
 
     def createBaseWidgets(self):
         """Create base widgets: status label."""
-        self.lblStatus = tk.Label(master=self.frmBottom)
+        self.lblStatus = ttk.Label(master=self.frmBottom)
         self.lblStatus.pack(fill=tk.X, side=tk.LEFT) 
 
     def createBaseButtons(self):
@@ -52,19 +52,19 @@ class BaseApp:
 
     def createFrames(self):
         """Create basic frames for the widgets"""
-        self.frmTop = tk.Frame(master=self.window, width=1200, height=100)
-        self.frmTop.pack(fill=tk.X, side=tk.TOP)
-        self.frmBottom = tk.Frame(master=self.window, width=1200, height=50)
+        self.frmTop = ttk.Frame(master=self.window, width=1200, height=100)
+        self.frmTop.pack(fill=tk.BOTH, side=tk.TOP)
+        self.frmBottom = ttk.Frame(master=self.window, width=1200, height=50)
         self.frmBottom.pack(fill=tk.X, side=tk.BOTTOM)
 
-        self.frmButtons = tk.Frame(master=self.frmTop, width=100, height=100)
+        self.frmButtons = ttk.Frame(master=self.frmTop, width=100, height=100)
         self.frmButtons.pack(fill=tk.Y, side=tk.LEFT)
-        self.frmMain = tk.Frame(master=self.frmTop, width=700)
+        self.frmMain = ttk.Frame(master=self.frmTop, width=700)
         self.frmMain.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
 
-    def addButton(self, sLabel: str, fnCmd) -> tk.Button:
+    def addButton(self, sLabel: str, fnCmd) -> ttk.Button:
         """Add a button with the specified label and callback."""
-        btn = tk.Button(master=self.frmButtons, text=sLabel, command=fnCmd)
+        btn = ttk.Button(master=self.frmButtons, text=sLabel, command=fnCmd)
         btn.pack(fill=tk.X, padx=4, pady=2)
         return btn
 
@@ -101,7 +101,7 @@ class BaseApp:
         """Display a tk error message box."""
         messagebox.showerror('Error', msg)
         
-    def enableButton(self, btn: tk.Button, bEnabled: bool):
+    def enableButton(self, btn: ttk.Button, bEnabled: bool):
         """Enable the specified button if bEnabled is true."""
         if btn:
             if bEnabled:

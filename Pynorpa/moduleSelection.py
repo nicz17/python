@@ -100,7 +100,7 @@ class ModuleSelection(TabModule):
 
     def addButton(self, label: str, cmd):
         """Add a Tk Button to this module's frmButtons."""
-        btn = tk.Button(self.frmButtons, text = label, command = cmd)
+        btn = ttk.Button(self.frmButtons, text = label, command = cmd)
         btn.pack(side=tk.LEFT)
         return btn
     
@@ -210,10 +210,10 @@ class TaxonSelector():
         self.txtInput.pack(fill=tk.X, padx=3)
         self.txtInput.bind('<KeyRelease>', self.onModified)
 
-        self.lblTaxon = tk.Label(self.frmSelect, text='Taxon non défini')
+        self.lblTaxon = ttk.Label(self.frmSelect, text='Taxon non défini')
         self.lblTaxon.pack()
 
-        self.lblName = tk.Label(self.frmSelect, text='Choisir un taxon ou un nom')
+        self.lblName = ttk.Label(self.frmSelect, text='Choisir un taxon ou un nom')
         self.lblName.pack()
 
         self.btnSelect = self.addButton('Sélectionner', self.onSelect, 'ok')

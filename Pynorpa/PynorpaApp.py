@@ -13,6 +13,7 @@ import moduleLocations
 import moduleSelection
 import modulePictures
 import moduleTaxon
+from ttkthemes import ThemedStyle
 
 class PynorpaApp(TabsApp):
     """Pynorpa App window."""
@@ -25,8 +26,16 @@ class PynorpaApp(TabsApp):
         sGeometry = f'{self.iWidth}x{self.iHeight}'
         super().__init__('Pynorpa App', sGeometry)
 
+        # Setting Theme
+        style = ThemedStyle(self.window)
+        #style.set_theme("scidgrey")
+        style.set_theme("radiance")  # Ubuntu
+        #style.set_theme("equilux")  # Dark theme
+
         modCamera    = ModuleCamera(self)
         modSelection = moduleSelection.ModuleSelection(self)
         modLocations = moduleLocations.ModuleLocations(self)
         modTaxon     = moduleTaxon.ModuleTaxon(self)
         modPictures  = modulePictures.ModulePictures(self)
+
+        self.setStatus('Welcome to Pynorpa')

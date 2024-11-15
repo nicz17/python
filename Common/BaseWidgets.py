@@ -25,9 +25,9 @@ class Button():
     def __init__(self, parent: tk.Frame, label: str, cmd, iconName=None, tooltip=None):
         self.icon = self.getIcon(iconName)
         if self.icon:
-            self.btn = tk.Button(parent, text=label, image=self.icon, compound=tk.LEFT, command=cmd)
+            self.btn = ttk.Button(parent, text=label, image=self.icon, compound=tk.LEFT, command=cmd)
         else:
-            self.btn = tk.Button(parent, text=label, command=cmd)
+            self.btn = ttk.Button(parent, text=label, command=cmd)
 
         self.tooltip = None
         if tooltip:
@@ -251,7 +251,7 @@ class TextReadOnly(BaseWidget):
         
     def createWidgets(self, parent: tk.Frame, row: int, col: int):
         """Create widget in parent frame with grid layout."""
-        self.oLabel = tk.Label(parent)
+        self.oLabel = ttk.Label(parent)
         self.oLabel.grid(row=row, column=col, padx=5, sticky='w')
     
     def __str__(self) -> str:
@@ -404,13 +404,13 @@ class BaseEditor():
         frmButtons = ttk.Frame(self.frmEdit, padding=5)
         frmButtons.grid(row=self.row, column=0, columnspan=2)
         if bSave:
-            self.btnSave = tk.Button(frmButtons, text = 'Sauver', command = self.onSave)
+            self.btnSave = ttk.Button(frmButtons, text = 'Sauver', command = self.onSave)
             self.btnSave.grid(row=0, column=0, padx=3)
         if bCancel:
-            self.btnCancel = tk.Button(frmButtons, text = 'Annuler', command = self.onCancel)
+            self.btnCancel = ttk.Button(frmButtons, text = 'Annuler', command = self.onCancel)
             self.btnCancel.grid(row=0, column=1, padx=3)
         if bDelete:
-            self.btnDelete = tk.Button(frmButtons, text = 'Effacer', command = self.onDelete)
+            self.btnDelete = ttk.Button(frmButtons, text = 'Effacer', command = self.onDelete)
             self.btnDelete.grid(row=0, column=2, padx=3)
 
     def addText(self, label: str, mtdGetter) -> TextInput:
@@ -480,7 +480,7 @@ class BaseEditor():
 
     def addLabel(self, label: str):
         """Add an attribute label at the specified row."""
-        oLabel = tk.Label(self.frmEdit, text=label)
+        oLabel = ttk.Label(self.frmEdit, text=label)
         oLabel.grid(row=self.row, column=0, sticky='nw')
 
     def addWidget(self, oWidget: BaseWidget):
