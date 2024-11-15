@@ -51,7 +51,7 @@ class StepsTable():
             if step.status == Status.Done:
                 tag = 'step-done'
             self.tree.insert(parent='', index='end', iid=idx, text='',
-                values=(step.status.name, step.text), tags=(tag,))
+                values=(step.status.name, step.text), tags=(tag))
             idx += 1
 
     def getSelection(self) -> int:
