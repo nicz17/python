@@ -32,6 +32,25 @@ class TaxonRank(Enum):
             case TaxonRank.SPECIES: name = 'Espèce'
         return name
 
+    def getColor(self):
+        """Get the hex color code for the taxon."""
+        color = '#ffffff'
+        if self == TaxonRank.KINGDOM:
+            color = '#cf7dff'
+        if self == TaxonRank.PHYLUM:
+            color = '#8da7ff'
+        if self == TaxonRank.CLASS:
+            color = '#8dffe6'
+        if self == TaxonRank.ORDER:
+            color = '#afff8d'
+        if self == TaxonRank.FAMILY:
+            color = '#ffff8d'
+        if self == TaxonRank.GENUS:
+            color = '#ffcf8d'
+        if self == TaxonRank.SPECIES:
+            color = '#ffcdcd'
+        return color
+
     def __str__(self):
         return self.name
     

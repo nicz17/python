@@ -12,7 +12,7 @@ from TabsApp import *
 from BaseTree import *
 import BaseWidgets
 import imageWidget
-from taxon import Taxon, TaxonCache
+from taxon import Taxon, TaxonCache, TaxonRank
 
 
 class ModuleTaxon(TabModule):
@@ -74,9 +74,18 @@ class TaxonTree(BaseTree):
         parentId = None
         if taxon.getParent() is not None:
             parentId = str(taxon.getParent())
-        self.addItem(str(taxon.getIdx()), taxon.getName(), parentId)
+        tag = f'taxon-rank{taxon.getRank().value}'
+        text = taxon.getName()
+        if len(taxon.getChildren()) > 0:
+            text += f' ({len(taxon.getChildren())})'
+        self.addItem(str(taxon.getIdx()), text, parentId, tag)
         for child in taxon.getChildren():
             self.addTaxon(child)
+
+    def createWidgets(self, parent: tk.Frame):
+        super().createWidgets(parent)
+        for rank in TaxonRank:
+            self.tree.tag_configure(f'taxon-rank{rank.value}', background=rank.getColor())
 
     def onSelectEvent(self, event):
         self.cbkSelectItem(self.getSelectedId())
