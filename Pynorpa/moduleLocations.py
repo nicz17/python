@@ -49,7 +49,7 @@ class ModuleLocations(TabModule):
         self.editor.createWidgets(self.frmRight)
 
 
-class TableLocations(BaseTable):
+class TableLocations(TableWithColumns):
     """Table widget for Pynorpa Locations."""
     log = logging.getLogger("TableLocations")
 
@@ -57,22 +57,20 @@ class TableLocations(BaseTable):
         """Constructor with selection callback."""
         self.log.info('Constructor')
         super().__init__(cbkSelect, 'locations')
-        self.columns = ('Nom', 'Région', 'Altitude')
+        self.addColumn(TableColumn('Nom',      Location.getName,     200))
+        self.addColumn(TableColumn('Région',   Location.getRegion,   150))
+        self.addColumn(TableColumn('Altitude', Location.getAltitude,  80))
 
     def loadData(self, locations):
         """Display the specified locations in this table."""
         self.log.info('Loading %d locations', len(locations))
         self.clear()
         self.data = locations
-
-        location: Location
-        for location in locations:
-            rowData = (location.name, location.region, location.alt)
-            self.addRow(rowData)
+        self.addRows(locations)
 
     def createWidgets(self, parent: tk.Frame):
         """Create user widgets."""
-        super().createWidgets(parent, self.columns)
+        super().createWidgets(parent)
 
 
 class LocationEditor(BaseWidgets.BaseEditor):
