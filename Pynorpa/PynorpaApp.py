@@ -13,6 +13,7 @@ import moduleLocations
 import moduleSelection
 import modulePictures
 import moduleTaxon
+import modulePublish
 from ttkthemes import ThemedStyle
 
 class PynorpaApp(TabsApp):
@@ -37,5 +38,6 @@ class PynorpaApp(TabsApp):
         modLocations = moduleLocations.ModuleLocations(self)
         modTaxon     = moduleTaxon.ModuleTaxon(self)
         modPictures  = modulePictures.ModulePictures(self)
+        modulePublish.ModulePublish(self)
 
         self.setStatus('Welcome to Pynorpa')
