@@ -37,6 +37,7 @@ Pynorpa/pynorpa.log
 Pynorpa/Nature-2024-*/*
 Pynorpa/config.py
 Pynorpa/resources/*
+Pynorpa/export/*
 
 LogBook/*.json
 
