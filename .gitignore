@@ -41,6 +41,7 @@ Pynorpa/resources/*
 LogBook/*.json
 
 SimpleUML/test/*
+SimpleUML/uml/*
 SimpleUML/*.uml
 SimpleUML/settings.json
 Cereales/synthese.csv
