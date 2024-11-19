@@ -122,8 +122,9 @@ class ModuleCamera(TabModule):
         # Canvas
         self.canTasks = tk.Canvas(master=self.oFrame, bd=0, 
                                   #bg='#e0e0e0', 
+                                  bg='#f6f4f2', # Ubuntu theme
                                   height=self.oParent.iHeight-200, 
-                                  width=self.oParent.iWidth-210, 
+                                  width=self.oParent.iWidth-10, 
                                   highlightthickness=0)
         self.canTasks.pack(side=tk.LEFT)
 
