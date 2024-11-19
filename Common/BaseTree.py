@@ -27,7 +27,7 @@ class BaseTree():
         self.tree.bind('<<TreeviewSelect>>', self.cbkSelectionEvent)
         self.tree.pack(pady=5, anchor=tk.W)
 
-    def addItem(self, id: str, text: str, parentId: str, tag=None):
+    def addItem(self, id: str, text: str, parentId: str, tag=None, icon=None):
         """Add an item to the tree, possibly as a child."""
         if parentId is None:
             parentId = ""
@@ -37,7 +37,10 @@ class BaseTree():
         tags = []
         if tag:
             tags.append(tag)
-        iid = self.tree.insert(parentId, tk.END, text=text, iid=id, tags=tags)
+        if icon:
+            iid = self.tree.insert(parentId, tk.END, text=text, iid=id, image=icon)
+        else:
+            iid = self.tree.insert(parentId, tk.END, text=text, iid=id, tags=tags)
         #self.log.info('Added item %s %s', iid, text)
         return iid
 
