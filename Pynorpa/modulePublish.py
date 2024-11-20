@@ -6,7 +6,9 @@ __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
+import config
 import tkinter as tk
+import tkinterweb
 import logging
 from TabsApp import *
 import exporter
@@ -26,11 +28,22 @@ class ModulePublish(TabModule):
 
     def onExport(self):
         """Create HTML pages."""
-        self.exporter.buildLinks()
+        self.exporter.buildTest()
+        self.exporter.buildBasePages()
+        self.loadData()
+
+    def onReload(self):
+        """Reload our home page."""
+        self.loadData()
 
     def onUpload(self):
         """Upload HTML pages."""
         #self.uploader.upload()
+
+    def loadData(self):
+        homePage = f'{config.dirWebExport}index.html'
+        self.oParent.setStatus(f'Chargement de {homePage}')
+        self.web.load_file(homePage)
 
     def addButton(self, label: str, icon: str, cmd) -> Button:
         """Add a Tk Button to this module's frmButtons."""
@@ -46,14 +59,15 @@ class ModulePublish(TabModule):
         self.frmButtons.pack(anchor=tk.W)
 
         # Buttons
-        self.btnExport = self.addButton('Exporter', 'internet', self.onExport)
-        self.btnUpload = self.addButton('Publier',  'go-up',    self.onUpload)
+        self.btnExport = self.addButton('Exporter',  'internet', self.onExport)
+        self.btnReload = self.addButton('Recharger', 'refresh',  self.onReload)
+        self.btnUpload = self.addButton('Publier',   'go-up',    self.onUpload)
 
         # Browser widget 
-        # frame = tkinterweb.HtmlFrame(root)
-        # frame.load_website(YOUR_WEBSITE)
-        # frame.pack(fill="both", expand=True)
+        self.web = tkinterweb.HtmlFrame(self.oFrame, messages_enabled=False)
+        self.web.pack(fill=tk.BOTH, expand=True)
 
     def enableWidgets(self):
         self.btnExport.enableWidget(not self.isRunning)
         self.btnUpload.enableWidget(not self.isRunning)
+        self.btnReload.enableWidget(not self.isRunning)
