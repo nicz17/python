@@ -16,30 +16,25 @@ class Exporter():
         """Constructor."""
         self.cache = None
 
+    def buildBasePages(self):
+        """Build base html pages."""
+        self.buildHome()
+        self.buildLinks()
+        self.buildLocations()
+
     def buildHome(self):
-        """BuildHome"""
-        # TODO: implement
-        pass
+        """Build Home page"""
+        page = pynorpaHtml.PynorpaHtmlPage('Accueil')
+        page.addHeading(1, 'Photos de nature')
+        page.addHeading(2, 'Cette page est en construction')
+        page.add(MyBoxHtmlTag('Quelques photos'))
+        page.add(MyBoxHtmlTag('Quelques catégories'))
+        page.save('export/index.html')
 
     def buildLinks(self):
-        """BuildLinks"""
-        # TODO: implement
-        pass
-
-    def buildLocations(self):
-        """BuildLocations"""
-        # TODO: implement
-        pass
-
-    def buildTaxa(self):
-        """BuildTaxa"""
-        # TODO: implement
-        pass
-
-    def buildTest(self):
-        """Build a simple test page."""
-        page = pynorpaHtml.PynorpaHtmlPage('Test')
-        page.addHeading(1, 'Test')
+        """Build Links page"""
+        page = pynorpaHtml.PynorpaHtmlPage('Liens')
+        page.addHeading(1, 'Liens')
         page.addHeading(2, 'Bibliographie')
 
         biblio = []
@@ -56,6 +51,25 @@ class Exporter():
         self.addBiblioRef(biblio, "Collectif", "Les guides Salamandre", "Editions de la Salamandre, Neuchâtel", None)
         page.addList(biblio)
 
+        page.save('export/links.html')
+
+    def buildLocations(self):
+        """BuildLocations"""
+        page = pynorpaHtml.PynorpaHtmlPage('Lieux')
+        page.addHeading(1, 'Lieux')
+        page.addHeading(2, 'Cette page est en construction')
+        page.save('export/locations.html')
+
+    def buildTaxa(self):
+        """BuildTaxa"""
+        # TODO: implement
+        pass
+
+    def buildTest(self):
+        """Build a simple test page."""
+        page = pynorpaHtml.PynorpaHtmlPage('Test')
+        page.addHeading(1, 'Test')
+        page.addHeading(2, 'Bibliographie')
         page.save('export/test.html')
 
     def addBiblioRef(self, list, authors: str, title: str, editor: str, year: str):
