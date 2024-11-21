@@ -21,7 +21,7 @@ class PynorpaHtmlPage(HtmlPage):
 
     def buildHeader(self):
         tDivHeader = DivHtmlTag('header')
-        tDivHeader.addTag(HtmlTag('small', 'Photos nature par Nicolas Zwahlen'))
+        tDivHeader.addTag(HtmlTag('small', 'Photos de nature &mdash; par Nicolas Zwahlen'))
         self.body.addTag(tDivHeader)
 
     def buildMenu(self):
@@ -31,6 +31,8 @@ class PynorpaHtmlPage(HtmlPage):
         self.menu.addTag(HtmlTag('h3', '<a href="tree.html">Classification</a>'))
         self.menu.addTag(HtmlTag('h3', '<a href="latest.html">Dernières photos</a>'))
         self.menu.addTag(HtmlTag('h3', '<a href="locations.html">Lieux</a>'))
+        self.menu.addTag(HtmlTag('h3', '<a href="noms-latins.html">Noms latins</a>'))
+        self.menu.addTag(HtmlTag('h3', '<a href="noms-verna.html">Noms communs</a>'))
         self.menu.addTag(HtmlTag('h3', '<a href="expeditions.html">Excursions</a>'))
         self.menu.addTag(HtmlTag('h3', '<a href="links.html">Liens</a>'))
         self.menu.addTag(HtmlTag('h3', '<a href="http://www.tf79.ch/">TF79.ch</a>'))
@@ -38,5 +40,5 @@ class PynorpaHtmlPage(HtmlPage):
     def buildFooter(self):
         footer = DivHtmlTag('footer')
         date = DateTools.nowAsString('%d.%m.%Y')
-        footer.addTag(HtmlTag('p', f'Copyleft Nicolas Zwahlen &mdash; {date} Pynorpa'))
+        footer.addTag(HtmlTag('p', f'Copyleft Nicolas Zwahlen &mdash; {date} &mdash; Pynorpa v{__version__}'))
         self.body.addTag(footer)
