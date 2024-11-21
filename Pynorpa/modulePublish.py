@@ -8,12 +8,12 @@ __version__ = "1.0.0"
 
 import config
 import tkinter as tk
-import tkinterweb
 import logging
 from TabsApp import *
 import exporter
 import uploader
 from BaseWidgets import Button
+from browserWidget import BrowserWidget
 
 class ModulePublish(TabModule):
     """Pynorpa Module for creating and uploading HTML pages."""
@@ -26,6 +26,7 @@ class ModulePublish(TabModule):
         self.isRunning = False
         self.exporter = exporter.Exporter()
         self.uploader = uploader.Uploader(True)
+        self.web = BrowserWidget()
         super().__init__(parent, 'Publier')
 
     def onExport(self):
@@ -45,7 +46,7 @@ class ModulePublish(TabModule):
     def loadData(self):
         homePage = f'{config.dirWebExport}index.html'
         self.oParent.setStatus(f'Chargement de {homePage}')
-        self.web.load_file(homePage, force=True)
+        self.web.loadData(homePage)
 
     def addButton(self, label: str, icon: str, cmd) -> Button:
         """Add a Tk Button to this module's frmButtons."""
@@ -66,8 +67,7 @@ class ModulePublish(TabModule):
         self.btnUpload = self.addButton('Publier',   'go-up',    self.onUpload)
 
         # Browser widget 
-        self.web = tkinterweb.HtmlFrame(self.oFrame, messages_enabled=False)
-        self.web.pack(fill=tk.BOTH, expand=True)
+        self.web.createWidgets(self.oFrame)
 
     def enableWidgets(self):
         self.btnExport.enableWidget(not self.isRunning)
