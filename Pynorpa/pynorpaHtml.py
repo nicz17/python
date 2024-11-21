@@ -34,7 +34,7 @@ class PynorpaHtmlPage(HtmlPage):
         self.menu.addTag(HtmlTag('h3', '<a href="noms-latins.html">Noms latins</a>'))
         self.menu.addTag(HtmlTag('h3', '<a href="noms-verna.html">Noms communs</a>'))
         self.menu.addTag(HtmlTag('h3', '<a href="expeditions.html">Excursions</a>'))
-        self.menu.addTag(HtmlTag('h3', '<a href="links.html">Liens</a>'))
+        self.menu.addTag(HtmlTag('h3', '<a href="liens.html">Liens</a>'))
         self.menu.addTag(HtmlTag('h3', '<a href="http://www.tf79.ch/">TF79.ch</a>'))
 
     def buildFooter(self):
