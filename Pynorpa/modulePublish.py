@@ -12,6 +12,7 @@ import tkinterweb
 import logging
 from TabsApp import *
 import exporter
+import uploader
 from BaseWidgets import Button
 
 class ModulePublish(TabModule):
@@ -24,6 +25,7 @@ class ModulePublish(TabModule):
         self.tasks = []
         self.isRunning = False
         self.exporter = exporter.Exporter()
+        self.uploader = uploader.Uploader(True)
         super().__init__(parent, 'Publier')
 
     def onExport(self):
@@ -38,7 +40,7 @@ class ModulePublish(TabModule):
 
     def onUpload(self):
         """Upload HTML pages."""
-        #self.uploader.upload()
+        self.uploader.uploadAll()
 
     def loadData(self):
         homePage = f'{config.dirWebExport}index.html'
