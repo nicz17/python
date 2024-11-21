@@ -43,7 +43,7 @@ class ModulePublish(TabModule):
     def loadData(self):
         homePage = f'{config.dirWebExport}index.html'
         self.oParent.setStatus(f'Chargement de {homePage}')
-        self.web.load_file(homePage)
+        self.web.load_file(homePage, force=True)
 
     def addButton(self, label: str, icon: str, cmd) -> Button:
         """Add a Tk Button to this module's frmButtons."""
