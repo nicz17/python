@@ -5,6 +5,7 @@ __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
 import logging
+import re
 import TextTools
 
 
@@ -54,6 +55,26 @@ class DatabaseField():
         elif ptype == 'str' and self.size > 100:
             kind = 'TextArea'
         return kind
+    
+    def getLabel(self, prefix: str):
+        """Split camel case into separate words."""
+        pname = self.getPythonName(prefix)
+        label = TextTools.upperCaseFirst(str(re.sub(r"([A-Z][a-z])", r" \1", pname).lower()))
+        return label
+    
+    def getColumnWidth(self):
+        """Guess the column width in pixels for this field."""
+        width = 100
+        ptype = self.getPythonType()
+        if ptype == 'int':
+            width = 80
+        elif ptype == 'bool':
+            width = 50
+        elif self.type == 'datetime':
+            width = 150
+        elif ptype == 'str':
+            width = 4*self.size
+        return width
 
     def isPrimaryKey(self):
         """Check if this field is the table's primary key."""
@@ -67,11 +88,13 @@ class DatabaseField():
 def testDatabaseField():
     """Unit test for DatabaseField"""
     DatabaseField.log.info("Testing DatabaseField")
-    obj = DatabaseField('prfOrder', 'int', False, None)
+    prefix = 'prf'
+    obj = DatabaseField(f'{prefix}OrderByName', 'int', False, None)
     obj.log.info(obj)
-    obj.log.info('Python name: %s',  obj.getPythonName('prf'))
+    obj.log.info('Python name: %s',  obj.getPythonName(prefix))
     obj.log.info('Python type: %s',  obj.getPythonType())
     obj.log.info('Edition kind: %s', obj.getEditionKind())
+    obj.log.info('Label: %s', obj.getLabel(prefix))
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",

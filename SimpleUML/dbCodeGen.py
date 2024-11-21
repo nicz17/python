@@ -242,28 +242,24 @@ class DatabaseCodeGen():
         nameObject = TextTools.lowerCaseFirst(self.table)
         nameArray = f'{nameObject}s'
 
-        # Table columns
-        colNames = []
-        colData = []
-        field: DatabaseField
-        for field in self.fields:
-            if not (field.isPrimaryKey() or field.size > 64):
-                pName = field.getPythonName(self.prefix)
-                colNames.append(pName)
-                colData.append(f'{nameObject}.{pName}')
-        sColNames = "', '".join(colNames)
-        sColData = ', '.join(colData)
-
         # Table class
         clss = SimpleUMLClassPython()
         clss.setName(name)
-        clss.setSuperClass('BaseTable')
+        clss.setSuperClass('TableWithColumns')
 
         # Constructor
         params = [SimpleUMLParam('cbkSelect', None)]
         oConstr = clss.addMethod(name, params, None, False)
-        oConstr.addCodeLine(f'super().__init__(cbkSelect, "{nameObject}s")')
-        oConstr.addCodeLine(f"self.columns = ('{sColNames}')")
+        oConstr.addCodeLine(f'super().__init__(cbkSelect, "{nameArray}")')
+
+        # Table columns
+        field: DatabaseField
+        for field in self.fields:
+            if not (field.isPrimaryKey() or field.size > 64):
+                pName = TextTools.upperCaseFirst(field.getPythonName(self.prefix))
+                label = field.getLabel(self.prefix)
+                width = field.getColumnWidth()
+                oConstr.addCodeLine(f"self.addColumn(TableColumn('{label}', {self.table}.get{pName}, {width}))")
 
         # loadData method
         params = [SimpleUMLParam(nameArray, None)]
@@ -271,15 +267,13 @@ class DatabaseCodeGen():
         oLoad.setDoc('Display the specified objects in this table.')
         oLoad.addCodeLine('self.clear()')
         oLoad.addCodeLine(f'self.data = {nameArray}')
-        oLoad.addCodeLine(f'for {nameObject} in {nameArray}:')
-        oLoad.addCodeLine(f'    rowData = ({sColData})')
-        oLoad.addCodeLine('    self.addRow(rowData)')
+        oLoad.addCodeLine(f'self.addRows({nameArray})')
 
         # createWidgets method
-        params = [SimpleUMLParam('parent', 'tk.Frame')]
-        oMeth = clss.addMethod('createWidgets', params, None, False)
-        oMeth.setDoc('Create user widgets.')
-        oMeth.addCodeLine('super().createWidgets(parent, self.columns)')
+        # params = [SimpleUMLParam('parent', 'tk.Frame')]
+        # oMeth = clss.addMethod('createWidgets', params, None, False)
+        # oMeth.setDoc('Create user widgets.')
+        # oMeth.addCodeLine('super().createWidgets(parent, self.columns)')
 
         return clss
 
@@ -318,7 +312,8 @@ class DatabaseCodeGen():
             nameField = TextTools.upperCaseFirst(field.getPythonName(self.prefix).replace('idx', ''))
             nameWidget = f'wid{nameField}'
             nameGetter = f'{self.table}.get{nameField}'
-            oMeth.addCodeLine(f'self.{nameWidget} = self.add{field.getEditionKind()}(\'{nameField}\', {nameGetter})')
+            label = field.getLabel(self.prefix)
+            oMeth.addCodeLine(f"self.{nameWidget} = self.add{field.getEditionKind()}('{label}', {nameGetter})")
         oMeth.addCodeLine('')
         oMeth.addCodeLine('self.createButtons(True, True, False)')
         oMeth.addCodeLine('self.enableWidgets()')
