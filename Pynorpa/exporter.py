@@ -7,6 +7,7 @@ __version__ = "1.0.0"
 import logging
 import pynorpaHtml
 from HtmlPage import *
+import picture
 
 class Exporter():
     """Class Exporter"""
@@ -14,7 +15,7 @@ class Exporter():
 
     def __init__(self):
         """Constructor."""
-        self.cache = None
+        self.picCache = picture.PictureCache()
 
     def buildBasePages(self):
         """Build base html pages."""
@@ -27,7 +28,15 @@ class Exporter():
         page = pynorpaHtml.PynorpaHtmlPage('Accueil')
         page.addHeading(1, 'Photos de nature')
         page.addHeading(2, 'Cette page est en construction')
-        page.add(MyBoxHtmlTag('Quelques photos'))
+
+        divBest = MyBoxHtmlTag('Quelques photos')
+        aBestPics = self.picCache.getRandomBest()
+        listBest = []
+        for pic in aBestPics:
+            listBest.append(pic.getFilename())
+        divBest.addTag(TableHtmlTag(listBest))
+        page.add(divBest)
+
         page.add(MyBoxHtmlTag('Quelques catégories'))
         page.save('export/index.html')
 
