@@ -71,7 +71,7 @@ class DatabaseField():
         elif ptype == 'bool':
             width = 50
         elif self.type == 'datetime':
-            width = 150
+            width = 160
         elif ptype == 'str':
             width = 4*self.size
         return width

@@ -53,31 +53,27 @@ class ModulePictures(TabModule):
         return str
 
 
-class PictureTable(BaseTable):
+class PictureTable(TableWithColumns):
     """Class PictureTable"""
     log = logging.getLogger("PictureTable")
 
     def __init__(self, cbkSelect):
         """Constructor."""
         super().__init__(cbkSelect, "photos")
-        self.columns = ('Nom', 'Date', 'Lieu', 'Taxon')
+        #self.addColumn(TableColumn('Nom',    Picture.getFilename,     200))
+        self.addColumn(TableColumn('Taxon',   Picture.getTaxonName,    200))
+        self.addColumn(TableColumn('Date',    Picture.getShotAt,       160))
+        self.addColumn(TableColumn('Lieu',    Picture.getLocationName, 200))
+        self.addColumn(TableColumn('Qualité', Picture.getRating,        55))
 
     def loadData(self, pictures):
         """Display the specified objects in this table."""
         self.clear()
         self.data = pictures
-        picture: Picture
-        for picture in pictures:
-            rowData = (picture.getFilename(), picture.getShotAt(), picture.getLocationName(), picture.getTaxonName())
-            self.addRow(rowData)
-
-    def createWidgets(self, parent: tk.Frame):
-        """Create user widgets."""
-        super().createWidgets(parent, self.columns)
+        self.addRows(pictures)
 
     def __str__(self):
-        str = "PictureTable"
-        return str
+        return 'PictureTable'
 
 
 class PictureEditor(BaseWidgets.BaseEditor):
