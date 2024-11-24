@@ -4,6 +4,7 @@ __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
+import config
 import logging
 import pynorpaHtml
 from HtmlPage import *
@@ -38,7 +39,7 @@ class Exporter():
         page.add(divBest)
 
         page.add(MyBoxHtmlTag('Quelques catégories'))
-        page.save('export/index.html')
+        page.save(f'{config.dirWebExport}index.html')
 
     def buildLinks(self):
         """Build Links page"""
@@ -93,17 +94,17 @@ class Exporter():
         self.addBiblioRef(biblio, "Collectif", "Les guides Salamandre", "Editions de la Salamandre, Neuchâtel", None)
         page.addList(biblio)
 
-        page.save('export/liens.html')
+        page.save(f'{config.dirWebExport}liens.html')
 
     def buildLocations(self):
-        """BuildLocations"""
+        """Build Locations page"""
         page = pynorpaHtml.PynorpaHtmlPage('Lieux')
         page.addHeading(1, 'Lieux')
         page.addHeading(2, 'Cette page est en construction')
-        page.save('export/locations.html')
+        page.save(f'{config.dirWebExport}locations.html')
 
     def buildTaxa(self):
-        """BuildTaxa"""
+        """Build taxon pages"""
         # TODO: implement
         pass
 
@@ -112,7 +113,7 @@ class Exporter():
         page = pynorpaHtml.PynorpaHtmlPage('Test')
         page.addHeading(1, 'Test')
         page.addHeading(2, 'Bibliographie')
-        page.save('export/test.html')
+        page.save(f'{config.dirWebExport}test.html')
 
     def addBiblioRef(self, list, authors: str, title: str, editor: str, year: str):
         """Add a bibliographical reference."""

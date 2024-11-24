@@ -6,7 +6,6 @@ to www.tf79.ch using FTP.
 import logging
 import config
 import ftplib
-import glob
 import os
 import time
 from Timer import *
@@ -40,7 +39,7 @@ class Uploader:
         # aFiles = []
         # for sType in aTypes:
         #     aFiles.extend(glob.glob(config.sDirExport + sType))
-        aFiles = ['export/liens.html']
+        aFiles = [f'{config.dirWebExport}liens.html']
         for sFile in aFiles:
             if (self.needsUpload(sFile)):
                 self.log.info('  %s has been modified, will upload', sFile)
