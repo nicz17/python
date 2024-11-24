@@ -6,6 +6,7 @@ __version__ = "1.0.0"
 
 import logging
 import config
+import random
 import Database
 from taxon import Taxon, TaxonCache
 from LocationCache import *
@@ -174,6 +175,17 @@ class PictureCache():
             if pic.taxon:
                 pic.taxon.addPicture(pic)
 
+    def getLatest(self, limit=10) -> list[Picture]:
+        """Get the latest pictures."""
+        ids = self.fetchFromWhere(f'1=1 order by picShotAt desc limit {limit}')
+        return [self.findById(id) for id in ids]
+    
+    def getRandomBest(self, limit=8) -> list[Picture]:
+        """Get a random list of the best pictures."""
+        ids = self.fetchFromWhere(f'picRating = 5')
+        random.shuffle(ids)
+        return [self.findById(id) for id in ids[:limit]]
+
     def fetchFromWhere(self, where: str) -> list[int]:
         """Fetch Picture records from a SQL where-clause. Return a list of ids."""
         result = []
@@ -216,9 +228,13 @@ def testPicture():
 def testPictureCache():
     """Unit test for PictureCache"""
     PictureCache.log.info("Testing PictureCache")
-    obj = PictureCache()
-    obj.log.info(obj)
-    obj.log.info(obj.toJson())
+    cache = PictureCache()
+    latest = cache.getLatest(5)
+    for pic in latest:
+        cache.log.info(pic)
+    best = cache.getRandomBest(5)
+    for pic in best:
+        cache.log.info(pic)
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",
