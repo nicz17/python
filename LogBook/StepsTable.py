@@ -24,14 +24,16 @@ class StepsTable():
     def build(self, parent: tk.Frame):
         """Add the widgets to the parent frame."""
         self.tree = ttk.Treeview(parent, height=32)
-        self.tree['columns'] = ('status', 'text')
+        self.tree['columns'] = ('status', 'text', 'order')
 
         self.tree.column('#0', width=0, stretch=tk.NO)
         self.tree.column('status', anchor=tk.W, width=60)
         self.tree.column('text',   anchor=tk.W, width=440)
+        self.tree.column('order',  anchor=tk.W, width=50)
         self.tree.heading('#0', text='', anchor=tk.W)
         self.tree.heading('status', text='Status', anchor=tk.W)
         self.tree.heading('text',   text='Text',   anchor=tk.W)
+        self.tree.heading('order',  text='Order',  anchor=tk.W)
         self.tree.bind('<<TreeviewSelect>>', self.cbkSelect)
         self.tree.tag_configure('step-done', background=Status.Done.getColor())
         self.tree.tag_configure('step-todo', background=Status.Todo.getColor())
@@ -51,7 +53,7 @@ class StepsTable():
             if step.status == Status.Done:
                 tag = 'step-done'
             self.tree.insert(parent='', index='end', iid=idx, text='',
-                values=(step.status.name, step.text), tags=(tag))
+                values=(step.status.name, step.text, step.order), tags=(tag))
             idx += 1
 
     def getSelection(self) -> int:
