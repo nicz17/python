@@ -23,12 +23,23 @@ class StepsTable():
 
     def build(self, parent: tk.Frame):
         """Add the widgets to the parent frame."""
-        self.tree = ttk.Treeview(parent, height=32)
-        self.tree['columns'] = ('status', 'text', 'order')
 
+        # Scrolling frame
+        frmScroll = ttk.Frame(parent)
+        frmScroll.pack(pady=5, anchor=tk.W)
+
+        # Treeview
+        self.tree = ttk.Treeview(frmScroll, height=32)
+        self.tree['columns'] = ('status', 'text', 'order')
+        
+        # Scroll bar
+        self.scrollbar = ttk.Scrollbar(frmScroll, orient=tk.VERTICAL, command=self.tree.yview)
+        self.tree.configure(yscrollcommand = self.scrollbar.set)
+
+        # Columns
         self.tree.column('#0', width=0, stretch=tk.NO)
-        self.tree.column('status', anchor=tk.W, width=60)
-        self.tree.column('text',   anchor=tk.W, width=440)
+        self.tree.column('status', anchor=tk.W, width=50)
+        self.tree.column('text',   anchor=tk.W, width=450)
         self.tree.column('order',  anchor=tk.W, width=50)
         self.tree.heading('#0', text='', anchor=tk.W)
         self.tree.heading('status', text='Status', anchor=tk.W)
@@ -37,7 +48,10 @@ class StepsTable():
         self.tree.bind('<<TreeviewSelect>>', self.cbkSelect)
         self.tree.tag_configure('step-done', background=Status.Done.getColor())
         self.tree.tag_configure('step-todo', background=Status.Todo.getColor())
-        self.tree.pack(pady=5)
+
+        # Pack
+        self.tree.pack(side=tk.LEFT, pady=0)
+        self.scrollbar.pack(side=tk.LEFT, fill=tk.Y)
     
     def loadData(self, task: LogBookTask):
         """Add steps from the specified task to the table."""
