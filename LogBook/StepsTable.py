@@ -40,7 +40,7 @@ class StepsTable():
         self.tree.column('#0', width=0, stretch=tk.NO)
         self.tree.column('status', anchor=tk.W, width=50)
         self.tree.column('text',   anchor=tk.W, width=450)
-        self.tree.column('order',  anchor=tk.W, width=50)
+        self.tree.column('order',  anchor=tk.CENTER, width=50)
         self.tree.heading('#0', text='', anchor=tk.W)
         self.tree.heading('status', text='Status', anchor=tk.W)
         self.tree.heading('text',   text='Text',   anchor=tk.W)
@@ -67,7 +67,7 @@ class StepsTable():
             if step.status == Status.Done:
                 tag = 'step-done'
             self.tree.insert(parent='', index='end', iid=idx, text='',
-                values=(step.status.name, step.text, step.order), tags=(tag))
+                values=(step.getStatusName(), step.getText(), step.getOrderStr()), tags=(tag))
             idx += 1
 
     def getSelection(self) -> int:

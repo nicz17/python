@@ -50,6 +50,11 @@ class LogBookStep:
     
     def getOrder(self):
         return self.order
+    
+    def getOrderStr(self):
+        if self.order is None:
+            return ''
+        return self.order
 
     def toJson(self):
         """Export this step as JSON."""

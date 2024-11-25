@@ -30,8 +30,8 @@ class LogBookApp(BaseApp):
     def __init__(self) -> None:
         """Constructor."""
         LogBook.initDefaultDir()
-        self.iHeight = 800
-        self.iWidth  = 1400
+        self.iHeight =  800
+        self.iWidth  = 1450
         self.book = None
         self.archive = None
         self.task = None
