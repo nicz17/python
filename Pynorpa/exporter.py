@@ -21,6 +21,7 @@ class Exporter():
     def buildBasePages(self):
         """Build base html pages."""
         self.buildHome()
+        self.buildLatest()
         self.buildLinks()
         self.buildLocations()
 
@@ -30,15 +31,16 @@ class Exporter():
         page.addHeading(1, 'Photos de nature')
         page.addHeading(2, 'Cette page est en construction')
 
-        divBest = MyBoxHtmlTag('Quelques photos')
+        divBest = MyBoxWideHtmlTag('Quelques photos')
         aBestPics = self.picCache.getRandomBest()
         listBest = []
         for pic in aBestPics:
-            listBest.append(pic.getFilename())
-        divBest.addTag(TableHtmlTag(listBest))
+            listBest.append(ImageHtmlTag(f'thumbs/{pic.getFilename()}', pic.getTaxonName(), pic.getFilename()))
+        divBest.addTag(TableHtmlTag(listBest).addAttr('class', 'table-thumbs'))
         page.add(divBest)
 
-        page.add(MyBoxHtmlTag('Quelques catégories'))
+        page.add(MyBoxWideHtmlTag('Quelques catégories'))
+        page.add(MyBoxHtmlTag('A propos'))
         page.save(f'{config.dirWebExport}index.html')
 
     def buildLinks(self):
@@ -95,6 +97,13 @@ class Exporter():
         page.addList(biblio)
 
         page.save(f'{config.dirWebExport}liens.html')
+
+    def buildLatest(self):
+        """Build latest images page"""
+        page = pynorpaHtml.PynorpaHtmlPage('Dernières photos')
+        page.addHeading(1, 'Dernières photos')
+        page.addHeading(2, 'Cette page est en construction')
+        page.save(f'{config.dirWebExport}latest.html')
 
     def buildLocations(self):
         """Build Locations page"""

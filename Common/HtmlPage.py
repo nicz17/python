@@ -183,6 +183,12 @@ class MyBoxHtmlTag(DivHtmlTag):
         super().__init__(sId, 'myBox')
         self.addTag(HtmlTag('h2', sTitle))
 
+class MyBoxWideHtmlTag(DivHtmlTag):
+    """A div tag with myBox class."""
+    def __init__(self, sTitle, sId=None):
+        super().__init__(sId, 'myBox myBox-wide')
+        self.addTag(HtmlTag('h2', sTitle))
+
 class BlueBoxHtmlTag(DivHtmlTag):
     """A div tag with blueBox class."""
     def __init__(self, sTitle, sId=None):
