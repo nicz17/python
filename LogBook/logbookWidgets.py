@@ -10,6 +10,7 @@ import logging
 import tkinter as tk
 from tkinter import ttk
 import BaseWidgets
+#from BaseTable import *
 from LogBookTask import *
 
 
@@ -70,6 +71,26 @@ class TaskEditor(BaseWidgets.BaseEditor):
         self.txtTitle.resetModified()
 
 
+# class StepsTable(TableWithColumns):
+#     """Table widget for Logbook steps."""
+#     log = logging.getLogger("StepsTable")
+
+#     def __init__(self, cbkSelect):
+#         """Constructor with selection callback."""
+#         self.log.info('Constructor')
+#         super().__init__(cbkSelect, 'steps', 32)
+#         self.addColumn(TableColumn('Status', LogBookStep.getStatusName,  60))
+#         self.addColumn(TableColumn('Text',   LogBookStep.getText,       440))
+#         #self.addColumn(TableColumn('Order',  LogBookStep.getOrder,       50))
+
+#     def loadData(self, steps: list[LogBookStep]):
+#         """Display the specified steps in this table."""
+#         self.log.info('Loading %d steps', len(steps))
+#         self.clear()
+#         self.data = steps
+#         self.addRows(steps)
+
+
 class StepEditor(BaseWidgets.BaseEditor):
     """A widget for editing LogBook steps."""
     log = logging.getLogger('TaskEditor')
@@ -86,7 +107,8 @@ class StepEditor(BaseWidgets.BaseEditor):
 
     def onSave(self, evt = None):
         """Save changes to the edited object."""
-        self.step.text = self.txtText.getValue().strip()
+        self.step.text  = self.txtText.getValue().strip()
+        self.step.order = self.intOrder.getValue()
         self.cbkSave()
 
     def onCancel(self):
@@ -105,6 +127,7 @@ class StepEditor(BaseWidgets.BaseEditor):
         # Step attributes
         self.lblStatus = self.addTextReadOnly('Status', LogBookStep.getStatusName)
         self.txtText   = self.addTextArea('Text', LogBookStep.getText, 6, 42)
+        self.intOrder  = self.addIntInput('Order', LogBookStep.getOrder)
         self.txtText.oWidget.bind("<Return>", self.onSave)
 
         # Buttons: save, cancel
