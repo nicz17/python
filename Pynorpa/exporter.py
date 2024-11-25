@@ -9,6 +9,7 @@ import logging
 import pynorpaHtml
 from HtmlPage import *
 import picture
+import DateTools
 
 class Exporter():
     """Class Exporter"""
@@ -129,11 +130,14 @@ class Exporter():
         page.save(f'{config.dirWebExport}test.html')
 
     def addThumbLink(self, pic: picture.Picture, parent: HtmlTag):
+        # TODO format date in French
+        sShotAt = DateTools.datetimeToString(pic.getShotAt(), '%d %B %Y')
         link = LinkHtmlTag(f'pages/{pic.getFilename()}', None)
-        link.addTag(ImageHtmlTag(f'thumbs/{pic.getFilename()}', pic.getTaxonName(), pic.getFilename()))
+        link.addTag(ImageHtmlTag(f'thumbs/{pic.getFilename()}', pic.getTaxonName(), pic.getTaxonName()))
         link.addTag(HtmlTag('i', f'<br>{pic.getTaxonName()}'))
         parent.addTag(link)
-        parent.addTag(HtmlTag('span', f'<br>{pic.getLocationName()}<br>{pic.getShotAt()}'))
+        parent.addTag(HtmlTag('span', f'<br>{pic.getLocationName()}<br>'))
+        parent.addTag(GrayFontHtmlTag(sShotAt))
 
     def addBiblioRef(self, list, authors: str, title: str, editor: str, year: str):
         """Add a bibliographical reference."""
