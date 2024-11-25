@@ -217,23 +217,30 @@ class LinkHtmlTag(HtmlTag):
             self.addAttr('target', '_blank')
 
 class TableHtmlTag(HtmlTag):
-    def __init__(self, aItems, nItemsByRow = 4, valign = None):
+    def __init__(self, aItems, nItemsByRow=4, valign=None):
         super().__init__('table', None)
-        tRow = None
-        nItemsInRow = 0
-        for item in aItems:
-            if (nItemsInRow % nItemsByRow == 0):
-                tRow = HtmlTag('tr')
-                self.addTag(tRow)
-            tCell = HtmlTag('td')
-            if valign:
-                tCell.addAttr('valign', valign)
-            if isinstance(item, str):
-                tCell = HtmlTag('td', item)
-            else:
-                tCell.addTag(item)
-            tRow.addTag(tCell)
-            nItemsInRow += 1
+        self.nItemsByRow = nItemsByRow
+        self.nItemsInRow = 0
+        self.tRow = None
+        if aItems:
+            for item in aItems:
+                tCell = self.getNextCell(item)
+                if valign:
+                    tCell.addAttr('valign', valign)
+
+    def getNextCell(self, content=None) -> HtmlTag:
+        """Add and return the next TD cell in this table."""
+        if (self.nItemsInRow % self.nItemsByRow == 0):
+            self.tRow = HtmlTag('tr')
+            self.addTag(self.tRow)
+        tCell = HtmlTag('td')
+        if isinstance(content, str):
+            tCell = HtmlTag('td', content)
+        elif content is not None:
+            tCell.addTag(content)
+        self.tRow.addTag(tCell)
+        self.nItemsInRow += 1
+        return tCell
 
 class ListHtmlTag(HtmlTag):
     def __init__(self, aItems):
