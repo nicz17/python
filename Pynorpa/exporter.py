@@ -102,7 +102,11 @@ class Exporter():
         """Build latest images page"""
         page = pynorpaHtml.PynorpaHtmlPage('Dernières photos')
         page.addHeading(1, 'Dernières photos')
-        page.addHeading(2, 'Cette page est en construction')
+        table = TableHtmlTag(None).addAttr('class', 'table-thumbs')
+        aPics = self.picCache.getLatest(12)
+        for pic in aPics:
+            self.addThumbLink(pic, table.getNextCell())
+        page.add(table)
         page.save(f'{config.dirWebExport}latest.html')
 
     def buildLocations(self):
@@ -123,6 +127,13 @@ class Exporter():
         page.addHeading(1, 'Test')
         page.addHeading(2, 'Bibliographie')
         page.save(f'{config.dirWebExport}test.html')
+
+    def addThumbLink(self, pic: picture.Picture, parent: HtmlTag):
+        link = LinkHtmlTag(f'pages/{pic.getFilename()}', None)
+        link.addTag(ImageHtmlTag(f'thumbs/{pic.getFilename()}', pic.getTaxonName(), pic.getFilename()))
+        link.addTag(HtmlTag('i', f'<br>{pic.getTaxonName()}'))
+        parent.addTag(link)
+        parent.addTag(HtmlTag('span', f'<br>{pic.getLocationName()}<br>{pic.getShotAt()}'))
 
     def addBiblioRef(self, list, authors: str, title: str, editor: str, year: str):
         """Add a bibliographical reference."""
