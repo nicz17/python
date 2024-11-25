@@ -34,39 +34,48 @@ class LogBookStep:
     """A step in a LogBook task."""
     log = logging.getLogger(__name__)
 
-    def __init__(self, text: str, status = None):
+    def __init__(self, text: str, status=None, order=0):
         """Constructor with text, status."""
         self.text = text
         if status is None:
             status = Status.Todo
         self.status = status
+        self.order = order
 
     def getText(self):
         return self.text
     
     def getStatusName(self):
         return self.status.name
+    
+    def getOrder(self):
+        return self.order
 
     def toJson(self):
         """Export this step as JSON."""
         data = {
             'text': self.text,
-            'status': self.status.name
+            'status': self.status.name,
+            'order': self.order
         }
         return data
     
     @staticmethod
     def fromJson(data):
         """Load data from a JSON object."""
-        text = data.get('text')
+        text  = data.get('text')
+        order = data.get('order')
         status = Status[data.get('status')]
-        return LogBookStep(text, status)
+        return LogBookStep(text, status, order)
     
     def __lt__(self, other):
         if not isinstance(other, LogBookStep):
             return NotImplemented
         if self.status.value == other.status.value:
-            return self.text < other.text
+            if self.order == other.order:
+                return self.text < other.text
+            if self.order is not None and other.order is not None:
+                return self.order < other.order
         return self.status.value > other.status.value
     
     def __str__(self):
@@ -94,6 +103,7 @@ class LogBookTask:
     def addStep(self, step: LogBookStep):
         """Add a step to this task."""
         if step is not None:
+            step.order = self.getNextStepOrder()
             self.steps.append(step)
             self.updateStatus()
 
@@ -104,6 +114,14 @@ class LogBookTask:
             if step.status != Status.Done:
                 nActive += 1
         return nActive
+    
+    def getNextStepOrder(self) -> int:
+        """Compute the next step order."""
+        maxOrder = 0
+        for step in self:
+            if step.order is not None:
+                maxOrder = max(maxOrder, step.order)
+        return maxOrder+1
     
     def updateStatus(self):
         """Update task status based on steps status."""
