@@ -56,6 +56,7 @@ class BaseWidget():
         self.cbkModified = cbkModified
         self.mtdGetter = mtdGetter
         self.oWidget = None  # the Tk/Ttk widget
+        self.oLabel  = None  # optional Ttk label
 
     def getObjectValue(self, object):
         """Get the object value using our getter method."""
@@ -71,6 +72,13 @@ class BaseWidget():
     def setValue(self, object):
         """Set the widget value from the specified object."""
         pass
+
+    def setLabel(self, oLabel: ttk.Label):
+        self.oLabel = oLabel
+
+    def setLabelColor(self, color: str):
+        if self.oLabel:
+            self.oLabel.configure(foreground=color)
     
     def hasChanges(self, object) -> bool:
         """Check if this widget has changes from the specified object."""
@@ -372,10 +380,14 @@ class BaseEditor():
     def hasChanges(self, object) -> bool:
         """Check if this editor has changes compared to the specified object."""
         oWidget: BaseWidget
+        hasChanges = False
         for oWidget in self.widgets:
             if oWidget.hasChanges(object):
-                return True
-        return False
+                oWidget.setLabelColor('orange')
+                hasChanges = True
+            else:
+                oWidget.setLabelColor('black')
+        return hasChanges
 
     def onModified(self, evt = None):
         """Callback for widget modifications."""
@@ -423,9 +435,10 @@ class BaseEditor():
     
     def addTextArea(self, label: str, mtdGetter, nLines=6, width=64) -> TextArea:
         """Add a multi-line text input."""
-        self.addLabel(label)
+        oLabel = self.addLabel(label)
         oInput = TextArea(label, mtdGetter, nLines, self.onModified)
         oInput.createWidgets(self.frmEdit, self.row, 1, width)
+        oInput.setLabel(oLabel)
         self.addWidget(oInput)
         return oInput
     
@@ -439,9 +452,10 @@ class BaseEditor():
     
     def addIntInput(self, label: str, mtdGetter) -> IntInput:
         """Add an integer input."""
-        self.addLabel(label)
+        oLabel = self.addLabel(label)
         oInput = IntInput(self.onModified, mtdGetter)
         oInput.createWidgets(self.frmEdit, self.row, 1)
+        oInput.setLabel(oLabel)
         self.addWidget(oInput)
         return oInput
     
@@ -478,10 +492,11 @@ class BaseEditor():
         self.addWidget(oInput)
         return oInput
 
-    def addLabel(self, label: str):
+    def addLabel(self, label: str) -> ttk.Label:
         """Add an attribute label at the specified row."""
         oLabel = ttk.Label(self.frmEdit, text=label)
         oLabel.grid(row=self.row, column=0, sticky='nw')
+        return oLabel
 
     def addWidget(self, oWidget: BaseWidget):
         """Add a widget and bump the row count."""
