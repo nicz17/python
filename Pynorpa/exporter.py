@@ -28,7 +28,7 @@ class Exporter():
 
     def buildHome(self):
         """Build Home page"""
-        page = pynorpaHtml.PynorpaHtmlPage('Accueil')
+        page = pynorpaHtml.PynorpaHtmlPage('Nature - Accueil')
         page.addHeading(1, 'Photos de nature')
         page.addHeading(2, 'Cette page est en construction')
 
@@ -46,7 +46,7 @@ class Exporter():
 
     def buildLinks(self):
         """Build Links page"""
-        page = pynorpaHtml.PynorpaHtmlPage('Liens')
+        page = pynorpaHtml.PynorpaHtmlPage('Nature - Liens')
         page.addHeading(1, 'Liens')
 		
         page.addHeading(2, "Insectes")
@@ -101,7 +101,7 @@ class Exporter():
 
     def buildLatest(self):
         """Build latest images page"""
-        page = pynorpaHtml.PynorpaHtmlPage('Dernières photos')
+        page = pynorpaHtml.PynorpaHtmlPage('Nature - Dernières photos')
         page.addHeading(1, 'Dernières photos')
         table = TableHtmlTag(None).addAttr('class', 'table-thumbs')
         aPics = self.picCache.getLatest(12)
@@ -112,7 +112,7 @@ class Exporter():
 
     def buildLocations(self):
         """Build Locations page"""
-        page = pynorpaHtml.PynorpaHtmlPage('Lieux')
+        page = pynorpaHtml.PynorpaHtmlPage('Nature - Lieux')
         page.addHeading(1, 'Lieux')
         page.addHeading(2, 'Cette page est en construction')
         page.save(f'{config.dirWebExport}locations.html')
@@ -128,16 +128,17 @@ class Exporter():
         page.addHeading(1, 'Test')
         page.addHeading(2, 'Bibliographie')
         page.save(f'{config.dirWebExport}test.html')
+        self.buildLatest()
 
     def addThumbLink(self, pic: picture.Picture, parent: HtmlTag):
-        # TODO format date in French
-        sShotAt = DateTools.datetimeToString(pic.getShotAt(), '%d %B %Y')
+        """Add a preview and description of the sepcified picture."""
+        sShotAt = DateTools.datetimeToPrettyStringFr(pic.getShotAt())
         link = LinkHtmlTag(f'pages/{pic.getFilename()}', None)
         link.addTag(ImageHtmlTag(f'thumbs/{pic.getFilename()}', pic.getTaxonName(), pic.getTaxonName()))
-        link.addTag(HtmlTag('i', f'<br>{pic.getTaxonName()}'))
+        link.addTag(HtmlTag('i', f'<br>{pic.getTaxonName()}<br>'))
         parent.addTag(link)
-        parent.addTag(HtmlTag('span', f'<br>{pic.getLocationName()}<br>'))
-        parent.addTag(GrayFontHtmlTag(sShotAt))
+        parent.addTag(LinkHtmlTag(f'lieu{pic.getIdxLocation()}.html', pic.getLocationName()))
+        parent.addTag(GrayFontHtmlTag(f'<br>{sShotAt}'))
 
     def addBiblioRef(self, list, authors: str, title: str, editor: str, year: str):
         """Add a bibliographical reference."""
