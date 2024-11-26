@@ -359,10 +359,11 @@ class BaseEditor():
     """Common superclass for edition widgets."""
     log = logging.getLogger('BaseEditor')
 
-    def __init__(self, cbkSave=None):
+    def __init__(self, cbkSave=None, colorLabelDef='black'):
         """Constructor with save callback."""
         self.log.info('Constructor')
         self.cbkSave = cbkSave
+        self.colorLabelDef = colorLabelDef
         self.widgets = []
         self.row = 0
         self.btnSave = None
@@ -386,7 +387,7 @@ class BaseEditor():
                 oWidget.setLabelColor('orange')
                 hasChanges = True
             else:
-                oWidget.setLabelColor('black')
+                oWidget.setLabelColor(self.colorLabelDef)
         return hasChanges
 
     def onModified(self, evt = None):

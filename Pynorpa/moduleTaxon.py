@@ -97,7 +97,7 @@ class TaxonEditor(BaseWidgets.BaseEditor):
 
     def __init__(self, cbkSave):
         """Constructor with save callback."""
-        super().__init__(cbkSave)
+        super().__init__(cbkSave, '#62564f')
         self.taxon = None
 
     def loadData(self, taxon: Taxon):

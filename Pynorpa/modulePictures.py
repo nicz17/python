@@ -82,7 +82,7 @@ class PictureEditor(BaseWidgets.BaseEditor):
 
     def __init__(self, cbkSave):
         """Constructor."""
-        super().__init__(cbkSave)
+        super().__init__(cbkSave, '#62564f')
         self.picture = None
 
     def loadData(self, picture: Picture):
