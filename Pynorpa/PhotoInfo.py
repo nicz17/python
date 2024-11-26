@@ -36,6 +36,10 @@ class PhotoInfo:
         """Get the base file name of this photo."""
         return os.path.basename(self.filename)
 
+    def getNameNoExt(self) -> str:
+        """Get the base file name of this photo, without extension."""
+        return os.path.basename(self.filename).removesuffix('.JPG').removesuffix('.jpg')
+
     def getNameFull(self) -> str:
         """Get the full file name of this photo."""
         return self.filename

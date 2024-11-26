@@ -246,7 +246,7 @@ class TablePhotos(TableWithColumns):
         """Constructor with selection callback."""
         self.log.info('Constructor')
         super().__init__(cbkSelect, 'photos')
-        self.addColumn(TableColumn('Nom',     PhotoInfo.getNameShort,    120))
+        self.addColumn(TableColumn('Nom',     PhotoInfo.getNameNoExt,    120))
         self.addColumn(TableColumn('Date',    PhotoInfo.getShotAtString, 150))
         self.addColumn(TableColumn('Près de', PhotoInfo.getCloseTo,      300))
 
