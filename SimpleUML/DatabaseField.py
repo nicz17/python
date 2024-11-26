@@ -5,7 +5,6 @@ __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
 import logging
-import re
 import TextTools
 
 
@@ -59,7 +58,7 @@ class DatabaseField():
     def getLabel(self, prefix: str):
         """Split camel case into separate words."""
         pname = self.getPythonName(prefix)
-        label = TextTools.upperCaseFirst(str(re.sub(r"([A-Z][a-z])", r" \1", pname).lower()))
+        label = TextTools.upperCaseFirst(TextTools.splitCamelCase(pname))
         return label
     
     def getColumnWidth(self):
