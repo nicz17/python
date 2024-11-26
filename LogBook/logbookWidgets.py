@@ -53,13 +53,7 @@ class TaskEditor(BaseWidgets.BaseEditor):
         self.txtTitle.oWidget.bind("<Return>", self.onSave)
 
         # Buttons: save, cancel
-        frmButtons = ttk.Frame(self.frmEdit, padding=5)
-        frmButtons.grid(row=self.row, column=0, columnspan=2)
-        self.btnSave = tk.Button(frmButtons, text = 'Save', command = self.onSave)
-        self.btnSave.grid(row=0, column=0, padx=3)
-        self.btnCancel = tk.Button(frmButtons, text = 'Cancel', command = self.onCancel)
-        self.btnCancel.grid(row=0, column=1, padx=3)
-
+        self.createButtons(True, True, False)
         self.enableWidgets()
 
     def enableWidgets(self, evt = None):
@@ -130,15 +124,9 @@ class StepEditor(BaseWidgets.BaseEditor):
         self.intOrder  = self.addIntInput('Order', LogBookStep.getOrder)
         self.txtText.oWidget.bind("<Return>", self.onSave)
 
-        # Buttons: save, cancel
-        frmButtons = ttk.Frame(self.frmEdit, padding=5)
-        frmButtons.grid(row=self.row, column=0, columnspan=2)
-        self.btnSave = tk.Button(frmButtons, text = 'Save', command = self.onSave)
-        self.btnSave.grid(row=0, column=0, padx=3)
-        self.btnCancel = tk.Button(frmButtons, text = 'Cancel', command = self.onCancel)
-        self.btnCancel.grid(row=0, column=1, padx=3)
-        self.btnDone = tk.Button(frmButtons, text = 'Done', command = self.onDone)
-        self.btnDone.grid(row=0, column=2, padx=3)
+        # Buttons: save, cancel, done
+        self.createButtons(True, True, False)
+        self.btnDone = self.addButton('Done', self.onDone)
 
         self.enableWidgets()
 

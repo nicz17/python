@@ -366,6 +366,7 @@ class BaseEditor():
         self.colorLabelDef = colorLabelDef
         self.widgets = []
         self.row = 0
+        self.colButton = 0
         self.btnSave = None
         self.btnCancel = None
         self.btnDelete = None
@@ -414,17 +415,20 @@ class BaseEditor():
 
     def createButtons(self, bSave: bool, bCancel: bool, bDelete: bool):
         """Add save, cancel and delete buttons."""
-        frmButtons = ttk.Frame(self.frmEdit, padding=5)
-        frmButtons.grid(row=self.row, column=0, columnspan=2)
+        self.frmButtons = ttk.Frame(self.frmEdit, padding=5)
+        self.frmButtons.grid(row=self.row, column=0, columnspan=2)
         if bSave:
-            self.btnSave = ttk.Button(frmButtons, text = 'Sauver', command = self.onSave)
-            self.btnSave.grid(row=0, column=0, padx=3)
+            self.btnSave   = self.addButton('Sauver', self.onSave)
         if bCancel:
-            self.btnCancel = ttk.Button(frmButtons, text = 'Annuler', command = self.onCancel)
-            self.btnCancel.grid(row=0, column=1, padx=3)
+            self.btnCancel = self.addButton('Annuler', self.onCancel)
         if bDelete:
-            self.btnDelete = ttk.Button(frmButtons, text = 'Effacer', command = self.onDelete)
-            self.btnDelete.grid(row=0, column=2, padx=3)
+            self.btnDelete = self.addButton('Effacer', self.onDelete)
+
+    def addButton(self, label: str, cmd) -> ttk.Button:
+        btn = ttk.Button(self.frmButtons, text=label, command=cmd)
+        btn.grid(row=0, column=self.colButton, padx=3)
+        self.colButton += 1
+        return btn
 
     def addText(self, label: str, mtdGetter) -> TextInput:
         """Add a single-line text input."""
