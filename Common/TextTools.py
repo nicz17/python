@@ -7,6 +7,7 @@ __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
 import logging
+import re
 
 def distanceToString(dist: float) -> str:
     """Convert a distance in meters to human-readable text."""
@@ -40,6 +41,10 @@ def lowerCaseFirst(text: str) -> str:
         return None
     return text[:1].lower() + text[1:]
 
+def splitCamelCase(text: str) -> str:
+    """Split camel-case into separate words."""
+    result = str(re.sub(r"([A-Z][a-z])", r" \1", text).lower())
+    return result
 
 def testTextTools():
     log = logging.getLogger('TextTools')
@@ -48,8 +53,9 @@ def testTextTools():
     log.info('Duration is %s', durationToString(1.234))
     log.info('Duration is %s', durationToString(2*60 + 30))
     log.info('Duration is %s', durationToString(3*3600 + 15*60 + 42))
-    log.info(upperCaseFirst('welcome to Lausanne!'))
-    log.info(lowerCaseFirst('GetTitle()'))
+    log.info('upperCaseFirst: %s', upperCaseFirst('welcome to Lausanne!'))
+    log.info('lowerCaseFirst: %s', lowerCaseFirst('GetTitle()'))
+    log.info('splitCamelCase: %s', splitCamelCase('myCamelCaseName'))
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(asctime)s %(levelname)s %(name)s: %(message)s", 
