@@ -248,19 +248,19 @@ class TextReadOnly(BaseWidget):
     def setValue(self, object):
         """Set the string value."""
         value = self.getObjectValue(object)
-        self.oLabel.configure(text = (value if value is not None else ''))
+        self.oWidget.configure(text = (value if value is not None else ''))
 
     def getValue(self) -> str:
         """Get the current string value."""
-        return self.oLabel.cget('text')
+        return self.oWidget.cget('text')
     
     def hasChanges(self, object) -> bool:
         return False
         
     def createWidgets(self, parent: tk.Frame, row: int, col: int):
         """Create widget in parent frame with grid layout."""
-        self.oLabel = ttk.Label(parent)
-        self.oLabel.grid(row=row, column=col, padx=5, sticky='w')
+        self.oWidget = ttk.Label(parent)
+        self.oWidget.grid(row=row, column=col, padx=5, sticky='w')
     
     def __str__(self) -> str:
         return f'TextReadOnly for {self.name}'
@@ -275,16 +275,16 @@ class DateTimeReadOnly(TextReadOnly):
 
     def setValue(self, object):
         """Set the string value."""
-        self.oLabel.configure(text = '')
+        self.oWidget.configure(text = '')
         fvalue = self.getObjectValue(object)
         if fvalue:
             if isinstance(fvalue, float):
-                self.oLabel.configure(text = DateTools.timestampToString(fvalue))
+                self.oWidget.configure(text = DateTools.timestampToString(fvalue))
             elif isinstance(fvalue, datetime.datetime):
-                self.oLabel.configure(text = DateTools.datetimeToString(fvalue))
+                self.oWidget.configure(text = DateTools.datetimeToString(fvalue))
             else:
                 self.log.error('Unhandled date type %s', fvalue)
-                self.oLabel.configure(text = 'Error')
+                self.oWidget.configure(text = 'Error')
     
     def __str__(self) -> str:
         return f'DateTimeReadOnly for {self.name}'
@@ -427,10 +427,10 @@ class BaseEditor():
 
     def addText(self, label: str, mtdGetter) -> TextInput:
         """Add a single-line text input."""
-        self.addLabel(label)
+        oLabel = self.addLabel(label)
         oInput = TextInput(self.onModified, mtdGetter)
         oInput.createWidgets(self.frmEdit, self.row, 1)
-        self.addWidget(oInput)
+        self.addWidget(oInput, oLabel)
         return oInput
     
     def addTextArea(self, label: str, mtdGetter, nLines=6, width=64) -> TextArea:
@@ -438,16 +438,15 @@ class BaseEditor():
         oLabel = self.addLabel(label)
         oInput = TextArea(label, mtdGetter, nLines, self.onModified)
         oInput.createWidgets(self.frmEdit, self.row, 1, width)
-        oInput.setLabel(oLabel)
-        self.addWidget(oInput)
+        self.addWidget(oInput, oLabel)
         return oInput
     
     def addTextReadOnly(self, label: str, mtdGetter) -> TextReadOnly:
         """Add a read-only text."""
-        self.addLabel(label)
+        oLabel = self.addLabel(label)
         oInput = TextReadOnly(label, mtdGetter)
         oInput.createWidgets(self.frmEdit, self.row, 1)
-        self.addWidget(oInput)
+        self.addWidget(oInput, oLabel)
         return oInput
     
     def addIntInput(self, label: str, mtdGetter) -> IntInput:
@@ -455,13 +454,12 @@ class BaseEditor():
         oLabel = self.addLabel(label)
         oInput = IntInput(self.onModified, mtdGetter)
         oInput.createWidgets(self.frmEdit, self.row, 1)
-        oInput.setLabel(oLabel)
-        self.addWidget(oInput)
+        self.addWidget(oInput, oLabel)
         return oInput
     
     def addComboBox(self, label: str, values) -> ComboBox:
         """Add a combo box."""
-        self.addLabel(label)
+        oLabel = self.addLabel(label)
         oCombo = ComboBox(self.onModified)
         oCombo.createWidgets(self.frmEdit, self.row, 1)
         oCombo.setValues(values)
@@ -470,26 +468,26 @@ class BaseEditor():
     
     def addCheckBox(self, label: str, mtdGetter, text = '') -> CheckBox:
         """Add a check box."""
-        self.addLabel(label)
+        oLabel = self.addLabel(label)
         oCheckBox = CheckBox(self.onModified, mtdGetter, text)
         oCheckBox.createWidgets(self.frmEdit, self.row, 1)
-        self.addWidget(oCheckBox)
+        self.addWidget(oCheckBox, oLabel)
         return oCheckBox
 
     def addDateTime(self, label: str, mtdGetter) -> DateTime:
         """Add a single-line date-time input."""
-        self.addLabel(label)
+        oLabel = self.addLabel(label)
         oInput = DateTime(self.onModified, mtdGetter)
         oInput.createWidgets(self.frmEdit, self.row, 1)
-        self.addWidget(oInput)
+        self.addWidget(oInput, oLabel)
         return oInput
     
     def addDateTimeReadOnly(self, label: str, mtdGetter) -> TextReadOnly:
         """Add a read-only text."""
-        self.addLabel(label)
+        oLabel = self.addLabel(label)
         oInput = DateTimeReadOnly(label, mtdGetter)
         oInput.createWidgets(self.frmEdit, self.row, 1)
-        self.addWidget(oInput)
+        self.addWidget(oInput, oLabel)
         return oInput
 
     def addLabel(self, label: str) -> ttk.Label:
@@ -498,9 +496,10 @@ class BaseEditor():
         oLabel.grid(row=self.row, column=0, sticky='nw')
         return oLabel
 
-    def addWidget(self, oWidget: BaseWidget):
+    def addWidget(self, oWidget: BaseWidget, oLabel: ttk.Label):
         """Add a widget and bump the row count."""
         self.widgets.append(oWidget)
+        oWidget.setLabel(oLabel)
         self.row += 1
 
     def enableWidgets(self, enabled = False):
