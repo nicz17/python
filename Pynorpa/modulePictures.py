@@ -90,6 +90,10 @@ class PictureEditor(BaseWidgets.BaseEditor):
         self.picture = picture
         self.setValue(picture)
 
+    def onCancel(self):
+        """Cancel changes to the edited object."""
+        self.loadData(self.picture)
+
     def createWidgets(self, parent: tk.Frame):
         """Add the editor widgets to the parent widget."""
         super().createWidgets(parent, 'Picture Editor')
