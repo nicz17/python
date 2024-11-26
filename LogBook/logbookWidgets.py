@@ -145,9 +145,10 @@ class StepEditor(BaseWidgets.BaseEditor):
     def enableWidgets(self, evt = None):
         """Enable our internal widgets."""
         modified = self.hasChanges(self.step)
+        editing  = self.step is not None
         enableDone = self.step and self.step.status is not Status.Done
+        super().enableWidgets(editing)
         BaseWidgets.enableWidget(self.btnSave, modified)
         BaseWidgets.enableWidget(self.btnCancel, modified)
         BaseWidgets.enableWidget(self.btnDone, enableDone)
-        self.txtText.enableWidget(self.step is not None)
         self.txtText.resetModified()
