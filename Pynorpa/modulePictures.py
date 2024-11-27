@@ -104,7 +104,7 @@ class PictureEditor(BaseWidgets.BaseEditor):
         self.widRemarks = self.addTextArea('Remarques', Picture.getRemarks)
         self.widTaxon = self.addTextReadOnly('Taxon', Picture.getTaxonName)
         self.widUpdatedAt = self.addDateTimeReadOnly('Modifié', Picture.getUpdatedAt)
-        self.widRating = self.addIntInput('Qualité', Picture.getRating)
+        self.widRating = self.addSpinBox('Qualité', Picture.getRating, 1, 5)
         
         self.createButtons(True, True, False)
         self.enableWidgets()
