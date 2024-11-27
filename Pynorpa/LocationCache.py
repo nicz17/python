@@ -103,18 +103,36 @@ class LocationCache:
     def load(self):
         """Fetch and store the location records."""
         self.locations = []
-        db = Database.Database(config.dbName)
-        db.connect(config.dbUser, config.dbPass)
-        query = Database.Query("Locations")
+        self.db = Database.Database(config.dbName)
+        self.db.connect(config.dbUser, config.dbPass)
+        query = Database.Query("Locations fetch")
         query.add('select idxLocation, locName, locDesc, locLatitude, locLongitude,')
         query.add('locAltitude, locRegion, locMapZoom, locState')
         query.add('from Location order by locName asc')
-        rows = db.fetch(query.getSQL())
+        rows = self.db.fetch(query.getSQL())
         for row in rows:
             self.locations.append(Location(row))
-        db.disconnect()
+        self.db.disconnect()
         query.close()
         self.log.info('Done loading %s', self)
+
+    def save(self, location: Location):
+        """Update the location in database."""
+        if location is None:
+            self.log.error('Undefined location to save!')
+            return
+        if location.getIdx() <= 0:
+            self.log.error('Insert location not implemented yet! %s', location)
+            return
+        query = Database.Query("Location save")
+        query.add(f'update Location set locDesc = ')
+        query.addEscapedString(location.getDesc())
+        query.add(f'where idxLocation = {location.getIdx()}')
+        self.db.connect(config.dbUser, config.dbPass)
+        self.db.execute(query.getSQL())
+        self.db.disconnect()
+        query.close()
+        self.log.info('Saved %s', location)
 
     def getLocations(self) -> list[Location]:
         """Returns the fetched locations."""

@@ -37,7 +37,10 @@ class ModuleLocations(TabModule):
         self.editor.loadData(location)
 
     def onSaveLocation(self, location: Location):
-        pass
+        """Update the specified location in database."""
+        self.log.info('Saving %s', location)
+        self.locationCache.save(location)
+        self.editor.loadData(location)
 
     def createWidgets(self):
         """Create user widgets."""
@@ -89,6 +92,7 @@ class LocationEditor(BaseWidgets.BaseEditor):
 
     def onSave(self, evt = None):
         """Save changes to the edited object."""
+        self.location.setDesc(self.txtDesc.getValue())
         self.cbkSave(self.location)
 
     def onCancel(self):
