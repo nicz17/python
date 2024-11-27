@@ -10,6 +10,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import logging
 import os
+import sys
 
 
 class BaseApp:
@@ -88,9 +89,9 @@ class BaseApp:
 
     def showAboutMsg(self):
         """Display a tk info message about this app."""
-        sMsg = self.sTitle + ' by ' + __author__ + '\n'
-        sMsg += 'Version ' + __version__ + '\n'
-        sMsg += __copyright__
+        sMsg  = f'{self.sTitle} by {__author__}\n'
+        sMsg += f'Version {__version__}\n\n{__copyright__}\n\n'
+        sMsg += f'Python {sys.version}\nTkinter {tk.TkVersion}'
         messagebox.showinfo(title='About', message=sMsg)
 
     def showInfoMsg(self, msg: str):
