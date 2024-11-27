@@ -99,10 +99,10 @@ class StepEditor(BaseWidgets.BaseEditor):
         self.step = step
         self.setValue(step)
 
-    def onSave(self, evt = None):
+    def onSave(self, evt=None):
         """Save changes to the edited object."""
         self.step.text  = self.txtText.getValue().strip()
-        self.step.order = self.intOrder.getValue()
+        self.step.order = self.spiOrder.getValue()
         self.cbkSave()
 
     def onCancel(self):
@@ -121,7 +121,8 @@ class StepEditor(BaseWidgets.BaseEditor):
         # Step attributes
         self.lblStatus = self.addTextReadOnly('Status', LogBookStep.getStatusName)
         self.txtText   = self.addTextArea('Text', LogBookStep.getText, 6, 42)
-        self.intOrder  = self.addIntInput('Order', LogBookStep.getOrder)
+        #self.intOrder  = self.addIntInput('Order', LogBookStep.getOrder)
+        self.spiOrder  = self.addSpinBox('Order', LogBookStep.getOrder, 0, 999)
         self.txtText.oWidget.bind("<Return>", self.onSave)
 
         # Buttons: save, cancel, done
