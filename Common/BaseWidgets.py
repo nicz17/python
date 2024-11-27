@@ -148,10 +148,12 @@ class SpinBox(BaseWidget):
     def setValue(self, object):
         """Set the integer value."""
         self.oWidget.delete(0, tk.END)
+        intValue = 0
         if object is not None:
             intValue = self.mtdGetter(object)
-            if intValue is not None:
-                self.oWidget.insert(0, str(intValue))
+            if intValue is None:
+                intValue = 0
+        self.oWidget.insert(0, str(intValue))
 
     def getValue(self) -> int:
         """Get the current int value."""
