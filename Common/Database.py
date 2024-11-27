@@ -52,6 +52,16 @@ class Database:
             self.log.info('Fetched %d records', len(rows))
             return rows
         
+    def execute(self, sql: str):
+        """Insert or update using the specified SQL."""
+        self.log.info('Executing SQL: %s', sql)
+        if self.conn is None:
+            self.log.error('Failed to execute: not connected to database!')
+            return
+        with self.conn.cursor() as cursor:
+            cursor.execute(sql)
+            self.conn.commit()
+        
 class Query():
     """Class for building an SQL query."""
     log = logging.getLogger("Query")
@@ -62,10 +72,15 @@ class Query():
         self.name = name
 
     def add(self, sql: str):
-        """Add some SQL"""
+        """Add some SQL."""
         if len(self.sio.getvalue()) > 0:
             self.sio.write(' ')
         self.sio.write(sql.strip())
+
+    def addEscapedString(self, text: str):
+        """Escape quotes and add the text with quotes."""
+        escaped = text.replace("'", "''")
+        self.add(f"'{escaped}'")
 
     def getSQL(self):
         """Return the accumulated SQL"""
