@@ -134,6 +134,45 @@ class IntInput(BaseWidget):
     
     def __str__(self) -> str:
         return 'IntInput'
+    
+class SpinBox(BaseWidget):
+    """An Integer selector from a range."""
+    log = logging.getLogger('SpinBox')
+
+    def __init__(self, cbkModified, mtdGetter, iMin: int, iMax: int):
+        """Constructor with modification callback and range."""
+        super().__init__(cbkModified, mtdGetter)
+        self.iMin = iMin
+        self.iMax = iMax
+
+    def setValue(self, object):
+        """Set the integer value."""
+        self.oWidget.delete(0, tk.END)
+        if object is not None:
+            intValue = self.mtdGetter(object)
+            if intValue is not None:
+                self.oWidget.insert(0, str(intValue))
+
+    def getValue(self) -> int:
+        """Get the current int value."""
+        return int(self.oWidget.get())
+        
+    def createWidgets(self, parent: tk.Frame, row: int, col: int):
+        """Create widget in parent frame with grid layout."""
+        cmdValidate = (parent.register(self.cbkValidate))
+        self.oWidget = tk.Spinbox(parent, from_=self.iMin, to=self.iMax, 
+                                  command=self.cbkModified, width=8, validate='all', 
+                                    validatecommand=(cmdValidate, '%P'))
+        self.oWidget.grid(row=row, column=col, padx=4, sticky='w')
+        if self.cbkModified:
+            self.oWidget.bind('<KeyRelease>', self.cbkModified)
+
+    def cbkValidate(self, input: str) -> bool:
+        """Check if input is a digit or empty."""
+        return str.isdigit(input) or input == ''
+    
+    def __str__(self) -> str:
+        return f'SpinBox [{self.iMin}:{self.iMax}]'
 
 class TextInput(BaseWidget):
     """A single-line text input widget based on ttk.Entry."""
@@ -478,6 +517,14 @@ class BaseEditor():
         oCheckBox.createWidgets(self.frmEdit, self.row, 1)
         self.addWidget(oCheckBox, oLabel)
         return oCheckBox
+
+    def addSpinBox(self, label: str, mtdGetter, iMin: int, iMax: int) -> SpinBox:
+        """Add a integer range input."""
+        oLabel = self.addLabel(label)
+        oInput = SpinBox(self.onModified, mtdGetter, iMin, iMax)
+        oInput.createWidgets(self.frmEdit, self.row, 1)
+        self.addWidget(oInput, oLabel)
+        return oInput
 
     def addDateTime(self, label: str, mtdGetter) -> DateTime:
         """Add a single-line date-time input."""
