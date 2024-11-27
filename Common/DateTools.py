@@ -57,6 +57,10 @@ def addDays(tAt: float, nDays: int) -> float:
     """Adds the specified number of days to the float timestamp."""
     return tAt + 24*3600*nDays
 
+def datetimeToMidnight(dt: datetime.datetime) -> datetime.datetime:
+    """Truncate the specified datetime to midnight."""
+    return dt.replace(hour=0, minute=0, second=0, microsecond=0)
+
 def testDateTools():
     log = logging.getLogger('DateTools')
     tNow = now()
@@ -70,6 +74,7 @@ def testDateTools():
     log.info('Now dt in French is %s', datetimeToPrettyStringFr(dtNow))
     log.info('Aug 1  in French is %s', datetimeToPrettyStringFr(dtFirst))
     log.info('May 4  in French is %s', datetimeToPrettyStringFr(dtMay4))
+    log.info('Today midnight   is %s', datetimeToMidnight(dtNow))
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(asctime)s %(levelname)s %(name)s: %(message)s", 
