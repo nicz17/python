@@ -403,6 +403,7 @@ class BaseEditor():
     def __init__(self, cbkSave=None, colorLabelDef='black'):
         """Constructor with save callback."""
         self.log.info('Constructor')
+        self.object = None
         self.cbkSave = cbkSave
         self.colorLabelDef = colorLabelDef
         self.widgets = []
@@ -414,6 +415,7 @@ class BaseEditor():
 
     def setValue(self, object):
         """Set each widget value from the specified object."""
+        self.object = object
         self.enableWidgets()
         oWidget: BaseWidget
         for oWidget in self.widgets:
@@ -443,7 +445,7 @@ class BaseEditor():
 
     def onCancel(self):
         """Cancel changes to the edited object."""
-        pass
+        self.setValue(self.object)
 
     def onDelete(self):
         """Delete the edited object."""

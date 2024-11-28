@@ -95,10 +95,6 @@ class LocationEditor(BaseWidgets.BaseEditor):
         self.location.setDesc(self.txtDesc.getValue())
         self.cbkSave(self.location)
 
-    def onCancel(self):
-        """Cancel changes to the edited object."""
-        self.loadData(self.location)
-
     def createWidgets(self, parent: tk.Frame):
         """Add the editor widgets to the parent widget."""
         super().createWidgets(parent, 'Location Editor')
