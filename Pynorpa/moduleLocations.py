@@ -23,7 +23,7 @@ class ModuleLocations(TabModule):
         self.window = parent.window
         self.table = TableLocations(self.onSelectLocation)
         self.mapWidget = MapWidget()
-        self.editor = LocationEditor(self.onSaveLocation)
+        self.editor = LocationEditor(self.onSaveLocation, self.mapWidget)
         super().__init__(parent, 'Lieux')
 
     def loadData(self):
@@ -76,14 +76,57 @@ class TableLocations(TableWithColumns):
         super().createWidgets(parent)
 
 
+class LatLonZoomWidget(BaseWidgets.BaseWidget):
+    """A widget for displaying Lat/Lon/zoom info linked to a MapWidget."""
+    log = logging.getLogger('LatLonZoomWidget')
+
+    def __init__(self, cbkModified, mtdGetter, oMap: MapWidget):
+        """Constructor with modification callback."""
+        super().__init__(cbkModified, mtdGetter)
+        self.value = LatLonZoom(0, 0, 10)
+        self.oMap = oMap
+
+    def setValue(self, object):
+        """Set the boolean value."""
+        self.value = self.getObjectValue(object)
+        self.loadData()
+
+    def getValue(self) -> bool:
+        """Get the current boolean value."""
+        return self.value
+    
+    def loadData(self):
+        if self.value is None:
+            self.lblValue.configure(text='')
+        else:
+            self.lblValue.configure(text=self.value.toPrettyString())
+    
+    def onLinkMap(self):
+        self.value = self.oMap.getLatLonZoom()
+        self.loadData()
+        self.cbkModified()
+        
+    def createWidgets(self, parent: tk.Frame, row: int, col: int):
+        """Create widget in parent frame with grid layout."""
+        self.oWidget = ttk.Frame(parent)
+        self.lblValue = ttk.Label(self.oWidget, width=46, text='')
+        self.lblValue.grid(row=0, column=0, sticky='we')
+        self.btnMap = ttk.Button(self.oWidget, text='Lire la carte', command=self.onLinkMap)
+        self.btnMap.grid(row=0, column=1, sticky='e')
+        self.oWidget.grid(row=row, column=col, padx=5, sticky='we')
+
+    def enableWidget(self, enabled: bool):
+        BaseWidgets.enableWidget(self.btnMap, enabled)
+
 class LocationEditor(BaseWidgets.BaseEditor):
     """A widget for editing Pynorpa locations."""
     log = logging.getLogger(__name__)
 
-    def __init__(self, cbkSave):
+    def __init__(self, cbkSave, oMap: MapWidget):
         """Constructor with save callback."""
         super().__init__(cbkSave, '#62564f')
         self.location = None
+        self.oMap = oMap
 
     def loadData(self, location: Location):
         """Display the specified object in this editor."""
@@ -105,7 +148,8 @@ class LocationEditor(BaseWidgets.BaseEditor):
         self.txtState    = self.addText('Pays', Location.getState)
         self.txtRegion   = self.addText('Région', Location.getRegion)
         self.intAltitude = self.addIntInput('Altitude', Location.getAltitude)
-        self.lblPosition = self.addTextReadOnly('Position', Location.getGPSString)
+        self.widPosition = self.addCustomWidget('Position', 
+            LatLonZoomWidget(self.onModified, Location.getLatLonZoom, self.oMap))
 
         # Buttons: save, cancel
         self.createButtons(True, True, False)
