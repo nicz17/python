@@ -86,6 +86,9 @@ class BaseWidget():
             value = self.mtdGetter(object)
             return self.getValue() != value
         return False
+    
+    def createWidgets(self, parent: tk.Frame, row: int, col: int):
+        pass
 
     def enableWidget(self, enabled: bool):
         """Enable or disable this widget."""
@@ -546,10 +549,17 @@ class BaseEditor():
         self.addWidget(oInput, oLabel)
         return oInput
 
-    def addLabel(self, label: str) -> ttk.Label:
+    def addCustomWidget(self, label: str, oWidget: BaseWidget):
+        """Add a custome edition widget."""
+        oLabel = self.addLabel(label, 'w')
+        oWidget.createWidgets(self.frmEdit, self.row, 1)
+        self.addWidget(oWidget, oLabel)
+        return oWidget
+
+    def addLabel(self, label: str, sticky='nw') -> ttk.Label:
         """Add an attribute label at the specified row."""
         oLabel = ttk.Label(self.frmEdit, text=label)
-        oLabel.grid(row=self.row, column=0, sticky='nw')
+        oLabel.grid(row=self.row, column=0, sticky=sticky)
         return oLabel
 
     def addWidget(self, oWidget: BaseWidget, oLabel: ttk.Label):
