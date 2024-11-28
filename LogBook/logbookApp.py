@@ -101,6 +101,7 @@ class LogBookApp(BaseApp):
             self.saveBook()
             self.stepInput.clear()
             self.stepsTable.loadData(self.task)
+            self.taskProgress.loadData(self.task)
         else:
             self.log.info('Skipping empty input')
 
@@ -111,6 +112,7 @@ class LogBookApp(BaseApp):
             self.book = LogBook(name)
             self.stepEditor.loadData(None)
             self.stepsTable.loadData(None)
+            self.taskProgress.loadData(None)
             self.renderBook()
             self.setStatus(f'Selected {self.book.getFilename()}')
             self.enableWidgets()
