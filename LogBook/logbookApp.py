@@ -43,6 +43,7 @@ class LogBookApp(BaseApp):
         self.taskEditor = logbookWidgets.TaskEditor(self.onTaskSave)
         self.stepEditor = logbookWidgets.StepEditor(self.onStepSave)
         self.bookSelector = BookSelector(self.onBookSelection)
+        self.taskProgress = logbookWidgets.TaskProgress()
         geometry = f'{self.iWidth}x{self.iHeight}'
         super().__init__('LogBook', geometry, LogBook.dir + 'LogBook.png')
         self.loadBook()
@@ -122,6 +123,7 @@ class LogBookApp(BaseApp):
             self.renderTask()
             self.stepsTable.loadData(self.task)
             self.taskEditor.loadData(self.task)
+            self.taskProgress.loadData(self.task)
         self.enableWidgets()
 
     def onStepSelection(self, evt):
@@ -148,6 +150,7 @@ class LogBookApp(BaseApp):
         if self.book is not None:
             self.saveBook()
         self.stepsTable.loadData(self.task)
+        self.taskProgress.loadData(self.task)
 
     def onOpenFile(self):
         """Display dialog to open book from file."""
@@ -278,6 +281,9 @@ class LogBookApp(BaseApp):
 
         # Book selector
         self.bookSelector.build(self.frmEdit)
+
+        # Task progress
+        self.taskProgress.createWidgets(self.frmEdit)
 
     def enableWidgets(self):
         """Enable or disable widgets based on state."""

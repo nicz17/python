@@ -112,6 +112,10 @@ class LogBookTask:
             self.steps.append(step)
             self.updateStatus()
 
+    def countSteps(self) -> int:
+        """Count the number of steps in this task."""
+        return len(self.steps)
+
     def countActiveSteps(self) -> int:
         """Count the number of active steps in this task."""
         nActive = 0
@@ -119,6 +123,14 @@ class LogBookTask:
             if step.status != Status.Done:
                 nActive += 1
         return nActive
+
+    def countDoneSteps(self) -> int:
+        """Count the number of done steps in this task."""
+        nDone = 0
+        for step in self:
+            if step.status == Status.Done:
+                nDone += 1
+        return nDone
     
     def getNextStepOrder(self) -> int:
         """Compute the next step order."""

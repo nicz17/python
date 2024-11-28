@@ -141,3 +141,31 @@ class StepEditor(BaseWidgets.BaseEditor):
         BaseWidgets.enableWidget(self.btnCancel, modified)
         BaseWidgets.enableWidget(self.btnDone, enableDone)
         self.txtText.resetModified()
+
+
+class TaskProgress():
+    """A progress bar for the selected task."""
+    log = logging.getLogger(__name__)
+
+    def __init__(self):
+        """Constructor."""
+        self.log.info('Constructor')
+        self.progress = None
+
+    def loadData(self, task: LogBookTask):
+        """Update the progress bar."""
+        fProgress = 0.0
+        if task is not None:
+            iTotal = task.countSteps()
+            iDone  = task.countDoneSteps()
+            if iTotal > 0:
+                fProgress = 100.0*iDone/iTotal
+        self.progress['value'] = fProgress
+
+    def createWidgets(self, parent: tk.Frame):
+        """Add the widgets to the parent frame."""
+        frmProgress = ttk.LabelFrame(parent, text='Task Progress')
+        frmProgress.pack(side=tk.TOP, anchor=tk.N, fill=tk.X, expand=True, pady=5)
+
+        self.progress = ttk.Progressbar(frmProgress, orient='horizontal', mode='determinate')
+        self.progress.pack(fill=tk.X, expand=True, padx=8, pady=5)
