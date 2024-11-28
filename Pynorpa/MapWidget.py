@@ -12,16 +12,13 @@ import logging
 import tkinter as tk
 import tkintermapview
 from LocationCache import *
+from LatLonZoom import *
 
 
 class MapWidget():
     """A map widget."""
     log = logging.getLogger('MapWidget')
-    locZero = {
-        'lat': 46.5225,
-        'lon': 6.6261,
-        'zoom': 10
-    }
+    locZero = LatLonZoom(46.5225, 6.6261, 10)
 
     def __init__(self):
         """Constructor"""
@@ -30,21 +27,22 @@ class MapWidget():
     def loadData(self, location: Location):
         """Display the specified location on the map."""
         if location is not None:
-            self.mapView.set_position(location.lat, location.lon)
-            self.mapView.set_zoom(location.zoom)
+            self.setLatLonZoom(location.getLatLonZoom())
         else:
             self.setDefaultLocation()
 
-    def getLonLatZoom(self):
-        """Get the current lon/lat/zoom triplet."""
-        pos  = self.mapView.get_position()
-        zoom = self.mapView.zoom
-        self.log.info('Current position is %s at zoom %d', pos, zoom)
+    def getLatLonZoom(self):
+        """Get the current lat/lon/zoom triplet."""
+        return LatLonZoom(*(self.mapView.get_position()), self.mapView.zoom)
+
+    def setLatLonZoom(self, coords: LatLonZoom):
+        """Set the map location and zoom."""
+        self.mapView.set_position(coords.getLat(), coords.getLon())
+        self.mapView.set_zoom(coords.getZoom())
 
     def setDefaultLocation(self):
         """Display the default location on the map."""
-        self.mapView.set_position(self.locZero['lat'], self.locZero['lon'])
-        self.mapView.set_zoom(self.locZero['zoom'])
+        self.setLatLonZoom(self.locZero)
         
     def createWidgets(self, parent: tk.Frame):
         """Create user widgets."""

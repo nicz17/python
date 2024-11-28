@@ -10,6 +10,7 @@ import config
 import logging
 import math
 import Database
+from LatLonZoom import *
 
 
 class Location:
@@ -70,6 +71,10 @@ class Location:
 
     def getAltitude(self) -> int:
         return self.alt
+    
+    def getLatLonZoom(self):
+        """Get the lat/lon/zoom triplet."""
+        return LatLonZoom(self.lat, self.lon, self.zoom)
 
     def getDistance(self, lat: float, lon: float) -> float:
         """Get the distance to another location."""
@@ -77,7 +82,8 @@ class Location:
     
     def getGPSString(self):
         """Get the GPS coordinates as a string."""
-        return f'lat {self.lat} lon {self.lon} zoom {self.zoom}'
+        #return f'lat {self.lat} lon {self.lon} zoom {self.zoom}'
+        return self.getLatLonZoom().toPrettyString()
 
     def __str__(self):
         return f'Location {self.idx} {self.name}'
