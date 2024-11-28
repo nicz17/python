@@ -18,9 +18,9 @@ class MapWidget():
     """A map widget."""
     log = logging.getLogger('MapWidget')
     locZero = {
-        'lat': 0.0,
-        'lon': 0.0,
-        'zoom': 15
+        'lat': 46.5225,
+        'lon': 6.6261,
+        'zoom': 10
     }
 
     def __init__(self):
@@ -34,6 +34,12 @@ class MapWidget():
             self.mapView.set_zoom(location.zoom)
         else:
             self.setDefaultLocation()
+
+    def getLonLatZoom(self):
+        """Get the current lon/lat/zoom triplet."""
+        pos  = self.mapView.get_position()
+        zoom = self.mapView.zoom
+        self.log.info('Current position is %s at zoom %d', pos, zoom)
 
     def setDefaultLocation(self):
         """Display the default location on the map."""
