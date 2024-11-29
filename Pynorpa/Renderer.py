@@ -25,7 +25,7 @@ class Renderer:
         self.palette = GreenRedPalette()
         self.canvas = canvas
         self.root = root
-        self.width = 750
+        self.width = 600
 
     def drawTasks(self, tasks):
         """Draw the specified tasks on the canvas."""
@@ -36,7 +36,7 @@ class Renderer:
     def drawTask(self, task: Task, iTask: int):
         """Draw the specified task on the canvas."""
         sx = 10
-        sy = iTask*105 + 10
+        sy = iTask*105
         self.canvas.create_rectangle(sx, sy, sx+self.width, sy+96, outline = self.colorGridLines)
         self.canvas.create_oval(sx+8,  sy+15, sx+43, sy+50, fill=self.getTaskColor(task), outline="")
         self.canvas.create_text(sx+55, sy+15, text=task.title, anchor='w', font=self.fontBold)
