@@ -30,7 +30,9 @@ class Exporter():
         """Build Home page"""
         page = pynorpaHtml.PynorpaHtmlPage('Nature - Accueil')
         page.addHeading(1, 'Photos de nature')
-        page.addHeading(2, 'Cette page est en construction')
+        tableLeftRight = TableHtmlTag(None, 2)
+        page.add(tableLeftRight)
+        tdLeft = tableLeftRight.getNextCell()
 
         divBest = MyBoxWideHtmlTag('Quelques photos')
         aBestPics = self.picCache.getRandomBest()
@@ -38,10 +40,29 @@ class Exporter():
         for pic in aBestPics:
             listBest.append(ImageHtmlTag(f'thumbs/{pic.getFilename()}', pic.getTaxonName(), pic.getFilename()))
         divBest.addTag(TableHtmlTag(listBest).addAttr('class', 'table-thumbs'))
-        page.add(divBest)
+        tdLeft.addTag(divBest)
+        tdLeft.addTag(MyBoxWideHtmlTag('Quelques catégories'))
+        tdLeft.addTag(MyBoxHtmlTag('A propos'))
 
-        page.add(MyBoxWideHtmlTag('Quelques catégories'))
-        page.add(MyBoxHtmlTag('A propos'))
+        tdRight = tableLeftRight.getNextCell()
+        tdRight.addTag(MyBoxHtmlTag('Dernières espèces'))
+        tdRight.addTag(MyBoxHtmlTag('Excursions récentes'))
+        tdRight.addTag(MyBoxHtmlTag('Matériel photo'))
+
+        divLinks = MyBoxHtmlTag('Liens externes')
+        tdRight.addTag(divLinks)
+        aLinks = [
+            LinkHtmlTag("https://www.inaturalist.org/observations/nicz", "iNaturalist", True,
+		 		"Mes observations sur iNaturalist"),
+            LinkHtmlTag("http://www.insecte.org/forum/", "Le monde des insectes", True,
+		 		"Le monde des insectes - forum"),
+            LinkHtmlTag("http://www.quelestcetanimal.com/", "Quel est cet animal ?", True,
+		 		"Quel est cet animal ?"),
+            LinkHtmlTag("https://www.infoflora.ch/fr/", "Infoflora", True, "Flore Suisse"),
+            LinkHtmlTag("https://noc.social/@nicz", "Mastodon", True, "Mastodon @nicz@noc.social").addAttr("rel", "me")
+        ]
+        divLinks.addTag(ListHtmlTag(aLinks))
+
         page.save(f'{config.dirWebExport}index.html')
 
     def buildLinks(self):
