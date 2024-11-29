@@ -19,7 +19,7 @@ class BaseApp:
     def __init__(self, sTitle, sGeometry = '1200x800', sIconFile = None) -> None:
         self.log.info('Creating BaseApp %s [%s]', sTitle, sGeometry)
         self.sTitle = sTitle
-        self.window = tk.Tk()
+        self.window = tk.Tk(className=sTitle)
         self.window.title(sTitle)
         self.window.geometry(sGeometry)
 
