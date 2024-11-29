@@ -47,11 +47,6 @@ class GeoTracker:
         # Load LocationCache
         self.locationCache = LocationCache()
 
-        # Load a default location
-        # TODO take from an option
-        # self.defLocation = self.locationCache.getById(65)
-        # self.log.info('Using default location %s', self.defLocation)
-
         # Check dirs exist
         if not os.path.exists(self.dirTarget):
             self.log.error('Missing target dir %s', self.dirTarget)
@@ -99,12 +94,12 @@ class GeoTracker:
             self.log.info('Closest location in cache to track %s is %s', track.name, loc)
 
     def loadPhotos(self):
+        # TODO get list from CopyFromCamera
         # Glob JPG photos
         filter = self.dirPhotos + '*.JPG'
         self.log.info('Looking for photos in %s', filter)
         self.jpgFiles = sorted(glob.glob(filter))
         self.log.info('Will try to update %d photos with GPS tags', len(self.jpgFiles))
-
         self.statusMsg = 'Prepared'
 
     def getLocationAt(self, tAt: float):
@@ -130,6 +125,7 @@ class GeoTracker:
         """Get newly uploaded photos and add GPS EXIF tags if possible."""
         self.log.info('Will try to update %d photos with GPS tags', len(self.jpgFiles))
         nUpdated = 0
+        nDefault = 0
         nUntracked = 0
         nAlreadyDone = 0
         for file in self.jpgFiles:
@@ -146,7 +142,7 @@ class GeoTracker:
                     photo.identify()
                     self.statusMsg = f'Added GPS data to {photo.filename}'
                 elif self.defLocation is not None:
-                    nUntracked += 1
+                    nDefault += 1
                     self.setGPSFromDefLocation(file)
                 else:
                     nUntracked += 1
@@ -155,7 +151,7 @@ class GeoTracker:
                     cbkProgress()
             self.photos.append(photo)
             self.addPhotoToTrack(photo)
-        self.statusMsg = f'Photos geo-tagged: {nUpdated}, already tagged: {nAlreadyDone}, out of track: {nUntracked}'
+        self.statusMsg = f'Photos geo-tagged: {nUpdated}, default: {nDefault}, already tagged: {nAlreadyDone}, out of track: {nUntracked}'
         self.log.info(self.statusMsg)
 
     def callExifTool(self, file: str, gpxloc: gpxpy.geo.Location):
