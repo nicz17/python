@@ -29,9 +29,10 @@ class GeoTracker:
     dirTarget = None
     dirPhotos = None
 
-    def __init__(self):
+    def __init__(self, cbkAddCoords=None):
         """Constructor."""
         self.log.info('Constructor')
+        self.cbkAddCoords = cbkAddCoords
         self.getTargetDirectory()
         self.files = []
         self.geoTracks = []
@@ -163,6 +164,8 @@ class GeoTracker:
         cmd = f'exiftool -GPSLatitude*={gpxloc.latitude} -GPSLongitude*={gpxloc.longitude} -overwrite_original {file}'
         self.log.debug(cmd)
         os.system(cmd)
+        if self.cbkAddCoords:
+            self.cbkAddCoords(gpxloc.latitude, gpxloc.longitude)
         return True
     
     def setGPSFromDefLocation(self, file: str):

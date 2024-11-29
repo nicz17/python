@@ -13,6 +13,7 @@ from CopyFromCamera import *
 from Renderer import *
 from PynorpaTask import *
 from BaseWidgets import ComboBox, ToolTip, Button
+from MapWidget import *
 from LocationCache import *
 
 class ModuleCamera(TabModule):
@@ -27,8 +28,9 @@ class ModuleCamera(TabModule):
         super().__init__(parent, 'Caméra')
 
         self.copier = CopyFromCamera()
-        self.tracker = GeoTracker()
+        self.tracker = GeoTracker(self.onAddCoords)
         self.cache = LocationCache()
+        self.mapWidget = MapWidget()
 
     def loadData(self):
         # Renderer and tasks
@@ -90,21 +92,26 @@ class ModuleCamera(TabModule):
         name = self.cboDefLoc.getValue()
         if name:
             defLocation = self.cache.getByName(name)
+        if defLocation:
+            self.mapWidget.setLatLonZoom(defLocation.getLatLonZoom())
         self.tracker.setDefaultLocation(defLocation)
+
+    def onAddCoords(self, lat: float, lon: float):
+        """Callback after adding GPS data to a photo."""
+        self.mapWidget.addMarker(LatLonZoom(lat, lon, 0))
 
     def addButton(self, label: str, icon: str, cmd) -> Button:
         """Add a Tk Button to this module's frmButtons."""
-        #btn = tk.Button(self.frmButtons, text=label, command=cmd)
-        #btn.pack(side=tk.LEFT, padx=3, pady=7)
         btn = Button(self.frmButtons, label, cmd, icon)
         btn.pack(9)
         return btn
 
     def createWidgets(self):
         """Create user widgets."""
+        self.createLeftRightFrames()
 
         # Buttons frame
-        self.frmButtons = ttk.Frame(self.oFrame, padding=5)
+        self.frmButtons = ttk.Frame(self.frmLeft, padding=5)
         self.frmButtons.pack(anchor=tk.W)
 
         # Buttons
@@ -120,16 +127,18 @@ class ModuleCamera(TabModule):
         self.cboDefLoc.setValues([loc.name for loc in self.cache.getLocations()])
 
         # Canvas
-        self.canTasks = tk.Canvas(master=self.oFrame, bd=0, 
+        self.canTasks = tk.Canvas(master=self.frmLeft, bd=0, 
                                   #bg='#e0e0e0', 
                                   bg='#f6f4f2', # Ubuntu theme
                                   height=self.oParent.iHeight-200, 
-                                  width=self.oParent.iWidth-10, 
+                                  #width=self.oParent.iWidth-10, 
+                                  width=620, 
                                   highlightthickness=0)
         self.canTasks.pack(side=tk.LEFT)
 
+        # Map
+        self.mapWidget.createWidgets(self.frmRight, 100)
+
     def enableWidgets(self):
-        #self.enableWidget(self.btnCopy, not self.isRunning)
-        #self.enableWidget(self.btnOpen, not self.isRunning)
         self.btnCopy.enableWidget(not self.isRunning)
         self.btnOpen.enableWidget(not self.isRunning)
