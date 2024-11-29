@@ -210,11 +210,13 @@ class ImageHtmlTag(HtmlTag):
             self.addAttr('alt', sAlt)
 
 class LinkHtmlTag(HtmlTag):
-    def __init__(self, sRef: str, sText: str, bExternal=False):
+    def __init__(self, sRef: str, sText: str, bExternal=False, sTitle=None):
         super().__init__('a', sText)
         self.addAttr('href', sRef)
         if bExternal:
             self.addAttr('target', '_blank')
+        if sTitle:
+            self.addAttr('title', sTitle)
 
 class TableHtmlTag(HtmlTag):
     def __init__(self, aItems, nItemsByRow=4, valign=None):
