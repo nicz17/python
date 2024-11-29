@@ -15,9 +15,9 @@ class TabsApp(BaseApp):
     """Subclass of BaseApp using tabbed frames."""
     log = logging.getLogger('TabsApp')
 
-    def __init__(self, sTitle, sGeometry = '1200x800') -> None:
+    def __init__(self, sTitle, sGeometry='1200x800', sIconFile=None) -> None:
         """Constructor with title and sizes."""
-        super().__init__(sTitle, sGeometry)
+        super().__init__(sTitle, sGeometry, sIconFile)
         self.dictTabs = {}
 
     def createBaseWidgets(self):

@@ -6,6 +6,7 @@ __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
+import config
 import logging
 from TabsApp import *
 from ModuleCamera import *
@@ -25,7 +26,7 @@ class PynorpaApp(TabsApp):
         self.iHeight = 1000
         self.iWidth  = 1500
         sGeometry = f'{self.iWidth}x{self.iHeight}'
-        super().__init__('Pynorpa App', sGeometry)
+        super().__init__('Pynorpa App', sGeometry, config.appIcon)
 
         # Setting Theme
         style = ThemedStyle(self.window)
@@ -33,6 +34,7 @@ class PynorpaApp(TabsApp):
         style.set_theme("radiance")  # Ubuntu
         #style.set_theme("equilux")  # Dark theme
 
+        # Tabbed modules
         modCamera    = ModuleCamera(self)
         modSelection = moduleSelection.ModuleSelection(self)
         modLocations = moduleLocations.ModuleLocations(self)
