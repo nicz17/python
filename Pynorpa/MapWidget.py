@@ -40,13 +40,18 @@ class MapWidget():
         self.mapView.set_position(coords.getLat(), coords.getLon())
         self.mapView.set_zoom(coords.getZoom())
 
+    def addMarker(self, coords: LatLonZoom):
+        """Add a marker to the map."""
+        self.mapView.set_marker(coords.lat, coords.lon)
+        # image = ImageTk.PhotoImage
+
     def setDefaultLocation(self):
         """Display the default location on the map."""
         self.setLatLonZoom(self.locZero)
         
-    def createWidgets(self, parent: tk.Frame):
+    def createWidgets(self, parent: tk.Frame, pady=0):
         """Create user widgets."""
         self.mapView = tkintermapview.TkinterMapView(parent, width=600, height=400, corner_radius=0)
-        self.mapView.pack()
+        self.mapView.pack(pady=pady)
         self.setDefaultLocation()
     
