@@ -22,7 +22,8 @@ class CopyFromCamera:
     def __init__(self):
         """Constructor."""
         self.log.info('Constructor')
-        self.images = []
+        self.images = []  # Photos found on camera card
+        self.copied = []  # Images copied to disk
         self.sourceDir = None
         self.targetDir = None
         self.statusMsg = 'Init'
@@ -63,6 +64,7 @@ class CopyFromCamera:
                 cmd = 'cp ' + img.replace(" ", "\\ ") + ' ' + dest
                 self.log.debug(cmd)
                 os.system(cmd)
+                self.copied.append(dest)
             if cbkProgress:
                 cbkProgress()
         timer.stop()
@@ -98,6 +100,10 @@ class CopyFromCamera:
     def getNumberImages(self):
         """Get the number of photos to copy."""
         return len(self.images)
+    
+    def getCopiedImages(self):
+        """Get the list of images copied on disk."""
+        return self.copied
 
     def getCameraDir(self) -> str:
         """Get the current photo dir on the mounted camera."""

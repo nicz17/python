@@ -20,6 +20,7 @@ from HtmlPage import *
 from Timer import *
 from LocationCache import *
 from PhotoInfo import *
+from CopyFromCamera import *
 
 
 class GeoTracker:
@@ -29,9 +30,10 @@ class GeoTracker:
     dirTarget = None
     dirPhotos = None
 
-    def __init__(self, cbkAddCoords=None):
+    def __init__(self, copier=None, cbkAddCoords=None):
         """Constructor."""
         self.log.info('Constructor')
+        self.copier = copier
         self.cbkAddCoords = cbkAddCoords
         self.getTargetDirectory()
         self.files = []
@@ -95,11 +97,15 @@ class GeoTracker:
             self.log.info('Closest location in cache to track %s is %s', track.name, loc)
 
     def loadPhotos(self):
-        # TODO get list from CopyFromCamera
-        # Glob JPG photos
-        filter = self.dirPhotos + '*.JPG'
-        self.log.info('Looking for photos in %s', filter)
-        self.jpgFiles = sorted(glob.glob(filter))
+        if self.copier:
+            # Get list from CopyFromCamera
+            self.copier: CopyFromCamera
+            self.jpgFiles = self.copier.getCopiedImages()
+        else:
+            # Glob JPG photos
+            filter = self.dirPhotos + '*.JPG'
+            self.log.info('Looking for photos in %s', filter)
+            self.jpgFiles = sorted(glob.glob(filter))
         self.log.info('Will try to update %d photos with GPS tags', len(self.jpgFiles))
         self.statusMsg = 'Prepared'
 

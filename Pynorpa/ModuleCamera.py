@@ -28,7 +28,7 @@ class ModuleCamera(TabModule):
         super().__init__(parent, 'Caméra')
 
         self.copier = CopyFromCamera()
-        self.tracker = GeoTracker(self.onAddCoords)
+        self.tracker = GeoTracker(self.copier, self.onAddCoords)
         self.cache = LocationCache()
         self.mapWidget = MapWidget()
 
