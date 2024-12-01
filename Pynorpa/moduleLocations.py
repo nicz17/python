@@ -147,7 +147,7 @@ class LocationEditor(BaseWidgets.BaseEditor):
         self.txtDesc     = self.addTextArea('Description', Location.getDesc, 6)
         self.txtState    = self.addText('Pays', Location.getState)
         self.txtRegion   = self.addText('Région', Location.getRegion)
-        self.intAltitude = self.addIntInput('Altitude', Location.getAltitude)
+        self.intAltitude = self.addIntInput('Altitude', Location.getAltitude, 'm')
         self.widPosition = self.addCustomWidget('Position', 
             LatLonZoomWidget(self.onModified, Location.getLatLonZoom, self.oMap))
 

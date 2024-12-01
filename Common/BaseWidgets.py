@@ -103,9 +103,10 @@ class IntInput(BaseWidget):
     """An integer input widget based on ttk.Entry."""
     log = logging.getLogger('IntInput')
 
-    def __init__(self, cbkModified, mtdGetter):
+    def __init__(self, cbkModified, mtdGetter, unit=None):
         """Constructor with modification callback."""
         super().__init__(cbkModified, mtdGetter)
+        self.unit = unit
 
     def setValue(self, object):
         """Set the integer value."""
@@ -125,11 +126,16 @@ class IntInput(BaseWidget):
     def createWidgets(self, parent: tk.Frame, row: int, col: int):
         """Create widget in parent frame with grid layout."""
         cmdValidate = (parent.register(self.cbkValidate))
-        self.oWidget = ttk.Entry(parent, width=8, validate='all', 
+        frmWidget = ttk.Frame(parent)
+        self.oWidget = ttk.Entry(frmWidget, width=8, validate='all', 
                                 validatecommand=(cmdValidate, '%P'))
-        self.oWidget.grid(row=row, column=col, padx=5, sticky='w')
+        frmWidget.grid(row=row, column=col, padx=5, sticky='w')
+        self.oWidget.grid(row=0, column=0, padx=0, sticky='w')
         if self.cbkModified:
             self.oWidget.bind('<KeyRelease>', self.cbkModified)
+        if self.unit:
+            lblUnit = ttk.Label(frmWidget, text=self.unit)
+            lblUnit.grid(row=0, column=1, padx=3, sticky='w')
 
     def cbkValidate(self, input: str) -> bool:
         """Check if input is a digit or empty."""
@@ -500,10 +506,10 @@ class BaseEditor():
         self.addWidget(oInput, oLabel)
         return oInput
     
-    def addIntInput(self, label: str, mtdGetter) -> IntInput:
+    def addIntInput(self, label: str, mtdGetter, unit=None) -> IntInput:
         """Add an integer input."""
         oLabel = self.addLabel(label)
-        oInput = IntInput(self.onModified, mtdGetter)
+        oInput = IntInput(self.onModified, mtdGetter, unit)
         oInput.createWidgets(self.frmEdit, self.row, 1)
         self.addWidget(oInput, oLabel)
         return oInput
