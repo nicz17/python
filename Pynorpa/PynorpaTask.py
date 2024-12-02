@@ -159,6 +159,50 @@ class GeoTrackerTask(PynorpaTask):
         self.setDesc(self.tracker.getStatusMessage())
         self.cbkUpdate()
 
+class TestMapView(PynorpaTask):
+    """Test map widget interactions with static GeoTrack."""
+    log = logging.getLogger('TestMapView')
+
+    def __init__(self, cbkCenterMap, cbkBoundinBox, cbkAddMarker):
+        super().__init__('Test map view', 'Test map with known GeoTrack', 10)
+        self.track = None
+        self.cbkCenterMap = cbkCenterMap
+        self.cbkBoundinBox = cbkBoundinBox
+        self.cbkAddMarker  = cbkAddMarker
+
+    def prepare(self):
+        self.log.info('Prepare')
+        self.track = GeoTrack('Nature-2024-01/geotracker/Sorge240112.gpx')
+        self.setDesc(self.track.name)
+        
+        filter = 'Nature-2024-01/orig/*.JPG'
+        self.jpgFiles = sorted(glob.glob(filter))
+
+    def run(self):
+        super().run()
+        self.track.loadData()
+
+        # Set map center
+        center = self.track.getCenter()
+        if center:
+            llzCenter = LatLonZoom(center.latitude, center.longitude, 14)
+            self.cbkCenterMap(llzCenter)
+            self.inc()
+        else:
+            self.setDesc('Failed to find center!')
+
+        # Set map bounding box
+        self.cbkBoundinBox(*self.track.bbox)
+        self.inc()
+
+        # Add map markers
+        for file in self.jpgFiles:
+            photo = PhotoInfo(file)
+            photo.identify()
+            if photo.hasGPSData():
+                self.cbkAddMarker(photo.lat, photo.lon)
+                self.inc()
+
 
 class TestPynorpaTask(PynorpaTask):
     """Test with sleeping steps."""
