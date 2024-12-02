@@ -40,6 +40,10 @@ class MapWidget():
         self.mapView.set_position(coords.getLat(), coords.getLon())
         self.mapView.set_zoom(coords.getZoom())
 
+    def setBoundingBox(self, latMin: float, lonMin: float, latMax: float, lonMax: float):
+        """Set the map widget view to the bounding box."""
+        self.mapView.fit_bounding_box((latMax, lonMin), (latMin, lonMax))
+
     def addMarker(self, coords: LatLonZoom):
         """Add a marker to the map."""
         self.mapView.set_marker(coords.lat, coords.lon)
