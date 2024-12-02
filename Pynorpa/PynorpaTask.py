@@ -75,6 +75,7 @@ class MountCameraTask(PynorpaTask):
             self.setDesc(f'Camera is mounted at {self.copier.getCameraDir()}')
         else:
             self.setDesc(f'Camera is not mounted at {config.dirCameraBase}')
+            self.setStatus('Error')
         self.cbkUpdate()
 
 class CreateThumbnailsTask(PynorpaTask):
@@ -174,9 +175,7 @@ class TestMapView(PynorpaTask):
         self.log.info('Prepare')
         self.track = GeoTrack('Nature-2024-01/geotracker/Sorge240112.gpx')
         self.setDesc(self.track.name)
-        
-        filter = 'Nature-2024-01/orig/*.JPG'
-        self.jpgFiles = sorted(glob.glob(filter))
+        self.jpgFiles = sorted(glob.glob('Nature-2024-01/orig/*.JPG'))
 
     def run(self):
         super().run()
@@ -200,7 +199,7 @@ class TestMapView(PynorpaTask):
             photo = PhotoInfo(file)
             photo.identify()
             if photo.hasGPSData():
-                self.cbkAddMarker(photo.lat, photo.lon)
+                self.cbkAddMarker(photo.lat, photo.lon, 'resources/location-pic.png')
                 self.inc()
 
 

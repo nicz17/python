@@ -9,8 +9,10 @@ __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
 import logging
+import os
 import tkinter as tk
 import tkintermapview
+from PIL import ImageTk, Image
 from LocationCache import *
 from LatLonZoom import *
 
@@ -44,10 +46,13 @@ class MapWidget():
         """Set the map widget view to the bounding box."""
         self.mapView.fit_bounding_box((latMax, lonMin), (latMin, lonMax))
 
-    def addMarker(self, coords: LatLonZoom):
+    def addMarker(self, coords: LatLonZoom, iconname=None):
         """Add a marker to the map."""
-        self.mapView.set_marker(coords.lat, coords.lon)
-        # image = ImageTk.PhotoImage
+        if iconname and os.path.exists(iconname):
+            marker = ImageTk.PhotoImage(Image.open(iconname))
+            self.mapView.set_marker(coords.lat, coords.lon, icon=marker)
+        else:
+            self.mapView.set_marker(coords.lat, coords.lon)
 
     def setDefaultLocation(self):
         """Display the default location on the map."""
@@ -55,7 +60,7 @@ class MapWidget():
         
     def createWidgets(self, parent: tk.Frame, pady=0):
         """Create user widgets."""
-        self.mapView = tkintermapview.TkinterMapView(parent, width=600, height=400, corner_radius=0)
+        self.mapView = tkintermapview.TkinterMapView(parent, width=600, height=400)
         self.mapView.pack(pady=pady)
         self.setDefaultLocation()
     

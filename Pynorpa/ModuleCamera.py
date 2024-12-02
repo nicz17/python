@@ -105,9 +105,9 @@ class ModuleCamera(TabModule):
         """Callback to set the map bounding box."""
         self.mapWidget.setBoundingBox(minLat, minLon, maxLat, maxLon)
 
-    def onAddCoords(self, lat: float, lon: float):
+    def onAddCoords(self, lat: float, lon: float, iconname=None):
         """Callback after adding GPS data to a photo."""
-        self.mapWidget.addMarker(LatLonZoom(lat, lon, 0))
+        self.mapWidget.addMarker(LatLonZoom(lat, lon, 0), iconname)
 
     def addButton(self, label: str, icon: str, cmd) -> Button:
         """Add a Tk Button to this module's frmButtons."""
