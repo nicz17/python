@@ -30,11 +30,12 @@ class GeoTracker:
     dirTarget = None
     dirPhotos = None
 
-    def __init__(self, copier=None, cbkAddCoords=None):
+    def __init__(self, copier=None, cbkAddCoords=None, cbkCenterMap=None):
         """Constructor."""
         self.log.info('Constructor')
         self.copier = copier
         self.cbkAddCoords = cbkAddCoords
+        self.cbkCenterMap = cbkCenterMap
         self.getTargetDirectory()
         self.files = []
         self.geoTracks = []
@@ -95,8 +96,12 @@ class GeoTracker:
             self.geoTracks.append(track)
             loc = self.locationCache.getClosest(track.center.latitude, track.center.longitude)
             self.log.info('Closest location in cache to track %s is %s', track.name, loc)
+            if self.cbkCenterMap:
+                llzCenter = LatLonZoom(track.center.latitude, track.center.longitude, 14)
+                self.cbkCenterMap(llzCenter)
 
     def loadPhotos(self):
+        """Load the photos to geo-tag."""
         if self.copier:
             # Get list from CopyFromCamera
             self.copier: CopyFromCamera
@@ -242,11 +247,15 @@ class GeoTrack:
         if self.gpx.name is not None:
             self.name = self.gpx.name
         self.tStart, self.tEnd = self.gpx.get_time_bounds()
-
+        
         # Build stats for center point
         nPoints = 0
         sumLon = 0.0
         sumLat = 0.0
+        minLat = None
+        minLon = None
+        maxLat = None
+        maxLon = None
 
         self.log.info('GPX %s has %d tracks, from %s to %s', self.gpx.name, 
                       len(self.gpx.tracks), self.tStart, self.tEnd)
@@ -259,12 +268,17 @@ class GeoTrack:
                     sumLon += point.longitude
                     sumLat += point.latitude
                     #self.log.info(f'Point at ({point.latitude},{point.longitude}) -> {point.elevation}m {point.time}')
+                    minLat = (point.latitude  if minLat is None else min(point.latitude,  minLat))
+                    maxLat = (point.latitude  if maxLat is None else max(point.latitude,  maxLat))
+                    minLon = (point.longitude if minLon is None else min(point.longitude, minLon))
+                    maxLon = (point.longitude if maxLon is None else max(point.longitude, maxLon))
 
         # Center point
         if nPoints > 0:
             meanLon = sumLon/nPoints
             meanLat = sumLat/nPoints
             self.center = gpxpy.geo.Location(meanLat, meanLon)
+        self.bbox = (minLat, maxLat, minLon, maxLon)
         self.log.info('Track center point is %s', self.center)
                 
     def getLocationAt(self, dtAt: datetime.datetime) -> gpxpy.geo.Location:
