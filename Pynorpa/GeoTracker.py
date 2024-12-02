@@ -97,8 +97,7 @@ class GeoTracker:
             loc = self.locationCache.getClosest(track.center.latitude, track.center.longitude)
             self.log.info('Closest location in cache to track %s is %s', track.name, loc)
             if self.cbkCenterMap:
-                llzCenter = LatLonZoom(track.center.latitude, track.center.longitude, 14)
-                self.cbkCenterMap(llzCenter)
+                self.cbkCenterMap(track.getBoundingBox())
 
     def loadPhotos(self):
         """Load the photos to geo-tag."""
@@ -300,6 +299,10 @@ class GeoTrack:
     def getCenter(self) -> gpxpy.geo.Location:
         """Return the central point of this track as a gpxpy.geo.Location."""
         return self.center
+    
+    def getBoundingBox(self):
+        """Retrun the track bounding box as (minLat, maxLat, minLon, maxLon)."""
+        return self.bbox
         
     def contains(self, dtAt: datetime.datetime) -> bool:
         """Check if the specified datetime is contained in this track's daterange."""
