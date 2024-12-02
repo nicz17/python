@@ -28,7 +28,7 @@ class ModuleCamera(TabModule):
         super().__init__(parent, 'Caméra')
 
         self.copier = CopyFromCamera()
-        self.tracker = GeoTracker(self.copier, self.onAddCoords)
+        self.tracker = GeoTracker(self.copier, self.onAddCoords, self.onCenterMap)
         self.cache = LocationCache()
         self.mapWidget = MapWidget()
 
@@ -42,6 +42,7 @@ class ModuleCamera(TabModule):
         """Load the tasks to perform."""
         self.copier.loadImages()
         self.tracker.prepare()
+        #self.tasks.append(TestMapView(self.onCenterMap, self.onBoundingBoxMap, self.onAddCoords))
         #self.tasks.append(TestPynorpaTask(5, self.updateTaskDisplay))
         self.tasks.append(MountCameraTask(self.copier, self.updateTaskDisplay))
         self.tasks.append(CopyFromCameraTask(self.copier, self.updateTaskDisplay))
@@ -95,6 +96,14 @@ class ModuleCamera(TabModule):
         if defLocation:
             self.mapWidget.setLatLonZoom(defLocation.getLatLonZoom())
         self.tracker.setDefaultLocation(defLocation)
+
+    def onCenterMap(self, center: LatLonZoom):
+        """Callback to center the map widget."""
+        self.mapWidget.setLatLonZoom(center)
+
+    def onBoundingBoxMap(self, minLat, maxLat, minLon, maxLon):
+        """Callback to set the map bounding box."""
+        self.mapWidget.setBoundingBox(minLat, minLon, maxLat, maxLon)
 
     def onAddCoords(self, lat: float, lon: float):
         """Callback after adding GPS data to a photo."""
