@@ -175,7 +175,7 @@ class GeoTracker:
         self.log.debug(cmd)
         os.system(cmd)
         if self.cbkAddCoords:
-            self.cbkAddCoords(gpxloc.latitude, gpxloc.longitude)
+            self.cbkAddCoords(gpxloc.latitude, gpxloc.longitude, config.mapMarkerRed)
         return True
     
     def setGPSFromDefLocation(self, file: str):
