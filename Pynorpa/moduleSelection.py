@@ -28,6 +28,7 @@ class ModuleSelection(TabModule):
 
     def __init__(self, parent: TabsApp) -> None:
         """Constructor."""
+        self.app = parent
         self.window = parent.window
         self.table = TablePhotos(self.onSelectPhoto)
         #self.mapWidget = MapWidget()
@@ -61,6 +62,7 @@ class ModuleSelection(TabModule):
             photo.setCloseTo(self.locationCache.getClosest(photo.lat, photo.lon))
             self.photos.append(photo)
         self.table.loadData(self.photos)
+        self.app.setStatus(f'Chargé {self.dir}')
 
     def onSelectPhoto(self, photo: PhotoInfo):
         """Photo selection callback."""
@@ -246,6 +248,9 @@ class TablePhotos(TableWithColumns):
         """Constructor with selection callback."""
         self.log.info('Constructor')
         super().__init__(cbkSelect, 'photos')
+        self.setColumns()
+
+    def setColumns(self):
         self.addColumn(TableColumn('Nom',     PhotoInfo.getNameNoExt,    120))
         self.addColumn(TableColumn('Date',    PhotoInfo.getShotAtString, 150))
         self.addColumn(TableColumn('Près de', PhotoInfo.getCloseTo,      300))
