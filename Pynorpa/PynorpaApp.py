@@ -12,6 +12,7 @@ from TabsApp import *
 from ModuleCamera import *
 import moduleLocations
 import moduleSelection
+import moduleReselection
 import modulePictures
 import moduleTaxon
 import modulePublish
@@ -37,6 +38,7 @@ class PynorpaApp(TabsApp):
         # Tabbed modules
         modCamera    = ModuleCamera(self)
         modSelection = moduleSelection.ModuleSelection(self)
+        modReselection = moduleReselection.ModuleReselection(self)
         modLocations = moduleLocations.ModuleLocations(self)
         modTaxon     = moduleTaxon.ModuleTaxon(self)
         modPictures  = modulePictures.ModulePictures(self)
