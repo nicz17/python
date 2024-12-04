@@ -7,6 +7,7 @@ __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
+import config
 import logging
 import glob
 import exifread
@@ -43,6 +44,10 @@ class PhotoInfo:
     def getNameFull(self) -> str:
         """Get the full file name of this photo."""
         return self.filename
+
+    def getNameShortened(self) -> str:
+        """Get the shortened file name of this photo."""
+        return self.filename.replace(config.dirPhotosBase, '')
     
     def getShotAtString(self) -> str:
         """Get the shot-at timestamp of this photo as a string."""
