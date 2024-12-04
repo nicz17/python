@@ -13,7 +13,8 @@ import DateTools
 import LocationCache
 from TabsApp import *
 from BaseTable import TableColumn
-from moduleSelection import TablePhotos, PhotoEditor
+from BaseWidgets import BaseEditor
+from moduleSelection import TablePhotos, PhotoEditor, TaxonSelector
 from PhotoInfo import *
 import imageWidget
 
@@ -29,7 +30,8 @@ class ModuleReselection(TabModule):
         self.locationCache = LocationCache.LocationCache()
         self.table = TableReselection(self.onSelectPhoto)
         self.imageWidget = imageWidget.ImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
-        self.editor = PhotoEditor()
+        self.editor = PhotoEditorReselection()
+        self.selector = TaxonReselector(self.loadData)
         self.photos = []
         self.dir = None
         self.getDefaultDir()
@@ -42,7 +44,7 @@ class ModuleReselection(TabModule):
             self.log.info('Revert to previous month for default dir')
             yearMonth = DateTools.timestampToString(DateTools.addDays(DateTools.now(), -28), '%Y-%m')
             self.dir = f'{config.dirPhotosBase}Nature-{yearMonth}/photos'
-        #self.selector.setDir(f'{config.dirPhotosBase}Nature-{yearMonth}')
+        self.selector.setDir(f'{config.dirPhotosBase}Nature-{yearMonth}')
         self.log.info('Default dir: %s', self.dir)
 
     def loadData(self):
@@ -68,7 +70,7 @@ class ModuleReselection(TabModule):
                 os.system(sCmd)
         self.imageWidget.loadData(thumbfile)
         self.editor.loadData(photo)
-        #self.selector.loadData(photo)
+        self.selector.loadData(photo)
 
     def createWidgets(self):
         """Create user widgets."""
@@ -78,7 +80,7 @@ class ModuleReselection(TabModule):
         self.table.createWidgets(self.frmLeft)
         self.imageWidget.createWidgets(self.frmRight)
         self.editor.createWidgets(self.frmRight)
-        #self.selector.createWidgets(self.frmRight)
+        self.selector.createWidgets(self.frmRight)
 
 class TableReselection(TablePhotos):
     """Table widget for Pynorpa photo."""
@@ -92,3 +94,39 @@ class TableReselection(TablePhotos):
         self.addColumn(TableColumn('Nom',     PhotoInfo.getNameNoExt,    240))
         self.addColumn(TableColumn('Date',    PhotoInfo.getShotAtString, 150))
         self.addColumn(TableColumn('Près de', PhotoInfo.getCloseTo,      300))
+
+class PhotoEditorReselection(PhotoEditor):
+    """A widget for displaying PhotoInfo properties."""
+    log = logging.getLogger('PhotoEditorReselection')
+
+    def createWidgets(self, parent: tk.Frame):
+        """Add the editor widgets to the parent widget."""
+        BaseEditor.createWidgets(self, parent, 'Propriétés de la photo')
+
+        # Photo attributes
+        self.lblName     = self.addTextReadOnly('Nom',        PhotoInfo.getNameShortened)
+        self.lblDate     = self.addTextReadOnly('Date',       PhotoInfo.getShotAtString)
+        self.lblPicSize  = self.addTextReadOnly('Taille',     PhotoInfo.getSizeString)
+        self.lblPosition = self.addTextReadOnly('Position',   PhotoInfo.getGPSString)
+        self.lblExposure = self.addTextReadOnly('Exposition', PhotoInfo.getExposureDetails)
+
+class TaxonReselector(TaxonSelector):
+    log = logging.getLogger("TaxonReselector")
+
+    def __init__(self, cbkReselection):
+        super().__init__()
+        self.cbkReselection = cbkReselection
+
+    def onSelect(self):
+        """Selection button command."""
+        self.log.info(f'Renaming {self.photo.filename} to {self.newName}')
+        target = f'{self.dir}/photos/{self.newName}'
+        cmd = f'mv {self.photo.filename} {target}'
+        self.runSystemCommand(cmd)
+        self.runSystemCommand(cmd.replace('photos/', 'thumbs/'))
+        self.enableWidgets()
+        self.cbkReselection()
+
+    def runSystemCommand(self, cmd: str):
+        self.log.info(cmd)
+        os.system(cmd)
