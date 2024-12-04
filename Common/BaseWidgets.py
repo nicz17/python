@@ -21,10 +21,13 @@ def enableWidget(widget: tk.Widget, enabled: bool):
 
 class Button():
     """A button with label, optional icon and tooltip."""
+    log = logging.getLogger('Button')
 
-    def __init__(self, parent: tk.Frame, label: str, cmd, iconName=None, tooltip=None):
+    def __init__(self, parent: ttk.Frame, label: str, cmd, iconName=None, tooltip=None):
+        self.log.debug('Constructor %s %s', label, iconName)
         self.icon = self.getIcon(iconName)
         if self.icon:
+            self.log.debug('Button with icon for %s %s', label, iconName)
             self.btn = ttk.Button(parent, text=label, image=self.icon, compound=tk.LEFT, command=cmd)
         else:
             self.btn = ttk.Button(parent, text=label, command=cmd)
@@ -36,11 +39,16 @@ class Button():
     def pack(self, pady=3):
         self.btn.pack(side=tk.LEFT, padx=3, pady=pady)
 
+    def grid(self, row: int, col: int):
+        self.btn.grid(row=row, column=col, padx=3, sticky='w')
+
     def getIcon(self, iconName: str):
         if iconName:
             file = f'/home/nicz/prog/icons/{iconName}.png'
             if os.path.exists(file):
                 return tk.PhotoImage(file=file)
+            else:
+                self.log.error('Could not find icon image %s', file)
         return None
     
     def enableWidget(self, enabled: bool):
@@ -360,6 +368,10 @@ class ComboBox():
     def getValue(self) -> str:
         """Get the current string value."""
         return self.oCombo.get()
+    
+    def getSelectionIndex(self) -> int:
+        """Get the current selection index, 0-based."""
+        return self.oCombo.current()
         
     def createWidgets(self, parent: tk.Frame, row: int, col: int):
         """Create widget in parent frame with grid layout."""
