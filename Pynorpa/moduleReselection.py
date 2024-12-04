@@ -13,7 +13,7 @@ import DateTools
 import LocationCache
 from TabsApp import *
 from BaseTable import TableColumn
-from BaseWidgets import BaseEditor
+from BaseWidgets import BaseEditor, Button, ComboBox, SpinBox
 from moduleSelection import TablePhotos, PhotoEditor, TaxonSelector
 from PhotoInfo import *
 import imageWidget
@@ -32,6 +32,7 @@ class ModuleReselection(TabModule):
         self.imageWidget = imageWidget.ImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
         self.editor = PhotoEditorReselection()
         self.selector = TaxonReselector(self.loadData)
+        self.dirSelector = DirectorySelector(self.onSelectDir)
         self.photos = []
         self.dir = None
         self.getDefaultDir()
@@ -59,6 +60,9 @@ class ModuleReselection(TabModule):
         self.table.loadData(self.photos)
         self.app.setStatus(f'Chargé {self.dir}')
 
+    def onSelectDir():
+        pass
+
     def onSelectPhoto(self, photo: PhotoInfo):
         """Photo selection callback."""
         self.log.info(f'Selected {photo}')
@@ -81,6 +85,51 @@ class ModuleReselection(TabModule):
         self.imageWidget.createWidgets(self.frmRight)
         self.editor.createWidgets(self.frmRight)
         self.selector.createWidgets(self.frmRight)
+        self.dirSelector.createWidgets(self.frmRight)
+
+class DirectorySelector:
+    """Select a photos dir based on year and month."""
+    log = logging.getLogger("DirectorySelector")
+
+    def __init__(self, cbkReload):
+        self.cbkReload = cbkReload
+        dtNow = DateTools.nowDatetime()
+        self.year  = dtNow.year
+        self.month = dtNow.month
+    
+    def getYear(self, object=None):
+        return self.year
+    
+    def getMonth(self):
+        return self.month
+    
+    def getDirectory(self):
+        return f'{config.dirPhotosBase}Nature-{self.year}-{self.month:02d}/photos'
+    
+    def onModified(self, event=None):
+        self.year = self.spiYear.getValue()
+        self.month = self.cboMonth.getSelectionIndex()+1
+        enabled = os.path.exists(self.getDirectory())
+        self.btnReload.enableWidget(enabled)
+
+    def createWidgets(self, parent: ttk.Frame):
+        """Create our widgets in the parent frame."""
+        self.frmMain = ttk.LabelFrame(parent, text='Sélection de répertoire photos')
+        self.frmMain.pack(side=tk.TOP, anchor=tk.N, fill=tk.X, expand=False, pady=5)
+
+        self.cboMonth = ComboBox(self.onModified)
+        self.cboMonth.createWidgets(self.frmMain, 0, 0)
+        self.cboMonth.setValues(DateTools.aMonthFr)
+        self.cboMonth.setValue(DateTools.aMonthFr[self.month-1])
+
+        self.spiYear = SpinBox(self.onModified, self.getYear, 2015, self.year)
+        self.spiYear.createWidgets(self.frmMain, 0, 1)
+        self.spiYear.setValue(self)
+
+        self.btnReload = Button(self.frmMain, 'Recharger', self.cbkReload, 'open')
+        self.btnReload.grid(0, 2)
+
+
 
 class TableReselection(TablePhotos):
     """Table widget for Pynorpa photo."""
@@ -99,7 +148,7 @@ class PhotoEditorReselection(PhotoEditor):
     """A widget for displaying PhotoInfo properties."""
     log = logging.getLogger('PhotoEditorReselection')
 
-    def createWidgets(self, parent: tk.Frame):
+    def createWidgets(self, parent: ttk.Frame):
         """Add the editor widgets to the parent widget."""
         BaseEditor.createWidgets(self, parent, 'Propriétés de la photo')
 
