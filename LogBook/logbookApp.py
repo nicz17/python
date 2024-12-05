@@ -143,6 +143,7 @@ class LogBookApp(BaseApp):
         if self.book is not None:
             self.saveBook()
             self.renderBook()
+        self.renderTask()
         self.taskEditor.loadData(self.task)
 
     def onStepSave(self):
@@ -151,6 +152,7 @@ class LogBookApp(BaseApp):
             self.task.updateStatus()
         if self.book is not None:
             self.saveBook()
+            self.onRefresh()
         self.stepsTable.loadData(self.task)
         self.taskProgress.loadData(self.task)
 
@@ -260,7 +262,7 @@ class LogBookApp(BaseApp):
         self.taskInput.build(self.frmBook)
 
         # Steps title label
-        self.lblTasks = tk.Label(self.frmTasks, width=42, 
+        self.lblTasks = tk.Label(self.frmTasks, width=45, 
             text='Steps table', font='Helvetica 16 bold')
         self.lblTasks.pack()
 
