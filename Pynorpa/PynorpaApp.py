@@ -36,12 +36,12 @@ class PynorpaApp(TabsApp):
         #style.set_theme("equilux")  # Dark theme
 
         # Tabbed modules
-        modReselection = moduleReselection.ModuleReselection(self)
         modCamera    = ModuleCamera(self)
         modSelection = moduleSelection.ModuleSelection(self)
+        modReselect  = moduleReselection.ModuleReselection(self)
         modLocations = moduleLocations.ModuleLocations(self)
         modTaxon     = moduleTaxon.ModuleTaxon(self)
         modPictures  = modulePictures.ModulePictures(self)
-        modulePublish.ModulePublish(self)
+        modPublish   = modulePublish.ModulePublish(self)
 
         self.setStatus('Welcome to Pynorpa')
