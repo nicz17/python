@@ -60,8 +60,12 @@ class ModuleReselection(TabModule):
         self.table.loadData(self.photos)
         self.app.setStatus(f'Chargé {self.dir}')
 
-    def onSelectDir():
-        pass
+    def onSelectDir(self, dir: str):
+        """Change the photos directory and reload our data."""
+        self.log.info('Setting dir to %s', dir)
+        self.dir = dir
+        self.selector.setDir(dir.replace('/photos', ''))
+        self.loadData()
 
     def onSelectPhoto(self, photo: PhotoInfo):
         """Photo selection callback."""
@@ -107,10 +111,12 @@ class DirectorySelector:
         return f'{config.dirPhotosBase}Nature-{self.year}-{self.month:02d}/photos'
     
     def onModified(self, event=None):
-        self.year = self.spiYear.getValue()
+        self.year  = self.spiYear.getValue()
         self.month = self.cboMonth.getSelectionIndex()+1
-        enabled = os.path.exists(self.getDirectory())
-        self.btnReload.enableWidget(enabled)
+        self.enableWidgets()
+
+    def onReload(self):
+        self.cbkReload(self.getDirectory())
 
     def createWidgets(self, parent: ttk.Frame):
         """Create our widgets in the parent frame."""
@@ -126,9 +132,13 @@ class DirectorySelector:
         self.spiYear.createWidgets(self.frmMain, 0, 1)
         self.spiYear.setValue(self)
 
-        self.btnReload = Button(self.frmMain, 'Recharger', self.cbkReload, 'open')
+        self.btnReload = Button(self.frmMain, 'Recharger', self.onReload, 'open')
         self.btnReload.grid(0, 2)
+        self.enableWidgets()
 
+    def enableWidgets(self):
+        enabled = os.path.exists(self.getDirectory())
+        self.btnReload.enableWidget(enabled)
 
 
 class TableReselection(TablePhotos):
