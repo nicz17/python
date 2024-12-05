@@ -251,7 +251,6 @@ class TaxonCache():
 
     def fetchFromWhere(self, where: str) -> list[int]:
         """Fetch Taxon records from a SQL where-clause. Return a list of ids."""
-        result = []
         self.log.info(f'Fetching from Taxon where {where}')
         self.db.connect(config.dbUser, config.dbPass)
         query = Database.Query('Taxon')
@@ -262,6 +261,19 @@ class TaxonCache():
         query.close()
         self.db.disconnect()
         self.log.info(f'Fetched {len(result)} taxa from DB where {where}')
+        return result
+    
+    def fetchNewestSpecies(self, limit=8):
+        """Fetch the most recently discovered species."""
+        self.db.connect(config.dbUser, config.dbPass)
+        query = Database.Query('Newest species')
+        query.add('select idxTaxon,')
+        query.add('(select min(picShotAt) from Picture where picTaxon = idxTaxon) as tFirstObs')
+        query.add("from Taxon where taxRank = 'SPECIES'")
+        query.add(f'order by tFirstObs desc limit {limit}')
+        result = self.db.fetch(query.getSQL())
+        query.close()
+        self.db.disconnect()
         return result
 
     def getTopLevelTaxa(self) -> list[Taxon]:
@@ -291,12 +303,17 @@ def testTaxonCache():
     tax: Taxon
     for tax in cache.getTopLevelTaxa():
         cache.log.info('Top-level: %s', tax)
-    where = "taxName like '%anth%pe%'"
-    ids = cache.fetchFromWhere(where)
-    for idx in ids:
+    #where = "taxName like '%anth%pe%'"
+    #ids = cache.fetchFromWhere(where)
+    # for idx in ids:
+    #     taxon = cache.findById(idx)
+    #     if taxon:
+    #         cache.log.info(taxon)
+    rows = cache.fetchNewestSpecies()
+    for (idx, tFirstObs) in rows:
         taxon = cache.findById(idx)
         if taxon:
-            cache.log.info(taxon)
+            cache.log.info('%s first observed %s', taxon, tFirstObs)
 
 def testReflection():
     """Simple reflection test"""

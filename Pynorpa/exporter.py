@@ -9,6 +9,7 @@ import logging
 import pynorpaHtml
 from HtmlPage import *
 import picture
+import taxon
 import DateTools
 
 class Exporter():
@@ -18,6 +19,7 @@ class Exporter():
     def __init__(self):
         """Constructor."""
         self.picCache = picture.PictureCache()
+        self.taxCache = taxon.TaxonCache()
 
     def buildBasePages(self):
         """Build base html pages."""
@@ -45,7 +47,16 @@ class Exporter():
         tdLeft.addTag(MyBoxHtmlTag('A propos'))
 
         tdRight = tableLeftRight.getNextCell()
-        tdRight.addTag(MyBoxHtmlTag('Dernières espèces'))
+        divNewSpecies = MyBoxHtmlTag('Dernières espèces')
+        listNewSpecies = ListHtmlTag([])
+        for (idx, tFirstObs) in self.taxCache.fetchNewestSpecies():
+            taxon = self.taxCache.findById(idx)
+            item = HtmlTag('li')
+            item.addTag(LinkHtmlTag(self.getTaxonLink(taxon), taxon.getNameFr(), False, taxon.getName()))
+            item.addTag(GrayFontHtmlTag(DateTools.datetimeToPrettyStringFr(tFirstObs)))
+            listNewSpecies.addTag(item)
+        divNewSpecies.addTag(listNewSpecies)
+        tdRight.addTag(divNewSpecies)
         tdRight.addTag(MyBoxHtmlTag('Excursions récentes'))
         tdRight.addTag(MyBoxHtmlTag('Matériel photo'))
 
@@ -152,7 +163,7 @@ class Exporter():
         self.buildLatest()
 
     def addThumbLink(self, pic: picture.Picture, parent: HtmlTag):
-        """Add a preview and description of the sepcified picture."""
+        """Add a preview and description of the specified picture."""
         sShotAt = DateTools.datetimeToPrettyStringFr(pic.getShotAt())
         link = LinkHtmlTag(f'pages/{pic.getFilename()}', None)
         link.addTag(ImageHtmlTag(f'thumbs/{pic.getFilename()}', pic.getTaxonName(), pic.getTaxonName()))
@@ -160,6 +171,13 @@ class Exporter():
         parent.addTag(link)
         parent.addTag(LinkHtmlTag(f'lieu{pic.getIdxLocation()}.html', pic.getLocationName()))
         parent.addTag(GrayFontHtmlTag(f'<br>{sShotAt}'))
+
+    def getTaxonLink(self, tax: taxon.Taxon) -> str:
+        """Get the home-relative link to the specified taxon page."""
+        match tax.getRank():
+            case taxon.TaxonRank.SPECIES:
+                return 'pages/' + tax.getName().replace(' ', '-').lower() + '.html'
+        return 'not-implemented.html'
 
     def addBiblioRef(self, list, authors: str, title: str, editor: str, year: str):
         """Add a bibliographical reference."""
@@ -173,8 +191,9 @@ class Exporter():
 def testExporter():
     """Unit test for Exporter"""
     Exporter.log.info("Testing Exporter")
-    obj = Exporter()
-    obj.buildTest()
+    exporter = Exporter()
+    exporter.buildTest()
+    exporter.buildBasePages()
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",
