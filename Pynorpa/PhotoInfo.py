@@ -93,7 +93,10 @@ class PhotoInfo:
             elif tag == 'EXIF ExposureTime':
                 self.exposureTime = tags[tag]
             elif tag == 'EXIF FNumber':
-                self.fNumber = tags[tag]
+                self.fNumber = str(tags[tag])
+                if self.fNumber[-3:] == '/10':
+                    fValue = 0.1*int(self.fNumber[:-3])
+                    self.fNumber = f'{fValue:.1f}'
             elif tag == 'EXIF ISOSpeedRatings':
                 self.isoRating = tags[tag]
         gpsCoords = exifread.utils.get_gps_coords(tags)
