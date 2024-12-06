@@ -279,6 +279,14 @@ class TaxonCache():
     def getTopLevelTaxa(self) -> list[Taxon]:
         """Get all taxa without parent."""
         return self.topLevel
+    
+    def getForRank(self, rank: TaxonRank) -> list[Taxon]:
+        """Get all taxa of the specified rank."""
+        result = []
+        for taxon in self.dictById.values():
+            if taxon.rank == rank:
+                result.append(taxon)
+        return result
 
     def findById(self, idx: int) -> Taxon:
         """Find a Taxon from its primary key."""
