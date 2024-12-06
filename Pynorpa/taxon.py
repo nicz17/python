@@ -58,15 +58,17 @@ class Taxon():
     """Class Taxon"""
     log = logging.getLogger("Taxon")
 
-    def __init__(self, idx: int, name: str, nameFr: str, rank: str, parent: int, order: int, typical: bool):
+    def __init__(self, idx: int, name: str, nameFr: str, rank: str, idxParent: int, order: int, typical: bool):
         """Constructor."""
         self.idx = idx
         self.name = name
         self.nameFr = nameFr
         self.rank = TaxonRank[rank]
-        self.parent = parent
+        self.idxParent = idxParent
         self.order = order
         self.typical = typical
+
+        self.parent = None
         self.children = []
         self.pictures = []
 
@@ -152,17 +154,25 @@ class Taxon():
         """Setter for rank"""
         self.rank = rank
 
-    def getParent(self) -> int:
+    def getIdxParent(self) -> int:
+        """Getter for idxParent"""
+        return self.idxParent
+
+    def setParent(self, idxParent: int):
+        """Setter for idxParent"""
+        self.idxParent = idxParent
+
+    def getParent(self) -> 'Taxon':
         """Getter for parent"""
         return self.parent
 
-    def setParent(self, parent: int):
+    def setParent(self, parent: 'Taxon'):
         """Setter for parent"""
         self.parent = parent
 
     def isTopLevel(self) -> bool:
         """Check if this taxon has no parent."""
-        return self.parent is None
+        return self.idxParent is None
 
     def getOrder(self) -> int:
         """Getter for order"""
@@ -184,6 +194,14 @@ class Taxon():
         """Setter for typical"""
         self.typical = typical
 
+    def getAncestor(self, rank: TaxonRank) -> 'Taxon':
+        """Get our ancestor at the specified rank."""
+        if self.rank == rank:
+            return self
+        elif self.parent:
+            return self.getParent().getAncestor(rank)
+        return None
+
     def toJson(self):
         """Create a dict of this Taxon for json export."""
         data = {
@@ -191,7 +209,7 @@ class Taxon():
             'name': self.name,
             'nameFr': self.nameFr,
             'rank': self.rank,
-            'parent': self.parent,
+            'idxParent': self.idxParent,
             'order': self.order,
             'typical': self.typical,
         }
@@ -199,7 +217,7 @@ class Taxon():
 
     def __str__(self):
         str = f'Taxon {self.idx} {self.name} -- {self.nameFr} {self.rank.name}'
-        str += f' parent: {self.parent} order: {self.order} typical: {self.typical}'
+        str += f' idxParent: {self.idxParent} order: {self.order} typical: {self.typical}'
         return str
 
 
@@ -242,10 +260,11 @@ class TaxonCache():
         # Add children to their parents
         taxon: Taxon
         for taxon in self.dictById.values():
-            if taxon.parent is not None:
-                parent = self.findById(taxon.parent)
+            if taxon.idxParent is not None:
+                parent = self.findById(taxon.idxParent)
                 if parent is not None:
                     parent.addChild(taxon)
+                    taxon.setParent(parent)
                 else:
                     self.log.error('Could not find parent of %s', taxon)
 

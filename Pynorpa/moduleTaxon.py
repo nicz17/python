@@ -72,8 +72,8 @@ class TaxonTree(BaseTree):
     def addTaxon(self, taxon: Taxon):
         """Adds a taxon and its children to the tree."""
         parentId = None
-        if taxon.getParent() is not None:
-            parentId = str(taxon.getParent())
+        if taxon.getIdxParent() is not None:
+            parentId = str(taxon.getIdxParent())
         tag = f'taxon-rank{taxon.getRank().value}'
         text = taxon.getName()
         if len(taxon.getChildren()) > 0:
