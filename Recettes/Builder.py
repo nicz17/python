@@ -13,6 +13,7 @@ from Recipe import *
 from HtmlPage import *
 from RecettesHtmlPage import *
 from Timer import *
+import TextTools
 
 class Builder:
     """A recipe website builder. Creates various HTML files."""
@@ -220,10 +221,14 @@ class Builder:
         self.log.info('Building ingredients page with %d ingredients', len(self.dIngreds))
 
         oPage = RecettesHtmlPage('Ingrédients')
+        oPage.menu.addTag(HtmlTag('h2', 'Ingrédients'))
+        tableMenu = TableHtmlTag([], 4)
+        tableMenu.addAttr('width', '120px')
+        oPage.menu.addTag(tableMenu)
         oPage.addHeading(1, 'Ingrédients')
 
         def sortLowerCase(s):
-            return s.lower()
+            return TextTools.replaceAccents(s).lower()
 
         aIngreds = []
         sLetterCurr = None
@@ -233,6 +238,7 @@ class Builder:
                 if len(aIngreds) > 0:
                     oPage.addList(aIngreds)
                 oPage.addHeading(2, '<a name="' + sLetter + '">' + sLetter + '</a>')
+                tableMenu.getNextCell().addTag(LinkHtmlTag(f'#{sLetter}', sLetter))
                 sLetterCurr = sLetter
                 aIngreds = []
 
