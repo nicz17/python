@@ -40,33 +40,41 @@ class Exporter():
 
         # Sample pictures
         divBest = MyBoxWideHtmlTag('Quelques photos')
+        tableBestPics = TableHtmlTag([]).addAttr('class', 'table-thumbs')
         aBestPics = self.picCache.getRandomBest()
-        listBest = []
         for pic in aBestPics:
-            listBest.append(ImageHtmlTag(f'thumbs/{pic.getFilename()}', pic.getTaxonName(), pic.getFilename()))
-        divBest.addTag(TableHtmlTag(listBest).addAttr('class', 'table-thumbs'))
+            td = tableBestPics.getNextCell()
+            link = LinkHtmlTag(self.getTaxonLink(pic.taxon), None, False, pic.getTaxonName())
+            link.addTag(ImageHtmlTag(f'thumbs/{pic.getFilename()}', pic.getTaxonName(), pic.getFilename()))
+            td.addTag(link)
+        divBest.addTag(tableBestPics)
         tdLeft.addTag(divBest)
 
         # TODO Favorite taxa
         tdLeft.addTag(MyBoxWideHtmlTag('Quelques catégories'))
 
-        # TODO About
+        # About
         divAbout = MyBoxWideHtmlTag('A propos')
         tdLeft.addTag(divAbout)
         divAbout.addTag(HtmlTag('p', """Cette galerie de photos de nature me sert d'aide-mémoire 
                         pour retrouver les noms des plantes et insectes que je croise en 
                         montagne, en voyage ou autour de chez moi."""))
-        divAbout.addTag(HtmlTag('p', """C'est aussi une collection de taxons qui compte actuellement 
-                                4396 photos dans 1718 espèces, 1336 genres et 501 familles."""))
+        nPics = len(self.picCache.getPictures())
+        nSpecies = len(self.taxCache.getForRank(taxon.TaxonRank.SPECIES))
+        nGenera  = len(self.taxCache.getForRank(taxon.TaxonRank.GENUS))
+        nFamilia = len(self.taxCache.getForRank(taxon.TaxonRank.FAMILY))
+        divAbout.addTag(HtmlTag('p', f"""C'est aussi une collection de taxons qui compte actuellement 
+                                <b>{nPics}</b> photos dans <b>{nSpecies}</b> espèces, 
+                                <b>{nGenera}</b> genres et <b>{nFamilia}</b> familles."""))
 
         # Newest species
         tdRight = tableLeftRight.getNextCell()
         divNewSpecies = MyBoxHtmlTag('Dernières espèces')
         listNewSpecies = divNewSpecies.addList()
         for (idx, tFirstObs) in self.taxCache.fetchNewestSpecies():
-            taxon = self.taxCache.findById(idx)
+            tax = self.taxCache.findById(idx)
             item = listNewSpecies.addItem()
-            item.addTag(LinkHtmlTag(self.getTaxonLink(taxon), taxon.getNameFr(), False, taxon.getName()))
+            item.addTag(LinkHtmlTag(self.getTaxonLink(tax), tax.getNameFr(), False, tax.getName()))
             item.addTag(GrayFontHtmlTag(DateTools.datetimeToPrettyStringFr(tFirstObs)))
         tdRight.addTag(divNewSpecies)
 
@@ -257,6 +265,8 @@ class Exporter():
         match tax.getRank():
             case taxon.TaxonRank.SPECIES:
                 return 'pages/' + tax.getName().replace(' ', '-').lower() + '.html'
+            case taxon.TaxonRank.GENUS:
+                return f'pages/{tax.getName().lower()}.html'
         return 'not-implemented.html'
 
     def addBiblioRef(self, list, authors: str, title: str, editor: str, year: str):
