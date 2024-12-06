@@ -10,6 +10,7 @@ import logging
 import os
 import tkinter as tk
 from tkinter import ttk
+from pathlib import Path
 import datetime
 import DateTools
 
@@ -22,6 +23,7 @@ def enableWidget(widget: tk.Widget, enabled: bool):
 class Button():
     """A button with label, optional icon and tooltip."""
     log = logging.getLogger('Button')
+    dirIcons = f'{Path.home()}/prog/icons'
 
     def __init__(self, parent: ttk.Frame, label: str, cmd, iconName=None, tooltip=None):
         self.log.debug('Constructor %s %s', label, iconName)
@@ -44,7 +46,7 @@ class Button():
 
     def getIcon(self, iconName: str):
         if iconName:
-            file = f'/home/nicz/prog/icons/{iconName}.png'
+            file = f'{self.dirIcons}/{iconName}.png'
             if os.path.exists(file):
                 return tk.PhotoImage(file=file)
             else:
@@ -482,15 +484,25 @@ class BaseEditor():
         self.frmButtons = ttk.Frame(self.frmEdit, padding=5)
         self.frmButtons.grid(row=self.row, column=0, columnspan=2)
         if bSave:
-            self.btnSave   = self.addButton('Sauver', self.onSave)
+            self.btnSave   = self.addButton('Sauver', self.onSave, 'filesave')
         if bCancel:
-            self.btnCancel = self.addButton('Annuler', self.onCancel)
+            self.btnCancel = self.addButton('Annuler', self.onCancel, 'cancel')
         if bDelete:
-            self.btnDelete = self.addButton('Effacer', self.onDelete)
+            self.btnDelete = self.addButton('Effacer', self.onDelete, 'delete')
 
-    def addButton(self, label: str, cmd) -> ttk.Button:
-        btn = ttk.Button(self.frmButtons, text=label, command=cmd)
-        btn.grid(row=0, column=self.colButton, padx=3)
+    def enableButtons(self, bEnableSave: bool, bEnableCancel: bool, bEnableDelete: bool):
+        """Enable save, cancel and delete buttons."""
+        if self.btnSave: 
+            self.btnSave.enableWidget(bEnableSave)
+        if self.btnCancel: 
+            self.btnCancel.enableWidget(bEnableCancel)
+        if self.btnDelete: 
+            self.btnDelete.enableWidget(bEnableDelete)
+
+    def addButton(self, label: str, cmd, icon=None) -> Button:
+        """Add a button with label, command, and optional icon."""
+        btn = Button(self.frmButtons, label, cmd, icon)
+        btn.grid(0, self.colButton)
         self.colButton += 1
         return btn
 

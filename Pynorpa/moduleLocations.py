@@ -160,9 +160,7 @@ class LocationEditor(BaseWidgets.BaseEditor):
         editing  = self.location is not None
         modified = self.hasChanges(self.location)
         super().enableWidgets(editing)
-        BaseWidgets.enableWidget(self.btnSave, modified)
-        BaseWidgets.enableWidget(self.btnCancel, modified)
-        BaseWidgets.enableWidget(self.btnDelete, False)
+        self.enableButtons(modified, modified, False)
         self.txtDesc.resetModified()
 
     def __str__(self) -> str:

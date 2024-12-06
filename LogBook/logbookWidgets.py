@@ -59,9 +59,8 @@ class TaskEditor(BaseWidgets.BaseEditor):
     def enableWidgets(self, evt = None):
         """Enable our internal widgets."""
         modified = self.hasChanges(self.task)
-        BaseWidgets.enableWidget(self.btnSave, modified)
-        BaseWidgets.enableWidget(self.btnCancel, modified)
-        self.txtTitle.enableWidget(self.task is not None)
+        self.enableButtons(modified, modified, False)
+        super().enableWidgets(self.task is not None)
         self.txtTitle.resetModified()
 
 
@@ -121,13 +120,12 @@ class StepEditor(BaseWidgets.BaseEditor):
         # Step attributes
         self.lblStatus = self.addTextReadOnly('Status', LogBookStep.getStatusName)
         self.txtText   = self.addTextArea('Text', LogBookStep.getText, 6, 42)
-        #self.intOrder  = self.addIntInput('Order', LogBookStep.getOrder)
         self.spiOrder  = self.addSpinBox('Order', LogBookStep.getOrder, 0, 999)
         self.txtText.oWidget.bind("<Return>", self.onSave)
 
         # Buttons: save, cancel, done
         self.createButtons(True, True, False)
-        self.btnDone = self.addButton('Done', self.onDone)
+        self.btnDone = self.addButton('Done', self.onDone, 'ok')
 
         self.enableWidgets()
 
@@ -137,9 +135,8 @@ class StepEditor(BaseWidgets.BaseEditor):
         editing  = self.step is not None
         enableDone = self.step and self.step.status is not Status.Done
         super().enableWidgets(editing)
-        BaseWidgets.enableWidget(self.btnSave, modified)
-        BaseWidgets.enableWidget(self.btnCancel, modified)
-        BaseWidgets.enableWidget(self.btnDone, enableDone)
+        self.enableButtons(modified, modified, False)
+        self.btnDone.enableWidget(enableDone)
         self.txtText.resetModified()
 
 

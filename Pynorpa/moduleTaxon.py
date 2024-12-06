@@ -133,9 +133,7 @@ class TaxonEditor(BaseWidgets.BaseEditor):
         editing  = self.taxon is not None
         modified = self.hasChanges(self.taxon)
         super().enableWidgets(editing)
-        BaseWidgets.enableWidget(self.btnSave, modified)
-        BaseWidgets.enableWidget(self.btnCancel, modified)
-        BaseWidgets.enableWidget(self.btnDelete, False)
+        self.enableButtons(modified, modified, False)
 
     def __str__(self) -> str:
         return 'TaxonEditor'

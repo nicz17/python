@@ -114,9 +114,7 @@ class PictureEditor(BaseWidgets.BaseEditor):
         editing  = self.picture is not None
         modified = self.hasChanges(self.picture)
         super().enableWidgets(editing)
-        BaseWidgets.enableWidget(self.btnSave, modified)
-        BaseWidgets.enableWidget(self.btnCancel, modified)
-        BaseWidgets.enableWidget(self.btnDelete, False)
+        self.enableButtons(modified, modified, False)
         self.widRemarks.resetModified()
 
     def __str__(self):
