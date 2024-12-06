@@ -171,11 +171,18 @@ class HtmlTag:
 
 class DivHtmlTag(HtmlTag):
     def __init__(self, sId=None, sClass=None):
+        """Constructor with optional id and class."""
         super().__init__('div')
         if sId:
             self.addAttr('id', sId)
         if sClass:
             self.addAttr('class', sClass)
+
+    def addList(self) -> 'ListHtmlTag':
+        """Add an empty UL list and return it."""
+        list = ListHtmlTag([])
+        self.addTag(list)
+        return list
 
 class MyBoxHtmlTag(DivHtmlTag):
     """A div tag with myBox class."""
@@ -254,6 +261,11 @@ class ListHtmlTag(HtmlTag):
             else:
                 tLi.addTag(item)
             self.addTag(tLi)
+
+    def addItem(self, sText=None) -> HtmlTag:
+        tLi = HtmlTag('li', sText)
+        self.addTag(tLi)
+        return tLi
 
 class GrayFontHtmlTag(HtmlTag):
     def __init__(self, sContent):
