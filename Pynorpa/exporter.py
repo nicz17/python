@@ -27,14 +27,16 @@ class Exporter():
         self.buildLatest()
         self.buildLinks()
         self.buildLocations()
+        self.buildAlpha()
 
     def buildHome(self):
         """Build Home page"""
         page = pynorpaHtml.PynorpaHtmlPage('Nature - Accueil')
-        page.addHeading(1, 'Photos de nature')
+        #page.addHeading(1, 'Photos de nature')
         tableLeftRight = TableHtmlTag(None, 2)
         page.add(tableLeftRight)
         tdLeft = tableLeftRight.getNextCell()
+        tdLeft.addTag(HtmlTag('h1', 'Photos de nature'))
 
         # Sample pictures
         divBest = MyBoxWideHtmlTag('Quelques photos')
@@ -164,6 +166,32 @@ class Exporter():
         page.addHeading(1, 'Lieux')
         page.addHeading(2, 'Cette page est en construction')
         page.save(f'{config.dirWebExport}locations.html')
+
+    def buildAlpha(self):
+        """Build names index page"""
+        page = pynorpaHtml.PynorpaHtmlPage('Nature - Noms latins')
+        page.addHeading(1, 'Noms latins')
+        page.addHeading(2, 'Cette page est en construction')
+
+        page.menu.addTag(HtmlTag('h2', 'Noms latins'))
+        tableMenu = TableHtmlTag([], 4)
+        tableMenu.addAttr('width', '120px')
+        page.menu.addTag(tableMenu)
+
+        letter = None
+        ul = None
+        for tax in self.taxCache.getForRank(taxon.TaxonRank.SPECIES):
+            letterTax = tax.getName()[:1].upper()
+            if letterTax != letter:
+                letter = letterTax
+                tableMenu.getNextCell().addTag(LinkHtmlTag(f'#{letter}', letter))
+                anchor = HtmlTag('a').addAttr('name', letter)
+                anchor.addTag(HtmlTag('h2', letter))
+                page.add(anchor)
+                ul = page.addList([])
+            ul.addItem().addTag(LinkHtmlTag(self.getTaxonLink(tax), tax.getName()))
+
+        page.save(f'{config.dirWebExport}noms-latins.html')
 
     def buildTaxa(self):
         """Build taxon pages"""
