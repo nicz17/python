@@ -171,8 +171,6 @@ class Exporter():
         """Build names index page"""
         page = pynorpaHtml.PynorpaHtmlPage('Nature - Noms latins')
         page.addHeading(1, 'Noms latins')
-        page.addHeading(2, 'Cette page est en construction')
-
         page.menu.addTag(HtmlTag('h2', 'Noms latins'))
         tableMenu = TableHtmlTag([], 4)
         tableMenu.addAttr('width', '120px')
@@ -189,7 +187,11 @@ class Exporter():
                 anchor.addTag(HtmlTag('h2', letter))
                 page.add(anchor)
                 ul = page.addList([])
-            ul.addItem().addTag(LinkHtmlTag(self.getTaxonLink(tax), tax.getName()))
+            li = ul.addItem()
+            li.addTag(LinkHtmlTag(self.getTaxonLink(tax), tax.getName()))
+            family = tax.getAncestor(taxon.TaxonRank.FAMILY)
+            if family:
+                li.addTag(GrayFontHtmlTag(f'- {family.getName()}'))
 
         page.save(f'{config.dirWebExport}noms-latins.html')
 
