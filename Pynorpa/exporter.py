@@ -178,7 +178,8 @@ class Exporter():
 
         letter = None
         ul = None
-        for tax in self.taxCache.getForRank(taxon.TaxonRank.SPECIES):
+        species = self.taxCache.getForRank(taxon.TaxonRank.SPECIES)
+        for tax in species:
             letterTax = tax.getName()[:1].upper()
             if letterTax != letter:
                 letter = letterTax
@@ -192,8 +193,35 @@ class Exporter():
             family = tax.getAncestor(taxon.TaxonRank.FAMILY)
             if family:
                 li.addTag(GrayFontHtmlTag(f'- {family.getName()}'))
-
         page.save(f'{config.dirWebExport}noms-latins.html')
+
+        # French names
+        page = pynorpaHtml.PynorpaHtmlPage('Nature - Noms communs')
+        page.addHeading(1, 'Noms communs')
+        page.menu.addTag(HtmlTag('h2', 'Noms communs'))
+        tableMenu = TableHtmlTag([], 4)
+        tableMenu.addAttr('width', '120px')
+        page.menu.addTag(tableMenu)
+
+        letter = None
+        ul = None
+        species = sorted(species, key=lambda tax: tax.getNameFr())
+        for tax in species:
+            if tax.getNameFr() != tax.getName():
+                letterTax = tax.getNameFr()[:1].upper()
+                if letterTax != letter:
+                    letter = letterTax
+                    tableMenu.getNextCell().addTag(LinkHtmlTag(f'#{letter}', letter))
+                    anchor = HtmlTag('a').addAttr('name', letter)
+                    anchor.addTag(HtmlTag('h2', letter))
+                    page.add(anchor)
+                    ul = page.addList([])
+                li = ul.addItem()
+                li.addTag(LinkHtmlTag(self.getTaxonLink(tax), tax.getNameFr()))
+                family = tax.getAncestor(taxon.TaxonRank.FAMILY)
+                if family:
+                    li.addTag(GrayFontHtmlTag(f'- {family.getNameFr()}'))
+        page.save(f'{config.dirWebExport}noms-verna.html')
 
     def buildTaxa(self):
         """Build taxon pages"""
