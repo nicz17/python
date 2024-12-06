@@ -205,7 +205,7 @@ class Exporter():
 
         letter = None
         ul = None
-        species = sorted(species, key=lambda tax: tax.getNameFr())
+        species = sorted(species, key=lambda tax: tax.nameFrNorm)
         for tax in species:
             if tax.getNameFr() != tax.getName():
                 letterTax = tax.getNameFr()[:1].upper()

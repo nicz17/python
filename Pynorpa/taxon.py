@@ -7,6 +7,7 @@ __version__ = "1.0.0"
 import logging
 import config
 import Database
+import TextTools
 from enum import Enum
 
 
@@ -63,6 +64,7 @@ class Taxon():
         self.idx = idx
         self.name = name
         self.nameFr = nameFr
+        self.nameFrNorm = TextTools.replaceAccents(nameFr)
         self.rank = TaxonRank[rank]
         self.idxParent = idxParent
         self.order = order
