@@ -36,6 +36,7 @@ class Exporter():
         page.add(tableLeftRight)
         tdLeft = tableLeftRight.getNextCell()
 
+        # Sample pictures
         divBest = MyBoxWideHtmlTag('Quelques photos')
         aBestPics = self.picCache.getRandomBest()
         listBest = []
@@ -43,22 +44,37 @@ class Exporter():
             listBest.append(ImageHtmlTag(f'thumbs/{pic.getFilename()}', pic.getTaxonName(), pic.getFilename()))
         divBest.addTag(TableHtmlTag(listBest).addAttr('class', 'table-thumbs'))
         tdLeft.addTag(divBest)
+
+        # TODO Favorite taxa
         tdLeft.addTag(MyBoxWideHtmlTag('Quelques catégories'))
+
+        # TODO About
         tdLeft.addTag(MyBoxHtmlTag('A propos'))
 
+        # Newest species
         tdRight = tableLeftRight.getNextCell()
         divNewSpecies = MyBoxHtmlTag('Dernières espèces')
-        listNewSpecies = ListHtmlTag([])
+        listNewSpecies = divNewSpecies.addList()
         for (idx, tFirstObs) in self.taxCache.fetchNewestSpecies():
             taxon = self.taxCache.findById(idx)
-            item = HtmlTag('li')
+            item = listNewSpecies.addItem()
             item.addTag(LinkHtmlTag(self.getTaxonLink(taxon), taxon.getNameFr(), False, taxon.getName()))
             item.addTag(GrayFontHtmlTag(DateTools.datetimeToPrettyStringFr(tFirstObs)))
-            listNewSpecies.addTag(item)
-        divNewSpecies.addTag(listNewSpecies)
         tdRight.addTag(divNewSpecies)
+
+        # TODO Latest excursions
         tdRight.addTag(MyBoxHtmlTag('Excursions récentes'))
-        tdRight.addTag(MyBoxHtmlTag('Matériel photo'))
+
+        # Photo hardware
+        divHardware = MyBoxHtmlTag('Matériel photo')
+        tdRight.addTag(divHardware)
+        ulHardware = divHardware.addList()
+        ulHardware.addItem().addTag(LinkHtmlTag("https://fr.wikipedia.org/wiki/Nikon_D300", "Nikon D300", True, "Wikipedia : Nikon D300"))
+        li = ulHardware.addItem()
+        li.addTag(LinkHtmlTag("https://fr.wikipedia.org/wiki/Nikon_D800", "Nikon D800", True, "Wikipedia : Nikon D800"))
+        li.addTag(GrayFontHtmlTag("(depuis novembre 2017)"))
+        ulHardware.addItem("AF-S Micro Nikkor 105mm 1:2.8")
+        ulHardware.addItem("AF-S Nikkor 80-400mm 1:4.5-5.6")
 
         divLinks = MyBoxHtmlTag('Liens externes')
         tdRight.addTag(divLinks)
