@@ -75,9 +75,11 @@ class HtmlPage:
         """Add a heading of the specified level, for example h1."""
         self.main.addTag(HtmlTag('h' + str(iLevel), sTitle))
 
-    def addList(self, aItems):
+    def addList(self, aItems) -> 'ListHtmlTag':
         """Add a UL list to the main div."""
-        self.main.addTag(ListHtmlTag(aItems))
+        ul = ListHtmlTag(aItems)
+        self.main.addTag(ul)
+        return ul
 
     def addTable(self, aItems, nItemsByRow = 4, bCenterCells = False):
         """Add a table with the specified cells and return it."""
