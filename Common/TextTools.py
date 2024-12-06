@@ -46,6 +46,17 @@ def splitCamelCase(text: str) -> str:
     result = str(re.sub(r"([A-Z][a-z])", r" \1", text).lower())
     return result
 
+def replaceAccents(text: str) -> str:
+    """Return a copy of the string with french accents replaced by ordinary letters."""
+    result = text
+    result = result.replace('à', 'a')
+    result = result.replace('â', 'a')
+    result = result.replace('é', 'e')
+    result = result.replace('è', 'e')
+    result = result.replace('ê', 'e')
+    result = result.replace('ô', 'o')
+    return result
+
 def testTextTools():
     log = logging.getLogger('TextTools')
     log.info('Distance is %s', distanceToString(1000.0/3.0))
@@ -56,6 +67,7 @@ def testTextTools():
     log.info('upperCaseFirst: %s', upperCaseFirst('welcome to Lausanne!'))
     log.info('lowerCaseFirst: %s', lowerCaseFirst('GetTitle()'))
     log.info('splitCamelCase: %s', splitCamelCase('myCamelCaseName'))
+    log.info('replaceAccents: %s', replaceAccents('Eté à âme amère'))
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(asctime)s %(levelname)s %(name)s: %(message)s", 
