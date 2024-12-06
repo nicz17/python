@@ -51,7 +51,13 @@ class Exporter():
         tdLeft.addTag(MyBoxWideHtmlTag('Quelques catégories'))
 
         # TODO About
-        tdLeft.addTag(MyBoxHtmlTag('A propos'))
+        divAbout = MyBoxWideHtmlTag('A propos')
+        tdLeft.addTag(divAbout)
+        divAbout.addTag(HtmlTag('p', """Cette galerie de photos de nature me sert d'aide-mémoire 
+                        pour retrouver les noms des plantes et insectes que je croise en 
+                        montagne, en voyage ou autour de chez moi."""))
+        divAbout.addTag(HtmlTag('p', """C'est aussi une collection de taxons qui compte actuellement 
+                                4396 photos dans 1718 espèces, 1336 genres et 501 familles."""))
 
         # Newest species
         tdRight = tableLeftRight.getNextCell()
