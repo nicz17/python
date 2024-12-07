@@ -11,6 +11,7 @@ from HtmlPage import *
 import picture
 import taxon
 import DateTools
+import Timer
 
 class Exporter():
     """Class Exporter"""
@@ -23,16 +24,18 @@ class Exporter():
 
     def buildBasePages(self):
         """Build base html pages."""
+        timer = Timer.Timer()
         self.buildHome()
         self.buildLatest()
         self.buildLinks()
         self.buildLocations()
         self.buildAlpha()
+        self.buildTaxa()
+        self.log.info('Exported in %s', timer.getElapsed())
 
     def buildHome(self):
         """Build Home page"""
         page = pynorpaHtml.PynorpaHtmlPage('Nature - Accueil')
-        #page.addHeading(1, 'Photos de nature')
         tableLeftRight = TableHtmlTag(None, 2)
         page.add(tableLeftRight)
         tdLeft = tableLeftRight.getNextCell()
@@ -50,8 +53,46 @@ class Exporter():
         divBest.addTag(tableBestPics)
         tdLeft.addTag(divBest)
 
-        # TODO Favorite taxa
-        tdLeft.addTag(MyBoxWideHtmlTag('Quelques catégories'))
+        # Favorite taxa
+        divCategories = MyBoxWideHtmlTag('Quelques catégories')
+        tdLeft.addTag(divCategories)
+        tableCat = TableHtmlTag([], 5).addAttr("width", "100%")
+        divCategories.addTag(tableCat)
+
+        ul = ListHtmlTag([])
+        tableCat.getNextCell().addTag(ul)
+        ul.addItem(LinkHtmlTag("Pteridophyta.html", "Fougères", False, "Fougères"))
+        ul.addItem(LinkHtmlTag("Pinophyta.html", "Conifères", False, "Conifères"))
+        ul.addItem(LinkHtmlTag("Magnoliophyta.html#Liliopsida", "Monocots", False, "Monocotylédones"))
+        ul.addItem(LinkHtmlTag("Magnoliophyta.html#Magnoliopsida", "Dicots", False, "Dicotylédones"))
+		
+        ul = ListHtmlTag([])
+        tableCat.getNextCell().addTag(ul)
+        ul.addItem(LinkHtmlTag("Malpighiales.html#Euphorbiaceae", "Euphorbes", False, "Euphorbes"))
+        ul.addItem(LinkHtmlTag("Saxifragales.html#Saxifragaceae", "Saxifrages", False, "Saxifrages"))
+        ul.addItem(LinkHtmlTag("Lamiales.html#Lamiaceae", "Lamiacées", False, "Lamiacées"))
+        ul.addItem(LinkHtmlTag("Asterales.html#Asteraceae", "Astéracées", False, "Astéracées"))
+
+        ul = ListHtmlTag([])
+        tableCat.getNextCell().addTag(ul)
+        ul.addItem(LinkHtmlTag("Chordata.html#Aves", "Oiseaux", False, "Oiseaux"))
+        ul.addItem(LinkHtmlTag("Chordata.html#Mammalia", "Mammifères", False, "Mammifères"))
+        ul.addItem(LinkHtmlTag("Araneae.html", "Araignées", False, "Araignées"))
+        ul.addItem(LinkHtmlTag("Opiliones.html", "Opilions", False, "Opilions ou faucheux"))
+
+        ul = ListHtmlTag([])
+        tableCat.getNextCell().addTag(ul)
+        ul.addItem(LinkHtmlTag("Arthropoda.html#Insecta", "Insectes", False, "Insectes"))
+        ul.addItem(LinkHtmlTag("Diptera.html", "Diptères", False, "Mouches, syrphes, tipules"))
+        ul.addItem(LinkHtmlTag("Hymenoptera.html", "Hyménoptères", False, "Abeilles, fourmis, guêpes"))
+        ul.addItem(LinkHtmlTag("Lepidoptera.html", "Papillons", False, "Papillons"))
+
+        ul = ListHtmlTag([])
+        tableCat.getNextCell().addTag(ul)
+        ul.addItem(LinkHtmlTag("Odonata.html", "Libellules", False, "Libellules et demoiselles"))
+        ul.addItem(LinkHtmlTag("Coleoptera.html", "Coléoptères", False, "Coléoptères"))
+        ul.addItem(LinkHtmlTag("Hemiptera.html", "Punaises", False, "Punaises"))
+        ul.addItem(LinkHtmlTag("Squamata.html", "Reptiles", False, "Reptiles"))
 
         # About
         divAbout = MyBoxWideHtmlTag('A propos')
