@@ -47,6 +47,9 @@ class TaxonUrlProvider():
     
     def formatVogelwarte(taxon: Taxon):
         return f"{taxon.getNameFr().replace(' ', '-').lower()}"
+    
+    def formatInfoFlora(taxon: Taxon):
+        return f"{taxon.getName().replace(' ', '-').lower()}.html"
 
     def __str__(self):
         return f'TaxonUrlProvider for {self.text}'

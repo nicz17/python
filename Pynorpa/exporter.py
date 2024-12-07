@@ -33,7 +33,10 @@ class Exporter():
             TaxonUrlProvider('Galerie insecte', 'https://galerie-insecte.org/galerie/', 'Galerie insecte', 
                 taxon.TaxonRank.CLASS, ['Insecta'], TaxonUrlProvider.formatGalerieInsecte),
             TaxonUrlProvider('Oiseaux de Suisse', 'https://www.vogelwarte.ch/fr/oiseaux/les-oiseaux-de-suisse/',
-                'Vogelwarte', taxon.TaxonRank.CLASS, ['Aves'], TaxonUrlProvider.formatVogelwarte)
+                'Vogelwarte', taxon.TaxonRank.CLASS, ['Aves'], TaxonUrlProvider.formatVogelwarte),
+            TaxonUrlProvider('InfoFlora', 'https://www.infoflora.ch/fr/flore/', 'InfoFlora',
+                taxon.TaxonRank.PHYLUM, ["Lycopodiophyta", "Pteridophyta", "Pinophyta", "Magnoliophyta"],
+                TaxonUrlProvider.formatInfoFlora)
         ]
 
     def getTaxonUrlProviders(self) -> list[TaxonUrlProvider]:
