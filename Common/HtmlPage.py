@@ -81,7 +81,7 @@ class HtmlPage:
         self.main.addTag(ul)
         return ul
 
-    def addTable(self, aItems, nItemsByRow = 4, bCenterCells = False):
+    def addTable(self, aItems, nItemsByRow = 4, bCenterCells = False) -> 'HtmlTag':
         """Add a table with the specified cells and return it."""
         tTable = HtmlTag('table')
         tRow = None
