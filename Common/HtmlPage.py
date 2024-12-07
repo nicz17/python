@@ -257,15 +257,16 @@ class ListHtmlTag(HtmlTag):
     def __init__(self, aItems):
         super().__init__('ul')
         for item in aItems:
-            tLi = HtmlTag('li')
-            if isinstance(item, str):
-                tLi = HtmlTag('li', item)
-            else:
-                tLi.addTag(item)
-            self.addTag(tLi)
+            self.addItem(item)
 
     def addItem(self, sText=None) -> HtmlTag:
-        tLi = HtmlTag('li', sText)
+        tLi = None
+        if isinstance(sText, str):
+            tLi = HtmlTag('li', sText)
+        else:
+            tLi = HtmlTag('li')
+            if sText is not None:
+                tLi.addTag(sText)
         self.addTag(tLi)
         return tLi
 
