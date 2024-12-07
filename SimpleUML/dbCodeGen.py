@@ -141,7 +141,7 @@ class DatabaseCodeGen():
         field: DatabaseField
         for field in self.fields:
             if field.name == sNameField or 'name' in field.name:
-                oLoad.addCodeLine(f'query.add(" order by {field.name} asc")')
+                oLoad.addCodeLine(f'query.add("order by {field.name} asc")')
                 break
         oLoad.addCodeLine('rows = self.db.fetch(query.getSQL())')
         oLoad.addCodeLine('for row in rows:')
@@ -325,9 +325,7 @@ class DatabaseCodeGen():
         oMeth.addCodeLine(f'editing  = self.{nameObject} is not None')
         oMeth.addCodeLine(f'modified = self.hasChanges(self.{nameObject})')
         oMeth.addCodeLine('super().enableWidgets(editing)')
-        oMeth.addCodeLine('BaseWidgets.enableWidget(self.btnSave, modified)')
-        oMeth.addCodeLine('BaseWidgets.enableWidget(self.btnCancel, modified)')
-        oMeth.addCodeLine('BaseWidgets.enableWidget(self.btnDelete, False)')
+        oMeth.addCodeLine('self.enableButtons(modified, modified, False)')
 
         return clss
 
