@@ -54,6 +54,10 @@ class Picture():
         if self.location:
             return self.location.getName()
         return 'Error: undefined location'
+    
+    def getLocation(self) -> Location:
+        """Get the location object."""
+        return self.location
 
     def getRemarks(self) -> str:
         """Getter for remarks"""

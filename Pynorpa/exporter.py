@@ -6,10 +6,12 @@ __version__ = "1.0.0"
 
 import config
 import logging
+import re
 import pynorpaHtml
 from HtmlPage import *
 import picture
 import taxon
+import expedition
 import DateTools
 import Timer
 
@@ -21,6 +23,7 @@ class Exporter():
         """Constructor."""
         self.picCache = picture.PictureCache()
         self.taxCache = taxon.TaxonCache()
+        self.excCache = expedition.ExpeditionCache()
 
     def buildBasePages(self):
         """Build base html pages."""
@@ -119,8 +122,15 @@ class Exporter():
             item.addTag(GrayFontHtmlTag(DateTools.datetimeToPrettyStringFr(tFirstObs)))
         tdRight.addTag(divNewSpecies)
 
-        # TODO Latest excursions
-        tdRight.addTag(MyBoxHtmlTag('Excursions récentes'))
+        # Latest excursions
+        divExcursions = MyBoxHtmlTag('Excursions récentes')
+        tdRight.addTag(divExcursions)
+        ul = divExcursions.addList()
+        excursions = self.excCache.getExpeditions()[:6]
+        for excursion in excursions:
+            li = ul.addItem()
+            li.addTag(LinkHtmlTag(f'excursion{excursion.getIdx()}.html', excursion.getName()))
+            li.addTag(GrayFontHtmlTag(DateTools.datetimeToPrettyStringFr(excursion.getFrom())))
 
         # Photo hardware
         divHardware = MyBoxHtmlTag('Matériel photo')
@@ -280,8 +290,34 @@ class Exporter():
 
     def buildTaxa(self):
         """Build taxon pages"""
-        # TODO: implement
-        pass
+        species = self.taxCache.getForRank(taxon.TaxonRank.SPECIES)
+        for tax in species:
+            self.buildSpecie(tax)
+
+    def buildSpecie(self, tax: taxon.Taxon):
+        """Build the page for the species."""
+        page = pynorpaHtml.PynorpaHtmlPage(f'Nature - {tax.getName()}')
+        title = tax.getName()
+        if tax.getNameFr() != tax.getName():
+            title += f' &mdash; {tax.getNameFr()}'
+        page.addHeading(1, title)
+
+        tablePics = TableHtmlTag([], 2)
+        tablePics.addAttr('width', '1040px').addAttr('class', 'table-medium')
+        page.add(tablePics)
+        pic: picture.Picture
+        for pic in tax.getPictures():
+            td = tablePics.getNextCell()
+            td.addTag(ImageHtmlTag(f'../medium/{pic.getFilename()}', tax.getName(), tax.getName()))
+            loc = pic.getLocation()
+            locToolTip = f'{loc.getName()}, {loc.getRegion()}, {loc.getState()} ({loc.getAltitude()}m)'
+            legend = HtmlTag('p')
+            legend.addTag(LinkHtmlTag('#', loc.getName(), False, locToolTip))
+            legend.addTag(GrayFontHtmlTag(DateTools.datetimeToPrettyStringFr(pic.getShotAt())))
+            td.addTag(legend)
+            if (pic.getRemarks()):
+                td.addTag(HtmlTag('p', self.replaceRemarkLinks(pic.getRemarks())))
+        page.save(f'{config.dirWebExport}{self.getTaxonLink(tax)}')
 
     def buildTest(self):
         """Build a simple test page."""
@@ -309,6 +345,22 @@ class Exporter():
             case taxon.TaxonRank.GENUS:
                 return f'pages/{tax.getName().lower()}.html'
         return 'not-implemented.html'
+    
+    def replaceRemarkLinks(self, remark: str) -> str:
+        """Replace species references in the specified remark with a link to that species."""
+        pat = re.compile(".+\\[\\[(.+)\\]\\].*")
+        match = pat.match(remark)
+        if match:
+            taxName = match.group(1)
+            repl = taxName
+            tax = self.taxCache.findByName(taxName)
+            if tax:
+                link = LinkHtmlTag(tax.getName().replace(' ', '-').lower() + '.html', tax.getName(), False, tax.getNameFr())
+                repl = link.getHtml()
+            else:
+                self.log.error('Failed to find taxon %s', taxName)
+            remark = remark.replace(f'[[{taxName}]]', repl)
+        return remark
 
     def addBiblioRef(self, list, authors: str, title: str, editor: str, year: str):
         """Add a bibliographical reference."""

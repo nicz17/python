@@ -123,6 +123,9 @@ class Taxon():
         if typicalChild:
             return typicalChild.getTypicalPicture()
         return None
+    
+    def getPictures(self) -> list:
+        return self.pictures
 
     def getIdx(self) -> int:
         """Getter for idx"""

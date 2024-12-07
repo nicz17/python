@@ -132,7 +132,7 @@ class ExpeditionCache():
         """Constructor. Unused as all is done in new."""
         pass
 
-    def getExpeditions(self):
+    def getExpeditions(self) -> list[Expedition]:
         """Return all objects in cache."""
         return self.expeditions
 
