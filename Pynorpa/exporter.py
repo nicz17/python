@@ -14,6 +14,7 @@ import taxon
 import expedition
 import DateTools
 import Timer
+from taxonUrlProvider import TaxonUrlProvider
 
 class Exporter():
     """Class Exporter"""
@@ -24,6 +25,19 @@ class Exporter():
         self.picCache = picture.PictureCache()
         self.taxCache = taxon.TaxonCache()
         self.excCache = expedition.ExpeditionCache()
+
+        # Configure TaxonUrlProviders
+        self.taxonUrlProviders = [
+            TaxonUrlProvider('Wikipédia [fr]', 'https://fr.wikipedia.org/wiki/', 'Wikipédia en français'),
+            TaxonUrlProvider('Wikipedia [en]', 'https://en.wikipedia.org/wiki/', 'Wikipedia in English'),
+            TaxonUrlProvider('Galerie insecte', 'https://galerie-insecte.org/galerie/', 'Galerie insecte', 
+                taxon.TaxonRank.CLASS, ['Insecta'], TaxonUrlProvider.formatGalerieInsecte),
+            TaxonUrlProvider('Oiseaux de Suisse', 'https://www.vogelwarte.ch/fr/oiseaux/les-oiseaux-de-suisse/',
+                'Vogelwarte', taxon.TaxonRank.CLASS, ['Aves'], TaxonUrlProvider.formatVogelwarte)
+        ]
+
+    def getTaxonUrlProviders(self) -> list[TaxonUrlProvider]:
+        return self.taxonUrlProviders
 
     def buildBasePages(self):
         """Build base html pages."""
@@ -302,6 +316,7 @@ class Exporter():
             title += f' &mdash; {tax.getNameFr()}'
         page.addHeading(1, title)
 
+        # Pictures table
         tablePics = TableHtmlTag([], 2)
         tablePics.addAttr('width', '1040px').addAttr('class', 'table-medium')
         page.add(tablePics)
@@ -317,6 +332,33 @@ class Exporter():
             td.addTag(legend)
             if (pic.getRemarks()):
                 td.addTag(HtmlTag('p', self.replaceRemarkLinks(pic.getRemarks())))
+        if len(tax.getPictures()) % 2 == 1:
+            tablePics.getNextCell() # fill the last table row
+
+        # Classification and links table
+        divClassif = MyBoxHtmlTag('Classification')
+        divLinks   = MyBoxHtmlTag("Plus d'information")
+        tableLinks = TableHtmlTag([divClassif, divLinks], 2)
+        tableLinks.addAttr('width', '1040px').addAttr('class', 'align-top')
+        page.add(tableLinks)
+
+        # Classification
+        tableClassif = TableHtmlTag([], 3).addAttr('width', '500px')
+        divClassif.addTag(tableClassif)
+        for rank in taxon.TaxonRank:
+            ancestor = tax.getAncestor(rank)
+            tableClassif.getNextCell(rank.getNameFr())
+            tableClassif.getNextCell(ancestor.getName())
+            tableClassif.getNextCell(ancestor.getNameFr())
+
+        # External links
+        ul = ListHtmlTag([])
+        divLinks.addTag(ul)
+        for provider in self.getTaxonUrlProviders():
+            link = provider.getLink(tax)
+            if link:
+                ul.addItem(link)
+        
         page.save(f'{config.dirWebExport}{self.getTaxonLink(tax)}')
 
     def buildTest(self):
@@ -337,13 +379,13 @@ class Exporter():
         parent.addTag(LinkHtmlTag(f'lieu{pic.getIdxLocation()}.html', pic.getLocationName()))
         parent.addTag(GrayFontHtmlTag(f'<br>{sShotAt}'))
 
-    def getTaxonLink(self, tax: taxon.Taxon) -> str:
+    def getTaxonLink(self, tax: taxon.Taxon, rel='pages/') -> str:
         """Get the home-relative link to the specified taxon page."""
         match tax.getRank():
             case taxon.TaxonRank.SPECIES:
-                return 'pages/' + tax.getName().replace(' ', '-').lower() + '.html'
+                return f"{rel}{tax.getName().replace(' ', '-').lower()}.html"
             case taxon.TaxonRank.GENUS:
-                return f'pages/{tax.getName().lower()}.html'
+                return f'{rel}{tax.getName().lower()}.html'
         return 'not-implemented.html'
     
     def replaceRemarkLinks(self, remark: str) -> str:
@@ -355,8 +397,8 @@ class Exporter():
             repl = taxName
             tax = self.taxCache.findByName(taxName)
             if tax:
-                link = LinkHtmlTag(tax.getName().replace(' ', '-').lower() + '.html', tax.getName(), False, tax.getNameFr())
-                repl = link.getHtml()
+                link = LinkHtmlTag(self.getTaxonLink(tax, ''), tax.getName(), False, tax.getNameFr())
+                repl = link.getHtml(0, True)
             else:
                 self.log.error('Failed to find taxon %s', taxName)
             remark = remark.replace(f'[[{taxName}]]', repl)
