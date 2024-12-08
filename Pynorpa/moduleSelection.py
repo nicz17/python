@@ -166,6 +166,8 @@ class TaxonSelector():
         self.log.info(cmd)
         os.system(cmd)
         self.lastSelected = target
+        self.lblName.configure(text=f'Copié sous {self.newName}')
+        self.newName = None
         self.enableWidgets()
 
     def onOpenGimp(self):
@@ -233,7 +235,7 @@ class TaxonSelector():
         """Enable or disable our widgets."""
         self.btnSelect.enableWidget(self.photo is not None and self.newName is not None)
         self.btnGimp.enableWidget(self.lastSelected is not None)
-        self.btnClear.enableWidget(self.newName is not None)
+        self.btnClear.enableWidget(self.txtInput.get())
 
     def enableWidget(self, oWidget, enabled: bool):
         """Enable or disable the widget."""
