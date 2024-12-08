@@ -33,14 +33,21 @@ class Exporter():
             TaxonUrlProvider('Wikispecies', 'https://species.wikimedia.org/wiki/', 'Wikispecies'),
             TaxonUrlProvider('iNaturalist', 'https://www.inaturalist.org/search?q=', 'inaturalist.org'),
             TaxonUrlProvider('Galerie insecte', 'https://galerie-insecte.org/galerie/', 'Galerie insecte', 
-                taxon.TaxonRank.CLASS, ['Insecta'], TaxonUrlProvider.formatGalerieInsecte),
+                taxon.TaxonRank.CLASS, ["Arachnida", "Chilopoda", "Crustacea", "Diplopoda", "Entognatha", "Insecta"], 
+                TaxonUrlProvider.formatGalerieInsecte),
+            TaxonUrlProvider('AntWiki', 'http://www.antwiki.org/wiki/', 'antwiki.org',
+                taxon.TaxonRank.FAMILY, ['Formicidae'], TaxonUrlProvider.formatAntWiki),
+            TaxonUrlProvider('Arages', 'https://wiki.arages.de/index.php?title=', 'arages.de',
+                taxon.TaxonRank.CLASS, ["Arachnida"], TaxonUrlProvider.formatAntWiki),
             TaxonUrlProvider('Oiseaux de Suisse', 'https://www.vogelwarte.ch/fr/oiseaux/les-oiseaux-de-suisse/',
                 'Vogelwarte', taxon.TaxonRank.CLASS, ['Aves'], TaxonUrlProvider.formatVogelwarte),
             TaxonUrlProvider('InfoFlora', 'https://www.infoflora.ch/fr/flore/', 'InfoFlora',
                 taxon.TaxonRank.PHYLUM, ["Lycopodiophyta", "Pteridophyta", "Pinophyta", "Magnoliophyta"],
                 TaxonUrlProvider.formatInfoFlora),
             TaxonUrlProvider('MycoDB', 'https://www.mycodb.fr/fiche.php?genre=', 'MycoDB', taxon.TaxonRank.PHYLUM,
-                ["Ascomycota", "Basidiomycota"])
+                ["Ascomycota", "Basidiomycota"]),
+            TaxonUrlProvider('Swiss bryophytes', 'https://www.swissbryophytes.ch/index.php/fr/', 'swissbryophytes.ch',
+                taxon.TaxonRank.PHYLUM, ['Bryophyta'], TaxonUrlProvider.formatEmpty)
         ]
 
     def getTaxonUrlProviders(self) -> list[TaxonUrlProvider]:
@@ -313,9 +320,9 @@ class Exporter():
         """Build taxon pages"""
         species = self.taxCache.getForRank(taxon.TaxonRank.SPECIES)
         for tax in species:
-            self.buildSpecie(tax)
+            self.buildSpecies(tax)
 
-    def buildSpecie(self, tax: taxon.Taxon):
+    def buildSpecies(self, tax: taxon.Taxon):
         """Build the page for the species."""
         page = pynorpaHtml.PynorpaHtmlPage(f'Nature - {tax.getName()}')
         title = tax.getName()
@@ -344,7 +351,7 @@ class Exporter():
 
         # Classification and links table
         divClassif = MyBoxHtmlTag('Classification')
-        divLinks   = MyBoxHtmlTag("Plus d'information")
+        divLinks   = MyBoxHtmlTag("Plus d'informations")
         tableLinks = TableHtmlTag([divClassif, divLinks], 2)
         tableLinks.addAttr('width', '1040px').addAttr('class', 'align-top')
         page.add(tableLinks)

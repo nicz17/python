@@ -42,8 +42,14 @@ class TaxonUrlProvider():
             return True
         return False
     
+    def formatEmpty(taxon: Taxon):
+        return ''
+    
     def formatGalerieInsecte(taxon: Taxon):
         return f"{taxon.getName().replace(' ', '_')}.html"
+    
+    def formatAntWiki(taxon: Taxon):
+        return f"{taxon.getName().replace(' ', '_')}"
     
     def formatVogelwarte(taxon: Taxon):
         return f"{taxon.getNameFr().replace(' ', '-').lower()}"
