@@ -30,13 +30,17 @@ class Exporter():
         self.taxonUrlProviders = [
             TaxonUrlProvider('Wikipédia [fr]', 'https://fr.wikipedia.org/wiki/', 'Wikipédia en français'),
             TaxonUrlProvider('Wikipedia [en]', 'https://en.wikipedia.org/wiki/', 'Wikipedia in English'),
+            TaxonUrlProvider('Wikispecies', 'https://species.wikimedia.org/wiki/', 'Wikispecies'),
+            TaxonUrlProvider('iNaturalist', 'https://www.inaturalist.org/search?q=', 'inaturalist.org'),
             TaxonUrlProvider('Galerie insecte', 'https://galerie-insecte.org/galerie/', 'Galerie insecte', 
                 taxon.TaxonRank.CLASS, ['Insecta'], TaxonUrlProvider.formatGalerieInsecte),
             TaxonUrlProvider('Oiseaux de Suisse', 'https://www.vogelwarte.ch/fr/oiseaux/les-oiseaux-de-suisse/',
                 'Vogelwarte', taxon.TaxonRank.CLASS, ['Aves'], TaxonUrlProvider.formatVogelwarte),
             TaxonUrlProvider('InfoFlora', 'https://www.infoflora.ch/fr/flore/', 'InfoFlora',
                 taxon.TaxonRank.PHYLUM, ["Lycopodiophyta", "Pteridophyta", "Pinophyta", "Magnoliophyta"],
-                TaxonUrlProvider.formatInfoFlora)
+                TaxonUrlProvider.formatInfoFlora),
+            TaxonUrlProvider('MycoDB', 'https://www.mycodb.fr/fiche.php?genre=', 'MycoDB', taxon.TaxonRank.PHYLUM,
+                ["Ascomycota", "Basidiomycota"])
         ]
 
     def getTaxonUrlProviders(self) -> list[TaxonUrlProvider]:

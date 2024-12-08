@@ -50,6 +50,9 @@ class TaxonUrlProvider():
     
     def formatInfoFlora(taxon: Taxon):
         return f"{taxon.getName().replace(' ', '-').lower()}.html"
+    
+    def formatMycoDb(taxon: Taxon):
+        return f"{taxon.getName().replace(' ', '&espece=')}"
 
     def __str__(self):
         return f'TaxonUrlProvider for {self.text}'
