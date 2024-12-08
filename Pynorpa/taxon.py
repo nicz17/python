@@ -135,6 +135,13 @@ class Taxon():
         """Getter for name"""
         return self.name
 
+    def getNameShort(self) -> str:
+        """Get shortened name, like A. ursium."""
+        if self.rank == TaxonRank.SPECIES:
+            (genus, spepi) = self.name.split(' ', maxsplit=1)
+            return f'{genus[:1]}. {spepi}'
+        return self.name
+
     def setName(self, name: str):
         """Setter for name"""
         self.name = name

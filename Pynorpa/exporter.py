@@ -10,7 +10,7 @@ import re
 import pynorpaHtml
 from HtmlPage import *
 import picture
-import taxon
+from taxon import Taxon, TaxonRank, TaxonCache
 import expedition
 import DateTools
 import Timer
@@ -23,7 +23,7 @@ class Exporter():
     def __init__(self):
         """Constructor."""
         self.picCache = picture.PictureCache()
-        self.taxCache = taxon.TaxonCache()
+        self.taxCache = TaxonCache()
         self.excCache = expedition.ExpeditionCache()
 
         # Configure TaxonUrlProviders
@@ -33,21 +33,21 @@ class Exporter():
             TaxonUrlProvider('Wikispecies', 'https://species.wikimedia.org/wiki/', 'Wikispecies'),
             TaxonUrlProvider('iNaturalist', 'https://www.inaturalist.org/search?q=', 'inaturalist.org'),
             TaxonUrlProvider('Galerie insecte', 'https://galerie-insecte.org/galerie/', 'Galerie insecte', 
-                taxon.TaxonRank.CLASS, ["Arachnida", "Chilopoda", "Crustacea", "Diplopoda", "Entognatha", "Insecta"], 
+                TaxonRank.CLASS, ["Arachnida", "Chilopoda", "Crustacea", "Diplopoda", "Entognatha", "Insecta"], 
                 TaxonUrlProvider.formatGalerieInsecte),
             TaxonUrlProvider('AntWiki', 'http://www.antwiki.org/wiki/', 'antwiki.org',
-                taxon.TaxonRank.FAMILY, ['Formicidae'], TaxonUrlProvider.formatAntWiki),
+                TaxonRank.FAMILY, ['Formicidae'], TaxonUrlProvider.formatAntWiki),
             TaxonUrlProvider('Arages', 'https://wiki.arages.de/index.php?title=', 'arages.de',
-                taxon.TaxonRank.CLASS, ["Arachnida"], TaxonUrlProvider.formatAntWiki),
+                TaxonRank.CLASS, ["Arachnida"], TaxonUrlProvider.formatAntWiki),
             TaxonUrlProvider('Oiseaux de Suisse', 'https://www.vogelwarte.ch/fr/oiseaux/les-oiseaux-de-suisse/',
-                'Vogelwarte', taxon.TaxonRank.CLASS, ['Aves'], TaxonUrlProvider.formatVogelwarte),
+                'Vogelwarte', TaxonRank.CLASS, ['Aves'], TaxonUrlProvider.formatVogelwarte),
             TaxonUrlProvider('InfoFlora', 'https://www.infoflora.ch/fr/flore/', 'InfoFlora',
-                taxon.TaxonRank.PHYLUM, ["Lycopodiophyta", "Pteridophyta", "Pinophyta", "Magnoliophyta"],
+                TaxonRank.PHYLUM, ["Lycopodiophyta", "Pteridophyta", "Pinophyta", "Magnoliophyta"],
                 TaxonUrlProvider.formatInfoFlora),
-            TaxonUrlProvider('MycoDB', 'https://www.mycodb.fr/fiche.php?genre=', 'MycoDB', taxon.TaxonRank.PHYLUM,
+            TaxonUrlProvider('MycoDB', 'https://www.mycodb.fr/fiche.php?genre=', 'MycoDB', TaxonRank.PHYLUM,
                 ["Ascomycota", "Basidiomycota"]),
             TaxonUrlProvider('Swiss bryophytes', 'https://www.swissbryophytes.ch/index.php/fr/', 'swissbryophytes.ch',
-                taxon.TaxonRank.PHYLUM, ['Bryophyta'], TaxonUrlProvider.formatEmpty)
+                TaxonRank.PHYLUM, ['Bryophyta'], TaxonUrlProvider.formatEmpty)
         ]
 
     def getTaxonUrlProviders(self) -> list[TaxonUrlProvider]:
@@ -132,9 +132,9 @@ class Exporter():
                         pour retrouver les noms des plantes et insectes que je croise en 
                         montagne, en voyage ou autour de chez moi."""))
         nPics = len(self.picCache.getPictures())
-        nSpecies = len(self.taxCache.getForRank(taxon.TaxonRank.SPECIES))
-        nGenera  = len(self.taxCache.getForRank(taxon.TaxonRank.GENUS))
-        nFamilia = len(self.taxCache.getForRank(taxon.TaxonRank.FAMILY))
+        nSpecies = len(self.taxCache.getForRank(TaxonRank.SPECIES))
+        nGenera  = len(self.taxCache.getForRank(TaxonRank.GENUS))
+        nFamilia = len(self.taxCache.getForRank(TaxonRank.FAMILY))
         divAbout.addTag(HtmlTag('p', f"""C'est aussi une collection de taxons qui compte actuellement 
                                 <b>{nPics}</b> photos dans <b>{nSpecies}</b> espèces, 
                                 <b>{nGenera}</b> genres et <b>{nFamilia}</b> familles."""))
@@ -271,7 +271,7 @@ class Exporter():
 
         letter = None
         ul = None
-        species = self.taxCache.getForRank(taxon.TaxonRank.SPECIES)
+        species = self.taxCache.getForRank(TaxonRank.SPECIES)
         for tax in species:
             letterTax = tax.getName()[:1].upper()
             if letterTax != letter:
@@ -283,7 +283,7 @@ class Exporter():
                 ul = page.addList([])
             li = ul.addItem()
             li.addTag(LinkHtmlTag(self.getTaxonLink(tax), tax.getName()))
-            family = tax.getAncestor(taxon.TaxonRank.FAMILY)
+            family = tax.getAncestor(TaxonRank.FAMILY)
             if family:
                 li.addTag(GrayFontHtmlTag(f'- {family.getName()}'))
         page.save(f'{config.dirWebExport}noms-latins.html')
@@ -311,23 +311,23 @@ class Exporter():
                     ul = page.addList([])
                 li = ul.addItem()
                 li.addTag(LinkHtmlTag(self.getTaxonLink(tax), tax.getNameFr()))
-                family = tax.getAncestor(taxon.TaxonRank.FAMILY)
+                family = tax.getAncestor(TaxonRank.FAMILY)
                 if family:
                     li.addTag(GrayFontHtmlTag(f'- {family.getNameFr()}'))
         page.save(f'{config.dirWebExport}noms-verna.html')
 
     def buildTaxa(self):
         """Build taxon pages"""
-        species = self.taxCache.getForRank(taxon.TaxonRank.SPECIES)
+        species = self.taxCache.getForRank(TaxonRank.SPECIES)
         for tax in species:
             self.buildSpecies(tax)
 
-    def buildSpecies(self, tax: taxon.Taxon):
+    def buildSpecies(self, taxon: Taxon):
         """Build the page for the species."""
-        page = pynorpaHtml.PynorpaHtmlPage(f'Nature - {tax.getName()}')
-        title = tax.getName()
-        if tax.getNameFr() != tax.getName():
-            title += f' &mdash; {tax.getNameFr()}'
+        page = pynorpaHtml.PynorpaHtmlPage(f'Nature - {taxon.getName()}')
+        title = taxon.getName()
+        if taxon.getNameFr() != taxon.getName():
+            title += f' &mdash; {taxon.getNameFr()}'
         page.addHeading(1, title)
 
         # Pictures table
@@ -335,9 +335,9 @@ class Exporter():
         tablePics.addAttr('width', '1040px').addAttr('class', 'table-medium')
         page.add(tablePics)
         pic: picture.Picture
-        for pic in tax.getPictures():
+        for pic in taxon.getPictures():
             td = tablePics.getNextCell()
-            td.addTag(ImageHtmlTag(f'../medium/{pic.getFilename()}', tax.getName(), tax.getName()))
+            td.addTag(ImageHtmlTag(f'../medium/{pic.getFilename()}', taxon.getName(), taxon.getName()))
             loc = pic.getLocation()
             locToolTip = f'{loc.getName()}, {loc.getRegion()}, {loc.getState()} ({loc.getAltitude()}m)'
             legend = HtmlTag('p')
@@ -346,7 +346,7 @@ class Exporter():
             td.addTag(legend)
             if (pic.getRemarks()):
                 td.addTag(HtmlTag('p', self.replaceRemarkLinks(pic.getRemarks())))
-        if len(tax.getPictures()) % 2 == 1:
+        if len(taxon.getPictures()) % 2 == 1:
             tablePics.getNextCell() # fill the last table row
 
         # Classification and links table
@@ -359,21 +359,22 @@ class Exporter():
         # Classification
         tableClassif = TableHtmlTag([], 3).addAttr('width', '500px')
         divClassif.addTag(tableClassif)
-        for rank in taxon.TaxonRank:
-            ancestor = tax.getAncestor(rank)
-            tableClassif.getNextCell(rank.getNameFr())
-            tableClassif.getNextCell(ancestor.getName())
+        for rank in TaxonRank:
+            ancestor = taxon.getAncestor(rank)
+            td = tableClassif.getNextCell(ImageHtmlTag(f'rank{rank.value+1}.svg', rank.getNameFr(), rank.getNameFr()))
+            td.addTag(InlineHtmlTag(rank.getNameFr(), [], ''))
+            tableClassif.getNextCell(self.getTaxonClassif(ancestor))
             tableClassif.getNextCell(ancestor.getNameFr())
 
         # External links
         ul = ListHtmlTag([])
         divLinks.addTag(ul)
         for provider in self.getTaxonUrlProviders():
-            link = provider.getLink(tax)
+            link = provider.getLink(taxon)
             if link:
                 ul.addItem(link)
         
-        page.save(f'{config.dirWebExport}{self.getTaxonLink(tax)}')
+        page.save(f'{config.dirWebExport}{self.getTaxonLink(taxon)}')
 
     def buildTest(self):
         """Build a simple test page."""
@@ -393,14 +394,30 @@ class Exporter():
         parent.addTag(LinkHtmlTag(f'lieu{pic.getIdxLocation()}.html', pic.getLocationName()))
         parent.addTag(GrayFontHtmlTag(f'<br>{sShotAt}'))
 
-    def getTaxonLink(self, tax: taxon.Taxon, rel='pages/') -> str:
+    def getTaxonLink(self, taxon: Taxon, rel='pages/') -> str:
         """Get the home-relative link to the specified taxon page."""
-        match tax.getRank():
-            case taxon.TaxonRank.SPECIES:
-                return f"{rel}{tax.getName().replace(' ', '-').lower()}.html"
-            case taxon.TaxonRank.GENUS:
-                return f'{rel}{tax.getName().lower()}.html'
+        match taxon.getRank():
+            case TaxonRank.SPECIES:
+                return f"{rel}{taxon.getName().replace(' ', '-').lower()}.html"
+            case TaxonRank.GENUS:
+                return f'{rel}{taxon.getName().lower()}.html'
         return 'not-implemented.html'
+
+    def getTaxonClassif(self, taxon: Taxon) -> HtmlTag:
+        """Get the specified taxon classification table code."""
+        match taxon.getRank():
+            case TaxonRank.KINGDOM:
+                return LinkHtmlTag(f'../classification.html#{taxon.getName()}', taxon.getName(), False, taxon.getNameFr())
+            case TaxonRank.PHYLUM | TaxonRank.ORDER:
+                return LinkHtmlTag(f'../{taxon.getName()}.html', taxon.getName(), False, taxon.getNameFr())
+            case TaxonRank.CLASS | TaxonRank.FAMILY:
+                return LinkHtmlTag(f'../{taxon.getParent().getName()}.html#{taxon.getName()}', taxon.getName(), False, taxon.getNameFr())
+            case TaxonRank.SPECIES:
+                if len(taxon.getName()) > 20:
+                    return HtmlTag('i', taxon.getNameShort())
+                return HtmlTag('i', taxon.getName())
+            case TaxonRank.GENUS:
+                return HtmlTag('i', taxon.getName())
     
     def replaceRemarkLinks(self, remark: str) -> str:
         """Replace species references in the specified remark with a link to that species."""
