@@ -57,14 +57,15 @@ class CopyFromCamera:
             photo.identify()
             self.log.info('Copying %s', photo)
             self.statusMsg = f'Copying {photo.filename}'
-            dest = f'{self.targetDir}orig/'
-            if os.path.exists(dest + os.path.basename(img)):
-                self.log.info('Photo %s already copied, skipping', dest + os.path.basename(img))
+            destDir = f'{self.targetDir}orig/'
+            destFile = destDir + os.path.basename(img)
+            if os.path.exists(destFile):
+                self.log.info('Photo %s already copied, skipping', )
             else:
-                cmd = 'cp ' + img.replace(" ", "\\ ") + ' ' + dest
+                cmd = 'cp ' + img.replace(" ", "\\ ") + ' ' + destDir
                 self.log.debug(cmd)
                 os.system(cmd)
-                self.copied.append(dest)
+                self.copied.append(destFile)
             if cbkProgress:
                 cbkProgress()
         timer.stop()

@@ -97,7 +97,7 @@ class GeoTracker:
             loc = self.locationCache.getClosest(track.center.latitude, track.center.longitude)
             self.log.info('Closest location in cache to track %s is %s', track.name, loc)
             if self.cbkCenterMap:
-                self.cbkCenterMap(track.getBoundingBox())
+                self.cbkCenterMap(*track.getBoundingBox())
 
     def loadPhotos(self):
         """Load the photos to geo-tag."""
@@ -105,6 +105,7 @@ class GeoTracker:
             # Get list from CopyFromCamera
             self.copier: CopyFromCamera
             self.jpgFiles = self.copier.getCopiedImages()
+            self.log.info('Got %d photos from copier', len(self.jpgFiles))
         else:
             # Glob JPG photos
             filter = self.dirPhotos + '*.JPG'
@@ -129,7 +130,6 @@ class GeoTracker:
             
     def getNumberImages(self):
         """Get the number of photos to GeoTag."""
-        # TODO see if can already exclude tracked photos
         return len(self.jpgFiles)
             
     def setPhotoGPSTags(self, cbkProgress = None):
@@ -140,6 +140,7 @@ class GeoTracker:
         nUntracked = 0
         nAlreadyDone = 0
         for file in self.jpgFiles:
+            #self.log.info('Setting GPS tags to %s', file)
             photo = PhotoInfo(file)
             photo.identify()
             if photo.hasGPSData():
