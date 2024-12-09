@@ -8,6 +8,7 @@ import logging
 from BaseTable import *
 from TabsApp import *
 import BaseWidgets
+from imageWidget import MultiImageWidget
 from expedition import Expedition, ExpeditionCache
 
 
@@ -20,6 +21,7 @@ class ModuleExpeditions(TabModule):
         self.window = parent.window
         self.table  = ExpeditionTable(self.onSelectExpedition)
         self.editor = ExpeditionEditor(self.onSaveExpedition)
+        self.photos = MultiImageWidget()
         super().__init__(parent, 'Excursions')
 
     def loadData(self):
@@ -41,10 +43,10 @@ class ModuleExpeditions(TabModule):
         self.createLeftRightFrames()
         self.table.createWidgets(self.frmLeft)
         self.editor.createWidgets(self.frmRight)
+        self.photos.createWidgets(self.frmRight)
 
     def __str__(self):
-        str = "ModuleExpeditions"
-        return str
+        return "ModuleExpeditions"
 
 
 class ExpeditionTable(TableWithColumns):

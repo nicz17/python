@@ -38,7 +38,7 @@ class Button():
         if tooltip:
             self.tooltip = ToolTip(self.btn, tooltip)
 
-    def pack(self, pady=3):
+    def pack(self, pady=3, side=tk.LEFT):
         self.btn.pack(side=tk.LEFT, padx=3, pady=pady)
 
     def grid(self, row: int, col: int):

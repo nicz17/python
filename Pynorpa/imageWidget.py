@@ -10,8 +10,10 @@ import config
 import logging
 import os
 import tkinter as tk
+from tkinter import ttk
 from PIL import ImageTk, Image
 from picture import Picture
+from BaseWidgets import Button
 
 
 class ImageWidget():
@@ -53,9 +55,38 @@ class ImageWidget():
             self.lblImage.configure(image='')
             self.lblImage.image = None
         
-    def createWidgets(self, parent: tk.Frame):
+    def createWidgets(self, parent: ttk.Frame):
         """Create user widgets."""
-        self.lblImage = tk.Label(master=parent, anchor=tk.CENTER, text='Choisir une photo')
+        self.lblImage = ttk.Label(master=parent, anchor=tk.CENTER, text='Choisir une photo')
         self.lblImage.pack(side=tk.TOP)
         self.setDefaultImage()
-    
+
+
+class MultiImageWidget(ImageWidget):
+    """A widget displaying multiple images."""
+    log = logging.getLogger('MultiImageWidget')
+
+    def __init__(self, defImage=None):
+        """Constructor"""
+        super().__init__(defImage)
+        self.files = []
+
+    def onPrev(self):
+        pass
+
+    def onNext(self):
+        pass
+
+    def createWidgets(self, parent: ttk.Frame):
+        """Create user widgets."""
+        self.lblImage = ttk.Label(master=parent, anchor=tk.CENTER, text='Choisir une photo')
+        self.lblImage.pack(side=tk.TOP)
+        self.btnPrev = Button(parent, None, self.onPrev, 'go-prev')
+        self.btnPrev.btn.configure(width=0)
+        self.btnPrev.pack()
+        self.lblStatus = ttk.Label(master=parent, anchor=tk.CENTER, text='Status')
+        self.lblStatus.pack(side=tk.LEFT)
+        self.btnNext = Button(parent, None, self.onNext, 'go-next')
+        self.btnNext.btn.configure(width=0)
+        self.btnNext.pack(3, tk.RIGHT)
+        self.setDefaultImage()
