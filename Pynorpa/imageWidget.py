@@ -70,23 +70,63 @@ class MultiImageWidget(ImageWidget):
         """Constructor"""
         super().__init__(defImage)
         self.files = []
+        self.iSelected = None
+
+    def loadImages(self, files: list):
+        """Display the specified images."""
+        self.files = files
+        if self.files is not None and len(self.files) > 0:
+            self.iSelected = 0
+        else:
+            self.iSelected = None
+        self.loadImage()
+        self.enableWidgets()
+
+    def loadImage(self):
+        """Display the current image."""
+        if self.iSelected is None:
+            self.setDefaultImage()
+            self.lblStatus.configure(text='')
+        else:
+            obj = self.files[self.iSelected]
+            self.log.info('Displaying image [%d/%d] %s', 
+                          self.iSelected, self.size(), obj)
+            if isinstance(obj, Picture):
+                self.loadThumb(obj)
+                status = f'[{self.iSelected+1}/{self.size()}] {obj.getTaxonName()}'
+                self.lblStatus.configure(text=status)
 
     def onPrev(self):
-        pass
+        if self.iSelected is not None:
+            self.iSelected = ((self.iSelected - 1) % self.size())
+        self.loadImage()
 
     def onNext(self):
-        pass
+        if self.iSelected is not None:
+            self.iSelected = ((self.iSelected + 1) % self.size())
+        self.loadImage()
+
+    def size(self):
+        return 0 if self.files is None else len(self.files)
 
     def createWidgets(self, parent: ttk.Frame):
         """Create user widgets."""
-        self.lblImage = ttk.Label(master=parent, anchor=tk.CENTER, text='Choisir une photo')
-        self.lblImage.pack(side=tk.TOP)
-        self.btnPrev = Button(parent, None, self.onPrev, 'go-prev')
+        self.frmImage = ttk.Frame(parent, width=500, height=532)
+        self.frmImage.pack(side=tk.TOP, fill=None, expand=False, pady=6)
+        self.lblImage = ttk.Label(self.frmImage, anchor=tk.CENTER, text='')
+        self.lblImage.place(x=250, y=250, anchor=tk.CENTER)
+        self.btnPrev = Button(self.frmImage, None, self.onPrev, 'go-prev')
         self.btnPrev.btn.configure(width=0)
-        self.btnPrev.pack()
-        self.lblStatus = ttk.Label(master=parent, anchor=tk.CENTER, text='Status')
-        self.lblStatus.pack(side=tk.LEFT)
-        self.btnNext = Button(parent, None, self.onNext, 'go-next')
+        self.btnPrev.btn.place(x=0, y=516, anchor=tk.SW)
+        self.lblStatus = ttk.Label(self.frmImage, anchor=tk.CENTER, text='', width=46)
+        self.lblStatus.place(x=250, y=500, anchor=tk.S)
+        self.btnNext = Button(self.frmImage, None, self.onNext, 'go-next')
         self.btnNext.btn.configure(width=0)
-        self.btnNext.pack(3, tk.RIGHT)
+        self.btnNext.btn.place(x=500, y=516, anchor=tk.SE)
         self.setDefaultImage()
+        self.enableWidgets()
+
+    def enableWidgets(self):
+        enabled = self.files is not None and len(self.files) > 1
+        self.btnPrev.enableWidget(enabled)
+        self.btnNext.enableWidget(enabled)

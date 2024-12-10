@@ -10,7 +10,7 @@ from TabsApp import *
 import BaseWidgets
 from imageWidget import MultiImageWidget
 from expedition import Expedition, ExpeditionCache
-
+from picture import PictureCache
 
 class ModuleExpeditions(TabModule):
     """Class ModuleExpeditions"""
@@ -26,13 +26,18 @@ class ModuleExpeditions(TabModule):
 
     def loadData(self):
         """Load data from cache and populate table."""
+        self.log.info('Excursion loadData')
         self.expeditionCache = ExpeditionCache()
-        self.expeditionCache.load()
+        self.pictureCache = PictureCache()
         self.table.loadData(self.expeditionCache.getExpeditions())
 
     def onSelectExpedition(self, expedition: Expedition):
         """Display selected object in editor."""
         self.editor.loadData(expedition)
+        pics = None
+        if expedition:
+            pics = expedition.getPictures()
+        self.photos.loadImages(pics)
 
     def onSaveExpedition(self, expedition: Expedition):
         """Save changes to edited object."""
