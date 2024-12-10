@@ -36,6 +36,7 @@ class ModuleExpeditions(TabModule):
         self.editor.loadData(expedition)
         pics = None
         if expedition:
+            self.log.info('Selected %s', expedition)
             pics = expedition.getPictures()
         self.photos.loadImages(pics)
 

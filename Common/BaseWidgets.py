@@ -213,7 +213,10 @@ class TextInput(BaseWidget):
 
     def getValue(self) -> str:
         """Get the current string value."""
-        return self.oWidget.get().strip()
+        value = self.oWidget.get().strip()
+        if value == '':
+            value = None
+        return value
         
     def createWidgets(self, parent: tk.Frame, row: int, col: int):
         """Create widget in parent frame with grid layout."""
