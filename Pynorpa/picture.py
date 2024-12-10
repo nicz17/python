@@ -115,7 +115,7 @@ class Picture():
             'taxon': self.taxon,
             'updatedAt': self.updatedAt,
             'idxLocation': self.idxLocation,
-            'rating': self.rating,
+            'rating': self.rating
         }
         return data
 
@@ -189,13 +189,19 @@ class PictureCache():
         ids = self.fetchFromWhere(f'picRating = 5')
         random.shuffle(ids)
         return [self.findById(id) for id in ids[:limit]]
+    
+    def getForExcursion(self, idxLocation: int, tFrom, tTo) -> list[Picture]:
+        """Get the pictures for the specified location and date-range."""
+        where = f"picIdxLocation = {idxLocation} and picShotAt >= '{tFrom}' and picShotAt <= '{tTo}'"
+        ids = self.fetchFromWhere(where)
+        return [self.findById(id) for id in ids]
 
     def fetchFromWhere(self, where: str) -> list[int]:
         """Fetch Picture records from a SQL where-clause. Return a list of ids."""
         result = []
         self.db.connect(config.dbUser, config.dbPass)
         query = Database.Query("Picture")
-        query.add('select idxPicture from Picture where ' + where)
+        query.add(f'select idxPicture from Picture where {where}')
         rows = self.db.fetch(query.getSQL())
         result = list(row[0] for row in rows)
         query.close()

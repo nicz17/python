@@ -8,6 +8,7 @@ import logging
 import config
 import Database
 from LocationCache import Location, LocationCache
+from picture import Picture, PictureCache
 
 class Expedition():
     """Class Expedition"""
@@ -22,7 +23,18 @@ class Expedition():
         self.tfrom = tfrom
         self.to = to
         self.track = track
+
         self.location = None
+        self.pictures = []
+
+    def addPicture(self, picture):
+        """Add a picture to this excursion."""
+        if picture:
+            self.pictures.append(picture)
+    
+    def getPictures(self) -> list[Picture]:
+        """Get the pictures of this excursion."""
+        return self.pictures
 
     def getIdx(self) -> int:
         """Getter for idx"""
@@ -99,20 +111,12 @@ class Expedition():
             'idxLocation': self.idxLocation,
             'from': self.tfrom,
             'to': self.to,
-            'track': self.track,
+            'track': self.track
         }
         return data
 
     def __str__(self):
-        str = "Expedition"
-        str += f' idx: {self.idx}'
-        str += f' name: {self.name}'
-        str += f' desc: {self.desc}'
-        str += f' idxLocation: {self.idxLocation}'
-        str += f' from: {self.tfrom}'
-        str += f' to: {self.to}'
-        str += f' track: {self.track}'
-        return str
+        return f'Expedition idx: {self.idx} name: {self.name} date: {self.tfrom}'
 
 
 class ExpeditionCache():
@@ -140,6 +144,7 @@ class ExpeditionCache():
         """Fetch and store the Expedition records."""
         self.db = Database.Database(config.dbName)
         self.locationCache = LocationCache()
+        self.pictureCache  = PictureCache()
         self.expeditions = []
         self.db.connect(config.dbUser, config.dbPass)
         query = Database.Query("Expedition")
@@ -147,9 +152,10 @@ class ExpeditionCache():
         query.add("order by expFrom desc")
         rows = self.db.fetch(query.getSQL())
         for row in rows:
-            expedition = Expedition(*row)
-            expedition.setLocation(self.locationCache.getById(expedition.getIdxLocation()))
-            self.expeditions.append(expedition)
+            exped = Expedition(*row)
+            exped.setLocation(self.locationCache.getById(exped.getIdxLocation()))
+            exped.pictures = self.pictureCache.getForExcursion(exped.getIdxLocation(), exped.getFrom(), exped.getTo())
+            self.expeditions.append(exped)
         self.db.disconnect()
         query.close()
 
