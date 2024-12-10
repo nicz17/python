@@ -22,9 +22,7 @@ class Exporter():
 
     def __init__(self):
         """Constructor."""
-        self.picCache = picture.PictureCache()
-        self.taxCache = TaxonCache()
-        self.excCache = expedition.ExpeditionCache()
+        self.log.info('Constructor')
 
         # Configure TaxonUrlProviders
         self.taxonUrlProviders = [
@@ -56,6 +54,10 @@ class Exporter():
     def buildBasePages(self):
         """Build base html pages."""
         timer = Timer.Timer()
+        self.picCache = picture.PictureCache()
+        self.taxCache = TaxonCache()
+        self.excCache = expedition.ExpeditionCache()
+        
         self.buildHome()
         self.buildLatest()
         self.buildLinks()
