@@ -29,6 +29,17 @@ class Location:
         self.zoom    = row[7]
         self.state   = row[8]
 
+        self.pictures = []
+
+    def addPicture(self, picture):
+        """Add a picture to this location."""
+        if picture:
+            self.pictures.append(picture)
+    
+    def getPictures(self) -> list:
+        """Get the pictures of this location."""
+        return self.pictures
+
     def getIdx(self) -> int:
         """Getter for idx"""
         return self.idx

@@ -178,6 +178,8 @@ class PictureCache():
             pic.taxon = self.taxonCache.findById(pic.idxTaxon)
             if pic.taxon:
                 pic.taxon.addPicture(pic)
+            if pic.location:
+                pic.location.addPicture(pic)
 
     def getLatest(self, limit=10) -> list[Picture]:
         """Get the latest pictures."""

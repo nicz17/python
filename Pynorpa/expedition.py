@@ -9,6 +9,7 @@ import config
 import Database
 from LocationCache import Location, LocationCache
 from picture import Picture, PictureCache
+from Timer import Timer
 
 class Expedition():
     """Class Expedition"""
@@ -152,12 +153,20 @@ class ExpeditionCache():
         query.add("order by expFrom desc")
         rows = self.db.fetch(query.getSQL())
         for row in rows:
-            exped = Expedition(*row)
-            exped.setLocation(self.locationCache.getById(exped.getIdxLocation()))
-            exped.pictures = self.pictureCache.getForExcursion(exped.getIdxLocation(), exped.getFrom(), exped.getTo())
-            self.expeditions.append(exped)
+            self.expeditions.append(Expedition(*row))
         self.db.disconnect()
         query.close()
+
+        # Set locations and pictures
+        for exped in self.getExpeditions():
+            location = self.locationCache.getById(exped.getIdxLocation())
+            if location:
+                exped.setLocation(location)
+                #location.addExcursion(exped)
+                picture: Picture
+                for picture in location.getPictures():
+                    if picture.getShotAt() >= exped.getFrom() and picture.getShotAt() <= exped.getTo():
+                        exped.addPicture(picture)
 
     def fetchFromWhere(self, where: str):
         """Fetch Expedition records from a SQL where-clause. Return a list of ids."""
@@ -210,7 +219,9 @@ def testExpedition():
 def testExpeditionCache():
     """Unit test for ExpeditionCache"""
     ExpeditionCache.log.info("Testing ExpeditionCache")
+    timer = Timer()
     cache = ExpeditionCache()
+    cache.log.info('Loaded cache in %s', timer.getElapsed())
     for excursion in cache.getExpeditions():
         cache.log.info(excursion)
 
