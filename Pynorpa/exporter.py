@@ -11,7 +11,7 @@ import pynorpaHtml
 from HtmlPage import *
 import picture
 from taxon import Taxon, TaxonRank, TaxonCache
-import expedition
+from expedition import Expedition, ExpeditionCache
 import DateTools
 import Timer
 from taxonUrlProvider import TaxonUrlProvider
@@ -56,12 +56,13 @@ class Exporter():
         timer = Timer.Timer()
         self.picCache = picture.PictureCache()
         self.taxCache = TaxonCache()
-        self.excCache = expedition.ExpeditionCache()
+        self.excCache = ExpeditionCache()
         
         self.buildHome()
         self.buildLatest()
         self.buildLinks()
         self.buildLocations()
+        self.buildExcursions()
         self.buildAlpha()
         self.buildTaxa()
         self.log.info('Exported in %s', timer.getElapsed())
@@ -262,6 +263,29 @@ class Exporter():
         page.addHeading(2, 'Cette page est en construction')
         page.save(f'{config.dirWebExport}locations.html')
 
+    def buildExcursions(self):
+        """Build excursions pages"""
+        page = pynorpaHtml.PynorpaHtmlPage('Nature - Excursions')
+        page.addHeading(1, 'Excursions')
+        page.addHeading(2, 'Cette page est en construction')
+
+        for excursion in self.excCache.getExpeditions():
+            self.buildExcursion(excursion)
+
+        page.save(f'{config.dirWebExport}expeditions.html')
+
+    def buildExcursion(self, excursion: Expedition):
+        """Build a single excursion page."""
+        page = pynorpaHtml.PynorpaHtmlPage('Nature - Excursions')
+        page.addHeading(1, excursion.getName())
+        page.addHeading(2, 'Cette page est en construction')
+        table = TableHtmlTag(None).addAttr('class', 'table-thumbs')
+        for pic in excursion.getPictures():
+            self.addThumbLink(pic, table.getNextCell())
+        page.add(table)
+        page.save(f'{config.dirWebExport}excursion{excursion.getIdx()}.html')
+
+
     def buildAlpha(self):
         """Build names index page"""
         page = pynorpaHtml.PynorpaHtmlPage('Nature - Noms latins')
@@ -384,12 +408,11 @@ class Exporter():
         page.addHeading(1, 'Test')
         page.addHeading(2, 'Bibliographie')
         page.save(f'{config.dirWebExport}test.html')
-        self.buildLatest()
 
     def addThumbLink(self, pic: picture.Picture, parent: HtmlTag):
         """Add a preview and description of the specified picture."""
         sShotAt = DateTools.datetimeToPrettyStringFr(pic.getShotAt())
-        link = LinkHtmlTag(f'pages/{pic.getFilename()}', None)
+        link = LinkHtmlTag(self.getTaxonLink(pic.taxon), None)
         link.addTag(ImageHtmlTag(f'thumbs/{pic.getFilename()}', pic.getTaxonName(), pic.getTaxonName()))
         link.addTag(HtmlTag('i', f'<br>{pic.getTaxonName()}<br>'))
         parent.addTag(link)
