@@ -91,8 +91,8 @@ class LatLonZoomWidget(BaseWidgets.BaseWidget):
         self.value = self.getObjectValue(object)
         self.loadData()
 
-    def getValue(self) -> bool:
-        """Get the current boolean value."""
+    def getValue(self) -> LatLonZoom:
+        """Get the current lat/lon/zoom value."""
         return self.value
     
     def loadData(self):
@@ -136,6 +136,7 @@ class LocationEditor(BaseWidgets.BaseEditor):
     def onSave(self, evt = None):
         """Save changes to the edited object."""
         self.location.setDesc(self.txtDesc.getValue())
+        self.location.setLatLonZoom(self.widPosition.getValue())
         self.cbkSave(self.location)
 
     def createWidgets(self, parent: tk.Frame):

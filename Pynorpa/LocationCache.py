@@ -75,6 +75,13 @@ class Location:
     def getLatLonZoom(self):
         """Get the lat/lon/zoom triplet."""
         return LatLonZoom(self.lat, self.lon, self.zoom)
+    
+    def setLatLonZoom(self, llz: LatLonZoom):
+        """Set the lat/lon/zoom triplet."""
+        if llz:
+            self.lat  = llz.getLat()
+            self.lon  = llz.getLon()
+            self.zoom = llz.getZoom()
 
     def getDistance(self, lat: float, lon: float) -> float:
         """Get the distance to another location."""
@@ -133,6 +140,7 @@ class LocationCache:
         query = Database.Query("Location save")
         query.add(f'update Location set locDesc = ')
         query.addEscapedString(location.getDesc())
+        query.add(f', locMapZoom = {location.getLatLonZoom().getZoom()}')
         query.add(f'where idxLocation = {location.getIdx()}')
         self.db.connect(config.dbUser, config.dbPass)
         self.db.execute(query.getSQL())
