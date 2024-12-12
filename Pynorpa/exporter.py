@@ -13,6 +13,7 @@ import picture
 from taxon import Taxon, TaxonRank, TaxonCache
 from expedition import Expedition, ExpeditionCache
 import DateTools
+import TextTools
 import Timer
 from taxonUrlProvider import TaxonUrlProvider
 
@@ -278,10 +279,26 @@ class Exporter():
         """Build a single excursion page."""
         page = pynorpaHtml.PynorpaHtmlPage('Nature - Excursions')
         page.addHeading(1, excursion.getName())
-        page.addHeading(2, 'Cette page est en construction')
+
+        # Excursion details
+        divDetails = MyBoxHtmlTag('Excursion')
+        page.add(divDetails)
+        loc = excursion.getLocation()
+        pdate = DateTools.datetimeToPrettyStringFr(excursion.getFrom())
+        par = HtmlTag('p')
+        par.addTag(LinkHtmlTag(f'lieu{loc.getIdx()}.html', loc.getName()))
+        divDetails.addTag(par)
+        par = HtmlTag('p')
+        par.addTag(GrayFontHtmlTag(f'{pdate} &mdash; {len(excursion.getPictures())} photos'))
+        divDetails.addTag(par)
+        divDetails.addTag(HtmlTag('p', excursion.getDesc()))
+        #divDetails.addTag(HtmlTag('p', TextTools.durationToString(excursion.getTo() - excursion.getFrom())))
+
+        # Excursion pictures
+        page.addHeading(2, 'Photos')
         table = TableHtmlTag(None).addAttr('class', 'table-thumbs')
         for pic in excursion.getPictures():
-            self.addThumbLink(pic, table.getNextCell())
+            self.addThumbLinkExcursion(pic, table.getNextCell())
         page.add(table)
         page.save(f'{config.dirWebExport}excursion{excursion.getIdx()}.html')
 
@@ -418,6 +435,17 @@ class Exporter():
         parent.addTag(link)
         parent.addTag(LinkHtmlTag(f'lieu{pic.getIdxLocation()}.html', pic.getLocationName()))
         parent.addTag(GrayFontHtmlTag(f'<br>{sShotAt}'))
+
+    def addThumbLinkExcursion(self, pic: picture.Picture, parent: HtmlTag):
+        """Add a preview and description of the specified picture."""
+        taxon: Taxon
+        taxon = pic.getTaxon()
+        link = LinkHtmlTag(self.getTaxonLink(taxon), None)
+        link.addTag(ImageHtmlTag(f'thumbs/{pic.getFilename()}', pic.getTaxonName(), pic.getTaxonName()))
+        link.addTag(HtmlTag('i', f'<br>{pic.getTaxonName()}<br>'))
+        parent.addTag(link)
+        parent.addTag(HtmlTag('span', taxon.getNameFr()))
+        parent.addTag(HtmlTag('span', f'<br>{taxon.getAncestor(TaxonRank.FAMILY).getName()}'))
 
     def getTaxonLink(self, taxon: Taxon, rel='pages/') -> str:
         """Get the home-relative link to the specified taxon page."""

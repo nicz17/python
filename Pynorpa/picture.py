@@ -80,6 +80,9 @@ class Picture():
         if self.taxon:
             return self.taxon.getName()
         return 'Error: undefined taxon'
+    
+    def getTaxon(self):
+        return self.taxon
 
     def getUpdatedAt(self) -> float:
         """Getter for updatedAt"""
