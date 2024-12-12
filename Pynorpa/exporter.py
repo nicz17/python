@@ -12,6 +12,7 @@ from HtmlPage import *
 import picture
 from taxon import Taxon, TaxonRank, TaxonCache
 from expedition import Expedition, ExpeditionCache
+from LocationCache import LocationCache, Location
 import DateTools
 import TextTools
 import Timer
@@ -278,15 +279,30 @@ class Exporter():
     def buildExcursion(self, excursion: Expedition):
         """Build a single excursion page."""
         page = pynorpaHtml.PynorpaHtmlPage('Nature - Excursions')
+        page.includeScript('js/OpenLayers-v5.3.0.js')
+        page.includeScript('js/panorpa-maps.js')
+        page.addCssLink('css/OpenLayers-v5.3.0.css')
         page.addHeading(1, excursion.getName())
+        tableTop = TableHtmlTag([], 2).addAttr("width", "1440px").addAttr('class', 'align-top')
+        page.add(tableTop)
+
+        # Excursion details
+        loc = excursion.getLocation()
+        divMap = DivHtmlTag('ol-map', 'ol-map')
+        divMap.addTag(DivHtmlTag('ol-popup'))
+        tableTop.getNextCell().addTag(divMap)
+        script = ScriptHtmlTag()
+        script.addLine('var oVectorSource, oIconStyle;')
+        script.addLine(f'renderMap({loc.lon}, {loc.lat}, {loc.zoom});')
+        script.addLine(f'addMapMarker({loc.lon}, {loc.lat}, "{loc.getName()}");')
+        page.add(script)
 
         # Excursion details
         divDetails = MyBoxHtmlTag('Excursion')
-        page.add(divDetails)
-        loc = excursion.getLocation()
+        tableTop.getNextCell().addTag(divDetails)
         pdate = DateTools.datetimeToPrettyStringFr(excursion.getFrom())
         par = HtmlTag('p')
-        par.addTag(LinkHtmlTag(f'lieu{loc.getIdx()}.html', loc.getName()))
+        par.addTag(LinkHtmlTag(self.getLocationLink(loc), loc.getName()))
         divDetails.addTag(par)
         par = HtmlTag('p')
         par.addTag(GrayFontHtmlTag(f'{pdate} &mdash; {len(excursion.getPictures())} photos'))
@@ -367,7 +383,7 @@ class Exporter():
 
     def buildSpecies(self, taxon: Taxon):
         """Build the page for the species."""
-        page = pynorpaHtml.PynorpaHtmlPage(f'Nature - {taxon.getName()}')
+        page = pynorpaHtml.PynorpaHtmlPage(f'Nature - {taxon.getName()}', '../')
         title = taxon.getName()
         if taxon.getNameFr() != taxon.getName():
             title += f' &mdash; {taxon.getNameFr()}'
@@ -384,7 +400,7 @@ class Exporter():
             loc = pic.getLocation()
             locToolTip = f'{loc.getName()}, {loc.getRegion()}, {loc.getState()} ({loc.getAltitude()}m)'
             legend = HtmlTag('p')
-            legend.addTag(LinkHtmlTag('#', loc.getName(), False, locToolTip))
+            legend.addTag(LinkHtmlTag(self.getLocationLink(loc, '../'), loc.getName(), False, locToolTip))
             legend.addTag(GrayFontHtmlTag(DateTools.datetimeToPrettyStringFr(pic.getShotAt())))
             td.addTag(legend)
             if (pic.getRemarks()):
@@ -446,6 +462,9 @@ class Exporter():
         parent.addTag(link)
         parent.addTag(HtmlTag('span', taxon.getNameFr()))
         parent.addTag(HtmlTag('span', f'<br>{taxon.getAncestor(TaxonRank.FAMILY).getName()}'))
+
+    def getLocationLink(self, loc: Location, path=''):
+        return f'{path}lieu{loc.getIdx()}.html'
 
     def getTaxonLink(self, taxon: Taxon, rel='pages/') -> str:
         """Get the home-relative link to the specified taxon page."""
