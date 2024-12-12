@@ -277,8 +277,12 @@ class GrayFontHtmlTag(HtmlTag):
 
 class ScriptHtmlTag(HtmlTag):
     """A JavaScript tag with its code."""
-    def __init__(self, sCode):
+    def __init__(self, sCode='', indent=8):
         super().__init__('script', sCode)
+        self.sIndent = ' ' * indent
+
+    def addLine(self, code: str):
+        self.sContent += f'\n{self.sIndent}{code}'
 
 class MetaHtmlTag(HtmlTag):
     """A meta tag with name and content"""
