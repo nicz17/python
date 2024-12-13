@@ -149,7 +149,33 @@ class DatabaseCodeGen():
         oLoad.addCodeLine('self.db.disconnect()')
         oLoad.addCodeLine('query.close()')
 
-        # fetchFromWhere(self, where: str): method
+        # Save method
+        params = [SimpleUMLParam('obj', self.table)]
+        met = clss.addMethod('save', params, None, False)
+        met.setDoc(f'Insert or update the specified {self.table} in database.')
+        met.addCodeLine('if obj is None:')
+        met.addCodeLine("    self.log.error('Undefined object to save!')")
+        met.addCodeLine("    return")
+        met.addCodeLine('if obj.getIdx() > 0:')
+        met.addCodeLine('    self.update(obj)')
+        met.addCodeLine('else:')
+        met.addCodeLine('    self.insert(obj)')
+
+        # Update method
+        met = clss.addMethod('update', params, None, False)
+        met.setDoc(f'Update the specified {self.table} in database.')
+        met.addCodeLine("self.log.info('Updating %s', obj)")
+        met.addCodeLine(f"query = Database.Query('Update {self.table}')")
+        met.addCodeLine(f"query.add('Update {self.table} set')")
+        met.addCodeLine("query.add(f'where idx" + self.table + " = {obj.getIdx()}')")
+        met.addCodeLine('query.close()')
+
+        # Insert method
+        met = clss.addMethod('insert', params, None, False)
+        met.setDoc(f'Insert the specified {self.table} in database.')
+        met.addCodeLine("self.log.info('Inserting %s', obj)")
+
+        # fetchFromWhere method
         params = [SimpleUMLParam('where', 'str')]
         oFetch = clss.addMethod('fetchFromWhere', params, None, False)
         oFetch.setDoc(f'Fetch {self.table} records from a SQL where-clause. Return a list of ids.')
@@ -167,8 +193,7 @@ class DatabaseCodeGen():
         params = [SimpleUMLParam('idx', 'int')]
         oMeth = clss.addMethod('findById', params, self.table, False)
         oMeth.setDoc(f'Find a {self.table} from its primary key.')
-        oMeth.addCodeLine(f'item: {self.table}')
-        oMeth.addCodeLine(f'for item in self.{sCollName}:')
+        oMeth.addCodeLine(f'for item in self.get{self.table}s():')
         oMeth.addCodeLine('    if item.idx == idx:')
         oMeth.addCodeLine('        return item')
         oMeth.addCodeLine('return None')
@@ -222,9 +247,9 @@ class DatabaseCodeGen():
 
         # onSaveObject method
         params = [SimpleUMLParam(nameObject, self.table)]
-        oSave = clss.addMethod(f'onSave{self.table}', params, None, False)
-        oSave.setDoc('Save changes to edited object.')
-        oSave.addCodeLine('pass')
+        met = clss.addMethod(f'onSave{self.table}', params, None, False)
+        met.setDoc('Save changes to edited object.')
+        met.addCodeLine('pass')
 
         # createWidgets method
         oWid = clss.addMethod('createWidgets', None, None, False)
