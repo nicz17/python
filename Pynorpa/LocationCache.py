@@ -30,6 +30,7 @@ class Location:
         self.state   = row[8]
 
         self.pictures = []
+        self.excursions = []
 
     def addPicture(self, picture):
         """Add a picture to this location."""
@@ -39,6 +40,15 @@ class Location:
     def getPictures(self) -> list:
         """Get the pictures of this location."""
         return self.pictures
+
+    def addExcursion(self, excursion):
+        """Add an excursion to this location."""
+        if excursion:
+            self.excursions.append(excursion)
+    
+    def getExcursions(self) -> list:
+        """Get the excursions of this location."""
+        return self.excursions
 
     def getIdx(self) -> int:
         """Getter for idx"""

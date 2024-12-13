@@ -9,7 +9,7 @@ import logging
 import re
 import pynorpaHtml
 from HtmlPage import *
-import picture
+from picture import Picture, PictureCache
 from taxon import Taxon, TaxonRank, TaxonCache
 from expedition import Expedition, ExpeditionCache
 from LocationCache import LocationCache, Location
@@ -56,8 +56,9 @@ class Exporter():
     def buildBasePages(self):
         """Build base html pages."""
         timer = Timer.Timer()
-        self.picCache = picture.PictureCache()
+        self.picCache = PictureCache()
         self.taxCache = TaxonCache()
+        self.locCache = LocationCache()
         self.excCache = ExpeditionCache()
         
         self.buildHome()
@@ -259,11 +260,63 @@ class Exporter():
         page.save(f'{config.dirWebExport}latest.html')
 
     def buildLocations(self):
-        """Build Locations page"""
+        """Build the Locations page."""
         page = pynorpaHtml.PynorpaHtmlPage('Nature - Lieux')
         page.addHeading(1, 'Lieux')
         page.addHeading(2, 'Cette page est en construction')
         page.save(f'{config.dirWebExport}locations.html')
+
+        for loc in self.locCache.getLocations():
+            self.buildLocation(loc)
+
+    def buildLocation(self, loc: Location):
+        """Build a single Location page."""
+        page = pynorpaHtml.PynorpaHtmlPage('Nature - Lieux')
+        page.includeScript('js/OpenLayers-v5.3.0.js')
+        page.includeScript('js/panorpa-maps.js')
+        page.addCssLink('css/OpenLayers-v5.3.0.css')
+        page.addHeading(1, loc.getName())
+        tableTop = TableHtmlTag([], 2).addAttr("width", "1440px").addAttr('class', 'align-top')
+        page.add(tableTop)
+
+        # Location map
+        divMap = DivHtmlTag('ol-map', 'ol-map')
+        divMap.addTag(DivHtmlTag('ol-popup'))
+        tableTop.getNextCell().addTag(divMap)
+        script = ScriptHtmlTag()
+        script.addLine('var oVectorSource, oIconStyle;')
+        script.addLine(f'renderMap({loc.lon}, {loc.lat}, {loc.zoom});')
+        script.addLine(f'addMapMarker({loc.lon}, {loc.lat}, "{loc.getName()}");')
+        page.add(script)
+
+        # Location details
+        tdRight = tableTop.getNextCell()
+        divDetails = MyBoxHtmlTag('Description')
+        tdRight.addTag(divDetails)
+        divDetails.addTag(HtmlTag('p', loc.getDesc()))
+        divDetails.addTag(HtmlTag('p', f'Altitude moyenne {loc.getAltitude()}m'))
+        divDetails.addTag(HtmlTag('p', f'{loc.getRegion()}, {loc.getState()}'))
+
+        # Excursions
+        if len(loc.getExcursions()) > 0:
+            divExcursions = MyBoxHtmlTag('Excursions')
+            tdRight.addTag(divExcursions)
+            ul = ListHtmlTag([])
+            divExcursions.addTag(ul)
+            exc: Expedition
+            for exc in loc.getExcursions():
+                li = ul.addItem()
+                li.addTag(LinkHtmlTag(f'expedition{exc.getIdx()}.html', exc.getName()))
+                li.addTag(GrayFontHtmlTag(DateTools.datetimeToPrettyStringFr(exc.getFrom())))
+
+        # Location pictures
+        page.addHeading(2, 'Photos')
+        table = TableHtmlTag(None).addAttr('class', 'table-thumbs')
+        for pic in loc.getPictures():
+            self.addThumbLinkExcursion(pic, table.getNextCell())
+        page.add(table)
+
+        page.save(f'{config.dirWebExport}lieu{loc.getIdx()}.html')
 
     def buildExcursions(self):
         """Build excursions pages"""
@@ -286,7 +339,7 @@ class Exporter():
         tableTop = TableHtmlTag([], 2).addAttr("width", "1440px").addAttr('class', 'align-top')
         page.add(tableTop)
 
-        # Excursion details
+        # Excursion map
         loc = excursion.getLocation()
         divMap = DivHtmlTag('ol-map', 'ol-map')
         divMap.addTag(DivHtmlTag('ol-popup'))
@@ -393,7 +446,7 @@ class Exporter():
         tablePics = TableHtmlTag([], 2)
         tablePics.addAttr('width', '1040px').addAttr('class', 'table-medium')
         page.add(tablePics)
-        pic: picture.Picture
+        pic: Picture
         for pic in taxon.getPictures():
             td = tablePics.getNextCell()
             td.addTag(ImageHtmlTag(f'../medium/{pic.getFilename()}', taxon.getName(), taxon.getName()))
@@ -442,7 +495,7 @@ class Exporter():
         page.addHeading(2, 'Bibliographie')
         page.save(f'{config.dirWebExport}test.html')
 
-    def addThumbLink(self, pic: picture.Picture, parent: HtmlTag):
+    def addThumbLink(self, pic: Picture, parent: HtmlTag):
         """Add a preview and description of the specified picture."""
         sShotAt = DateTools.datetimeToPrettyStringFr(pic.getShotAt())
         link = LinkHtmlTag(self.getTaxonLink(pic.taxon), None)
@@ -452,7 +505,7 @@ class Exporter():
         parent.addTag(LinkHtmlTag(f'lieu{pic.getIdxLocation()}.html', pic.getLocationName()))
         parent.addTag(GrayFontHtmlTag(f'<br>{sShotAt}'))
 
-    def addThumbLinkExcursion(self, pic: picture.Picture, parent: HtmlTag):
+    def addThumbLinkExcursion(self, pic: Picture, parent: HtmlTag):
         """Add a preview and description of the specified picture."""
         taxon: Taxon
         taxon = pic.getTaxon()

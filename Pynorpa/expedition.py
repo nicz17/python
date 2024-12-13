@@ -162,7 +162,7 @@ class ExpeditionCache():
             location = self.locationCache.getById(exped.getIdxLocation())
             if location:
                 exped.setLocation(location)
-                #location.addExcursion(exped)
+                location.addExcursion(exped)
                 picture: Picture
                 for picture in location.getPictures():
                     if picture.getShotAt() >= exped.getFrom() and picture.getShotAt() <= exped.getTo():
