@@ -10,12 +10,13 @@ import Database
 from LocationCache import Location, LocationCache
 from picture import Picture, PictureCache
 from Timer import Timer
+from datetime import datetime
 
 class Expedition():
     """Class Expedition"""
     log = logging.getLogger("Expedition")
 
-    def __init__(self, idx: int, name: str, desc: str, idxLocation: int, tfrom: float, to: float, track: str):
+    def __init__(self, idx: int, name: str, desc: str, idxLocation: int, tfrom: datetime, to: datetime, track: str):
         """Constructor."""
         self.idx = idx
         self.name = name
@@ -79,19 +80,19 @@ class Expedition():
             return self.location.getName()
         return 'Inconnu'
 
-    def getFrom(self) -> float:
+    def getFrom(self) -> datetime:
         """Getter for from"""
         return self.tfrom
 
-    def setFrom(self, tfrom: float):
+    def setFrom(self, tfrom: datetime):
         """Setter for from"""
         self.tfrom = tfrom
 
-    def getTo(self) -> float:
+    def getTo(self) -> datetime:
         """Getter for to"""
         return self.to
 
-    def setTo(self, to: float):
+    def setTo(self, to: datetime):
         """Setter for to"""
         self.to = to
 
@@ -102,6 +103,12 @@ class Expedition():
     def setTrack(self, track: str):
         """Setter for track"""
         self.track = track
+
+    def getDuration(self) -> float:
+        """Get the excursion duration in seconds."""
+        if self.tfrom is not None and self.to is not None:
+            return self.to.timestamp() - self.tfrom.timestamp()
+        return None
 
     def toJson(self):
         """Create a dict of this Expedition for json export."""

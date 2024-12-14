@@ -42,3 +42,9 @@ class PynorpaHtmlPage(HtmlPage):
         date = DateTools.nowAsString('%d.%m.%Y')
         footer.addTag(HtmlTag('p', f'Copyleft Nicolas Zwahlen &mdash; {date} &mdash; Pynorpa v{__version__}'))
         self.body.addTag(footer)
+
+    def addOpenLayerHeaders(self):
+        """Add scripts and CSS references for OpenLayer maps."""
+        self.includeScript('js/OpenLayers-v5.3.0.js')
+        self.includeScript('js/panorpa-maps.js')
+        self.addCssLink('css/OpenLayers-v5.3.0.css')

@@ -272,9 +272,7 @@ class Exporter():
     def buildLocation(self, loc: Location):
         """Build a single Location page."""
         page = pynorpaHtml.PynorpaHtmlPage('Nature - Lieux')
-        page.includeScript('js/OpenLayers-v5.3.0.js')
-        page.includeScript('js/panorpa-maps.js')
-        page.addCssLink('css/OpenLayers-v5.3.0.css')
+        page.addOpenLayerHeaders()
         page.addHeading(1, loc.getName())
         tableTop = TableHtmlTag([], 2).addAttr("width", "1440px").addAttr('class', 'align-top')
         page.add(tableTop)
@@ -306,7 +304,7 @@ class Exporter():
             exc: Expedition
             for exc in loc.getExcursions():
                 li = ul.addItem()
-                li.addTag(LinkHtmlTag(f'expedition{exc.getIdx()}.html', exc.getName()))
+                li.addTag(LinkHtmlTag(f'excursion{exc.getIdx()}.html', exc.getName()))
                 li.addTag(GrayFontHtmlTag(DateTools.datetimeToPrettyStringFr(exc.getFrom())))
 
         # Location pictures
@@ -322,19 +320,32 @@ class Exporter():
         """Build excursions pages"""
         page = pynorpaHtml.PynorpaHtmlPage('Nature - Excursions')
         page.addHeading(1, 'Excursions')
-        page.addHeading(2, 'Cette page est en construction')
+        page.menu.addTag(HtmlTag('h2', 'Excursions'))
+        tableMenu = TableHtmlTag([], 2).addAttr('width', '120px')
+        page.menu.addTag(tableMenu)
+        year = None
+        ul = None
+        for exc in self.excCache.getExpeditions():
+            if year != exc.getFrom().year:
+                year = exc.getFrom().year
+                anchor = AnchorHtmlTag(str(year))
+                anchor.addTag(HtmlTag('h2', str(year)))
+                page.add(anchor)
+                tableMenu.getNextCell().addTag(LinkHtmlTag(f'#{year}', str(year)))
+                ul = ListHtmlTag([])
+                page.add(ul)
+            li = ul.addItem()
+            li.addTag(LinkHtmlTag(f'excursion{exc.getIdx()}.html', exc.getName()))
+            li.addTag(GrayFontHtmlTag(DateTools.datetimeToPrettyStringFr(exc.getFrom())))
+        page.save(f'{config.dirWebExport}expeditions.html')
 
         for excursion in self.excCache.getExpeditions():
             self.buildExcursion(excursion)
 
-        page.save(f'{config.dirWebExport}expeditions.html')
-
     def buildExcursion(self, excursion: Expedition):
         """Build a single excursion page."""
         page = pynorpaHtml.PynorpaHtmlPage('Nature - Excursions')
-        page.includeScript('js/OpenLayers-v5.3.0.js')
-        page.includeScript('js/panorpa-maps.js')
-        page.addCssLink('css/OpenLayers-v5.3.0.css')
+        page.addOpenLayerHeaders()
         page.addHeading(1, excursion.getName())
         tableTop = TableHtmlTag([], 2).addAttr("width", "1440px").addAttr('class', 'align-top')
         page.add(tableTop)
@@ -361,7 +372,7 @@ class Exporter():
         par.addTag(GrayFontHtmlTag(f'{pdate} &mdash; {len(excursion.getPictures())} photos'))
         divDetails.addTag(par)
         divDetails.addTag(HtmlTag('p', excursion.getDesc()))
-        #divDetails.addTag(HtmlTag('p', TextTools.durationToString(excursion.getTo() - excursion.getFrom())))
+        divDetails.addTag(HtmlTag('p', f'Durée {TextTools.durationToString(excursion.getDuration())}'))
 
         # Excursion pictures
         page.addHeading(2, 'Photos')
@@ -377,8 +388,7 @@ class Exporter():
         page = pynorpaHtml.PynorpaHtmlPage('Nature - Noms latins')
         page.addHeading(1, 'Noms latins')
         page.menu.addTag(HtmlTag('h2', 'Noms latins'))
-        tableMenu = TableHtmlTag([], 4)
-        tableMenu.addAttr('width', '120px')
+        tableMenu = TableHtmlTag([], 4).addAttr('width', '120px')
         page.menu.addTag(tableMenu)
 
         letter = None
@@ -389,7 +399,7 @@ class Exporter():
             if letterTax != letter:
                 letter = letterTax
                 tableMenu.getNextCell().addTag(LinkHtmlTag(f'#{letter}', letter))
-                anchor = HtmlTag('a').addAttr('name', letter)
+                anchor = AnchorHtmlTag(letter)
                 anchor.addTag(HtmlTag('h2', letter))
                 page.add(anchor)
                 ul = page.addList([])
@@ -417,7 +427,7 @@ class Exporter():
                 if letterTax != letter:
                     letter = letterTax
                     tableMenu.getNextCell().addTag(LinkHtmlTag(f'#{letter}', letter))
-                    anchor = HtmlTag('a').addAttr('name', letter)
+                    anchor = AnchorHtmlTag(letter)
                     anchor.addTag(HtmlTag('h2', letter))
                     page.add(anchor)
                     ul = page.addList([])
