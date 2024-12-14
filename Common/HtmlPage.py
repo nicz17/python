@@ -227,6 +227,11 @@ class LinkHtmlTag(HtmlTag):
         if sTitle:
             self.addAttr('title', sTitle)
 
+class AnchorHtmlTag(HtmlTag):
+    def __init__(self, name: str):
+        super().__init__('a')
+        self.addAttr('name', name)
+
 class TableHtmlTag(HtmlTag):
     def __init__(self, aItems, nItemsByRow=4, valign=None):
         super().__init__('table', None)
