@@ -62,6 +62,11 @@ class HtmlPage:
         """Adds the specified tag to the main div."""
         self.main.addTag(tag)
 
+    def addTag(self, tag) -> 'HtmlTag':
+        """Adds the specified tag to the main div and returns it."""
+        self.main.addTag(tag)
+        return tag
+
     def includeScript(self, sUrl):
         tScript = HtmlTag('script').addAttr('src', sUrl)
         self.head.addTag(tScript)

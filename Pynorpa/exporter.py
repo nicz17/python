@@ -262,8 +262,22 @@ class Exporter():
     def buildLocations(self):
         """Build the Locations page."""
         page = pynorpaHtml.PynorpaHtmlPage('Nature - Lieux')
+        page.addOpenLayerHeaders()
         page.addHeading(1, 'Lieux')
-        page.addHeading(2, 'Cette page est en construction')
+
+        # Location map
+        divMap = page.addTag(DivHtmlTag('ol-map', 'ol-map'))
+        divMap.addTag(DivHtmlTag('ol-popup'))
+        script = ScriptHtmlTag()
+        script.addLine('var oVectorSource, oIconStyle;')
+        script.addLine(f'renderMap(6.3902, 46.5377, 9);')
+        page.add(script)
+
+        ul = ListHtmlTag([])
+        page.add(ul)
+        for loc in self.locCache.getLocations():
+            ul.addItem().addTag(LinkHtmlTag(f'lieu{loc.getIdx()}.html', loc.getName()))
+            script.addLine(f'addMapMarker({loc.lon}, {loc.lat}, "{loc.getName()}");')
         page.save(f'{config.dirWebExport}locations.html')
 
         for loc in self.locCache.getLocations():
@@ -459,7 +473,9 @@ class Exporter():
         pic: Picture
         for pic in taxon.getPictures():
             td = tablePics.getNextCell()
-            td.addTag(ImageHtmlTag(f'../medium/{pic.getFilename()}', taxon.getName(), taxon.getName()))
+            picLink = LinkHtmlTag(f'../photos/{pic.getFilename()}', None)
+            picLink.addTag(ImageHtmlTag(f'../medium/{pic.getFilename()}', taxon.getName(), taxon.getName()))
+            td.addTag(picLink)
             loc = pic.getLocation()
             locToolTip = f'{loc.getName()}, {loc.getRegion()}, {loc.getState()} ({loc.getAltitude()}m)'
             legend = HtmlTag('p')
