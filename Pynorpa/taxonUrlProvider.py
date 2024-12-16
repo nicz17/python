@@ -51,11 +51,18 @@ class TaxonUrlProvider():
     def formatAntWiki(taxon: Taxon):
         return f"{taxon.getName().replace(' ', '_')}"
     
+    def formatPyrgus(taxon: Taxon):
+        return f"{taxon.getName().replace(' ', '_')}_en.html"
+    
     def formatVogelwarte(taxon: Taxon):
         return f"{taxon.getNameFr().replace(' ', '-').lower()}"
     
     def formatInfoFlora(taxon: Taxon):
         return f"{taxon.getName().replace(' ', '-').lower()}.html"
+    
+    def formatLibellenschutz(taxon: Taxon):
+        # TODO https://libellenschutz.ch/arten/zygoptera/lestidae/item/sympecma-fusca
+        return f"{taxon.getName().replace(' ', '-').lower()}"
     
     def formatMycoDb(taxon: Taxon):
         return f"{taxon.getName().replace(' ', '&espece=')}"
