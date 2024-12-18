@@ -223,7 +223,7 @@ class SimpleUMLClassPython(SimpleUMLClass):
                 file.write(f'self.{member} = {method.params[0].name}', 2)
             else:
                 file.write(definition, 1)
-                file.addDoc(f'{TextTools.upperCaseFirst(method.name)}', 2)
+                file.addDoc(f'{TextTools.upperCaseFirst(TextTools.splitCamelCase(method.name))}.', 2)
                 file.addComment('TODO: implement', 2)
                 file.write('pass', 2)
             file.newline()
@@ -486,12 +486,12 @@ class SimpleUMLClassCpp(SimpleUMLClass):
 class SimpleUMLPythonModule():
     """A python module that can contain classes."""
     log = logging.getLogger('SimpleUMLPythonModule')
-    dir = 'test'
 
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, dir='test') -> None:
         """Constructor."""
         self.name = name
         self.bGenerateTests = True
+        self.dir = dir
         self.classes = []
         self.imports = ['logging']
 

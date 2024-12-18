@@ -19,7 +19,7 @@ from SimpleUMLParser import *
 
 def getOptions():
     """Parse program arguments and store them in a dict."""
-    dOptions = {'dir': '.', 'file': None, 'lang': 'python', 'settings': None}
+    dOptions = {'dir': 'test', 'file': None, 'lang': 'python', 'settings': None}
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hd:f:l:s:", ["help", "dir=", "file=", "lang=", "sett="])
     except getopt.GetoptError:
@@ -58,7 +58,7 @@ def main():
     
     if (dOptions['file']):
         log.info('Parsing %s to generate %s code', dOptions['file'], dOptions['lang'])
-        parser = SimpleUMLParser(dOptions['lang'])
+        parser = SimpleUMLParser(dOptions['lang'], dOptions['dir'])
         parser.parse(dOptions['file'])
     else:
         log.error('Please enter a .uml file name with -f')
