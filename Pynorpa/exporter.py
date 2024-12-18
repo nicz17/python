@@ -465,6 +465,7 @@ class Exporter():
     def buildSpecies(self, taxon: Taxon):
         """Build the page for the species."""
         page = pynorpaHtml.PynorpaHtmlPage(f'Nature - {taxon.getName()}', '../')
+        page.menu.addTag(HtmlTag('h2', 'Classification'))
         title = taxon.getName()
         if taxon.getNameFr() != taxon.getName():
             title += f' &mdash; {taxon.getNameFr()}'
@@ -505,8 +506,13 @@ class Exporter():
             ancestor = taxon.getAncestor(rank)
             td = tableClassif.getNextCell(ImageHtmlTag(f'rank{rank.value+1}.svg', rank.getNameFr(), rank.getNameFr()))
             td.addTag(InlineHtmlTag(rank.getNameFr(), [], ''))
-            tableClassif.getNextCell(self.getTaxonClassif(ancestor))
+            link = self.getTaxonClassif(ancestor)
+            tableClassif.getNextCell(link)
             tableClassif.getNextCell(ancestor.getNameFr())
+            if rank != TaxonRank.GENUS:
+                menuLink = HtmlTag('h3')
+                menuLink.addTag(link)
+                page.menu.addTag(menuLink)
 
         # External links
         ul = ListHtmlTag([])
