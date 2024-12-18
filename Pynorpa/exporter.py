@@ -458,9 +458,35 @@ class Exporter():
 
     def buildTaxa(self):
         """Build taxon pages"""
+        self.buildClassification()
         species = self.taxCache.getForRank(TaxonRank.SPECIES)
         for tax in species:
             self.buildSpecies(tax)
+
+    def buildClassification(self):
+        """Build main classification page."""
+        page = pynorpaHtml.PynorpaHtmlPage(f'Nature - Classification')
+        page.menu.addTag(HtmlTag('h2', 'Classification'))
+        page.addHeading(1, 'Classification')
+
+        for kingdom in self.taxCache.getTopLevelTaxa():
+            page.addTag(AnchorHtmlTag(kingdom.getName()))
+            page.addHeading(2, kingdom.getName())
+            menuLink = HtmlTag('h3')
+            menuLink.addTag(LinkHtmlTag(f'#{kingdom.getName()}', kingdom.getName()))
+            page.menu.addTag(menuLink)
+            tablePhyla = TableHtmlTag([]).addAttr('class', 'table-thumbs')
+            page.addTag(tablePhyla)
+            for phylum in kingdom.getChildren():
+                pic: Picture
+                pic = phylum.getTypicalPicture()
+                link = LinkHtmlTag(f'{phylum.getName()}.html', None)
+                link.addTag(ImageHtmlTag(f'thumbs/{pic.getFilename()}', pic.getTaxonName(), phylum.getName()))
+                link.addTag(HtmlTag('span', f'<br>{phylum.getName()} ({len(phylum.getChildren())})'))
+                td = tablePhyla.getNextCell()
+                td.addTag(AnchorHtmlTag(f'#{phylum.getName()}'))
+                td.addTag(link)
+        page.save(f'{config.dirWebExport}classification.html')
 
     def buildSpecies(self, taxon: Taxon):
         """Build the page for the species."""
