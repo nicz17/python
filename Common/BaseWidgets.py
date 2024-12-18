@@ -286,7 +286,7 @@ class TextArea(BaseWidget):
         
     def createWidgets(self, parent: tk.Frame, row: int, col: int, width=64):
         """Create widget in parent frame with grid layout."""
-        self.oWidget = tk.Text(parent, width=width, height=self.nLines)
+        self.oWidget = tk.Text(parent, width=width, height=self.nLines, wrap=tk.WORD)
         self.oWidget.grid(row=row, column=col, padx=4, sticky='we')
         if self.cbkModified:
             self.oWidget.bind("<<Modified>>", self.cbkModified)
