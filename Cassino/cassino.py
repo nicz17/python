@@ -40,7 +40,7 @@ class Card():
     """Class Card"""
     log = logging.getLogger("Card")
 
-    def __init__(self, suit: Suit, value: int):
+    def __init__(self, value: int, suit: Suit):
         """Constructor."""
         self.value = value
         self.suit = suit
@@ -49,7 +49,7 @@ class Card():
         """Getter for french name."""
         svalue = str(self.value)
         match self.value:
-            case 1: svalue = 'As'
+            case 1:  svalue = 'As'
             case 11: svalue = 'Valet'
             case 12: svalue = 'Dame'
             case 13: svalue = 'Roi'
@@ -62,6 +62,11 @@ class Card():
     def getSuit(self) -> Suit:
         """Getter for suit"""
         return self.suit
+        
+    def __eq__(self, other): 
+        if not isinstance(other, Card):
+            return NotImplemented
+        return self.value == other.value and self.suit.value == other.suit.value
 
     def toJson(self):
         """Create a dict of this Card for json export."""
@@ -84,7 +89,7 @@ class Deck():
         self.cards = []
         for suit in Suit:
             for value in range(13):
-                self.cards.append(Card(suit, value+1))
+                self.cards.append(Card(value+1, suit))
         self.shuffle()
 
     def shuffle(self):
@@ -113,6 +118,8 @@ class Deck():
 class Trick():
     """Class Trick"""
     log = logging.getLogger("Trick")
+    greaterCassino = Card(10, Suit.Diamonds)
+    lesserCassino  = Card( 2, Suit.Spades)
 
     def __init__(self):
         """Constructor."""
@@ -139,9 +146,9 @@ class Trick():
         for card in self.getCards():
             if card.suit == Suit.Spades:
                 nSpades += 1
-            if card.suit == Suit.Spades and card.value == 2:
+            if card == self.greaterCassino:
                 score += 1
-            if card.suit == Suit.Diamonds and card.value == 10:
+            if card == self.lesserCassino:
                 score += 1
             if card.value == 1:
                 score += 1
