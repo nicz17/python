@@ -56,6 +56,7 @@ class SimpleUMLParser():
             isPrivate = True
             params = []
             type = None
+            name = 'Undefined'
             if line.startswith('+'):
                 isPrivate = False
             match1 = re.match(r'[-+](.+)\((.*)\): (.+)', line)
@@ -105,22 +106,35 @@ class SimpleUMLParser():
         
         # Create class object
         mode = Mode.Init
+        self.module = SimpleUMLPythonModule(filename.replace('.uml', ''))
         if self.lang == 'cpp':
             self.clazz = SimpleUMLClassCpp()
         else:
-            self.clazz = SimpleUMLClassPython()
+            #self.clazz = SimpleUMLClassPython()
+            self.clazz = None
         
         # Read file
         file = open(filename, 'r')
         for line in file.readlines():
             line = line.rstrip()
+            if mode == Mode.Init and self.clazz is None and self.lang == 'python':
+                self.clazz = SimpleUMLClassPython()
+                self.module.addClass(self.clazz)
             if len(line) == 0:
+                if mode == Mode.Done:
+                    self.log.info('Resetting for new class')
+                    mode = Mode.Init
+                    self.clazz = None
                 continue
-            if len(line) == 0 or line.startswith('--'):
+            if line.startswith('--'):
                 mode = Mode(mode.value + 1)
                 self.log.info('Parsing mode %s', mode.name)
                 continue
             else:
                 self.parseLine(line, mode)
+            
         file.close()
-        self.clazz.generate()
+        if self.clazz:
+            self.clazz.generate()
+        elif self.module:
+            self.module.generate()
