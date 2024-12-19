@@ -245,6 +245,11 @@ class DialogLocate(ModalDialog):
     def onSave(self):
         pass
 
+    def onRightClickSave(self, coords):
+        llz = LatLonZoom(coords[0], coords[1], 10)
+        self.map.removeMarkers()
+        self.map.addMarker(llz, config.mapMarkerGreen)
+
     def createWidgets(self):
         # Left and right frames
         self.frmLeft  = ttk.Frame(self.root)
@@ -264,6 +269,8 @@ class DialogLocate(ModalDialog):
 
         # Map widget
         self.map.createWidgets(self.frmRight, 6, 10)
+        self.map.mapView.add_right_click_menu_command(label='Placer la photo ici',
+            command=self.onRightClickSave, pass_coords=True)
 
         # Buttons
         self.btnSave = Button(self.frmRight, 'Enregistrer', self.onSave, 'filesave')

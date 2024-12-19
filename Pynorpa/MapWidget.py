@@ -61,10 +61,15 @@ class MapWidget():
     def setDefaultLocation(self):
         """Display the default location on the map."""
         self.setLatLonZoom(self.locZero)
+
+    def onRightClick(self, coords):
+        self.mapView.set_position(coords[0], coords[1])
         
     def createWidgets(self, parent: tk.Frame, padx=0, pady=0):
         """Create user widgets."""
         self.mapView = tkintermapview.TkinterMapView(parent, width=600, height=400)
         self.mapView.pack(padx=padx, pady=pady)
+        self.mapView.add_right_click_menu_command(label='Centrer ici',
+            command=self.onRightClick, pass_coords=True)
         self.setDefaultLocation()
     
