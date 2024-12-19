@@ -17,6 +17,9 @@ from BaseWidgets import BaseEditor, Button, ComboBox, SpinBox
 from moduleSelection import TablePhotos, PhotoEditor, TaxonSelector
 from PhotoInfo import *
 import imageWidget
+from MapWidget import MapWidget
+from ModalDialog import *
+from LatLonZoom import LatLonZoom
 
 class ModuleReselection(TabModule):
     """Pynorpa Module for reselecting photos."""
@@ -80,6 +83,12 @@ class ModuleReselection(TabModule):
         self.editor.loadData(photo)
         self.selector.loadData(photo)
 
+    def onLocate(self):
+        dlgLocate = DialogLocate(self.window, self.photos)
+        self.log.info('Opened dialog window, waiting')
+        self.window.wait_window(dlgLocate.root)
+        self.log.info(f'Dialog closed with data: {dlgLocate.data}')
+
     def createWidgets(self):
         """Create user widgets."""
         self.createLeftRightFrames()
@@ -90,6 +99,21 @@ class ModuleReselection(TabModule):
         self.editor.createWidgets(self.frmRight)
         self.selector.createWidgets(self.frmRight)
         self.dirSelector.createWidgets(self.frmRight)
+
+        # Buttons frame
+        self.frmButtons = ttk.Frame(self.frmLeft, padding=5)
+        self.frmButtons.pack(anchor=tk.W)
+
+        # Buttons
+        #self.btnReload = self.addButton('Recharger', self.loadData, 'refresh')
+        self.btnLocate = self.addButton('Localiser', self.onLocate, 'location')
+
+    def addButton(self, label: str, cmd, icon: str) -> Button:
+        """Add a Tk Button to this module's frmButtons."""
+        btn = Button(self.frmButtons, label, cmd, icon)
+        btn.pack()
+        return btn
+    
 
 class DirectorySelector:
     """Select a photos dir based on year and month."""
@@ -189,3 +213,31 @@ class TaxonReselector(TaxonSelector):
     def runSystemCommand(self, cmd: str):
         self.log.info(cmd)
         os.system(cmd)
+
+class DialogLocate(ModalDialog):
+    log = logging.getLogger('DialogLocate')
+
+    def __init__(self, parent: tk.Tk, photos: list[PhotoInfo]):
+        self.photos = photos
+        self.viewer = imageWidget.MultiImageWidget(None, self.onSelectPhoto)
+        self.map = MapWidget()
+        super().__init__(parent, 'Localisation fine')
+        self.root.geometry('1000x700')
+
+    def onSelectPhoto(self, photo: PhotoInfo):
+        """Photo selection callback."""
+        self.map.setLatLonZoom(LatLonZoom(photo.lat, photo.lon, 15))
+
+    def createWidgets(self):
+        self.frmLeft  = ttk.Frame(self.root)
+        self.frmRight = ttk.Frame(self.root)
+        self.frmLeft.pack( fill=tk.Y, side=tk.LEFT, pady=0)
+        self.frmRight.pack(fill=tk.Y, side=tk.LEFT, pady=0, padx=0)
+
+        self.viewer.createWidgets(self.frmLeft)
+        self.map.createWidgets(self.frmRight, 6, 10)
+
+        self.btnExit = Button(self.frmRight, 'Fermer', self.exit, 'ok')
+        self.btnExit.pack(20)
+
+        self.viewer.loadImages(self.photos)
