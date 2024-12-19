@@ -471,7 +471,7 @@ class Exporter():
 
         for kingdom in self.taxCache.getTopLevelTaxa():
             page.addTag(AnchorHtmlTag(kingdom.getName()))
-            page.addHeading(2, kingdom.getName())
+            page.addHeading(2, f'{kingdom.getName()} &mdash; {kingdom.getNameFr()}')
             menuLink = HtmlTag('h3')
             menuLink.addTag(LinkHtmlTag(f'#{kingdom.getName()}', kingdom.getName()))
             page.menu.addTag(menuLink)
@@ -481,7 +481,7 @@ class Exporter():
                 pic: Picture
                 pic = phylum.getTypicalPicture()
                 link = LinkHtmlTag(f'{phylum.getName()}.html', None)
-                link.addTag(ImageHtmlTag(f'thumbs/{pic.getFilename()}', pic.getTaxonName(), phylum.getName()))
+                link.addTag(ImageHtmlTag(f'thumbs/{pic.getFilename()}', phylum.getNameFr(), phylum.getName()))
                 link.addTag(HtmlTag('span', f'<br>{phylum.getName()} ({len(phylum.getChildren())})'))
                 td = tablePhyla.getNextCell()
                 td.addTag(AnchorHtmlTag(f'#{phylum.getName()}'))
