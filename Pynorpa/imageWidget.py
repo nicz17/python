@@ -13,6 +13,7 @@ import tkinter as tk
 from tkinter import ttk
 from PIL import ImageTk, Image
 from picture import Picture
+from PhotoInfo import PhotoInfo
 from BaseWidgets import Button
 
 
@@ -42,7 +43,10 @@ class ImageWidget():
         """Display the thumbnail of the specified picture."""
         fileMedium = None
         if picture is not None:
-            fileMedium = f'{config.dirPicsBase}medium/{picture.filename}'
+            if isinstance(picture, Picture):
+                fileMedium = f'{config.dirPicsBase}medium/{picture.filename}'
+            if isinstance(picture, PhotoInfo):
+                fileMedium = picture.filename.replace('photos/', 'thumbs/')
         self.loadData(fileMedium)
 
     def setDefaultImage(self):
@@ -66,9 +70,10 @@ class MultiImageWidget(ImageWidget):
     """A widget displaying multiple images."""
     log = logging.getLogger('MultiImageWidget')
 
-    def __init__(self, defImage=None):
+    def __init__(self, defImage=None, cbkSelectImage=None):
         """Constructor"""
         super().__init__(defImage)
+        self.cbkSelectImage = cbkSelectImage
         self.files = []
         self.iSelected = None
 
@@ -84,6 +89,7 @@ class MultiImageWidget(ImageWidget):
 
     def loadImage(self):
         """Display the current image."""
+        obj = None
         if self.iSelected is None:
             self.setDefaultImage()
             self.lblStatus.configure(text='')
@@ -95,6 +101,12 @@ class MultiImageWidget(ImageWidget):
                 self.loadThumb(obj)
                 status = f'[{self.iSelected+1}/{self.size()}] {obj.getTaxonName()}'
                 self.lblStatus.configure(text=status)
+            elif isinstance(obj, PhotoInfo):
+                self.loadThumb(obj)
+                status = f'[{self.iSelected+1}/{self.size()}] {obj.getNameShort()}'
+                self.lblStatus.configure(text=status)
+        if self.cbkSelectImage:
+            self.cbkSelectImage(obj)
 
     def onPrev(self):
         if self.iSelected is not None:
