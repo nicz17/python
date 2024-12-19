@@ -76,6 +76,11 @@ class HtmlPage:
         link = HtmlTag('link').addAttr('rel', 'stylesheet').addAttr('href', url).addAttr('type', 'text/css')
         self.head.addTag(link)
 
+    def addIconLink(self, url):
+        """Adds the specified URL as favicon link to the header."""
+        link = HtmlTag('link').addAttr('rel', 'icon').addAttr('href', url).addAttr('type', 'image/x-icon')
+        self.head.addTag(link)
+
     def addHeading(self, iLevel, sTitle):
         """Add a heading of the specified level, for example h1."""
         self.main.addTag(HtmlTag('h' + str(iLevel), sTitle))
