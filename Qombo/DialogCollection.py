@@ -47,7 +47,7 @@ class DialogCollection(ModalDialog):
             #self.aQombitIds.append(id)
 
     def drawMissing(self):
-        """Draw question marks on vĉanvas for missing qombits."""
+        """Draw question marks on canvas for missing qombits."""
         for x in range(self.nLevels):
             for y in range(self.nRarities):
                 tx = (x + 0.5)*self.size
