@@ -146,7 +146,7 @@ class ModuleCamera(TabModule):
         self.canTasks.pack(side=tk.LEFT)
 
         # Map
-        self.mapWidget.createWidgets(self.frmRight, 100)
+        self.mapWidget.createWidgets(self.frmRight, 0, 100)
 
     def enableWidgets(self):
         self.btnCopy.enableWidget(not self.isRunning)

@@ -58,9 +58,9 @@ class MapWidget():
         """Display the default location on the map."""
         self.setLatLonZoom(self.locZero)
         
-    def createWidgets(self, parent: tk.Frame, pady=0):
+    def createWidgets(self, parent: tk.Frame, padx=0, pady=0):
         """Create user widgets."""
         self.mapView = tkintermapview.TkinterMapView(parent, width=600, height=400)
-        self.mapView.pack(pady=pady)
+        self.mapView.pack(padx=padx, pady=pady)
         self.setDefaultLocation()
     
