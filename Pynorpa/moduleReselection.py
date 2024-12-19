@@ -221,23 +221,54 @@ class DialogLocate(ModalDialog):
         self.photos = photos
         self.viewer = imageWidget.MultiImageWidget(None, self.onSelectPhoto)
         self.map = MapWidget()
+        self.defLocation = None
+        self.locCache = LocationCache.LocationCache()
         super().__init__(parent, 'Localisation fine')
-        self.root.geometry('1000x700')
+        self.root.geometry('1020x700+300+150')
 
     def onSelectPhoto(self, photo: PhotoInfo):
         """Photo selection callback."""
-        self.map.setLatLonZoom(LatLonZoom(photo.lat, photo.lon, 15))
+        llz = MapWidget.locZero
+        if photo and photo.lon and photo.lat:
+            llz = LatLonZoom(photo.lat, photo.lon, 17)
+        elif self.defLocation:
+            llz = self.defLocation.getLatLonZoom()
+        self.map.removeMarkers()
+        self.map.setLatLonZoom(llz)
+        self.map.addMarker(llz, config.mapMarkerRed)
+
+    def onSelectLocation(self, event=None):
+        name = self.cboDefLoc.getValue()
+        if name:
+            self.defLocation = self.locCache.getByName(name)
+
+    def onSave(self):
+        pass
 
     def createWidgets(self):
+        # Left and right frames
         self.frmLeft  = ttk.Frame(self.root)
         self.frmRight = ttk.Frame(self.root)
         self.frmLeft.pack( fill=tk.Y, side=tk.LEFT, pady=0)
         self.frmRight.pack(fill=tk.Y, side=tk.LEFT, pady=0, padx=0)
 
-        self.viewer.createWidgets(self.frmLeft)
+        # Photo viewer
+        self.viewer.createWidgets(self.frmLeft, 6)
+
+        # Default location selector
+        self.frmDefLoc = ttk.LabelFrame(self.frmRight, text='Lieu par défaut')
+        self.frmDefLoc.pack(side=tk.TOP, fill=tk.X, padx=5, pady=6)
+        self.cboDefLoc = ComboBox(self.onSelectLocation)
+        self.cboDefLoc.createWidgets(self.frmDefLoc, 0, 0)
+        self.cboDefLoc.setValues([loc.name for loc in self.locCache.getLocations()])
+
+        # Map widget
         self.map.createWidgets(self.frmRight, 6, 10)
 
+        # Buttons
+        self.btnSave = Button(self.frmRight, 'Enregistrer', self.onSave, 'filesave')
         self.btnExit = Button(self.frmRight, 'Fermer', self.exit, 'ok')
-        self.btnExit.pack(20)
+        self.btnSave.pack()
+        self.btnExit.pack()
 
         self.viewer.loadImages(self.photos)
