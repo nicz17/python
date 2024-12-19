@@ -95,8 +95,7 @@ class MultiImageWidget(ImageWidget):
             self.lblStatus.configure(text='')
         else:
             obj = self.files[self.iSelected]
-            self.log.info('Displaying image [%d/%d] %s', 
-                          self.iSelected, self.size(), obj)
+            self.log.debug('Displaying image [%d/%d] %s', self.iSelected, self.size(), obj)
             if isinstance(obj, Picture):
                 self.loadThumb(obj)
                 status = f'[{self.iSelected+1}/{self.size()}] {obj.getTaxonName()}'
@@ -121,10 +120,10 @@ class MultiImageWidget(ImageWidget):
     def size(self):
         return 0 if self.files is None else len(self.files)
 
-    def createWidgets(self, parent: ttk.Frame):
+    def createWidgets(self, parent: ttk.Frame, padx=0):
         """Create user widgets."""
         self.frmImage = ttk.Frame(parent, width=500, height=532)
-        self.frmImage.pack(side=tk.TOP, fill=None, expand=False, pady=6)
+        self.frmImage.pack(side=tk.TOP, fill=None, expand=False, padx=padx, pady=6)
         self.lblImage = ttk.Label(self.frmImage, anchor=tk.CENTER, text='')
         self.lblImage.place(x=250, y=250, anchor=tk.CENTER)
         self.btnPrev = Button(self.frmImage, None, self.onPrev, 'go-prev')

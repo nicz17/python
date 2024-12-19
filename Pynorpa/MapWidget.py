@@ -54,6 +54,10 @@ class MapWidget():
         else:
             self.mapView.set_marker(coords.lat, coords.lon)
 
+    def removeMarkers(self):
+        """Remove all markers."""
+        self.mapView.delete_all_marker()
+
     def setDefaultLocation(self):
         """Display the default location on the map."""
         self.setLatLonZoom(self.locZero)
