@@ -224,18 +224,22 @@ class DialogLocate(ModalDialog):
         self.defLocation = None
         self.locCache = LocationCache.LocationCache()
         super().__init__(parent, 'Localisation fine')
-        self.root.geometry('1020x700+300+150')
+        self.root.geometry('1020x600+300+150')
 
     def onSelectPhoto(self, photo: PhotoInfo):
         """Photo selection callback."""
         llz = MapWidget.locZero
+        status = 'Sans données GPS'
         if photo and photo.lon and photo.lat:
             llz = LatLonZoom(photo.lat, photo.lon, 17)
+            status = f'Près de {photo.getCloseTo()}'
         elif self.defLocation:
             llz = self.defLocation.getLatLonZoom()
+            status = f'Lieu : {self.defLocation.getName()}'
         self.map.removeMarkers()
         self.map.setLatLonZoom(llz)
         self.map.addMarker(llz, config.mapMarkerRed)
+        self.lblStatus.configure(text=status)
 
     def onSelectLocation(self, event=None):
         name = self.cboDefLoc.getValue()
@@ -271,10 +275,16 @@ class DialogLocate(ModalDialog):
         self.map.createWidgets(self.frmRight, 6, 10)
         self.map.mapView.add_right_click_menu_command(label='Placer la photo ici',
             command=self.onRightClickSave, pass_coords=True)
+        
+        # Location label
+        self.lblStatus = ttk.Label(self.frmRight, text='Status')
+        self.lblStatus.pack(fill=tk.X)
 
         # Buttons
-        self.btnSave = Button(self.frmRight, 'Enregistrer', self.onSave, 'filesave')
-        self.btnExit = Button(self.frmRight, 'Fermer', self.exit, 'ok')
+        self.frmButtons = ttk.Frame(self.frmRight)
+        self.btnSave = Button(self.frmButtons, 'Enregistrer', self.onSave, 'filesave')
+        self.btnExit = Button(self.frmButtons, 'Fermer', self.exit, 'ok')
+        self.frmButtons.pack(fill=tk.X, pady=10)
         self.btnSave.pack()
         self.btnExit.pack()
 
