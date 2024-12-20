@@ -174,6 +174,7 @@ class ExpeditionCache():
                 for picture in location.getPictures():
                     if picture.getShotAt() >= exped.getFrom() and picture.getShotAt() <= exped.getTo():
                         exped.addPicture(picture)
+                exped.pictures = sorted(exped.pictures, key=lambda pic: pic.shotAt)
 
     def fetchFromWhere(self, where: str):
         """Fetch Expedition records from a SQL where-clause. Return a list of ids."""
