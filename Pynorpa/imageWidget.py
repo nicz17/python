@@ -47,6 +47,9 @@ class ImageWidget():
                 fileMedium = f'{config.dirPicsBase}medium/{picture.filename}'
             if isinstance(picture, PhotoInfo):
                 fileMedium = picture.filename.replace('photos/', 'thumbs/')
+                if not os.path.exists(fileMedium):
+                    self.log.info('Creating medium image for %s', picture.filename)
+                    os.system(f'convert {picture.filename} -resize 500x500 {fileMedium}')
         self.loadData(fileMedium)
 
     def setDefaultImage(self):
