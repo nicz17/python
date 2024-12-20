@@ -217,6 +217,15 @@ class TextInput(BaseWidget):
         if value == '':
             value = None
         return value
+    
+    def hasChanges(self, object) -> bool:
+        """Check if this widget has changes from the specified object."""
+        if object:
+            objValue = self.mtdGetter(object)
+            widValue = self.getValue()
+            if (not objValue) and (not widValue):
+                return False
+        return super().hasChanges(object)
         
     def createWidgets(self, parent: tk.Frame, row: int, col: int):
         """Create widget in parent frame with grid layout."""
