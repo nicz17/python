@@ -106,7 +106,7 @@ class ModuleReselection(TabModule):
 
         # Buttons
         #self.btnReload = self.addButton('Recharger', self.loadData, 'refresh')
-        self.btnLocate = self.addButton('Localiser', self.onLocate, 'location')
+        self.btnLocate = self.addButton('Localiser', self.onLocate, 'location22')
 
     def addButton(self, label: str, cmd, icon: str) -> Button:
         """Add a Tk Button to this module's frmButtons."""
@@ -219,15 +219,20 @@ class DialogLocate(ModalDialog):
 
     def __init__(self, parent: tk.Tk, photos: list[PhotoInfo]):
         self.photos = photos
+        self.photo = None
         self.viewer = imageWidget.MultiImageWidget(None, self.onSelectPhoto)
         self.map = MapWidget()
         self.defLocation = None
+        self.lastCoords = None
+        self.hasChanges = False
         self.locCache = LocationCache.LocationCache()
         super().__init__(parent, 'Localisation fine')
         self.root.geometry('1020x600+300+150')
 
     def onSelectPhoto(self, photo: PhotoInfo):
         """Photo selection callback."""
+        self.photo = photo
+        self.hasChanges = False
         llz = MapWidget.locZero
         status = 'Sans données GPS'
         if photo and photo.lon and photo.lat:
@@ -240,19 +245,42 @@ class DialogLocate(ModalDialog):
         self.map.setLatLonZoom(llz)
         self.map.addMarker(llz, config.mapMarkerRed)
         self.lblStatus.configure(text=status)
+        self.enableWidgets()
 
     def onSelectLocation(self, event=None):
         name = self.cboDefLoc.getValue()
         if name:
             self.defLocation = self.locCache.getByName(name)
+        self.enableWidgets()
+
+    def onRepeatCoords(self):
+        """Repeat last defined coordinates on the current photo."""
+        if self.lastCoords:
+            self.map.removeMarkers()
+            self.map.setLatLonZoom(self.lastCoords)
+            self.map.addMarker(self.lastCoords, config.mapMarkerRed)
+            self.hasChanges = True
+            self.enableWidgets()
 
     def onSave(self):
-        pass
+        """Write the last defined coordinates to the current photo."""
+        if self.photo and self.lastCoords:
+            self.photo.lat = self.lastCoords.lat
+            self.photo.lon = self.lastCoords.lon
+            cmd = f'exiftool -GPSLatitude*={self.photo.lat} -GPSLongitude*={self.photo.lon} -overwrite_original {self.photo.filename}'
+            self.log.info(cmd)
+            os.system(cmd)
+            self.hasChanges = False
+            self.enableWidgets()
 
-    def onRightClickSave(self, coords):
-        llz = LatLonZoom(coords[0], coords[1], 10)
+    def onRightClickSetMarker(self, coords):
+        """Add a map marker at right click location."""
+        llz = LatLonZoom(coords[0], coords[1], self.map.getZoom())
         self.map.removeMarkers()
         self.map.addMarker(llz, config.mapMarkerGreen)
+        self.lastCoords = llz
+        self.hasChanges = True
+        self.enableWidgets()
 
     def createWidgets(self):
         # Left and right frames
@@ -274,7 +302,7 @@ class DialogLocate(ModalDialog):
         # Map widget
         self.map.createWidgets(self.frmRight, 6, 10)
         self.map.mapView.add_right_click_menu_command(label='Placer la photo ici',
-            command=self.onRightClickSave, pass_coords=True)
+            command=self.onRightClickSetMarker, pass_coords=True)
         
         # Location label
         self.lblStatus = ttk.Label(self.frmRight, text='Status')
@@ -282,10 +310,17 @@ class DialogLocate(ModalDialog):
 
         # Buttons
         self.frmButtons = ttk.Frame(self.frmRight)
-        self.btnSave = Button(self.frmButtons, 'Enregistrer', self.onSave, 'filesave')
-        self.btnExit = Button(self.frmButtons, 'Fermer', self.exit, 'ok')
         self.frmButtons.pack(fill=tk.X, pady=10)
+        self.btnRepeat = Button(self.frmButtons, 'Reprendre', self.onRepeatCoords, 'location22')
+        self.btnSave   = Button(self.frmButtons, 'Enregistrer', self.onSave, 'filesave')
+        self.btnExit   = Button(self.frmButtons, 'Fermer', self.exit, 'ok')
+        self.btnRepeat.pack()
         self.btnSave.pack()
         self.btnExit.pack()
 
         self.viewer.loadImages(self.photos)
+        self.enableWidgets()
+
+    def enableWidgets(self):
+        self.btnRepeat.enableWidget(self.lastCoords is not None)
+        self.btnSave.enableWidget(self.hasChanges)

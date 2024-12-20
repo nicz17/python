@@ -33,9 +33,13 @@ class MapWidget():
         else:
             self.setDefaultLocation()
 
-    def getLatLonZoom(self):
+    def getZoom(self) -> int:
+        """Get the current map zoom."""
+        return self.mapView.zoom
+
+    def getLatLonZoom(self) -> LatLonZoom:
         """Get the current lat/lon/zoom triplet."""
-        return LatLonZoom(*(self.mapView.get_position()), self.mapView.zoom)
+        return LatLonZoom(*(self.mapView.get_position()), self.getZoom())
 
     def setLatLonZoom(self, coords: LatLonZoom):
         """Set the map location and zoom."""
