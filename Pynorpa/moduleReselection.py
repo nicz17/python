@@ -217,12 +217,12 @@ class TaxonReselector(TaxonSelector):
 class DialogLocate(ModalDialog):
     log = logging.getLogger('DialogLocate')
 
-    def __init__(self, parent: tk.Tk, photos: list[PhotoInfo]):
+    def __init__(self, parent: tk.Tk, photos: list[PhotoInfo], defLocation = None):
         self.photos = photos
         self.photo = None
         self.viewer = imageWidget.MultiImageWidget(None, self.onSelectPhoto)
         self.map = MapWidget()
-        self.defLocation = None
+        self.defLocation = defLocation
         self.lastCoords = None
         self.hasChanges = False
         self.locCache = LocationCache.LocationCache()
@@ -298,6 +298,8 @@ class DialogLocate(ModalDialog):
         self.cboDefLoc = ComboBox(self.onSelectLocation)
         self.cboDefLoc.createWidgets(self.frmDefLoc, 0, 0)
         self.cboDefLoc.setValues([loc.name for loc in self.locCache.getLocations()])
+        if self.defLocation:
+            self.cboDefLoc.setValue(self.defLocation.getName())
 
         # Map widget
         self.map.createWidgets(self.frmRight, 6, 10)

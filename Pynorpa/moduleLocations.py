@@ -34,6 +34,9 @@ class ModuleLocations(TabModule):
         self.log.info(f'Selected {location}')
         # Display in widgets
         self.mapWidget.loadData(location)
+        self.mapWidget.removeMarkers()
+        if location:
+            self.mapWidget.addMarker(location.getLatLonZoom(), config.mapMarkerGreen)
         self.editor.loadData(location)
 
     def onSaveLocation(self, location: Location):
