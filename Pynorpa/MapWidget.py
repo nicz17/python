@@ -8,6 +8,7 @@ __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
+import config
 import logging
 import os
 import tkinter as tk
@@ -50,11 +51,11 @@ class MapWidget():
         """Set the map widget view to the bounding box."""
         self.mapView.fit_bounding_box((latMax, lonMin), (latMin, lonMax))
 
-    def addMarker(self, coords: LatLonZoom, iconname=None):
+    def addMarker(self, coords: LatLonZoom, iconname=config.mapMarkerGreen):
         """Add a marker to the map."""
         if iconname and os.path.exists(iconname):
             marker = ImageTk.PhotoImage(Image.open(iconname))
-            self.mapView.set_marker(coords.lat, coords.lon, icon=marker)
+            self.mapView.set_marker(coords.lat, coords.lon, icon=marker, icon_anchor='s')
         else:
             self.mapView.set_marker(coords.lat, coords.lon)
 
