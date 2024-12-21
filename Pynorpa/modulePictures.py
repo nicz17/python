@@ -100,7 +100,7 @@ class PictureEditor(BaseWidgets.BaseEditor):
         
         self.widFilename = self.addTextReadOnly('Nom', Picture.getFilename)
         self.widShotAt = self.addDateTimeReadOnly('Date', Picture.getShotAt)
-        self.widLocation = self.addTextReadOnly('Lieu', Picture.getLocationName)
+        self.widLocation = self.addTextReadOnly('Lieu', Picture.getCloseTo)
         self.widRemarks = self.addTextArea('Remarques', Picture.getRemarks)
         self.widTaxon = self.addTextReadOnly('Taxon', Picture.getTaxonName)
         self.widUpdatedAt = self.addDateTimeReadOnly('Modifié', Picture.getUpdatedAt)

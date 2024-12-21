@@ -610,7 +610,7 @@ class Exporter():
     def addPicMarker(self, script: ScriptHtmlTag, pic: Picture):
         """Add JS code for a map marker."""
         photoInfo = pic.getPhotoInfo()
-        if photoInfo and photoInfo.lat and photoInfo.lon:
+        if photoInfo and photoInfo.hasGPSData():
             coords = f'{photoInfo.lon:.6f}, {photoInfo.lat:.6f}'
             img = f'"<img src=\'thumbs/{pic.getFilename()}\'>"'
             link = f'"{self.getTaxonLink(pic.getTaxon())}#{pic.getFilename().replace(".jpg", "")}"'

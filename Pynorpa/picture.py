@@ -11,7 +11,7 @@ import Database
 from taxon import Taxon, TaxonCache
 from LocationCache import *
 from PhotoInfo import PhotoInfo
-
+import TextTools
 
 class Picture():
     """Class Picture"""
@@ -117,6 +117,15 @@ class Picture():
             self.info = PhotoInfo(f'{config.dirPictures}{self.filename}')
             self.info.identify()
         return self.info
+        
+    def getCloseTo(self) -> str:
+        """Get info about location and GPS data."""
+        info = self.getPhotoInfo()
+        if info and info.hasGPSData():
+            dist = self.getLocation().getDistance(info.lat, info.lon)
+            return f'{self.getLocationName()} (à {TextTools.distanceToString(dist)})'
+        else:
+            return f'{self.getLocationName()} (sans données GPS)'
 
     def toJson(self):
         """Create a dict of this Picture for json export."""
