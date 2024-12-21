@@ -10,13 +10,15 @@ import random
 import Database
 from taxon import Taxon, TaxonCache
 from LocationCache import *
+from PhotoInfo import PhotoInfo
 
 
 class Picture():
     """Class Picture"""
     log = logging.getLogger("Picture")
 
-    def __init__(self, idx: int, filename: str, shotAt: float, remarks: str, idxTaxon: int, updatedAt: float, idxLocation: int, rating: int):
+    def __init__(self, idx: int, filename: str, shotAt: float, remarks: str, 
+                 idxTaxon: int, updatedAt: float, idxLocation: int, rating: int):
         """Constructor."""
         self.idx = idx
         self.filename = filename
@@ -28,6 +30,7 @@ class Picture():
         self.rating = rating
         self.location = None
         self.taxon = None
+        self.info = None
 
     def getIdx(self) -> int:
         """Getter for idx"""
@@ -107,6 +110,13 @@ class Picture():
     def setRating(self, rating: int):
         """Setter for rating"""
         self.rating = rating
+
+    def getPhotoInfo(self) -> PhotoInfo:
+        """Get the PhotoInfo object for this picture."""
+        if not self.info:
+            self.info = PhotoInfo(f'{config.dirPictures}{self.filename}')
+            self.info.identify()
+        return self.info
 
     def toJson(self):
         """Create a dict of this Picture for json export."""

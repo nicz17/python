@@ -374,10 +374,12 @@ class Exporter():
         divMap.addTag(DivHtmlTag('ol-popup'))
         tableTop.getNextCell().addTag(divMap)
         script = ScriptHtmlTag()
+        page.addTag(script)
         script.addLine('var oVectorSource, oIconStyle;')
         script.addLine(f'renderMap({loc.lon}, {loc.lat}, {loc.zoom});')
         script.addLine(f'addMapMarker({loc.lon}, {loc.lat}, "{loc.getName()}");')
-        page.add(script)
+        if excursion.getTrack():
+            script.addLine(f'addMapTrack("geotrack/{excursion.getTrack()}.gpx");')
 
         # Excursion details
         divDetails = MyBoxHtmlTag('Excursion')
@@ -397,9 +399,9 @@ class Exporter():
         table = TableHtmlTag(None).addAttr('class', 'table-thumbs')
         for pic in excursion.getPictures():
             self.addThumbLinkExcursion(pic, table.getNextCell())
+            self.addPicMarker(script, pic)
         page.add(table)
         page.save(f'{config.dirWebExport}excursion{excursion.getIdx()}.html')
-
 
     def buildAlpha(self):
         """Build names index page"""
@@ -530,6 +532,7 @@ class Exporter():
         pic: Picture
         for pic in taxon.getPictures():
             td = tablePics.getNextCell()
+            td.addTag(AnchorHtmlTag(pic.getFilename().removesuffix('.jpg')))
             picLink = LinkHtmlTag(f'../photos/{pic.getFilename()}', None)
             picLink.addTag(ImageHtmlTag(f'../medium/{pic.getFilename()}', taxon.getName(), taxon.getName()))
             td.addTag(picLink)
@@ -603,6 +606,15 @@ class Exporter():
         parent.addTag(link)
         parent.addTag(HtmlTag('span', taxon.getNameFr()))
         parent.addTag(HtmlTag('span', f'<br>{taxon.getAncestor(TaxonRank.FAMILY).getName()}'))
+
+    def addPicMarker(self, script: ScriptHtmlTag, pic: Picture):
+        """Add JS code for a map marker."""
+        photoInfo = pic.getPhotoInfo()
+        if photoInfo and photoInfo.lat and photoInfo.lon:
+            coords = f'{photoInfo.lon:.6f}, {photoInfo.lat:.6f}'
+            img = f'"<img src=\'thumbs/{pic.getFilename()}\'>"'
+            link = f'"{self.getTaxonLink(pic.getTaxon())}#{pic.getFilename().replace(".jpg", "")}"'
+            script.addLine(f'addPicMarker({coords}, {img}, {link});')
 
     def getLocationLink(self, loc: Location, path=''):
         return f'{path}lieu{loc.getIdx()}.html'
