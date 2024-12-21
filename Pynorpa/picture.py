@@ -79,10 +79,19 @@ class Picture():
         self.idxTaxon = idxTaxon
 
     def getTaxonName(self) -> str:
-        """Get taxon name"""
+        """Get taxon latin name."""
         if self.taxon:
             return self.taxon.getName()
         return 'Error: undefined taxon'
+
+    def getTaxonNames(self) -> str:
+        """Get taxon latin and french names."""
+        result = 'Taxon inconnu'
+        if self.taxon:
+            result = self.taxon.getName()
+            if self.taxon.getNameFr() != self.taxon.getName():
+                result += f' ({self.taxon.getNameFr()})'
+        return result
     
     def getTaxon(self):
         return self.taxon

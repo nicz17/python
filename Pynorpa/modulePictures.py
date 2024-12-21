@@ -49,8 +49,7 @@ class ModulePictures(TabModule):
         self.editor.loadData(None)
 
     def __str__(self):
-        str = "ModulePictures"
-        return str
+        return 'ModulePictures'
 
 
 class PictureTable(TableWithColumns):
@@ -60,7 +59,6 @@ class PictureTable(TableWithColumns):
     def __init__(self, cbkSelect):
         """Constructor."""
         super().__init__(cbkSelect, "photos")
-        #self.addColumn(TableColumn('Nom',    Picture.getFilename,     200))
         self.addColumn(TableColumn('Taxon',   Picture.getTaxonName,    200))
         self.addColumn(TableColumn('Date',    Picture.getShotAt,       160))
         self.addColumn(TableColumn('Lieu',    Picture.getLocationName, 200))
@@ -96,13 +94,13 @@ class PictureEditor(BaseWidgets.BaseEditor):
 
     def createWidgets(self, parent: tk.Frame):
         """Add the editor widgets to the parent widget."""
-        super().createWidgets(parent, 'Picture Editor')
+        super().createWidgets(parent, 'Propriétés de la photo')
         
         self.widFilename = self.addTextReadOnly('Nom', Picture.getFilename)
         self.widShotAt = self.addDateTimeReadOnly('Date', Picture.getShotAt)
         self.widLocation = self.addTextReadOnly('Lieu', Picture.getCloseTo)
         self.widRemarks = self.addTextArea('Remarques', Picture.getRemarks)
-        self.widTaxon = self.addTextReadOnly('Taxon', Picture.getTaxonName)
+        self.widTaxon = self.addTextReadOnly('Taxon', Picture.getTaxonNames)
         self.widUpdatedAt = self.addDateTimeReadOnly('Modifié', Picture.getUpdatedAt)
         self.widRating = self.addSpinBox('Qualité', Picture.getRating, 1, 5)
         
@@ -118,7 +116,6 @@ class PictureEditor(BaseWidgets.BaseEditor):
         self.widRemarks.resetModified()
 
     def __str__(self):
-        str = "PictureEditor"
-        return str
+        return 'PictureEditor'
 
 
