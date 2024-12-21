@@ -10,6 +10,7 @@ import config
 import logging
 import math
 import Database
+import geopy.distance
 from LatLonZoom import *
 
 
@@ -105,12 +106,11 @@ class Location:
             self.zoom = llz.getZoom()
 
     def getDistance(self, lat: float, lon: float) -> float:
-        """Get the distance to another location."""
-        return math.sqrt((self.lat - lat) ** 2 + (self.lon - lon) ** 2)
+        """Get the distance to another location in meters."""
+        return 1000*geopy.distance.geodesic((self.lat, self.lon), (lat, lon)).km
     
     def getGPSString(self):
         """Get the GPS coordinates as a string."""
-        #return f'lat {self.lat} lon {self.lon} zoom {self.zoom}'
         return self.getLatLonZoom().toPrettyString()
 
     def __str__(self):
