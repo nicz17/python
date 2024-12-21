@@ -11,6 +11,7 @@ import BaseWidgets
 from imageWidget import MultiImageWidget
 from expedition import Expedition, ExpeditionCache
 from picture import PictureCache
+from moduleReselection import DialogLocate
 
 class ModuleExpeditions(TabModule):
     """Class ModuleExpeditions"""
@@ -20,7 +21,7 @@ class ModuleExpeditions(TabModule):
         """Constructor."""
         self.window = parent.window
         self.table  = ExpeditionTable(self.onSelectExpedition)
-        self.editor = ExpeditionEditor(self.onSaveExpedition)
+        self.editor = ExpeditionEditor(self.onSaveExpedition, parent.window)
         self.photos = MultiImageWidget()
         super().__init__(parent, 'Excursions')
 
@@ -61,7 +62,7 @@ class ExpeditionTable(TableWithColumns):
 
     def __init__(self, cbkSelect):
         """Constructor."""
-        super().__init__(cbkSelect, "expeditions")
+        super().__init__(cbkSelect, "excursions")
         self.addColumn(TableColumn('Titre', Expedition.getName, 256))
         self.addColumn(TableColumn('Lieu',  Expedition.getLocationName, 256))
         self.addColumn(TableColumn('Date',  Expedition.getFrom, 160))
@@ -80,15 +81,25 @@ class ExpeditionEditor(BaseWidgets.BaseEditor):
     """Class ExpeditionEditor"""
     log = logging.getLogger("ExpeditionEditor")
 
-    def __init__(self, cbkSave):
+    def __init__(self, cbkSave, window: tk.Tk):
         """Constructor."""
         super().__init__(cbkSave, '#62564f')
         self.expedition = None
+        self.window = window
 
     def loadData(self, expedition: Expedition):
         """Display the specified object in this editor."""
         self.expedition = expedition
         self.setValue(expedition)
+
+    def onLocate(self):
+        photoInfos = [pic.getPhotoInfo() for pic in self.expedition.getPictures()]
+        for photo in photoInfos:
+            photo.setCloseTo(self.expedition.getLocation())
+        dlgLocate = DialogLocate(self.window, photoInfos, self.expedition.getLocation())
+        self.log.info('Opened locate dialog window, waiting')
+        self.window.wait_window(dlgLocate.root)
+        self.log.info(f'Dialog closed.')
 
     def createWidgets(self, parent: tk.Frame):
         """Add the editor widgets to the parent widget."""
@@ -102,6 +113,7 @@ class ExpeditionEditor(BaseWidgets.BaseEditor):
         self.widTrack = self.addText('GeoTrack', Expedition.getTrack)
         
         self.createButtons(True, True, False)
+        self.btnLocate = self.addButton('Localiser', self.onLocate, 'location22')
         self.enableWidgets()
 
     def enableWidgets(self, evt=None):
@@ -110,6 +122,7 @@ class ExpeditionEditor(BaseWidgets.BaseEditor):
         modified = self.hasChanges(self.expedition)
         super().enableWidgets(editing)
         self.enableButtons(modified, modified, False)
+        self.btnLocate.enableWidget(editing)
 
     def __str__(self):
         return "ExpeditionEditor"

@@ -44,12 +44,19 @@ class ImageWidget():
         fileMedium = None
         if picture is not None:
             if isinstance(picture, Picture):
+                self.log.info('Loading thumb for Picture %s', picture.filename)
                 fileMedium = f'{config.dirPicsBase}medium/{picture.filename}'
             if isinstance(picture, PhotoInfo):
-                fileMedium = picture.filename.replace('photos/', 'thumbs/')
-                if not os.path.exists(fileMedium):
-                    self.log.info('Creating medium image for %s', picture.filename)
-                    os.system(f'convert {picture.filename} -resize 500x500 {fileMedium}')
+                self.log.info('Loading thumb for PhotoInfo %s', picture.filename)
+                if picture.filename.startswith(config.dirPictures):
+                    # It's the PhotoInfo of a database Picture
+                    fileMedium = picture.filename.replace(config.dirPictures, f'{config.dirPicsBase}medium/')
+                else:
+                    # It's the PhotoInfo of a preselected photo
+                    fileMedium = picture.filename.replace('photos/', 'thumbs/')
+                    if not os.path.exists(fileMedium):
+                        self.log.info('Creating medium image for %s', picture.filename)
+                        os.system(f'convert {picture.filename} -resize 500x500 {fileMedium}')
         self.loadData(fileMedium)
 
     def setDefaultImage(self):

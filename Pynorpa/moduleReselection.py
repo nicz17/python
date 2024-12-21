@@ -270,6 +270,7 @@ class DialogLocate(ModalDialog):
             cmd = f'exiftool -GPSLatitude*={self.photo.lat} -GPSLongitude*={self.photo.lon} -overwrite_original {self.photo.filename}'
             self.log.info(cmd)
             os.system(cmd)
+            self.photo.setCloseTo(self.locCache.getClosest(self.photo.lat, self.photo.lon))
             self.hasChanges = False
             self.enableWidgets()
 
