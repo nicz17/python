@@ -463,6 +463,8 @@ class Exporter():
         self.buildClassification()
         for taxon in self.taxCache.getForRank(TaxonRank.PHYLUM):
             self.buildPhylum(taxon)
+        for taxon in self.taxCache.getForRank(TaxonRank.ORDER):
+            self.buildOrder(taxon)
         for taxon in self.taxCache.getForRank(TaxonRank.SPECIES):
             self.buildSpecies(taxon)
 
@@ -493,6 +495,31 @@ class Exporter():
 
     def buildPhylum(self, taxon: Taxon):
         """Build a Phylum classification page."""
+        page = pynorpaHtml.PynorpaHtmlPage(f'Nature - {taxon.getName()}')
+        page.menu.addTag(HtmlTag('h2', 'Classification'))
+        page.addHeading(1, f'{taxon.getName()} &mdash; {taxon.getRankFr()} {taxon.getNameFr()}')
+
+        for child in taxon.getChildren():
+            page.addTag(AnchorHtmlTag(child.getName()))
+            page.addHeading(2, f'{child.getName()} &mdash; {child.getRankFr()} {child.getNameFr()}')
+            menuLink = HtmlTag('h3')
+            menuLink.addTag(LinkHtmlTag(f'#{child.getName()}', child.getName()))
+            page.menu.addTag(menuLink)
+            tableThumbs = TableHtmlTag([]).addAttr('class', 'table-thumbs')
+            page.addTag(tableThumbs)
+            for subchild in child.getChildren():
+                pic: Picture
+                pic = subchild.getTypicalPicture()
+                link = LinkHtmlTag(f'{subchild.getName()}.html', None)
+                link.addTag(ImageHtmlTag(f'thumbs/{pic.getFilename()}', subchild.getNameFr(), subchild.getName()))
+                link.addTag(HtmlTag('span', f'<br>{subchild.getName()} ({len(subchild.getChildren())})'))
+                td = tableThumbs.getNextCell()
+                td.addTag(AnchorHtmlTag(f'#{subchild.getName()}'))
+                td.addTag(link)
+        page.save(f'{config.dirWebExport}{taxon.getName()}.html')
+
+    def buildOrder(self, taxon: Taxon):
+        """Build an Order classification page with its families and species."""
         page = pynorpaHtml.PynorpaHtmlPage(f'Nature - {taxon.getName()}')
         page.menu.addTag(HtmlTag('h2', 'Classification'))
         page.addHeading(1, f'{taxon.getName()} &mdash; {taxon.getRankFr()} {taxon.getNameFr()}')
