@@ -524,23 +524,44 @@ class Exporter():
         page.menu.addTag(HtmlTag('h2', 'Classification'))
         page.addHeading(1, f'{taxon.getName()} &mdash; {taxon.getRankFr()} {taxon.getNameFr()}')
 
-        for child in taxon.getChildren():
-            page.addTag(AnchorHtmlTag(child.getName()))
-            page.addHeading(2, f'{child.getName()} &mdash; {child.getRankFr()} {child.getNameFr()}')
+        for family in taxon.getChildren():
+            page.addTag(AnchorHtmlTag(family.getName()))
+            page.addHeading(2, f'{family.getName()} &mdash; {family.getRankFr()} {family.getNameFr()}')
             menuLink = HtmlTag('h3')
-            menuLink.addTag(LinkHtmlTag(f'#{child.getName()}', child.getName()))
+            menuLink.addTag(LinkHtmlTag(f'#{family.getName()}', family.getName()))
             page.menu.addTag(menuLink)
             tableThumbs = TableHtmlTag([]).addAttr('class', 'table-thumbs')
             page.addTag(tableThumbs)
-            for subchild in child.getChildren():
-                pic: Picture
-                pic = subchild.getTypicalPicture()
-                link = LinkHtmlTag(f'{subchild.getName()}.html', None)
-                link.addTag(ImageHtmlTag(f'thumbs/{pic.getFilename()}', subchild.getNameFr(), subchild.getName()))
-                link.addTag(HtmlTag('span', f'<br>{subchild.getName()} ({len(subchild.getChildren())})'))
+            # Observation of unknown Genus
+            pic: Picture
+            if len(family.getPictures()) > 0:
+                pic = family.getPictures()[0]
+                link = LinkHtmlTag(self.getTaxonLink(family), None)
+                link.addTag(ImageHtmlTag(f'thumbs/{pic.getFilename()}', family.getNameFr(), family.getName()))
+                link.addTag(HtmlTag('span', f'<br>{family.getName()} indéterminés'))
                 td = tableThumbs.getNextCell()
-                td.addTag(AnchorHtmlTag(f'#{subchild.getName()}'))
                 td.addTag(link)
+                # TODO self.buildFamily(family)
+            for genus in family.getChildren():
+                # TODO Observations of unknown species
+                if len(genus.getPictures()) > 0:
+                    pic = genus.getPictures()[0]
+                    link = LinkHtmlTag(self.getTaxonLink(genus), None)
+                    link.addTag(ImageHtmlTag(f'thumbs/{pic.getFilename()}', genus.getNameFr(), genus.getName()))
+                    link.addTag(HtmlTag('i', f'<br>{genus.getName()} sp.'))
+                    td = tableThumbs.getNextCell()
+                    td.addTag(link)
+                    # TODO self.buildGenus(genus)
+                for species in genus.getChildren():
+                    pic = species.getBestPicture()
+                    link = LinkHtmlTag(self.getTaxonLink(species), None)
+                    link.addTag(ImageHtmlTag(f'thumbs/{pic.getFilename()}', species.getNameFr(), species.getName()))
+                    link.addTag(HtmlTag('i', f'<br>{species.getName()}'))
+                    td = tableThumbs.getNextCell()
+                    td.addTag(AnchorHtmlTag(f"#{species.getName().replace(' ', '-')}"))
+                    td.addTag(link)
+                    if species.getNameFr() != species.getName():
+                        td.addTag(HtmlTag('span', f'<br>{species.getNameFr()}'))
         page.save(f'{config.dirWebExport}{taxon.getName()}.html')
 
     def buildSpecies(self, taxon: Taxon):
@@ -651,7 +672,7 @@ class Exporter():
         match taxon.getRank():
             case TaxonRank.SPECIES:
                 return f"{rel}{taxon.getName().replace(' ', '-').lower()}.html"
-            case TaxonRank.GENUS:
+            case TaxonRank.GENUS | TaxonRank.FAMILY:
                 return f'{rel}{taxon.getName().lower()}.html'
         return 'not-implemented.html'
 

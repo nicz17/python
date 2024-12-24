@@ -45,6 +45,7 @@ class ModuleCamera(TabModule):
         self.tracker.prepare()
         #self.tasks.append(TestMapView(self.onCenterMap, self.onBoundingBoxMap, self.onAddCoords))
         #self.tasks.append(TestPynorpaTask(5, self.updateTaskDisplay))
+        # TODO add task to copy from S8 DropBox
         self.tasks.append(MountCameraTask(self.copier, self.updateTaskDisplay))
         self.tasks.append(CopyFromCameraTask(self.copier, self.updateTaskDisplay))
         self.tasks.append(GeoTrackerTask(self.tracker, self.copier.getNumberImages(), self.updateTaskDisplay))
