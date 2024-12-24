@@ -152,7 +152,7 @@ class GeoTrackerTask(PynorpaTask):
         self.tracker.setPhotoGPSTags(self.onProgress)
         self.setDesc(self.tracker.getStatusMessage())
         self.cbkUpdate()
-        self.tracker.buildHtmlPreviews() # TODO move to own task ?
+        #self.tracker.buildHtmlPreviews()
 
     def onProgress(self):
         if not self.isOver():

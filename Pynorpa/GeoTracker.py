@@ -216,7 +216,6 @@ class GeoTracker:
             os.system(f'firefox {htmlFile} &')
 
         # Copy PNG icons from resources/ to target
-        # TODO: need settings for resources path
         os.system(f'cp resources/*.png {self.dirTarget}')
 
     def getStatusMessage(self):
@@ -289,6 +288,13 @@ class GeoTrack:
         self.log.info('Getting location at %s', dtAt)
         if self.contains(dtAt):
             locs = self.gpx.get_location_at(dtAt)
+            if locs is not None and len(locs) > 0:
+                return locs[0]
+            else:
+                return None
+        elif (dtAt.timestamp() < self.tStart.timestamp()) and (self.tStart.timestamp() - dtAt.timestamp()) < 2*60:
+            self.log.info('Just before start of track %s, using start', self.name)
+            locs = self.gpx.get_location_at(self.tStart)
             if locs is not None and len(locs) > 0:
                 return locs[0]
             else:

@@ -25,6 +25,7 @@ class ModuleCamera(TabModule):
         self.window = parent.window
         self.tasks = []
         self.isRunning = False
+        self.defLocation = None
         super().__init__(parent, 'Caméra')
 
         self.copier = CopyFromCamera()
@@ -89,13 +90,14 @@ class ModuleCamera(TabModule):
             self.oParent.showErrorMsg(f'Photo directory not found:\n{dir}')
 
     def onSelectLocation(self, event=None):
-        defLocation = None
+        self.defLocation = None
         name = self.cboDefLoc.getValue()
         if name:
-            defLocation = self.cache.getByName(name)
-        if defLocation:
-            self.mapWidget.setLatLonZoom(defLocation.getLatLonZoom())
-        self.tracker.setDefaultLocation(defLocation)
+            self.defLocation = self.cache.getByName(name)
+        if self.defLocation:
+            self.mapWidget.setLatLonZoom(self.defLocation.getLatLonZoom())
+        self.tracker.setDefaultLocation(self.defLocation)
+        self.enableWidgets()
 
     def onCenterMap(self, center: LatLonZoom):
         """Callback to center the map widget."""
@@ -147,7 +149,8 @@ class ModuleCamera(TabModule):
 
         # Map
         self.mapWidget.createWidgets(self.frmRight, 0, 100)
+        self.enableWidgets()
 
     def enableWidgets(self):
-        self.btnCopy.enableWidget(not self.isRunning)
+        self.btnCopy.enableWidget(self.defLocation and not self.isRunning)
         self.btnOpen.enableWidget(not self.isRunning)
