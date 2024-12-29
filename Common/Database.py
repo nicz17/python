@@ -7,9 +7,11 @@ __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
 import io
+import datetime
 import logging
 from mysql.connector import connect, Error
 from getpass import getpass
+import DateTools
 
 
 class Database:
@@ -85,6 +87,14 @@ class Query():
         else:
             escaped = text.replace("'", "''")
             self.add(f"'{escaped}'")
+        return self
+    
+    def addDate(self, dAt: datetime):
+        """Add a datetime in database format."""
+        if dAt is None:
+            self.add('null')
+        else:
+            self.add(f"'{DateTools.datetimeToString(dAt, '%Y-%m-%d %H:%M:%S')}'")
         return self
 
     def getSQL(self):

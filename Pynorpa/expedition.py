@@ -193,10 +193,9 @@ class ExpeditionCache():
         query.add('Update Expedition set')
         query.add('expName = ').addEscapedString(obj.getName()).add(',')
         query.add('expDesc = ').addEscapedString(obj.getDesc()).add(',')
-        #query.add(f'expLocation = {obj.getLocation()},')
-        # TODO escape dates
-        #query.add('expFrom = ').addEscapedString(obj.getFrom()).add(',')
-        #query.add('expTo = ').addEscapedString(obj.getTo()).add(',')
+        #query.add(f'expLocation = {obj.getIdxLocation()},')
+        query.add('expFrom = ').addDate(obj.getFrom()).add(',')
+        query.add('expTo = ').addEscapedString(obj.getTo()).add(',')
         query.add('expTrack = ').addEscapedString(obj.getTrack())
         query.add(f'where idxExpedition = {obj.getIdx()}')
         self.db.connect(config.dbUser, config.dbPass)
