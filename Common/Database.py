@@ -76,6 +76,7 @@ class Query():
         if len(self.sio.getvalue()) > 0:
             self.sio.write(' ')
         self.sio.write(sql.strip())
+        return self
 
     def addEscapedString(self, text: str):
         """Escape quotes and add the text with quotes."""
@@ -84,6 +85,7 @@ class Query():
         else:
             escaped = text.replace("'", "''")
             self.add(f"'{escaped}'")
+        return self
 
     def getSQL(self):
         """Return the accumulated SQL"""

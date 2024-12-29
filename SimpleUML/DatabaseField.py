@@ -41,6 +41,14 @@ class DatabaseField():
             type = 'str'
         return type
 
+    def isStringValue(self):
+        """Checks if database requires a string for setting the value."""
+        if self.type.startswith('varchar'):
+            return True
+        if self.type == 'datetime':
+            return True
+        return False
+
     def getEditionKind(self):
         """Guess the kind of widget to use in editor for this field."""
         kind = 'Text'

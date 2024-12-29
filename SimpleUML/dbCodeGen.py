@@ -170,9 +170,15 @@ class DatabaseCodeGen():
         for field in self.fields:
             if field.isPrimaryKey(): continue
             getter = f'get{TextTools.upperCaseFirst(field.getPythonName(self.prefix))}()'
-            value = '{obj.' + getter + '}'
-            met.addCodeLine(f"query.add(f'{field.name} = {value},')")
+            if field.isStringValue():
+                met.addCodeLine(f"query.add('{field.name} = ').addEscapedString(obj.{getter}).add(',')")
+            else:
+                value = '{obj.' + getter + '}'
+                met.addCodeLine(f"query.add(f'{field.name} = {value},')")
         met.addCodeLine("query.add(f'where idx" + self.table + " = {obj.getIdx()}')")
+        met.addCodeLine('self.db.connect(config.dbUser, config.dbPass)')
+        met.addCodeLine('self.db.execute(query.getSQL())')
+        met.addCodeLine('self.db.disconnect()')
         met.addCodeLine('query.close()')
 
         # Insert method
