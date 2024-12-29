@@ -79,8 +79,11 @@ class Query():
 
     def addEscapedString(self, text: str):
         """Escape quotes and add the text with quotes."""
-        escaped = text.replace("'", "''")
-        self.add(f"'{escaped}'")
+        if text is None or text == '':
+            self.add('null')
+        else:
+            escaped = text.replace("'", "''")
+            self.add(f"'{escaped}'")
 
     def getSQL(self):
         """Return the accumulated SQL"""
