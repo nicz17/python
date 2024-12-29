@@ -200,7 +200,6 @@ class ExpeditionCache():
         query.add('expTrack = ').addEscapedString(obj.getTrack())
         query.add(f'where idxExpedition = {obj.getIdx()}')
         self.db.connect(config.dbUser, config.dbPass)
-        self.log.info(query.getSQL())
         self.db.execute(query.getSQL())
         self.db.disconnect()
         query.close()

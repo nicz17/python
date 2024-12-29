@@ -73,7 +73,7 @@ class Query():
 
     def add(self, sql: str):
         """Add some SQL."""
-        if len(self.sio.getvalue()) > 0:
+        if len(self.sio.getvalue()) > 0 and sql != ',':
             self.sio.write(' ')
         self.sio.write(sql.strip())
         return self

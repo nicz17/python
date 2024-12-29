@@ -167,14 +167,17 @@ class DatabaseCodeGen():
         met.addCodeLine("self.log.info('Updating %s', obj)")
         met.addCodeLine(f"query = Database.Query('Update {self.table}')")
         met.addCodeLine(f"query.add('Update {self.table} set')")
-        for field in self.fields:
+        for count, field in enumerate(self.fields):
             if field.isPrimaryKey(): continue
+            isLast = (count == len(self.fields)-1)
             getter = f'get{TextTools.upperCaseFirst(field.getPythonName(self.prefix))}()'
             if field.isStringValue():
-                met.addCodeLine(f"query.add('{field.name} = ').addEscapedString(obj.{getter}).add(',')")
+                sep = '' if isLast else ".add(',')"
+                met.addCodeLine(f"query.add('{field.name} = ').addEscapedString(obj.{getter}){sep}")
             else:
                 value = '{obj.' + getter + '}'
-                met.addCodeLine(f"query.add(f'{field.name} = {value},')")
+                sep = '' if isLast else ','
+                met.addCodeLine(f"query.add(f'{field.name} = {value}{sep}')")
         met.addCodeLine("query.add(f'where idx" + self.table + " = {obj.getIdx()}')")
         met.addCodeLine('self.db.connect(config.dbUser, config.dbPass)')
         met.addCodeLine('self.db.execute(query.getSQL())')
