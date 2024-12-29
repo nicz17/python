@@ -41,9 +41,11 @@ class ModuleExpeditions(TabModule):
             pics = expedition.getPictures()
         self.photos.loadImages(pics)
 
-    def onSaveExpedition(self, expedition: Expedition):
-        """Save changes to edited object."""
-        pass
+    def onSaveExpedition(self, excursion: Expedition):
+        """Save changes to edited excursion."""
+        self.log.info('Saving %s', excursion)
+        self.expeditionCache.save(excursion)
+        self.editor.loadData(excursion)
 
     def createWidgets(self):
         """Create user widgets."""
@@ -91,6 +93,12 @@ class ExpeditionEditor(BaseWidgets.BaseEditor):
         """Display the specified object in this editor."""
         self.expedition = expedition
         self.setValue(expedition)
+
+    def onSave(self, evt=None):
+        """Save changes to the edited object."""
+        self.expedition.setName(self.widName.getValue())
+        self.expedition.setDesc(self.widDesc.getValue())
+        self.cbkSave(self.expedition)
 
     def onLocate(self):
         photoInfos = [pic.getPhotoInfo() for pic in self.expedition.getPictures()]

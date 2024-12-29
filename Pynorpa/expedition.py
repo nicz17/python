@@ -176,6 +176,39 @@ class ExpeditionCache():
                         exped.addPicture(picture)
                 exped.pictures = sorted(exped.pictures, key=lambda pic: pic.shotAt)
 
+    def save(self, obj: Expedition):
+        """Insert or update the specified Expedition in database."""
+        if obj is None:
+            self.log.error('Undefined object to save!')
+            return
+        if obj.getIdx() > 0:
+            self.update(obj)
+        else:
+            self.insert(obj)
+
+    def update(self, obj: Expedition):
+        """Update the specified Expedition in database."""
+        self.log.info('Updating %s', obj)
+        query = Database.Query('Update Expedition')
+        query.add('Update Expedition set')
+        query.add('expName = ').addEscapedString(obj.getName()).add(',')
+        query.add('expDesc = ').addEscapedString(obj.getDesc()).add(',')
+        #query.add(f'expLocation = {obj.getLocation()},')
+        # TODO escape dates
+        #query.add('expFrom = ').addEscapedString(obj.getFrom()).add(',')
+        #query.add('expTo = ').addEscapedString(obj.getTo()).add(',')
+        query.add('expTrack = ').addEscapedString(obj.getTrack())
+        query.add(f'where idxExpedition = {obj.getIdx()}')
+        self.db.connect(config.dbUser, config.dbPass)
+        self.log.info(query.getSQL())
+        self.db.execute(query.getSQL())
+        self.db.disconnect()
+        query.close()
+
+    def insert(self, obj: Expedition):
+        """Insert the specified Expedition in database."""
+        self.log.info('Inserting %s', obj)
+
     def fetchFromWhere(self, where: str):
         """Fetch Expedition records from a SQL where-clause. Return a list of ids."""
         result = []
