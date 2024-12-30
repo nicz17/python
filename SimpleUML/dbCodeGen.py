@@ -47,6 +47,8 @@ class DatabaseCodeGen():
         # Find the table prefix
         self.prefix = self.getPrefix()
         self.log.info('Table prefix is %s', self.prefix)
+        for field in self.fields:
+            field.setPrefix(self.prefix)
 
     def generateModuleModel(self):
         """Generate a python module with the object and cache classes."""
@@ -93,14 +95,14 @@ class DatabaseCodeGen():
         members = []
         field: DatabaseField
         for field in self.fields:
-            name = field.getPythonName(self.prefix)
+            name = field.getPythonName()
             type = field.getPythonType()
             members.append(SimpleUMLParam(name, type))
         clss.addMethod(self.table, members, None, False)
 
         # Add getters and setters
         for field in self.fields:
-            name = field.getPythonName(self.prefix)
+            name = field.getPythonName()
             type = field.getPythonType()
             ucName = TextTools.upperCaseFirst(name)
             clss.addMember(name, type)
@@ -171,7 +173,7 @@ class DatabaseCodeGen():
             if field.isPrimaryKey(): continue
             isLast = (count == len(self.fields)-1)
             sep = '' if isLast else ".add(',')"
-            getter = f'get{TextTools.upperCaseFirst(field.getPythonName(self.prefix))}()'
+            getter = f'get{TextTools.upperCaseFirst(field.getPythonName())}()'
             if field.isStringValue():
                 met.addCodeLine(f"query.add('{field.name} = ').addEscapedString(obj.{getter}){sep}")
             elif field.type == 'datetime':
@@ -218,8 +220,7 @@ class DatabaseCodeGen():
         params = [SimpleUMLParam('name', 'str')]
         oMeth = clss.addMethod('findByName', params, self.table, False)
         oMeth.setDoc(f'Find a {self.table} from its unique name.')
-        oMeth.addCodeLine(f'item: {self.table}')
-        oMeth.addCodeLine(f'for item in self.{sCollName}:')
+        oMeth.addCodeLine(f'for item in self.get{self.table}s():')
         oMeth.addCodeLine('    if item.name == name:')
         oMeth.addCodeLine('        return item')
         oMeth.addCodeLine('return None')
@@ -297,8 +298,8 @@ class DatabaseCodeGen():
         field: DatabaseField
         for field in self.fields:
             if not (field.isPrimaryKey() or field.size > 64):
-                pName = TextTools.upperCaseFirst(field.getPythonName(self.prefix))
-                label = field.getLabel(self.prefix)
+                pName = TextTools.upperCaseFirst(field.getPythonName())
+                label = field.getLabel()
                 width = field.getColumnWidth()
                 oConstr.addCodeLine(f"self.addColumn(TableColumn('{label}', {self.table}.get{pName}, {width}))")
 
@@ -350,10 +351,10 @@ class DatabaseCodeGen():
         for field in self.fields:
             if field.isPrimaryKey():
                 continue
-            nameField = TextTools.upperCaseFirst(field.getPythonName(self.prefix).replace('idx', ''))
+            nameField = TextTools.upperCaseFirst(field.getPythonName().replace('idx', ''))
             nameWidget = f'wid{nameField}'
             nameGetter = f'{self.table}.get{nameField}'
-            label = field.getLabel(self.prefix)
+            label = field.getLabel()
             oMeth.addCodeLine(f"self.{nameWidget} = self.add{field.getEditionKind()}('{label}', {nameGetter})")
         oMeth.addCodeLine('')
         oMeth.addCodeLine('self.createButtons(True, True, False)')

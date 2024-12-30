@@ -19,12 +19,16 @@ class DatabaseField():
         self.role = role
         self.size = 0
         self.nullable = nullable
+        self.prefix = None
         if self.type.startswith('varchar('):
             self.size = int(self.type.replace('varchar(', '').replace(')', ''))
 
-    def getPythonName(self, prefix: str):
+    def setPrefix(self, prefix: str):
+        self.prefix = prefix
+
+    def getPythonName(self):
         """Get the python name"""
-        name = self.name.removeprefix(prefix)
+        name = self.name.removeprefix(self.prefix)
         name = TextTools.lowerCaseFirst(name)
         if self.isPrimaryKey():
             return 'idx'
@@ -59,9 +63,9 @@ class DatabaseField():
             kind = 'TextArea'
         return kind
     
-    def getLabel(self, prefix: str):
+    def getLabel(self):
         """Split camel case into separate words."""
-        pname = self.getPythonName(prefix)
+        pname = self.getPythonName()
         label = TextTools.upperCaseFirst(TextTools.splitCamelCase(pname))
         return label
     
@@ -93,11 +97,12 @@ def testDatabaseField():
     DatabaseField.log.info("Testing DatabaseField")
     prefix = 'prf'
     obj = DatabaseField(f'{prefix}OrderByName', 'int', False, None)
+    obj.setPrefix(prefix)
     obj.log.info(obj)
-    obj.log.info('Python name: %s',  obj.getPythonName(prefix))
+    obj.log.info('Python name: %s',  obj.getPythonName())
     obj.log.info('Python type: %s',  obj.getPythonType())
     obj.log.info('Edition kind: %s', obj.getEditionKind())
-    obj.log.info('Label: %s', obj.getLabel(prefix))
+    obj.log.info('Label: %s', obj.getLabel())
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",
