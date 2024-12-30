@@ -170,10 +170,12 @@ class DatabaseCodeGen():
         for count, field in enumerate(self.fields):
             if field.isPrimaryKey(): continue
             isLast = (count == len(self.fields)-1)
+            sep = '' if isLast else ".add(',')"
             getter = f'get{TextTools.upperCaseFirst(field.getPythonName(self.prefix))}()'
             if field.isStringValue():
-                sep = '' if isLast else ".add(',')"
                 met.addCodeLine(f"query.add('{field.name} = ').addEscapedString(obj.{getter}){sep}")
+            elif field.type == 'datetime':
+                met.addCodeLine(f"query.add('{field.name} = ').addDate(obj.{getter}){sep}")
             else:
                 value = '{obj.' + getter + '}'
                 sep = '' if isLast else ','

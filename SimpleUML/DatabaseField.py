@@ -35,8 +35,6 @@ class DatabaseField():
         type = self.type
         if self.type == 'tinyint(1)':
             type = 'bool'
-        #if self.type == 'datetime':
-        #    type = 'float'
         if self.type.startswith('varchar'):
             type = 'str'
         return type
@@ -44,8 +42,6 @@ class DatabaseField():
     def isStringValue(self):
         """Checks if database requires a string for setting the value."""
         if self.type.startswith('varchar'):
-            return True
-        if self.type == 'datetime':
             return True
         return False
 

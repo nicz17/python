@@ -195,7 +195,7 @@ class ExpeditionCache():
         query.add('expDesc = ').addEscapedString(obj.getDesc()).add(',')
         #query.add(f'expLocation = {obj.getIdxLocation()},')
         query.add('expFrom = ').addDate(obj.getFrom()).add(',')
-        query.add('expTo = ').addEscapedString(obj.getTo()).add(',')
+        query.add('expTo = ').addDate(obj.getTo()).add(',')
         query.add('expTrack = ').addEscapedString(obj.getTrack())
         query.add(f'where idxExpedition = {obj.getIdx()}')
         self.db.connect(config.dbUser, config.dbPass)
@@ -220,32 +220,21 @@ class ExpeditionCache():
         return result
 
     def findById(self, idx: int) -> Expedition:
-        """Find a Expedition from its primary key."""
-        item: Expedition
-        for item in self.expeditions:
+        """Find an Expedition from its primary key."""
+        for item in self.getExpeditions():
             if item.idx == idx:
                 return item
         return None
 
     def findByName(self, name: str) -> Expedition:
-        """Find a Expedition from its unique name."""
-        item: Expedition
-        for item in self.expeditions:
+        """Find an Expedition from its unique name."""
+        for item in self.getExpeditions():
             if item.name == name:
                 return item
         return None
 
-    def toJson(self):
-        """Create a dict of this ExpeditionCache for json export."""
-        data = {
-            'expeditions': self.expeditions,
-        }
-        return data
-
     def __str__(self):
-        str = "ExpeditionCache"
-        str += f' expeditions: {self.expeditions}'
-        return str
+        return 'ExpeditionCache'
 
 
 def testExpedition():
