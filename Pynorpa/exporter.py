@@ -466,7 +466,7 @@ class Exporter():
         for taxon in self.taxCache.getForRank(TaxonRank.ORDER):
             self.buildOrder(taxon)
         for taxon in self.taxCache.getForRank(TaxonRank.SPECIES):
-            self.buildSpecies(taxon)
+            self.buildTaxon(taxon)
 
     def buildClassification(self):
         """Build main classification page."""
@@ -541,9 +541,9 @@ class Exporter():
                 link.addTag(HtmlTag('span', f'<br>{family.getName()} indéterminés'))
                 td = tableThumbs.getNextCell()
                 td.addTag(link)
-                # TODO self.buildFamily(family)
+                self.buildTaxon(family)
             for genus in family.getChildren():
-                # TODO Observations of unknown species
+                # Observations of unknown species
                 if len(genus.getPictures()) > 0:
                     pic = genus.getPictures()[0]
                     link = LinkHtmlTag(self.getTaxonLink(genus), None)
@@ -551,7 +551,7 @@ class Exporter():
                     link.addTag(HtmlTag('i', f'<br>{genus.getName()} sp.'))
                     td = tableThumbs.getNextCell()
                     td.addTag(link)
-                    # TODO self.buildGenus(genus)
+                    self.buildTaxon(genus)
                 for species in genus.getChildren():
                     pic = species.getBestPicture()
                     link = LinkHtmlTag(self.getTaxonLink(species), None)
@@ -564,8 +564,8 @@ class Exporter():
                         td.addTag(HtmlTag('span', f'<br>{species.getNameFr()}'))
         page.save(f'{config.dirWebExport}{taxon.getName()}.html')
 
-    def buildSpecies(self, taxon: Taxon):
-        """Build the page for the species."""
+    def buildTaxon(self, taxon: Taxon):
+        """Build the page for the taxon: genus or species."""
         page = pynorpaHtml.PynorpaHtmlPage(f'Nature - {taxon.getName()}', '../')
         page.menu.addTag(HtmlTag('h2', 'Classification'))
         title = taxon.getName()
@@ -607,15 +607,16 @@ class Exporter():
         divClassif.addTag(tableClassif)
         for rank in TaxonRank:
             ancestor = taxon.getAncestor(rank)
-            td = tableClassif.getNextCell(ImageHtmlTag(f'rank{rank.value+1}.svg', rank.getNameFr(), rank.getNameFr()))
-            td.addTag(InlineHtmlTag(rank.getNameFr(), [], ''))
-            link = self.getTaxonClassif(ancestor)
-            tableClassif.getNextCell(link)
-            tableClassif.getNextCell(ancestor.getNameFr())
-            if rank != TaxonRank.GENUS:
-                menuLink = HtmlTag('h3')
-                menuLink.addTag(link)
-                page.menu.addTag(menuLink)
+            if ancestor:
+                td = tableClassif.getNextCell(ImageHtmlTag(f'rank{rank.value+1}.svg', rank.getNameFr(), rank.getNameFr()))
+                td.addTag(InlineHtmlTag(rank.getNameFr(), [], ''))
+                link = self.getTaxonClassif(ancestor)
+                tableClassif.getNextCell(link)
+                tableClassif.getNextCell(ancestor.getNameFr())
+                if rank != TaxonRank.GENUS:
+                    menuLink = HtmlTag('h3')
+                    menuLink.addTag(link)
+                    page.menu.addTag(menuLink)
 
         # External links
         ul = ListHtmlTag([])
