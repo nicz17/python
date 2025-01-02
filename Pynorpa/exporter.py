@@ -88,7 +88,7 @@ class Exporter():
         aBestPics = self.picCache.getRandomBest()
         for pic in aBestPics:
             td = tableBestPics.getNextCell()
-            link = LinkHtmlTag(self.getTaxonLink(pic.taxon), None, False, pic.getTaxonName())
+            link = LinkHtmlTag(self.getPictureLink(pic), None, False, pic.getTaxonName())
             link.addTag(ImageHtmlTag(f'thumbs/{pic.getFilename()}', pic.getTaxonName(), pic.getFilename()))
             td.addTag(link)
         divBest.addTag(tableBestPics)
@@ -675,6 +675,18 @@ class Exporter():
                 return f"{rel}{taxon.getName().replace(' ', '-').lower()}.html"
             case TaxonRank.GENUS | TaxonRank.FAMILY:
                 return f'{rel}{taxon.getName().lower()}.html'
+        return 'not-implemented.html'
+
+    def getPictureLink(self, pic: Picture, rel='pages/') -> str:
+        """Get the home-relative link to the specified taxon page."""
+        taxon: Taxon
+        taxon = pic.getTaxon()
+        anchor = f"#{pic.getFilename().removesuffix('.jpg')}"
+        match taxon.getRank():
+            case TaxonRank.SPECIES:
+                return f"{rel}{taxon.getName().replace(' ', '-').lower()}.html{anchor}"
+            case TaxonRank.GENUS | TaxonRank.FAMILY:
+                return f'{rel}{taxon.getName().lower()}.html{anchor}'
         return 'not-implemented.html'
 
     def getTaxonClassif(self, taxon: Taxon) -> HtmlTag:
