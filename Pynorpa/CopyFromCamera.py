@@ -185,8 +185,8 @@ class CopyFromDropBox():
             else:
                 self.log.error('Unhandled file name %s: wrong length', name)
         timer.stop()
-        self.log.info('Copied %d photos in %s', len(self.images), timer.getElapsed())
-        self.statusMsg = f'Copied {len(self.images)} photos in {timer.getElapsed()}'
+        self.log.info('Copied %d photos in %s', len(self.copied), timer.getElapsed())
+        self.statusMsg = f'Copied {len(self.copied)} photos in {timer.getElapsed()}'
     
     def getNumberImages(self):
         """Get the number of photos to copy."""
