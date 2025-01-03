@@ -143,6 +143,48 @@ class CopyFromCamera:
     def getStatusMessage(self):
         """Return a message about the current status."""
         return self.statusMsg
+    
+class CopyFromDropBox():
+    """Copy JPG images from DropBox Panorpa directory."""
+    log = logging.getLogger('CopyFromDropBox')
+
+    def __init__(self):
+        """Constructor."""
+        self.log.info('Constructor')
+        self.images = []  # Photos found on DropBox
+        self.copied = []  # Images copied to disk
+        self.sourceDir = config.dirDropBox
+        self.statusMsg = 'Init'
+
+    def loadImages(self):
+        """Load the list of images to copy."""
+        self.images = sorted(glob.glob(self.sourceDir + '*.jpg'))
+        self.log.info('Found %d images', len(self.images))
+        self.statusMsg = f'Loaded {len(self.images)} images from {self.sourceDir}'
+
+    def copyImages(self, cbkProgress = None):
+        """Copy JPG images from the DropBox dir."""
+        if len(self.images) == 0:
+            return
+        for file in self.images:
+            name = os.path.basename(file)
+            if len(name) == 19:
+                targetDir = f'{config.dirPhotosBase}Nature-{name[0:4]}-{name[4:6]}/orig/'
+                targetFile = f"{targetDir}{name.replace('.jpg', '.JPG')}"
+                if os.path.exists(targetFile):
+                    self.log.info('Already copied %s', name)
+                else:
+                    self.log.info('Copying %s to %s', name, targetFile)
+                    cmd = f'cp {file} {targetFile}'
+                    self.log.debug(cmd)
+                    #os.system(cmd)
+                    self.copied.append(targetFile)
+                if cbkProgress:
+                    cbkProgress()
+            else:
+                self.log.error('Unhandled file name %s: wrong length', name)
+
+
 
 
 def testCopyFromCamera():
@@ -155,7 +197,17 @@ def testCopyFromCamera():
             photo = PhotoInfo(img)
             #photo.identify()
 
+def testCopyFromDropBox():
+    copier = CopyFromDropBox()
+    copier.loadImages()
+    for img in copier.images:
+        photo = PhotoInfo(img)
+        photo.identify()
+        copier.log.info(photo)
+    copier.copyImages()
+
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s", 
-        level=logging.DEBUG, handlers=[logging.StreamHandler()])
+        level=logging.INFO, handlers=[logging.StreamHandler()])
     testCopyFromCamera()
+    testCopyFromDropBox()
