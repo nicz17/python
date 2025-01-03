@@ -126,7 +126,9 @@ class PhotoInfo:
                     
     def __str__(self):
         str  = f'PhotoInfo {self.filename} [{self.width}x{self.height}] '
-        str += f'{DateTools.timestampToString(self.tShotAt)} Lon/Lat {self.lon:.5f}/{self.lat:.5f}'
+        str += f'{DateTools.timestampToString(self.tShotAt)}'
+        if self.hasGPSData():
+            str += f' Lon/Lat {self.lon:.5f}/{self.lat:.5f}'
         return str
     
 def testPhotoInfo():
