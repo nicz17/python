@@ -160,12 +160,13 @@ class CopyFromDropBox():
         """Load the list of images to copy."""
         self.images = sorted(glob.glob(self.sourceDir + '*.jpg'))
         self.log.info('Found %d images', len(self.images))
-        self.statusMsg = f'Loaded {len(self.images)} images from {self.sourceDir}'
+        self.statusMsg = f'Chargé {len(self.images)} images de {self.sourceDir}'
 
     def copyImages(self, cbkProgress = None):
         """Copy JPG images from the DropBox dir."""
         if len(self.images) == 0:
             return
+        timer = Timer()
         for file in self.images:
             name = os.path.basename(file)
             if len(name) == 19:
@@ -177,14 +178,23 @@ class CopyFromDropBox():
                     self.log.info('Copying %s to %s', name, targetFile)
                     cmd = f'cp {file} {targetFile}'
                     self.log.debug(cmd)
-                    #os.system(cmd)
+                    os.system(cmd)
                     self.copied.append(targetFile)
                 if cbkProgress:
                     cbkProgress()
             else:
                 self.log.error('Unhandled file name %s: wrong length', name)
+        timer.stop()
+        self.log.info('Copied %d photos in %s', len(self.images), timer.getElapsed())
+        self.statusMsg = f'Copied {len(self.images)} photos in {timer.getElapsed()}'
+    
+    def getNumberImages(self):
+        """Get the number of photos to copy."""
+        return len(self.images)
 
-
+    def getStatusMessage(self):
+        """Return a message about the current status."""
+        return self.statusMsg
 
 
 def testCopyFromCamera():

@@ -32,6 +32,7 @@ class ModuleCamera(TabModule):
         self.tracker = GeoTracker(self.copier, self.onAddCoords, self.onBoundingBoxMap)
         self.cache = LocationCache()
         self.mapWidget = MapWidget()
+        self.copierDropBox = CopyFromDropBox()
 
     def loadData(self):
         # Renderer and tasks
@@ -41,11 +42,12 @@ class ModuleCamera(TabModule):
 
     def loadTasks(self):
         """Load the tasks to perform."""
+        self.copierDropBox.loadImages()
         self.copier.loadImages()
         self.tracker.prepare()
         #self.tasks.append(TestMapView(self.onCenterMap, self.onBoundingBoxMap, self.onAddCoords))
         #self.tasks.append(TestPynorpaTask(5, self.updateTaskDisplay))
-        # TODO add task to copy from S8 DropBox
+        self.tasks.append(CopyFromDropBoxTask(self.copierDropBox, self.updateTaskDisplay))
         self.tasks.append(MountCameraTask(self.copier, self.updateTaskDisplay))
         self.tasks.append(CopyFromCameraTask(self.copier, self.updateTaskDisplay))
         self.tasks.append(GeoTrackerTask(self.tracker, self.copier.getNumberImages(), self.updateTaskDisplay))

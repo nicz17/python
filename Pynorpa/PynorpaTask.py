@@ -127,6 +127,31 @@ class CopyFromCameraTask(PynorpaTask):
         self.setDesc(self.copier.getStatusMessage())
         self.cbkUpdate()
 
+class CopyFromDropBoxTask(PynorpaTask):
+    """Copy pictures from DropBox."""
+    log = logging.getLogger('CopyFromDropBoxTask')
+
+    def __init__(self, copier: CopyFromDropBox, cbkUpdate):
+        super().__init__('Copy S8 photos', 'Copy S8 pictures from DropBox', copier.getNumberImages())
+        self.copier = copier
+        self.cbkUpdate = cbkUpdate
+
+    def prepare(self):
+        self.log.info('Prepare')
+        #self.copier.loadImages()
+        self.setDesc(self.copier.getStatusMessage())
+
+    def run(self):
+        super().run()
+        self.copier.copyImages(self.onProgress)
+        self.setDesc(self.copier.getStatusMessage())
+        self.cbkUpdate()
+
+    def onProgress(self):
+        self.inc()
+        self.setDesc(self.copier.getStatusMessage())
+        self.cbkUpdate()
+
 class GeoTrackerTask(PynorpaTask):
     """Add GPS tags to copied pictures."""
     log = logging.getLogger('GeoTrackerTask')
@@ -138,7 +163,6 @@ class GeoTrackerTask(PynorpaTask):
 
     def prepare(self):
         self.log.info('Prepare')
-        #self.tracker.prepare()  TODO must be done before constructor... reset nTasks here
         self.tracker.copyFiles()
         self.setDesc(self.tracker.getStatusMessage())
 
@@ -146,7 +170,6 @@ class GeoTrackerTask(PynorpaTask):
         super().run()
         self.tracker.loadGeoTracks()
         self.tracker.loadPhotos()
-        #self.nStepsTotal = self.tracker.getNumberImages()
         self.setDesc(self.tracker.getStatusMessage())
         self.cbkUpdate()
         self.tracker.setPhotoGPSTags(self.onProgress)
