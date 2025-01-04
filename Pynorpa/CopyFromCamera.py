@@ -180,6 +180,9 @@ class CopyFromDropBox():
                     self.log.debug(cmd)
                     os.system(cmd)
                     self.copied.append(targetFile)
+                    thumb = targetFile.replace('orig/', 'thumbs/')
+                    cmd = f'convert {targetFile} -resize 500x500 {thumb}'
+                    os.system(cmd)
                 if cbkProgress:
                     cbkProgress()
             else:

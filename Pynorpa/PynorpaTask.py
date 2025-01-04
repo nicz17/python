@@ -113,7 +113,7 @@ class CopyFromCameraTask(PynorpaTask):
 
     def prepare(self):
         self.log.info('Prepare')
-        self.copier.loadImages()
+        #self.copier.loadImages()
         self.setDesc(self.copier.getStatusMessage())
 
     def run(self):
@@ -138,7 +138,6 @@ class CopyFromDropBoxTask(PynorpaTask):
 
     def prepare(self):
         self.log.info('Prepare')
-        #self.copier.loadImages()
         self.setDesc(self.copier.getStatusMessage())
 
     def run(self):
