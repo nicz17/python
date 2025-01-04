@@ -54,6 +54,7 @@ class ModuleSelection(TabModule):
 
     def loadData(self):
         """Load the photos to display."""
+        self.setLoadingIcon()
         self.photos = []
         files = sorted(glob.glob(f'{self.dir}/*.JPG'))
         for file in files:
@@ -62,6 +63,7 @@ class ModuleSelection(TabModule):
             photo.setCloseTo(self.locationCache.getClosest(photo.lat, photo.lon))
             self.photos.append(photo)
         self.table.loadData(self.photos)
+        self.setLoadingIcon(True)
         self.app.setStatus(f'Chargé {self.dir}')
 
     def onSelectPhoto(self, photo: PhotoInfo):
