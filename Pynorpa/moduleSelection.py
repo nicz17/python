@@ -154,7 +154,7 @@ class TaxonSelector():
     def loadData(self, photo: PhotoInfo):
         """Sets the original photo to select and rename."""
         self.photo = photo
-        if self.newName:
+        if self.photo:
             self.onModified()
 
     def setDir(self, dir: str):
