@@ -192,6 +192,26 @@ class DatabaseCodeGen():
         met = clss.addMethod('insert', params, None, False)
         met.setDoc(f'Insert the specified {self.table} in database.')
         met.addCodeLine("self.log.info('Inserting %s', obj)")
+        met.addCodeLine(f"query = Database.Query('Insert {self.table}')")
+        met.addCodeLine(f"query.add('Insert into {self.table} ({sFieldNames})')")
+        met.addCodeLine(f"query.add('values (null')")
+        for field in self.fields:
+            if field.isPrimaryKey(): continue
+            getter = f'get{TextTools.upperCaseFirst(field.getPythonName())}()'
+            if field.isStringValue():
+                met.addCodeLine(f"query.add(',').addEscapedString(obj.{getter}){sep}")
+            elif field.type == 'datetime':
+                met.addCodeLine(f"query.add(',').addDate(obj.{getter}){sep}")
+            # TODO handle bool
+            else:
+                value = '{obj.' + getter + '}'
+                met.addCodeLine(f"query.add(f', {value}')")
+        met.addCodeLine(f"query.add(')')")
+        met.addCodeLine('self.db.connect(config.dbUser, config.dbPass)')
+        met.addCodeLine('self.db.execute(query.getSQL())')
+        met.addCodeLine('self.db.disconnect()')
+        met.addCodeLine('query.close()')
+        # TODO get and set generated idx  cursor.lastrowid
 
         # fetchFromWhere method
         params = [SimpleUMLParam('where', 'str')]
