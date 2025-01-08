@@ -131,7 +131,7 @@ class DatabaseCodeGen():
         clss.addMember(sCollName, 'array')
 
         # getArray method
-        oGet = clss.addMethod(f'get{self.table}s', None, None, False)
+        oGet = clss.addMethod(f'get{self.table}s', None, f'list[{self.table}]', False)
         oGet.setDoc('Return all objects in cache.')
         oGet.addCodeLine(f'return self.{sCollName}')
 
