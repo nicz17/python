@@ -25,7 +25,7 @@ class Renderer:
         self.palette = GreenRedPalette()
         self.canvas = canvas
         self.root = root
-        self.width = 600
+        self.width = 650
 
     def drawTasks(self, tasks):
         """Draw the specified tasks on the canvas."""
