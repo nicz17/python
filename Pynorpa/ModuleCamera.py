@@ -6,15 +6,16 @@ __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
-import tkinter as tk
 import logging
-from TabsApp import *
-from CopyFromCamera import *
-from Renderer import *
-from PynorpaTask import *
+import tkinter as tk
+
 from BaseWidgets import ComboBox, ToolTip, Button
-from MapWidget import *
+from CopyFromCamera import *
 from LocationCache import *
+from MapWidget import *
+from PynorpaTask import *
+from Renderer import *
+from TabsApp import *
 
 class ModuleCamera(TabModule):
     """Pynorpa Module for importing photos from camera."""
@@ -39,6 +40,11 @@ class ModuleCamera(TabModule):
         self.renderer = Renderer(self.canTasks, None)
         self.loadTasks()
         self.renderer.drawTasks(self.tasks)
+        self.defLocation = self.cache.getDefaultLocation()
+        if self.defLocation:
+            self.cboDefLoc.setValue(self.defLocation.getName())
+            self.mapWidget.setLatLonZoom(self.defLocation.getLatLonZoom())
+        self.enableWidgets()
 
     def loadTasks(self):
         """Load the tasks to perform."""
@@ -93,7 +99,7 @@ class ModuleCamera(TabModule):
             self.oParent.showErrorMsg(f'Photo directory not found:\n{dir}')
 
     def onSelectLocation(self, event=None):
-        self.defLocation = None
+        #self.defLocation = None
         name = self.cboDefLoc.getValue()
         if name:
             self.defLocation = self.cache.getByName(name)
@@ -144,9 +150,8 @@ class ModuleCamera(TabModule):
         self.canTasks = tk.Canvas(master=self.frmLeft, bd=0, 
                                   #bg='#e0e0e0', 
                                   bg='#f6f4f2', # Ubuntu theme
-                                  height=self.oParent.iHeight-200, 
-                                  #width=self.oParent.iWidth-10, 
-                                  width=620, 
+                                  height=self.oParent.iHeight-200,
+                                  width=700, 
                                   highlightthickness=0)
         self.canTasks.pack(side=tk.LEFT)
 
