@@ -8,9 +8,10 @@ __version__ = "1.0.0"
 
 import config
 import logging
-import math
-import Database
 import geopy.distance
+
+import Database
+import appParam
 from LatLonZoom import *
 
 
@@ -199,6 +200,14 @@ class LocationCache:
                 closest = loc
                 minDist = dist
         return closest
+    
+    def getDefaultLocation(self) -> Location:
+        """Get the current default location from AppParam defLocation."""
+        apCache = appParam.AppParamCache()
+        apDefLoc = apCache.findByName('defLocation')
+        if apDefLoc:
+            return self.getById(apDefLoc.getIntVal())
+        self.log.error('Failed to find default location AppParam')
 
     def __str__(self):
         return f'LocationCache with {len(self.locations)} locations'
@@ -213,6 +222,8 @@ def testLocationCache():
     cache.log.info(closest)
     locById = cache.getById(67)
     cache.log.info(locById)
+    defloc = cache.getDefaultLocation()
+    cache.log.info('Default location: %s', defloc)
 
 
 if __name__ == '__main__':
