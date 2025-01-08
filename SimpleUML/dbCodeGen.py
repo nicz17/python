@@ -47,8 +47,12 @@ class DatabaseCodeGen():
         # Find the table prefix
         self.prefix = self.getPrefix()
         self.log.info('Table prefix is %s', self.prefix)
-        for field in self.fields:
+        for field in self.getFields():
             field.setPrefix(self.prefix)
+
+    def getFields(self) -> list[DatabaseField]:
+        """Return the parsed database fields."""
+        return self.fields
 
     def generateModuleModel(self):
         """Generate a python module with the object and cache classes."""
@@ -93,15 +97,14 @@ class DatabaseCodeGen():
 
         # Add the Constructor
         members = []
-        field: DatabaseField
-        for field in self.fields:
+        for field in self.getFields():
             name = field.getPythonName()
             type = field.getPythonType()
             members.append(SimpleUMLParam(name, type))
         clss.addMethod(self.table, members, None, False)
 
         # Add getters and setters
-        for field in self.fields:
+        for field in self.getFields():
             name = field.getPythonName()
             type = field.getPythonType()
             ucName = TextTools.upperCaseFirst(name)
@@ -133,15 +136,14 @@ class DatabaseCodeGen():
         oGet.addCodeLine(f'return self.{sCollName}')
 
         # Database fetch method
-        sFieldNames = ', '.join([field.name for field in self.fields])
+        sFieldNames = ', '.join([field.name for field in self.getFields()])
         sNameField = f'{self.prefix}Name'
         oLoad = clss.addMethod('load', None, None, False)
         oLoad.setDoc(f'Fetch and store the {self.table} records.')
         oLoad.addCodeLine('self.db.connect(config.dbUser, config.dbPass)')
         oLoad.addCodeLine(f'query = Database.Query("{self.table}")')
         oLoad.addCodeLine(f'query.add("select {sFieldNames} from {self.table}")')
-        field: DatabaseField
-        for field in self.fields:
+        for field in self.getFields():
             if field.name == sNameField or 'name' in field.name:
                 oLoad.addCodeLine(f'query.add("order by {field.name} asc")')
                 break
@@ -169,7 +171,7 @@ class DatabaseCodeGen():
         met.addCodeLine("self.log.info('Updating %s', obj)")
         met.addCodeLine(f"query = Database.Query('Update {self.table}')")
         met.addCodeLine(f"query.add('Update {self.table} set')")
-        for count, field in enumerate(self.fields):
+        for count, field in enumerate(self.getFields()):
             if field.isPrimaryKey(): continue
             isLast = (count == len(self.fields)-1)
             sep = '' if isLast else ".add(',')"
@@ -178,6 +180,8 @@ class DatabaseCodeGen():
                 met.addCodeLine(f"query.add('{field.name} = ').addEscapedString(obj.{getter}){sep}")
             elif field.type == 'datetime':
                 met.addCodeLine(f"query.add('{field.name} = ').addDate(obj.{getter}){sep}")
+            elif field.getPythonType() == 'bool':
+                met.addCodeLine(f"query.add('{field.name} = ').addBool(obj.{getter}){sep}")
             else:
                 value = '{obj.' + getter + '}'
                 sep = '' if isLast else ','
@@ -195,14 +199,15 @@ class DatabaseCodeGen():
         met.addCodeLine(f"query = Database.Query('Insert {self.table}')")
         met.addCodeLine(f"query.add('Insert into {self.table} ({sFieldNames})')")
         met.addCodeLine(f"query.add('values (null')")
-        for field in self.fields:
+        for field in self.getFields():
             if field.isPrimaryKey(): continue
             getter = f'get{TextTools.upperCaseFirst(field.getPythonName())}()'
             if field.isStringValue():
-                met.addCodeLine(f"query.add(',').addEscapedString(obj.{getter}){sep}")
+                met.addCodeLine(f"query.add(',').addEscapedString(obj.{getter})")
             elif field.type == 'datetime':
-                met.addCodeLine(f"query.add(',').addDate(obj.{getter}){sep}")
-            # TODO handle bool
+                met.addCodeLine(f"query.add(',').addDate(obj.{getter})")
+            elif field.getPythonType() == 'bool':
+                met.addCodeLine(f"query.add(',').addBool(obj.{getter})")
             else:
                 value = '{obj.' + getter + '}'
                 met.addCodeLine(f"query.add(f', {value}')")

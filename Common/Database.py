@@ -96,6 +96,14 @@ class Query():
         else:
             self.add(f"'{DateTools.datetimeToString(dAt, '%Y-%m-%d %H:%M:%S')}'")
         return self
+    
+    def addBool(self, bValue: bool):
+        """Add a bool value in database format."""
+        if bValue is None:
+            self.add('null')
+        else:
+            self.add('1' if bValue else '0')
+        return self
 
     def getSQL(self):
         """Return the accumulated SQL"""
