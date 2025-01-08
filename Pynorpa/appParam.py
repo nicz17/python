@@ -72,6 +72,10 @@ class AppParam():
         """Getter for numVal"""
         return self.numVal
 
+    def getIntVal(self) -> int:
+        """Get numeric value as integer."""
+        return int(self.numVal)
+
     def setNumVal(self, numVal: float):
         """Setter for numVal"""
         self.numVal = numVal
@@ -195,6 +199,8 @@ def testAppParamCache():
     cache = AppParamCache()
     for ap in cache.getAppParams():
         cache.log.info(ap)
+    apDefLoc = cache.findByName('defLocation')
+    cache.log.info('Default location: %d', apDefLoc.getIntVal())
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",
