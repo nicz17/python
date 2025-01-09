@@ -52,6 +52,7 @@ class Exporter():
                 ["Ascomycota", "Basidiomycota"]),
             TaxonUrlProvider('Swiss bryophytes', 'https://www.swissbryophytes.ch/index.php/fr/', 'swissbryophytes.ch',
                 TaxonRank.PHYLUM, ['Bryophyta'], TaxonUrlProvider.formatEmpty)
+            # TODO add https://www.fishipedia.fr/fr/poissons/salmo-trutta
         ]
 
     def getTaxonUrlProviders(self) -> list[TaxonUrlProvider]:
