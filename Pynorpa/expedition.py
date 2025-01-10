@@ -206,6 +206,22 @@ class ExpeditionCache():
     def insert(self, obj: Expedition):
         """Insert the specified Expedition in database."""
         self.log.info('Inserting %s', obj)
+        query = Database.Query('Insert Expedition')
+        query.add('Insert into Expedition (idxExpedition, expName, expDesc, expLocation, expFrom, expTo, expTrack)')
+        query.add('values (null')
+        query.add(',').addEscapedString(obj.getName())
+        query.add(',').addEscapedString(obj.getDesc())
+        query.add(f', {obj.getIdxLocation()}')
+        query.add(',').addDate(obj.getFrom())
+        query.add(',').addDate(obj.getTo())
+        query.add(',').addEscapedString(obj.getTrack())
+        query.add(')')
+        #self.db.connect(config.dbUser, config.dbPass)
+        #self.db.execute(query.getSQL())
+        self.log.info('Insert SQL: %s', query.getSQL())
+        #self.db.disconnect()
+        query.close()
+        # TODO get inserted idx and add to cache
 
     def fetchFromWhere(self, where: str):
         """Fetch Expedition records from a SQL where-clause. Return a list of ids."""
