@@ -216,10 +216,10 @@ class ExpeditionCache():
         query.add(',').addDate(obj.getTo())
         query.add(',').addEscapedString(obj.getTrack())
         query.add(')')
-        #self.db.connect(config.dbUser, config.dbPass)
-        #self.db.execute(query.getSQL())
+        self.db.connect(config.dbUser, config.dbPass)
+        self.db.execute(query.getSQL())
         self.log.info('Insert SQL: %s', query.getSQL())
-        #self.db.disconnect()
+        self.db.disconnect()
         query.close()
         # TODO get inserted idx and add to cache
 

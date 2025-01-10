@@ -11,7 +11,7 @@ import BaseWidgets
 from imageWidget import MultiImageWidget
 from expedition import Expedition, ExpeditionCache
 from LocationCache import Location, LocationCache
-from picture import PictureCache
+from picture import Picture, PictureCache
 from moduleReselection import DialogLocate
 
 class ModuleExpeditions(TabModule):
@@ -51,7 +51,9 @@ class ModuleExpeditions(TabModule):
         self.editor.loadData(excursion)
 
     def onNewExcursion(self, excursion: Expedition):
-        pass
+        """Display a new excursion in editor."""
+        if excursion:
+            self.onSelectExpedition(excursion)
 
     def createWidgets(self):
         """Create user widgets."""
@@ -84,7 +86,8 @@ class ExpeditionTable(TableWithColumns):
 
     def __str__(self):
         return "ExpeditionTable"
-    
+
+
 class ExcursionFactory():
     """Widget to create new excursion from location or GeoTrack."""
     log = logging.getLogger('ExcursionFactory')
@@ -95,7 +98,21 @@ class ExcursionFactory():
         self.cbkAdd = cbkAdd
 
     def onAdd(self, evt=None):
-        pass
+        loc = self.locationCache.getByName(self.cboLocation.getValue())
+        self.log.info('Adding Excursion at %s', loc)
+        pics = sorted(loc.getPictures(), key=lambda pic: pic.shotAt)
+        tFrom = None
+        tTo   = None
+        if len(pics) > 0:
+            tFrom = pics[0].shotAt
+            tTo   = pics[-1].shotAt
+            # TODO find tFrom on same day as tTo
+        excursion = Expedition(-1, loc.getName(), None, loc.getIdx(), tFrom, tTo, None)
+        excursion.setLocation(loc)
+        for pic in pics:
+            excursion.addPicture(pic)
+        self.log.info('Adding %s', excursion)
+        self.cbkAdd(excursion)
 
     def loadData(self):
         self.cboLocation.setValue(self.locationCache.getDefaultLocation().getName())
@@ -108,6 +125,7 @@ class ExcursionFactory():
         self.cboLocation.setValues([loc.name for loc in self.locationCache.getLocations()])
         self.btnAdd = BaseWidgets.Button(self.frmMain, 'Ajouter', self.onAdd, 'add')
         self.btnAdd.grid(0, 1)
+
 
 class ExpeditionEditor(BaseWidgets.BaseEditor):
     """Class ExpeditionEditor"""
