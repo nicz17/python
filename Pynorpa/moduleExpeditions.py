@@ -10,6 +10,7 @@ from TabsApp import *
 import BaseWidgets
 from imageWidget import MultiImageWidget
 from expedition import Expedition, ExpeditionCache
+from LocationCache import Location, LocationCache
 from picture import PictureCache
 from moduleReselection import DialogLocate
 
@@ -23,6 +24,7 @@ class ModuleExpeditions(TabModule):
         self.table  = ExpeditionTable(self.onSelectExpedition)
         self.editor = ExpeditionEditor(self.onSaveExpedition, parent.window)
         self.photos = MultiImageWidget()
+        self.factory = ExcursionFactory(self.onNewExcursion)
         super().__init__(parent, 'Excursions')
 
     def loadData(self):
@@ -31,6 +33,7 @@ class ModuleExpeditions(TabModule):
         self.expeditionCache = ExpeditionCache()
         self.pictureCache = PictureCache()
         self.table.loadData(self.expeditionCache.getExpeditions())
+        self.factory.loadData()
 
     def onSelectExpedition(self, expedition: Expedition):
         """Display selected object in editor."""
@@ -47,10 +50,14 @@ class ModuleExpeditions(TabModule):
         self.expeditionCache.save(excursion)
         self.editor.loadData(excursion)
 
+    def onNewExcursion(self, excursion: Expedition):
+        pass
+
     def createWidgets(self):
         """Create user widgets."""
         self.createLeftRightFrames()
         self.table.createWidgets(self.frmLeft)
+        self.factory.createWidgets(self.frmLeft)
         self.editor.createWidgets(self.frmRight)
         self.photos.createWidgets(self.frmRight)
 
@@ -77,7 +84,30 @@ class ExpeditionTable(TableWithColumns):
 
     def __str__(self):
         return "ExpeditionTable"
+    
+class ExcursionFactory():
+    """Widget to create new excursion from location or GeoTrack."""
+    log = logging.getLogger('ExcursionFactory')
 
+    def __init__(self, cbkAdd):
+        """Constructor with add callback."""
+        self.locationCache = LocationCache()
+        self.cbkAdd = cbkAdd
+
+    def onAdd(self, evt=None):
+        pass
+
+    def loadData(self):
+        self.cboLocation.setValue(self.locationCache.getDefaultLocation().getName())
+
+    def createWidgets(self, parent: tk.Frame):
+        self.frmMain = ttk.LabelFrame(parent, text='Ajouter une excursion à')
+        self.frmMain.pack(side=tk.LEFT, padx=5, pady=0)
+        self.cboLocation = BaseWidgets.ComboBox(None)
+        self.cboLocation.createWidgets(self.frmMain, 0, 0)
+        self.cboLocation.setValues([loc.name for loc in self.locationCache.getLocations()])
+        self.btnAdd = BaseWidgets.Button(self.frmMain, 'Ajouter', self.onAdd, 'add')
+        self.btnAdd.grid(0, 1)
 
 class ExpeditionEditor(BaseWidgets.BaseEditor):
     """Class ExpeditionEditor"""
