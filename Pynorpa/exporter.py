@@ -51,8 +51,9 @@ class Exporter():
             TaxonUrlProvider('MycoDB', 'https://www.mycodb.fr/fiche.php?genre=', 'MycoDB', TaxonRank.PHYLUM,
                 ["Ascomycota", "Basidiomycota"]),
             TaxonUrlProvider('Swiss bryophytes', 'https://www.swissbryophytes.ch/index.php/fr/', 'swissbryophytes.ch',
-                TaxonRank.PHYLUM, ['Bryophyta'], TaxonUrlProvider.formatEmpty)
-            # TODO add https://www.fishipedia.fr/fr/poissons/salmo-trutta
+                TaxonRank.PHYLUM, ['Bryophyta'], TaxonUrlProvider.formatEmpty),
+            TaxonUrlProvider('Fishipedia', 'https://www.fishipedia.fr/fr/poissons/', 'fishipedia.fr',
+                TaxonRank.CLASS, ['Actinopterygii'], TaxonUrlProvider.formatLibellenschutz)
         ]
 
     def getTaxonUrlProviders(self) -> list[TaxonUrlProvider]:
