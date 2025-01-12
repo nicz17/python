@@ -38,6 +38,7 @@ class GeoTracker:
         self.cbkCenterMap = cbkCenterMap
         self.getTargetDirectory()
         self.files = []
+        self.copiedTracks = []
         self.geoTracks = []
         self.locationCache = None
         self.defLocation = None
@@ -80,17 +81,17 @@ class GeoTracker:
         for file in self.files:
             self.log.info('Copying %s', os.path.basename(file))
             dest = self.dirTarget + os.path.basename(file)
-            os.system(f'cp {file} {dest}')
-        msg = ', '.join([os.path.basename(file) for file in self.files])
+            if not os.path.exists(dest):
+                os.system(f'cp {file} {dest}')
+                self.copiedTracks.append(dest)
+        msg = ', '.join([os.path.basename(file) for file in self.copiedTracks])
         #self.statusMsg = f'Copied {len(self.files)} GPX files'
         self.statusMsg = f'Copied {msg}'
         self.log.info('Copied %s', msg)
 
     def loadGeoTracks(self):
         """Load the GPX data from our .gpx files."""
-        filter = self.dirTarget + '*.gpx'
-        files = sorted(glob.glob(filter))
-        for file in files:
+        for file in self.copiedTracks:
             track = GeoTrack(file)
             track.loadData()
             self.geoTracks.append(track)
