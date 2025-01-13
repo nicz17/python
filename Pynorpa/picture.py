@@ -8,6 +8,7 @@ import logging
 import config
 import random
 import Database
+from datetime import datetime
 from taxon import Taxon, TaxonCache
 from LocationCache import *
 from PhotoInfo import PhotoInfo
@@ -17,8 +18,8 @@ class Picture():
     """Class Picture"""
     log = logging.getLogger("Picture")
 
-    def __init__(self, idx: int, filename: str, shotAt: float, remarks: str, 
-                 idxTaxon: int, updatedAt: float, idxLocation: int, rating: int):
+    def __init__(self, idx: int, filename: str, shotAt: datetime, remarks: str, 
+                 idxTaxon: int, updatedAt: datetime, idxLocation: int, rating: int):
         """Constructor."""
         self.idx = idx
         self.filename = filename
@@ -44,11 +45,11 @@ class Picture():
         """Setter for filename"""
         self.filename = filename
 
-    def getShotAt(self) -> float:
+    def getShotAt(self) -> datetime:
         """Getter for shotAt"""
         return self.shotAt
 
-    def setShotAt(self, shotAt: float):
+    def setShotAt(self, shotAt: datetime):
         """Setter for shotAt"""
         self.shotAt = shotAt
 
@@ -96,11 +97,11 @@ class Picture():
     def getTaxon(self):
         return self.taxon
 
-    def getUpdatedAt(self) -> float:
+    def getUpdatedAt(self) -> datetime:
         """Getter for updatedAt"""
         return self.updatedAt
 
-    def setUpdatedAt(self, updatedAt: float):
+    def setUpdatedAt(self, updatedAt: datetime):
         """Setter for updatedAt"""
         self.updatedAt = updatedAt
 
