@@ -8,6 +8,7 @@ import logging
 from BaseTable import *
 from TabsApp import *
 import BaseWidgets
+import DateTools
 from imageWidget import MultiImageWidget
 from expedition import Expedition, ExpeditionCache
 from LocationCache import Location, LocationCache
@@ -103,13 +104,22 @@ class ExcursionFactory():
         pics = sorted(loc.getPictures(), key=lambda pic: pic.shotAt)
         tFrom = None
         tTo   = None
+        picsExcursion = []
         if len(pics) > 0:
-            tFrom = pics[0].shotAt
             tTo   = pics[-1].shotAt
-            # TODO find tFrom on same day as tTo
+            tFrom = tTo
+            tMidnight = DateTools.datetimeToMidnight(tTo)
+            pic: Picture
+            for pic in pics:
+                # Find tFrom on same day as tTo
+                tAt = pic.shotAt
+                if tAt.timestamp() > tMidnight.timestamp():
+                    picsExcursion.append(pic)
+                    if tAt < tFrom:
+                        tFrom = tAt
         excursion = Expedition(-1, loc.getName(), None, loc.getIdx(), tFrom, tTo, None)
         excursion.setLocation(loc)
-        for pic in pics:
+        for pic in picsExcursion:
             excursion.addPicture(pic)
         self.log.info('Adding %s', excursion)
         self.cbkAdd(excursion)
