@@ -123,7 +123,7 @@ class TaxonSelector():
 
     def buildNewName(self, taxon: Taxon, input: str):
         """Build a new filename from the specified taxon or user input."""
-        basename = input.replace(' ', '-')
+        basename = input.replace(' ', '-').lower()
         if taxon:
             basename = TextTools.lowerCaseFirst(taxon.getName()).replace(' ', '-')
             if taxon.getRank() == TaxonRank.GENUS:
@@ -255,7 +255,7 @@ class TablePhotos(TableWithColumns):
         self.setColumns()
 
     def setColumns(self):
-        self.addColumn(TableColumn('Nom',     PhotoInfo.getNameNoExt,    120))
+        self.addColumn(TableColumn('Nom',     PhotoInfo.getNameNoExt,    130))
         self.addColumn(TableColumn('Date',    PhotoInfo.getShotAtString, 150))
         self.addColumn(TableColumn('Près de', PhotoInfo.getCloseTo,      300))
 
