@@ -55,14 +55,17 @@ class Database:
             return rows
         
     def execute(self, sql: str):
-        """Insert or update using the specified SQL."""
+        """Insert or update using the specified SQL. Return last inserted idx."""
         self.log.info('Executing SQL: %s', sql)
+        idx = None
         if self.conn is None:
             self.log.error('Failed to execute: not connected to database!')
             return
         with self.conn.cursor() as cursor:
             cursor.execute(sql)
             self.conn.commit()
+            idx = cursor.lastrowid
+        return idx
         
 class Query():
     """Class for building an SQL query."""

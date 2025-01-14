@@ -217,11 +217,16 @@ class ExpeditionCache():
         query.add(',').addEscapedString(obj.getTrack())
         query.add(')')
         self.db.connect(config.dbUser, config.dbPass)
-        self.db.execute(query.getSQL())
-        self.log.info('Insert SQL: %s', query.getSQL())
+        idx = self.db.execute(query.getSQL())
+        #self.log.info('Insert SQL: %s', query.getSQL())
         self.db.disconnect()
         query.close()
-        # TODO get inserted idx and add to cache
+        if idx:
+            self.log.info(f'Inserted with idx {idx}')
+            obj.idx = idx
+            self.expeditions.append(obj)
+        else:
+            self.log.error('No idx after insertion!')
 
     def fetchFromWhere(self, where: str):
         """Fetch Expedition records from a SQL where-clause. Return a list of ids."""
