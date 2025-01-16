@@ -48,6 +48,8 @@ def splitCamelCase(text: str) -> str:
 
 def replaceAccents(text: str) -> str:
     """Return a copy of the string with french accents replaced by ordinary letters."""
+    if text is None: 
+        return None
     result = text
     result = result.replace('à', 'a')
     result = result.replace('â', 'a')
