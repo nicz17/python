@@ -24,6 +24,7 @@ class ModuleTaxon(TabModule):
         self.window = parent.window
         super().__init__(parent, 'Taxons')
         self.cache  = None
+        self.taxon  = None
         self.tree   = TaxonTree(self.onSelectTaxon)
         self.editor = TaxonEditor(self.onSaveTaxon)
         self.imageWidget = imageWidget.ImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
@@ -32,6 +33,7 @@ class ModuleTaxon(TabModule):
         self.cache  = TaxonCache()
         for tax in self.cache.getTopLevelTaxa():
             self.tree.addTaxon(tax)
+        self.enableWidgets()
 
     def onSelectTaxon(self, id: str):
         """Callback for selection of taxon with specified id."""
@@ -39,16 +41,23 @@ class ModuleTaxon(TabModule):
         if id is not None:
             taxon = self.cache.findById(int(id))
         self.log.info('Selected %s', taxon)
+        self.taxon = taxon
 
         # Display in widgets
         self.editor.loadData(taxon)
-        if taxon:
-            self.imageWidget.loadThumb(taxon.getTypicalPicture())
-        else:
-            self.imageWidget.loadThumb(None)
+        self.imageWidget.loadThumb(taxon.getTypicalPicture() if taxon else None)
+        self.enableWidgets()
 
     def onSaveTaxon(self, taxon: Taxon):
-        pass
+        self.log.info('Saving %s', taxon)
+        #self.cache.save(taxon)
+        self.editor.loadData(taxon)
+
+    def onAddTaxon(self, evt=None):
+        rank = TaxonRank(self.taxon.rank.value+1)
+        child = Taxon(-1, None, None, rank.name, self.taxon.idx, 0, False)
+        child.setParent(self.taxon)
+        self.editor.loadData(child)
 
     def createWidgets(self):
         """Create user widgets."""
@@ -56,10 +65,15 @@ class ModuleTaxon(TabModule):
 
         # Taxon tree and editor
         self.tree.createWidgets(self.frmLeft)
+        self.btnAdd = BaseWidgets.Button(self.frmLeft, 'Ajouter enfant', self.onAddTaxon, 'add')
+        self.btnAdd.pack()
         self.editor.createWidgets(self.frmRight)
         self.imageWidget.createWidgets(self.frmRight)
         self.editor.loadData(None)
 
+    def enableWidgets(self):
+        canAdd = (self.taxon and self.taxon.rank != TaxonRank.SPECIES)
+        self.btnAdd.enableWidget(canAdd)
 
 class TaxonTree(BaseTree):
     """Subclass of BaseTree displaying taxa."""
@@ -74,7 +88,7 @@ class TaxonTree(BaseTree):
         parentId = None
         if taxon.getIdxParent() is not None:
             parentId = str(taxon.getIdxParent())
-        tag = f'taxon-rank{taxon.getRank().value}'
+        tag = None #f'taxon-rank{taxon.getRank().value}'
         text = taxon.getName()
         if len(taxon.getChildren()) > 0:
             text += f' ({len(taxon.getChildren())})'
