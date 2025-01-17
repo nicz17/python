@@ -280,6 +280,57 @@ class TaxonCache():
                 else:
                     self.log.error('Could not find parent of %s', taxon)
 
+    def save(self, obj: Taxon):
+        """Insert or update the specified Taxon in database."""
+        if obj is None:
+            self.log.error('Undefined object to save!')
+            return
+        if obj.getIdx() > 0:
+            self.update(obj)
+        else:
+            self.insert(obj)
+
+    def update(self, obj: Taxon):
+        """Update the specified Taxon in database."""
+        self.log.info('Updating %s', obj)
+        query = Database.Query('Update Taxon')
+        query.add('Update Taxon set')
+        query.add('taxName = ').addEscapedString(obj.getName()).add(',')
+        query.add('taxNameFr = ').addEscapedString(obj.getNameFr()).add(',')
+        #query.add('taxRank = ').addEscapedString(obj.getRank().name).add(',')
+        query.add(f'taxParent = {obj.getIdxParent()},')
+        query.add(f'taxOrder = {obj.getOrder()},')
+        query.add('taxTypical = ').addBool(obj.getTypical())
+        query.add(f'where idxTaxon = {obj.getIdx()}')
+        self.db.connect(config.dbUser, config.dbPass)
+        self.db.execute(query.getSQL())
+        self.db.disconnect()
+        query.close()
+
+    def insert(self, obj: Taxon):
+        """Insert the specified Taxon in database."""
+        self.log.info('Inserting %s', obj)
+        query = Database.Query('Insert Taxon')
+        query.add('Insert into Taxon (idxTaxon, taxName, taxNameFr, taxRank, taxParent, taxOrder, taxTypical)')
+        query.add('values (null')
+        query.add(',').addEscapedString(obj.getName())
+        query.add(',').addEscapedString(obj.getNameFr())
+        query.add(',').addEscapedString(obj.getRank().name)
+        query.add(f', {obj.getIdxParent()}')
+        query.add(f', {obj.getOrder()}')
+        query.add(',').addBool(obj.getTypical())
+        query.add(')')
+        self.db.connect(config.dbUser, config.dbPass)
+        idx = self.db.execute(query.getSQL())
+        self.db.disconnect()
+        query.close()
+        if idx:
+            self.log.info(f'Inserted with idx {idx}')
+            obj.idx = idx
+            self.dictById[obj.getIdx()] = obj
+        else:
+            self.log.error('No idx after insertion!')
+
     def fetchFromWhere(self, where: str) -> list[int]:
         """Fetch Taxon records from a SQL where-clause. Return a list of ids."""
         self.log.info(f'Fetching from Taxon where {where}')
