@@ -50,13 +50,23 @@ class ModuleTaxon(TabModule):
 
     def onSaveTaxon(self, taxon: Taxon):
         self.log.info('Saving %s', taxon)
-        #self.cache.save(taxon)
+        isNew = taxon.idx < 0
+        self.cache.save(taxon)
         self.editor.loadData(taxon)
+        if isNew:
+            self.tree.addTaxon(taxon)
 
     def onAddTaxon(self, evt=None):
+        """Create a child of the selected taxon and display it in editor."""
         rank = TaxonRank(self.taxon.rank.value+1)
-        child = Taxon(-1, None, None, rank.name, self.taxon.idx, 0, False)
+        name = None
+        nameFr = None
+        if self.taxon.rank == TaxonRank.GENUS:
+            name   = self.taxon.name
+            nameFr = self.taxon.nameFr
+        child = Taxon(-1, name, nameFr, rank.name, self.taxon.idx, 0, False)
         child.setParent(self.taxon)
+        self.log.info('Adding child taxon %s', child)
         self.editor.loadData(child)
 
     def createWidgets(self):
@@ -119,8 +129,12 @@ class TaxonEditor(BaseWidgets.BaseEditor):
         self.taxon = taxon
         self.setValue(taxon)
 
-    def onSave(self, evt = None):
+    def onSave(self, evt=None):
         """Save changes to the edited object."""
+        self.taxon.setName(self.txtName.getValue())
+        self.taxon.setNameFr(self.txtNameFr.getValue())
+        self.taxon.setOrder(self.intOrder.getValue())
+        self.taxon.setTypical(self.chkTypical.getValue())
         self.cbkSave(self.taxon)
 
     def onCancel(self):
