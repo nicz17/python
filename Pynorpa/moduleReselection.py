@@ -61,6 +61,7 @@ class ModuleReselection(TabModule):
             photo.identify()
             photo.setCloseTo(self.locationCache.getClosest(photo.lat, photo.lon))
             self.photos.append(photo)
+        self.photos = sorted(self.photos, key=lambda pic: pic.tShotAt)
         self.table.loadData(self.photos)
         self.setLoadingIcon(True)
         self.app.setStatus(f'Chargé {self.dir}')
