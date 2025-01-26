@@ -3,11 +3,13 @@ Upload generated Pynorpa HTML files and photos
 to www.tf79.ch using FTP.
 """
 
-import logging
 import config
 import ftplib
+import logging
 import os
 import time
+
+from picture import Picture
 from Timer import *
 
 class Uploader:
@@ -32,6 +34,14 @@ class Uploader:
         self.quit()
         self.log.info('Done uploading in %s', oTimer.getElapsed())
 
+    def uploadSinglePhoto(self, pic: Picture):
+        """Upload a single picture file."""
+        filename = f'{config.dirWebExport}photos/{pic.getFilename()}'
+        self.log.info('Will upload %s', filename)
+        self.connect()
+        self.upload(filename, 'photos/')
+        self.quit()
+
     def uploadBaseFiles(self):
         """Upload the base files like index, locations, links etc."""
         self.log.info('Uploading base files')
@@ -53,16 +63,18 @@ class Uploader:
         """Upload the photo thumbnail files."""
         pass
 
-    def upload(self, sFilename):
+    def upload(self, sFilename: str, dir=None):
         """Upload the specified file to FTP."""
         if self.oSession:
             self.log.info('Uploading %s', sFilename)
+            if dir:
+                self.oSession.cwd(dir)
             oFile = open(sFilename, 'rb')
             self.oSession.storbinary('STOR ' + os.path.basename(sFilename), oFile)
             oFile.close()
 
     def connect(self):
-        """Connect to FTP server. Ask user for password."""
+        """Connect to FTP server."""
         if not self.bDryRun:
             self.log.info('Connecting to FTP %s as %s', config.ftpAddress, config.ftpUser)
             try:

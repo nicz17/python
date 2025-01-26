@@ -6,11 +6,13 @@ __version__ = "1.0.0"
 
 import config
 import logging
+
 from BaseTable import *
 from TabsApp import *
 import BaseWidgets
 import imageWidget
 from picture import Picture, PictureCache
+from uploader import Uploader
 
 
 class ModulePictures(TabModule):
@@ -82,6 +84,7 @@ class PictureEditor(BaseWidgets.BaseEditor):
         """Constructor."""
         super().__init__(cbkSave, '#62564f')
         self.picture = None
+        self.uploader = Uploader()
 
     def loadData(self, picture: Picture):
         """Display the specified object in this editor."""
@@ -91,6 +94,11 @@ class PictureEditor(BaseWidgets.BaseEditor):
     def onCancel(self):
         """Cancel changes to the edited object."""
         self.loadData(self.picture)
+
+    def onUpload(self):
+        """Upload the edited picture."""
+        if self.picture:
+            self.uploader.uploadSinglePhoto(self.picture)
 
     def createWidgets(self, parent: tk.Frame):
         """Add the editor widgets to the parent widget."""
@@ -105,6 +113,7 @@ class PictureEditor(BaseWidgets.BaseEditor):
         self.widRating = self.addSpinBox('Qualité', Picture.getRating, 1, 5)
         
         self.createButtons(True, True, False)
+        self.btnUpload = self.addButton('Publier', self.onUpload, 'go-up')
         self.enableWidgets()
 
     def enableWidgets(self, evt=None):
@@ -113,6 +122,7 @@ class PictureEditor(BaseWidgets.BaseEditor):
         modified = self.hasChanges(self.picture)
         super().enableWidgets(editing)
         self.enableButtons(modified, modified, False)
+        self.btnUpload.enableWidget(editing)
         self.widRemarks.resetModified()
 
     def __str__(self):
