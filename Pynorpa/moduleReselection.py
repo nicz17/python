@@ -155,7 +155,7 @@ class DirectorySelector:
         self.cboMonth.setValues(DateTools.aMonthFr)
         self.cboMonth.setValue(DateTools.aMonthFr[self.month-1])
 
-        self.spiYear = SpinBox(self.onModified, self.getYear, 2015, self.year)
+        self.spiYear = SpinBox(self.onModified, self.getYear, 2010, self.year)
         self.spiYear.createWidgets(self.frmMain, 0, 1)
         self.spiYear.setValue(self)
 
