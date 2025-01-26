@@ -22,7 +22,7 @@ class QualityChecker():
     def checkPictureFiles(self):
         """Check picture files exist."""
         nMissing = 0
-        for pic in self.picCache.getPictures():
+        for pic in sorted(self.picCache.getPictures(), key=lambda pic: pic.shotAt):
             filename = f'{config.dirPictures}{pic.getFilename()}'
             if not os.path.exists(filename):
                 self.log.error('Missing picture file %s', filename)
