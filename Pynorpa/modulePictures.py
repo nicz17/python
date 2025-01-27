@@ -40,7 +40,8 @@ class ModulePictures(TabModule):
 
     def onSavePicture(self, picture: Picture):
         """Save changes to edited object."""
-        pass
+        self.log.info('Saving %s', picture)
+        #self.pictureCache.save(picture)
 
     def createWidgets(self):
         """Create user widgets."""
@@ -90,6 +91,11 @@ class PictureEditor(BaseWidgets.BaseEditor):
         """Display the specified object in this editor."""
         self.picture = picture
         self.setValue(picture)
+
+    def onSave(self, evt=None):
+        """Save changes to the edited object."""
+        self.picture.setRemarks(self.widRemarks.getValue())
+        self.cbkSave(self.picture)
 
     def onCancel(self):
         """Cancel changes to the edited object."""
