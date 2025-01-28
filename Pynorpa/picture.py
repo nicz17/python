@@ -213,6 +213,34 @@ class PictureCache():
             if pic.location:
                 pic.location.addPicture(pic)
 
+    def save(self, obj: Picture):
+        """Insert or update the specified Picture in database."""
+        if obj is None:
+            self.log.error('Undefined object to save!')
+            return
+        if obj.getIdx() > 0:
+            self.update(obj)
+        else:
+            self.insert(obj)
+
+    def update(self, obj: Picture):
+        """Update the specified Picture in database."""
+        self.log.info('Updating %s', obj)
+        query = Database.Query('Update Picture')
+        query.add('Update Picture set')
+        query.add('picRemarks = ').addEscapedString(obj.getRemarks()).add(',')
+        query.add(f'picRating = {obj.getRating()}')
+        query.add(f'where idxPicture = {obj.getIdx()}')
+        self.db.connect(config.dbUser, config.dbPass)
+        self.db.execute(query.getSQL())
+        self.db.disconnect()
+        query.close()
+
+    def insert(self, obj: Picture):
+        """Insert the specified Picture in database."""
+        self.log.info('Inserting %s', obj)
+        pass
+
     def getLatest(self, limit=10) -> list[Picture]:
         """Get the latest pictures."""
         ids = self.fetchFromWhere(f'1=1 order by picShotAt desc limit {limit}')

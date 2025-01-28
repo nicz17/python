@@ -41,7 +41,8 @@ class ModulePictures(TabModule):
     def onSavePicture(self, picture: Picture):
         """Save changes to edited object."""
         self.log.info('Saving %s', picture)
-        #self.pictureCache.save(picture)
+        self.pictureCache.save(picture)
+        self.editor.loadData(picture)
 
     def createWidgets(self):
         """Create user widgets."""
@@ -95,6 +96,7 @@ class PictureEditor(BaseWidgets.BaseEditor):
     def onSave(self, evt=None):
         """Save changes to the edited object."""
         self.picture.setRemarks(self.widRemarks.getValue())
+        self.picture.setRating(self.widRating.getValue())
         self.cbkSave(self.picture)
 
     def onCancel(self):
