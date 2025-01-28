@@ -69,10 +69,7 @@ class ModuleSelection(TabModule):
     def onSelectPhoto(self, photo: PhotoInfo):
         """Photo selection callback."""
         self.log.info(f'Selected {photo}')
-        thumbfile = None  # Thumb size: 500x500px
-        if photo is not None:
-            thumbfile = photo.filename.replace('orig/', 'thumbs/')
-        self.imageWidget.loadData(thumbfile)
+        self.imageWidget.loadThumb(photo)
         #self.mapWidget.loadData(photo)
         self.editor.loadData(photo)
         self.selector.loadData(photo)

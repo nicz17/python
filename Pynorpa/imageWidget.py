@@ -51,12 +51,15 @@ class ImageWidget():
                 if picture.filename.startswith(config.dirPictures):
                     # It's the PhotoInfo of a database Picture
                     fileMedium = picture.filename.replace(config.dirPictures, f'{config.dirPicsBase}medium/')
+                elif '/orig/' in picture.filename:
+                    # It's the PhotoInfo of a original photo
+                    fileMedium = picture.filename.replace('orig/', 'thumbs/')
                 else:
                     # It's the PhotoInfo of a preselected photo
                     fileMedium = picture.filename.replace('photos/', 'thumbs/')
-                    if not os.path.exists(fileMedium):
-                        self.log.info('Creating medium image for %s', picture.filename)
-                        os.system(f'convert {picture.filename} -resize 500x500 {fileMedium}')
+                if fileMedium and not os.path.exists(fileMedium):
+                    self.log.info('Creating medium image for %s', picture.filename)
+                    os.system(f'convert {picture.filename} -resize 500x500 {fileMedium}')
         self.loadData(fileMedium)
 
     def setDefaultImage(self):
