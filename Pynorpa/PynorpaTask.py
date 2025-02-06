@@ -60,7 +60,7 @@ class MountCameraTask(PynorpaTask):
     log = logging.getLogger('MountCameraTask')
 
     def __init__(self, copier: CopyFromCamera, cbkUpdate = None):
-        super().__init__('Mount Camera', 'Mount camera memory card', 1)
+        super().__init__('Carte mémoire', 'Charger carte mémoire D800', 1)
         self.copier = copier
         self.cbkUpdate = cbkUpdate
 
@@ -72,9 +72,9 @@ class MountCameraTask(PynorpaTask):
         super().run()
         if self.copier.isCameraMounted():
             self.inc()
-            self.setDesc(f'Camera is mounted at {self.copier.getCameraDir()}')
+            self.setDesc(f'Carte montée sous {self.copier.getCameraDir()}')
         else:
-            self.setDesc(f'Camera is not mounted at {config.dirCameraBase}')
+            self.setDesc(f'Carte absente de {config.dirCameraBase}')
             self.setStatus('Error')
         self.cbkUpdate()
 
@@ -83,7 +83,7 @@ class CreateThumbnailsTask(PynorpaTask):
     log = logging.getLogger('CreateThumbnailsTask')
 
     def __init__(self, copier: CopyFromCamera, cbkUpdate):
-        super().__init__('Create previews', 'Create previews for copied photos', copier.getNumberImages())
+        super().__init__('Créer miniatures', 'Créer les miniatures des photos copiées', copier.getNumberImages())
         self.copier = copier
         self.cbkUpdate = cbkUpdate
 
@@ -107,7 +107,7 @@ class CopyFromCameraTask(PynorpaTask):
     log = logging.getLogger('CopyFromCameraTask')
 
     def __init__(self, copier: CopyFromCamera, cbkUpdate):
-        super().__init__('Copy photos', 'Copy pictures from camera memory card', copier.getNumberImages())
+        super().__init__('Copier photos', 'Copier les photos de la carte mémoire', copier.getNumberImages())
         self.copier = copier
         self.cbkUpdate = cbkUpdate
 
@@ -132,7 +132,7 @@ class CopyFromDropBoxTask(PynorpaTask):
     log = logging.getLogger('CopyFromDropBoxTask')
 
     def __init__(self, copier: CopyFromDropBox, cbkUpdate):
-        super().__init__('Copy S8 photos', 'Copy S8 pictures from DropBox', copier.getNumberImages())
+        super().__init__('Copier photos S8', 'Copier les photos Samsung S8 depuis DropBox', copier.getNumberImages())
         self.copier = copier
         self.cbkUpdate = cbkUpdate
 
@@ -156,7 +156,7 @@ class GeoTrackerTask(PynorpaTask):
     log = logging.getLogger('GeoTrackerTask')
 
     def __init__(self, tracker: GeoTracker, nPhotos: int, cbkUpdate):
-        super().__init__('Geotracking', 'Add GPS tags to copied photos', nPhotos)
+        super().__init__('Géolocalisation', 'Géolocalisation des photos copiées', nPhotos)
         self.tracker = tracker
         self.cbkUpdate = cbkUpdate
 
