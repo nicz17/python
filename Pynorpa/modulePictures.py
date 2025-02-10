@@ -6,12 +6,16 @@ __version__ = "1.0.0"
 
 import config
 import logging
+from tkinter import filedialog as fd
 
 from BaseTable import *
 from TabsApp import *
 import BaseWidgets
+import DateTools
 import imageWidget
+from LocationCache import LocationCache
 from picture import Picture, PictureCache
+from PhotoInfo import PhotoInfo
 from uploader import Uploader
 
 
@@ -22,8 +26,9 @@ class ModulePictures(TabModule):
     def __init__(self, parent: TabsApp):
         """Constructor."""
         self.window = parent.window
-        self.table  = PictureTable(self.onSelectPicture)
-        self.editor = PictureEditor(self.onSavePicture)
+        self.table   = PictureTable(self.onSelectPicture)
+        self.editor  = PictureEditor(self.onSavePicture)
+        self.factory = PictureFactory(self.onAddPicture)
         self.imageWidget = imageWidget.ImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
         super().__init__(parent, 'Photos')
 
@@ -31,6 +36,7 @@ class ModulePictures(TabModule):
         """Load data from cache and populate table."""
         self.pictureCache = PictureCache()
         self.table.loadData(self.pictureCache.getPictures())
+        self.factory.loadData()
 
     def onSelectPicture(self, picture: Picture):
         """Display selected object in editor."""
@@ -44,16 +50,69 @@ class ModulePictures(TabModule):
         self.pictureCache.save(picture)
         self.editor.loadData(picture)
 
+    def onAddPicture(self, picture: Picture):
+        """Add a picture to gallery."""
+        pass
+
     def createWidgets(self):
         """Create user widgets."""
         self.createLeftRightFrames()
         self.table.createWidgets(self.frmLeft)
+        self.factory.createWidgets(self.frmLeft)
         self.editor.createWidgets(self.frmRight)
         self.imageWidget.createWidgets(self.frmRight)
         self.editor.loadData(None)
 
     def __str__(self):
         return 'ModulePictures'
+
+
+class PictureFactory():
+    """Widget to add a picture to gallery."""
+    log = logging.getLogger('PictureFactory')
+
+    def __init__(self, cbkAdd):
+        """Constructor with add callback."""
+        self.locationCache = LocationCache()
+        self.cbkAdd = cbkAdd
+        self.dir = None
+
+    def onAdd(self, evt=None):
+        loc = self.locationCache.getByName(self.cboLocation.getValue())
+        filename = fd.askopenfilename(
+            title = 'Ajouter une photo en galerie',
+            initialdir = self.dir,
+            filetypes = [('JPEG files', '*.jpg')])
+        if filename:
+            self.log.info('Adding picture %s at %s', filename, loc)
+            info = PhotoInfo(filename)
+            tShotAt = DateTools.timestampToDatetimeUTC(info.getShotAt())
+            idxTaxon = None # TODO get taxon from filename
+            pic = Picture(-1, filename, tShotAt, None, idxTaxon, DateTools.nowDatetime(), loc.getIdx(), 3)
+            self.cbkAdd(pic)
+
+    def loadData(self):
+        self.cboLocation.setValue(self.locationCache.getDefaultLocation().getName())
+        self.getDefaultDir()
+
+    def getDefaultDir(self):
+        """Find the default photo dir."""
+        yearMonth = DateTools.nowAsString('%Y-%m')
+        self.dir = f'{config.dirPhotosBase}Nature-{yearMonth}/photos'
+        if not os.path.exists(self.dir):
+            self.log.info('Revert to previous month for default dir')
+            yearMonth = DateTools.timestampToString(DateTools.addDays(DateTools.now(), -28), '%Y-%m')
+            self.dir = f'{config.dirPhotosBase}Nature-{yearMonth}/photos'
+        self.log.info('Default dir: %s', self.dir)
+
+    def createWidgets(self, parent: tk.Frame):
+        self.frmMain = ttk.LabelFrame(parent, text='Ajouter une photo à')
+        self.frmMain.pack(side=tk.LEFT, padx=5, pady=0)
+        self.cboLocation = BaseWidgets.ComboBox(None)
+        self.cboLocation.createWidgets(self.frmMain, 0, 0)
+        self.cboLocation.setValues([loc.name for loc in self.locationCache.getLocations()])
+        self.btnAdd = BaseWidgets.Button(self.frmMain, 'Ajouter', self.onAdd, 'add')
+        self.btnAdd.grid(0, 1)
 
 
 class PictureTable(TableWithColumns):
