@@ -9,7 +9,7 @@ import config
 import random
 import Database
 from datetime import datetime
-from taxon import Taxon, TaxonCache
+from taxon import TaxonCache
 from LocationCache import *
 from PhotoInfo import PhotoInfo
 import TextTools

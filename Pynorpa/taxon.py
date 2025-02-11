@@ -7,7 +7,6 @@ __version__ = "1.0.0"
 import config
 from enum import Enum
 import logging
-import os
 
 import Database
 import TextTools
@@ -386,8 +385,7 @@ class TaxonCache():
 
     def findByFilename(self, filename: str) -> Taxon:
         """Find a Taxon from a file name."""
-        name = os.path.basename(filename)
-        name = name.removesuffix('.jpg')
+        name = filename.removesuffix('.jpg')
         name = ''.join([i for i in name if not i.isdigit()])
         name = name.replace('-', ' ')
         name = TextTools.upperCaseFirst(name)
@@ -416,7 +414,7 @@ def testTaxonCache():
         if taxon:
             cache.log.info('%s first observed %s', taxon, tFirstObs)
     
-    filename = 'Nature-2025-02/photos/anas-clypeata008.jpg'
+    filename = 'anas-clypeata008.jpg'
     taxon = cache.findByFilename(filename)
     cache.log.info('File %s taxon %s', filename, taxon)
 

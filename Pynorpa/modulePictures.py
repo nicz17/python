@@ -15,8 +15,7 @@ import DateTools
 import imageWidget
 from LocationCache import LocationCache
 from picture import Picture, PictureCache
-from PhotoInfo import PhotoInfo
-from taxon import TaxonCache
+from pynorpaManager import PynorpaManager
 from uploader import Uploader
 
 
@@ -74,8 +73,8 @@ class PictureFactory():
 
     def __init__(self, cbkAdd):
         """Constructor with add callback."""
+        self.manager = PynorpaManager()
         self.locationCache = LocationCache()
-        self.taxonCache = TaxonCache()
         self.cbkAdd = cbkAdd
         self.dir = None
 
@@ -87,19 +86,9 @@ class PictureFactory():
             filetypes = [('JPEG files', '*.jpg')])
         if filename:
             self.log.info('Adding picture %s at %s', filename, loc)
-            # TODO check picture is not added yet
-            info = PhotoInfo(filename)
-            info.identify()
-            tShotAt = DateTools.timestampToDatetimeUTC(info.getShotAt())
-            taxon = self.taxonCache.findByFilename(filename)
-            if taxon:
-                pic = Picture(-1, filename, tShotAt, None, taxon.getIdx(), DateTools.nowDatetime(), loc.getIdx(), 3)
-                pic.taxon = taxon
-                pic.location = loc
+            pic = self.manager.addPicture(filename, loc)
+            if pic:
                 self.cbkAdd(pic)
-            else:
-                self.log.error('Failed to find taxon for %s', filename)
-                # TODO GUI error dialog
 
     def loadData(self):
         self.cboLocation.setValue(self.locationCache.getDefaultLocation().getName())
