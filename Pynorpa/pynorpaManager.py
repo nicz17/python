@@ -14,6 +14,11 @@ from PhotoInfo import PhotoInfo
 from picture import Picture, PictureCache
 from taxon import TaxonCache
 
+
+class PynorpaException(Exception):
+    """Subclass of Exception for Pynorpa error handling."""
+    pass
+
 class PynorpaManager():
     """Singleton class to manage Pynorpa."""
     log = logging.getLogger('PynorpaManager')
@@ -39,14 +44,29 @@ class PynorpaManager():
     def addPicture(self, filename: str, loc: Location) -> Picture:
         """Add a new Picture to gallery."""
         self.log.info('Adding picture %s at %s', filename, loc)
+
+        # Check file exists
+        if not os.path.exists(filename):
+            raise PynorpaException(f"La photo n'existe pas : {filename}")
+        
+        # Check location
+        if not loc or loc.getIdx() < 1:
+            raise PynorpaException(f"Lieu invalide : {loc}")
+
         # Check picture is not added yet
         basename = os.path.basename(filename)
         pic = self.pictureCache.findByName(basename)
         if pic:
             self.log.error('Picture is already in gallery: %s', pic)
-            return None
+            msg = f'{pic.getFilename()}\n{pic.getLocationName()}\n{pic.getShotAt()}'
+            raise PynorpaException(f'La photo est déjà en galerie :\n{msg}')
+        
+        # Check image size
         info = PhotoInfo(filename)
         info.identify()
+        if info.width > 2000:
+            raise PynorpaException(f'Taille invalide : {info.getSizeString()}')
+
         tShotAt = DateTools.timestampToDatetimeUTC(info.getShotAt())
         taxon = self.taxonCache.findByFilename(basename)
         if taxon:
@@ -57,8 +77,7 @@ class PynorpaManager():
             return pic
         else:
             self.log.error('Failed to find taxon for %s', filename)
-            # TODO GUI error dialog
-            return None
+            raise PynorpaException(f"Taxon inconnu pour {basename}")
         
 def testManager():
     """Unit test for manager"""

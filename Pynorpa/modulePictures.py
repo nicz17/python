@@ -15,7 +15,7 @@ import DateTools
 import imageWidget
 from LocationCache import LocationCache
 from picture import Picture, PictureCache
-from pynorpaManager import PynorpaManager
+from pynorpaManager import PynorpaManager, PynorpaException
 from uploader import Uploader
 
 
@@ -28,7 +28,7 @@ class ModulePictures(TabModule):
         self.window = parent.window
         self.table   = PictureTable(self.onSelectPicture)
         self.editor  = PictureEditor(self.onSavePicture)
-        self.factory = PictureFactory(self.onAddPicture)
+        self.factory = PictureFactory(self.onAddPicture, parent)
         self.imageWidget = imageWidget.ImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
         super().__init__(parent, 'Photos')
 
@@ -71,8 +71,9 @@ class PictureFactory():
     """Widget to add a picture to gallery."""
     log = logging.getLogger('PictureFactory')
 
-    def __init__(self, cbkAdd):
+    def __init__(self, cbkAdd, parent: TabsApp):
         """Constructor with add callback."""
+        self.parent = parent
         self.manager = PynorpaManager()
         self.locationCache = LocationCache()
         self.cbkAdd = cbkAdd
@@ -86,9 +87,11 @@ class PictureFactory():
             filetypes = [('JPEG files', '*.jpg')])
         if filename:
             self.log.info('Adding picture %s at %s', filename, loc)
-            pic = self.manager.addPicture(filename, loc)
-            if pic:
+            try:
+                pic = self.manager.addPicture(filename, loc)
                 self.cbkAdd(pic)
+            except PynorpaException as exc:
+                self.parent.showErrorMsg(exc)
 
     def loadData(self):
         self.cboLocation.setValue(self.locationCache.getDefaultLocation().getName())
