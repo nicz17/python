@@ -128,6 +128,7 @@ class TaxonSelector():
         seq = self.getSequenceNext(basename, taxon)
         if taxon and taxon.getRank().value < TaxonRank.GENUS.value:
             seq = int(self.photo.getNameShort()[-8:-4])
+            # TODO also handle 3 digits
         self.newName = f'{basename}{seq:03d}.jpg'
 
     def getSequenceNext(self, basename: str, taxon: Taxon) -> int:
