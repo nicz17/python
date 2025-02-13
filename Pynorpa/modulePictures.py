@@ -52,7 +52,9 @@ class ModulePictures(TabModule):
 
     def onAddPicture(self, picture: Picture):
         """Add a picture to gallery."""
-        pass
+        if picture:
+            # TODO have to save first, then display
+            self.onSelectPicture(picture)
 
     def createWidgets(self):
         """Create user widgets."""

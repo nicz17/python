@@ -64,20 +64,22 @@ class PynorpaManager():
         # Check image size
         info = PhotoInfo(filename)
         info.identify()
-        if info.width > 2000:
+        if info.width > 2000 or info.height > 2000:
             raise PynorpaException(f'Taille invalide : {info.getSizeString()}')
 
-        tShotAt = DateTools.timestampToDatetimeUTC(info.getShotAt())
+        # Check taxon can be found from file name
         taxon = self.taxonCache.findByFilename(basename)
-        if taxon:
-            pic = Picture(-1, basename, tShotAt, None, taxon.getIdx(), DateTools.nowDatetime(), loc.getIdx(), 3)
-            pic.taxon = taxon
-            pic.location = loc
-            self.log.info('Will add %s', pic)
-            return pic
-        else:
+        if not taxon:
             self.log.error('Failed to find taxon for %s', filename)
             raise PynorpaException(f"Taxon inconnu pour {basename}")
+        
+        tShotAt = DateTools.timestampToDatetimeUTC(info.getShotAt())
+        pic = Picture(-1, basename, tShotAt, None, taxon.getIdx(), DateTools.nowDatetime(), loc.getIdx(), 3)
+        pic.taxon = taxon
+        pic.location = loc
+        self.log.info('Will add %s', pic)
+        return pic
+            
         
 def testManager():
     """Unit test for manager"""
