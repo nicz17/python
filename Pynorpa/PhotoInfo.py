@@ -85,9 +85,9 @@ class PhotoInfo:
                 self.tShotAt = DateTools.exifToTimestamp(str(tags[tag]))
                 self.log.debug('Shot at timestamp %f: %s', self.tShotAt, DateTools.timestampToString(self.tShotAt))
             elif tag == 'EXIF ExifImageWidth':
-                self.width = tags[tag]
+                self.width = int(str(tags[tag]))
             elif tag == 'EXIF ExifImageLength':
-                self.height = tags[tag]
+                self.height = int(str(tags[tag]))
             elif tag == 'EXIF FocalLength':
                 self.focalLength = tags[tag]
             elif tag == 'EXIF ExposureTime':
