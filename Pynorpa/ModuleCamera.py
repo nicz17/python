@@ -93,7 +93,7 @@ class ModuleCamera(TabModule):
         dir = self.copier.targetDir + 'orig/'
         self.log.info('Opening photos dir %s', dir)
         if dir is not None and os.path.exists(dir):
-            os.system(f'nautilus {dir}')
+            os.system(f'nautilus {dir} &')
             #os.system(f'eog {dir} &')
         else:
             self.oParent.showErrorMsg(f'Photo directory not found:\n{dir}')
