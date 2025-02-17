@@ -9,6 +9,7 @@ import logging
 import os
 
 import DateTools
+from GeoTracker import GeoTrack
 from LocationCache import Location
 from PhotoInfo import PhotoInfo
 from picture import Picture, PictureCache
@@ -80,11 +81,30 @@ class PynorpaManager():
         self.log.info('Will add %s', pic)
         return pic
             
+    def addLocation(self, filename: str) -> Location:
+        """Add a location from a GeoTrack file."""
+        self.log.info('Adding location from %s', filename)
+
+        # Check file exists
+        if not os.path.exists(filename):
+            raise PynorpaException(f"Le GeoTrack n'existe pas : {filename}")
+        
+        # Load track
+        track = GeoTrack(filename)
+        track.loadData()
+
+        # Create Location
+        # TODO also get altitude from track
+        loc = Location(-1, track.name, track.name, track.center.latitude, track.center.longitude, 0, None, 16, None)
+        self.log.info('Adding %s', loc)
+        return loc
+
         
 def testManager():
     """Unit test for manager"""
     mgr = PynorpaManager()
     mgr.log.info('Testing PynorpaManager')
+    mgr.addLocation(config.dirSourceGeoTrack + 'Lauenensee250216.gpx')
     mgr.addPicture('vanessa-cardui004.jpg', None)
 
 if __name__ == '__main__':
