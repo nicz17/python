@@ -17,19 +17,19 @@ from LatLonZoom import *
 
 class Location:
     """Container for Panorpa location object."""
-    log = logging.getLogger('LocationCache')
-
-    def __init__(self, row):
-        """Constructor from fetched row."""
-        self.idx     = row[0]
-        self.name    = row[1]
-        self.desc    = row[2]
-        self.lat     = row[3]
-        self.lon     = row[4]
-        self.alt     = row[5]
-        self.region  = row[6]
-        self.zoom    = row[7]
-        self.state   = row[8]
+    log = logging.getLogger('LocationCache')    
+    
+    def __init__(self, idx: int, name: str, desc: str, lat: float, lon: float, alt: int, region: str, zoom: int, state: str):
+        """Constructor."""
+        self.idx = idx
+        self.name = name
+        self.desc = desc
+        self.region = region
+        self.state = state
+        self.lon = lon
+        self.lat = lat
+        self.alt = alt
+        self.zoom = zoom
 
         self.pictures = []
         self.excursions = []
@@ -146,7 +146,7 @@ class LocationCache:
         query.add('from Location order by locName asc')
         rows = self.db.fetch(query.getSQL())
         for row in rows:
-            self.locations.append(Location(row))
+            self.locations.append(Location(*row))
         self.db.disconnect()
         query.close()
         self.log.info('Done loading %s', self)
