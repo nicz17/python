@@ -252,6 +252,7 @@ class GeoTrack:
         nPoints = 0
         sumLon = 0.0
         sumLat = 0.0
+        sumAlt = 0.0
         minLat = None
         minLon = None
         maxLat = None
@@ -267,6 +268,7 @@ class GeoTrack:
                 for point in segment.points:
                     sumLon += point.longitude
                     sumLat += point.latitude
+                    sumAlt += point.elevation
                     #self.log.info(f'Point at ({point.latitude},{point.longitude}) -> {point.elevation}m {point.time}')
                     minLat = (point.latitude  if minLat is None else min(point.latitude,  minLat))
                     maxLat = (point.latitude  if maxLat is None else max(point.latitude,  maxLat))
@@ -277,7 +279,8 @@ class GeoTrack:
         if nPoints > 0:
             meanLon = sumLon/nPoints
             meanLat = sumLat/nPoints
-            self.center = gpxpy.geo.Location(meanLat, meanLon)
+            meanAlt = sumAlt/nPoints
+            self.center = gpxpy.geo.Location(meanLat, meanLon, int(meanAlt))
         self.bbox = (minLat, maxLat, minLon, maxLon)
         self.log.info('Track center point is %s', self.center)
                 
