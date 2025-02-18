@@ -94,6 +94,10 @@ class Location:
 
     def getAltitude(self) -> int:
         return self.alt
+
+    def setAltitude(self, altitude: int):
+        """Setter for altitude"""
+        self.alt = altitude
     
     def getLatLonZoom(self):
         """Get the lat/lon/zoom triplet."""
@@ -160,9 +164,10 @@ class LocationCache:
             self.log.error('Insert location not implemented yet! %s', location)
             return
         query = Database.Query("Location save")
-        query.add(f'update Location set locDesc = ')
-        query.addEscapedString(location.getDesc())
-        query.add(f', locMapZoom = {location.getLatLonZoom().getZoom()}')
+        query.add(f'update Location set')
+        query.add('locDesc = ').addEscapedString(location.getDesc()).add(',')
+        query.add(f'locAltitude = {location.getAltitude()},')
+        query.add(f'locMapZoom = {location.getLatLonZoom().getZoom()}')
         query.add(f'where idxLocation = {location.getIdx()}')
         self.db.connect(config.dbUser, config.dbPass)
         self.db.execute(query.getSQL())

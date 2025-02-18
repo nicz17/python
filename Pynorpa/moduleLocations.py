@@ -158,10 +158,11 @@ class LocationEditor(BaseWidgets.BaseEditor):
         self.location = location
         self.setValue(location)
 
-    def onSave(self, evt = None):
+    def onSave(self, evt=None):
         """Save changes to the edited object."""
         self.location.setDesc(self.txtDesc.getValue())
         self.location.setLatLonZoom(self.widPosition.getValue())
+        self.location.setAltitude(self.intAltitude.getValue())
         self.cbkSave(self.location)
 
     def createWidgets(self, parent: tk.Frame):
