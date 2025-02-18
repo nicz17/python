@@ -96,7 +96,8 @@ class PynorpaManager():
 
         # Create Location
         name = TextTools.removeDigits(track.name)
-        loc = Location(-1, name, name, track.center.latitude, track.center.longitude, track.center.elevation, None, 16, None)
+        loc = Location(-1, name, name, track.center.latitude, track.center.longitude, 
+                       track.center.elevation, 'Vaud', 16, 'Suisse')
         self.log.info('Adding %s', loc)
         return loc
 

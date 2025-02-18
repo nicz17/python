@@ -6,12 +6,16 @@ __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
+import config
 import logging
-from TabsApp import *
+from tkinter import filedialog as fd
+
+import BaseWidgets
 from BaseTable import *
 from LocationCache import *
 from MapWidget import *
-import BaseWidgets
+from pynorpaManager import PynorpaManager, PynorpaException
+from TabsApp import *
 
 
 class ModuleLocations(TabModule):
@@ -20,9 +24,11 @@ class ModuleLocations(TabModule):
 
     def __init__(self, parent: TabsApp) -> None:
         """Constructor."""
+        self.parent = parent
         self.window = parent.window
         self.table = TableLocations(self.onSelectLocation)
         self.mapWidget = MapWidget()
+        self.manager = PynorpaManager()
         self.editor = LocationEditor(self.onSaveLocation, self.mapWidget)
         super().__init__(parent, 'Lieux')
 
@@ -45,12 +51,28 @@ class ModuleLocations(TabModule):
         self.locationCache.save(location)
         self.editor.loadData(location)
 
+    def onAddLocation(self):
+        """Select a GeoTrack file to add a location."""
+        filename = fd.askopenfilename(
+            title = 'Ajouter un lieu',
+            initialdir = config.dirSourceGeoTrack,
+            filetypes = [('GeoTrack', '*.gpx')])
+        if filename:
+            self.log.info('Adding location from %s', filename)
+            try:
+                loc = self.manager.addLocation(filename)
+                self.onSelectLocation(loc)
+            except PynorpaException as exc:
+                self.parent.showErrorMsg(exc)
+
     def createWidgets(self):
         """Create user widgets."""
         self.createLeftRightFrames()
 
         # Location widgets
         self.table.createWidgets(self.frmLeft)
+        self.btnAdd = BaseWidgets.Button(self.frmLeft, 'Ajouter', self.onAddLocation, 'add')
+        self.btnAdd.pack()
         self.mapWidget.createWidgets(self.frmRight)
         self.editor.createWidgets(self.frmRight)
 
