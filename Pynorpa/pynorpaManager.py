@@ -9,6 +9,7 @@ import logging
 import os
 
 import DateTools
+import TextTools
 from GeoTracker import GeoTrack
 from LocationCache import Location
 from PhotoInfo import PhotoInfo
@@ -94,8 +95,8 @@ class PynorpaManager():
         track.loadData()
 
         # Create Location
-        # TODO also get altitude from track
-        loc = Location(-1, track.name, track.name, track.center.latitude, track.center.longitude, 0, None, 16, None)
+        name = TextTools.removeDigits(track.name)
+        loc = Location(-1, name, name, track.center.latitude, track.center.longitude, track.center.elevation, None, 16, None)
         self.log.info('Adding %s', loc)
         return loc
 
