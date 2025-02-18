@@ -59,6 +59,10 @@ def replaceAccents(text: str) -> str:
     result = result.replace('ô', 'o')
     return result
 
+def removeDigits(text: str) -> str:
+    """Return a copy of the string with digits removed."""
+    return ''.join([ch for ch in text if not ch.isdigit()])
+
 def testTextTools():
     log = logging.getLogger('TextTools')
     log.info('Distance is %s', distanceToString(1000.0/3.0))
@@ -70,6 +74,7 @@ def testTextTools():
     log.info('lowerCaseFirst: %s', lowerCaseFirst('GetTitle()'))
     log.info('splitCamelCase: %s', splitCamelCase('myCamelCaseName'))
     log.info('replaceAccents: %s', replaceAccents('Eté à âme amère'))
+    log.info('removeDigits: %s', removeDigits('H3770w0r1d'))
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(asctime)s %(levelname)s %(name)s: %(message)s", 
