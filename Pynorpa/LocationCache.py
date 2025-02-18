@@ -115,7 +115,7 @@ class Location:
         return self.getLatLonZoom().toPrettyString()
 
     def __str__(self):
-        return f'Location {self.idx} {self.name}'
+        return f'Location {self.idx} {self.name} ({self.alt}m)'
     
 
 class LocationCache:
