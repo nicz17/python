@@ -155,17 +155,24 @@ class LocationCache:
         query.close()
         self.log.info('Done loading %s', self)
 
-    def save(self, location: Location):
+    def save(self, obj: Location):
+        """Insert or update the specified Location in database."""
+        if obj is None:
+            self.log.error('Undefined object to save!')
+            return
+        if obj.getIdx() > 0:
+            self.update(obj)
+        else:
+            self.insert(obj)
+
+    def update(self, location: Location):
         """Update the location in database."""
-        if location is None:
-            self.log.error('Undefined location to save!')
-            return
-        if location.getIdx() <= 0:
-            self.log.error('Insert location not implemented yet! %s', location)
-            return
+        self.log.info('Updating %s', location)
         query = Database.Query("Location save")
         query.add(f'update Location set')
         query.add('locDesc = ').addEscapedString(location.getDesc()).add(',')
+        query.add('locRegion = ').addEscapedString(location.getRegion()).add(',')
+        query.add('locState = ').addEscapedString(location.getState()).add(',')
         query.add(f'locAltitude = {location.getAltitude()},')
         query.add(f'locMapZoom = {location.getLatLonZoom().getZoom()}')
         query.add(f'where idxLocation = {location.getIdx()}')
@@ -174,6 +181,34 @@ class LocationCache:
         self.db.disconnect()
         query.close()
         self.log.info('Saved %s', location)
+
+    def insert(self, obj: Location):
+        """Insert the specified Location in database."""
+        self.log.info('Inserting %s', obj)
+        query = Database.Query('Insert Location')
+        query.add('Insert into Location (idxLocation, locName, locDesc, locKind, locRegion, locState, ')
+        query.add('locLongitude, locLatitude, locAltitude, locMapZoom) values (null')
+        query.add(',').addEscapedString(obj.getName())
+        query.add(',').addEscapedString(obj.getDesc())
+        query.add(',').addEscapedString(obj.getKind())
+        #query.add(',').addEscapedString(obj.getTown())
+        query.add(',').addEscapedString(obj.getRegion())
+        query.add(',').addEscapedString(obj.getState())
+        query.add(f', {obj.getLatLonZoom().getLon()}')
+        query.add(f', {obj.getLatLonZoom().getLat()}')
+        query.add(f', {obj.getAltitude()}')
+        query.add(f', {obj.getLatLonZoom().getZoom()}')
+        query.add(')')
+        self.db.connect(config.dbUser, config.dbPass)
+        idx = self.db.execute(query.getSQL())
+        self.db.disconnect()
+        query.close()
+        if idx:
+            self.log.info(f'Inserted with idx {idx}')
+            obj.idx = idx
+            self.locations.append(obj)
+        else:
+            self.log.error('No idx after insertion!')
 
     def getLocations(self) -> list[Location]:
         """Returns the fetched locations."""
