@@ -257,6 +257,15 @@ class PictureCache():
         where = f"picIdxLocation = {idxLocation} and picShotAt >= '{tFrom}' and picShotAt <= '{tTo}'"
         ids = self.fetchFromWhere(where)
         return [self.findById(id) for id in ids]
+    
+    def getForJournal(self, tFrom, tTo) -> list[Picture]:
+        """Get the pictures for the specified date-range."""
+        where = f"picShotAt >= '{tFrom}'"
+        if tTo:
+            where += f" and picShotAt <= '{tTo}'"
+        where += ' order by picShotAt asc'
+        ids = self.fetchFromWhere(where)
+        return [self.findById(id) for id in ids]
 
     def fetchFromWhere(self, where: str) -> list[int]:
         """Fetch Picture records from a SQL where-clause. Return a list of ids."""
