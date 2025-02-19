@@ -35,7 +35,7 @@ class JournalItem():
     
     def __str__(self):
         sAt = DateTools.datetimeToString(self.dtAt, '%Y.%m.%d')
-        return f'JournalItem {sAt} {self.location.getName()} {self.size()} pics'
+        return f'JournalItem {sAt}  {self.size()} pics  {self.location.getName()}'
 
 class Journal():
     """Class to build the Journal."""
@@ -52,7 +52,7 @@ class Journal():
 
         # Group pictures by date and location
         for pic in pics:
-            self.log.info(pic)
+            self.log.debug(pic)
             item = None
             loc = pic.getLocation()
             dtDay = DateTools.datetimeToMidnight(pic.getShotAt())
