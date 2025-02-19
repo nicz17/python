@@ -75,8 +75,12 @@ class PynorpaManager():
             self.log.error('Failed to find taxon for %s', filename)
             raise PynorpaException(f"Taxon inconnu pour {basename}")
         
+        # Create Picture
         tShotAt = DateTools.timestampToDatetimeUTC(info.getShotAt())
-        pic = Picture(-1, basename, tShotAt, None, taxon.getIdx(), DateTools.nowDatetime(), loc.getIdx(), 3)
+        rating = 3
+        if info.width < 1000 or info.height < 1000:
+            rating = 2
+        pic = Picture(-1, basename, tShotAt, None, taxon.getIdx(), DateTools.nowDatetime(), loc.getIdx(), rating)
         pic.taxon = taxon
         pic.location = loc
         self.log.info('Will add %s', pic)
