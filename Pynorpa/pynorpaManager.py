@@ -54,6 +54,7 @@ class PynorpaManager():
         # Check location
         if not loc or loc.getIdx() < 1:
             raise PynorpaException(f"Lieu invalide : {loc}")
+        # TODO compare with GPS data if defined
 
         # Check picture is not added yet
         basename = os.path.basename(filename)
@@ -62,6 +63,7 @@ class PynorpaManager():
             self.log.error('Picture is already in gallery: %s', pic)
             msg = f'{pic.getFilename()}\n{pic.getLocationName()}\n{pic.getShotAt()}'
             raise PynorpaException(f'La photo est déjà en galerie :\n{msg}')
+        # TODO check file is not yet in config.dirPictures
         
         # Check image size
         info = PhotoInfo(filename)
@@ -84,6 +86,9 @@ class PynorpaManager():
         pic.taxon = taxon
         pic.location = loc
         self.log.info('Will add %s', pic)
+
+        # TODO copy files to gallery
+
         return pic
             
     def addLocation(self, filename: str) -> Location:
