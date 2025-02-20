@@ -150,6 +150,7 @@ class TaxonEditor(BaseWidgets.BaseEditor):
         self.txtNameFr   = self.addText('Nom français',   Taxon.getNameFr)
         self.txtRank     = self.addTextReadOnly('Rang',   Taxon.getRankFr)
         self.intOrder    = self.addIntInput('Ordre',      Taxon.getOrder)
+        self.txtParent   = self.addTextReadOnly('Parent', Taxon.getParentName)
         self.chkTypical  = self.addCheckBox('Taxon type', Taxon.getTypical, 'Taxon type du parent')
 
         # Buttons: save, cancel, delete

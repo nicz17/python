@@ -183,6 +183,10 @@ class Taxon():
         """Setter for parent"""
         self.parent = parent
 
+    def getParentName(self) -> str:
+        """Returns the parent name, or None."""
+        return self.parent.getName() if self.parent else None
+
     def isTopLevel(self) -> bool:
         """Check if this taxon has no parent."""
         return self.idxParent is None
