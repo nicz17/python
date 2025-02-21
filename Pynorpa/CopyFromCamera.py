@@ -69,8 +69,8 @@ class CopyFromCamera:
             if cbkProgress:
                 cbkProgress()
         timer.stop()
-        self.log.info('Copied %d photos in %s', len(self.images), timer.getElapsed())
-        self.statusMsg = f'Copied {len(self.images)} photos to {self.targetDir} in {timer.getElapsed()}'
+        self.log.info('Copied %d photos in %s', len(self.copied), timer.getElapsed())
+        self.statusMsg = f'Copied {len(self.copied)} photos to {self.targetDir} in {timer.getElapsed()}'
 
     def createThumbs(self, cbkProgress = None):
         """Create thumbnail images if needed."""
