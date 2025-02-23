@@ -160,6 +160,7 @@ class LocationEditor(BaseWidgets.BaseEditor):
 
     def onSave(self, evt=None):
         """Save changes to the edited object."""
+        self.location.setName(self.txtName.getValue())
         self.location.setDesc(self.txtDesc.getValue())
         self.location.setLatLonZoom(self.widPosition.getValue())
         self.location.setAltitude(self.intAltitude.getValue())

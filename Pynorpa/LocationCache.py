@@ -171,6 +171,7 @@ class LocationCache:
         self.log.info('Updating %s', location)
         query = Database.Query("Location save")
         query.add(f'update Location set')
+        query.add('locName = ').addEscapedString(location.getName()).add(',')
         query.add('locDesc = ').addEscapedString(location.getDesc()).add(',')
         query.add('locRegion = ').addEscapedString(location.getRegion()).add(',')
         query.add('locState = ').addEscapedString(location.getState()).add(',')
