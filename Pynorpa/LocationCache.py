@@ -30,6 +30,7 @@ class Location:
         self.lat = lat
         self.alt = alt
         self.zoom = zoom
+        self.kind = None
 
         self.pictures = []
         self.excursions = []
