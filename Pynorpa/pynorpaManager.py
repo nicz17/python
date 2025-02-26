@@ -60,18 +60,20 @@ class PynorpaManager():
         basename = os.path.basename(filename)
         pic = self.pictureCache.findByName(basename)
         if pic:
-            self.log.error('Picture is already in gallery: %s', pic)
+            self.log.error('Picture is already in DB: %s', pic)
             msg = f'{pic.getFilename()}\n{pic.getLocationName()}\n{pic.getShotAt()}'
-            raise PynorpaException(f'La photo est déjà en galerie (DB) :\n{msg}')
+            raise PynorpaException(f'La photo est déjà dans la base :\n{msg}')
         # Check file is not yet in config.dirPictures
         dest = f'{config.dirPictures}{basename}'
         if os.path.exists(dest):
-            raise PynorpaException(f'La photo est déjà en galerie (disque)')
+            self.log.error('Picture is already on disk: %s', dest)
+            raise PynorpaException(f'La photo est déjà sur le disque')
         
         # Check image size
         info = PhotoInfo(filename)
         info.identify()
         if info.width > 2000 or info.height > 2000:
+            self.log.error('Invalid photo size %s', info.getSizeString())
             raise PynorpaException(f'Taille invalide : {info.getSizeString()}')
 
         # Check taxon can be found from file name
