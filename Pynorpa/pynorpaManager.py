@@ -62,8 +62,11 @@ class PynorpaManager():
         if pic:
             self.log.error('Picture is already in gallery: %s', pic)
             msg = f'{pic.getFilename()}\n{pic.getLocationName()}\n{pic.getShotAt()}'
-            raise PynorpaException(f'La photo est déjà en galerie :\n{msg}')
-        # TODO check file is not yet in config.dirPictures
+            raise PynorpaException(f'La photo est déjà en galerie (DB) :\n{msg}')
+        # Check file is not yet in config.dirPictures
+        dest = f'{config.dirPictures}{basename}'
+        if os.path.exists(dest):
+            raise PynorpaException(f'La photo est déjà en galerie (disque)')
         
         # Check image size
         info = PhotoInfo(filename)
@@ -85,9 +88,13 @@ class PynorpaManager():
         pic = Picture(-1, basename, tShotAt, None, taxon.getIdx(), DateTools.nowDatetime(), loc.getIdx(), rating)
         pic.taxon = taxon
         pic.location = loc
-        self.log.info('Will add %s', pic)
+        self.log.info('Will add %s of %s', pic, taxon)
 
-        # TODO copy files to gallery
+        # Copy files to gallery
+        dryrun = True
+        self.runSystemCommand(f'cp {filename} {dest}', dryrun)
+        self.runSystemCommand(f'convert {filename} -resize 500x500 {config.dirPicsBase}medium/{basename}', dryrun)
+        self.runSystemCommand(f'convert {filename} -resize 180x180 {config.dirPicsBase}thumbs/{basename}', dryrun)
 
         return pic
             
@@ -109,7 +116,13 @@ class PynorpaManager():
                        track.center.elevation, 'Vaud', 16, 'Suisse')
         self.log.info('Adding %s', loc)
         return loc
-
+    
+    def runSystemCommand(self, cmd: str, dryrun=False):
+        """Run a system command."""
+        if dryrun:
+            self.log.info('dryrun: %s', cmd)
+        else:
+            os.system(cmd)
         
 def testManager():
     """Unit test for manager"""
