@@ -512,6 +512,8 @@ class Exporter():
             for subchild in child.getChildren():
                 pic: Picture
                 pic = subchild.getTypicalPicture()
+                if not pic:
+                    self.log.error('No typical picture found for %s', subchild)
                 link = LinkHtmlTag(f'{subchild.getName()}.html', None)
                 link.addTag(ImageHtmlTag(f'thumbs/{pic.getFilename()}', subchild.getNameFr(), subchild.getName()))
                 link.addTag(HtmlTag('span', f'<br>{subchild.getName()} ({len(subchild.getChildren())})'))
@@ -593,7 +595,7 @@ class Exporter():
             legend.addTag(GrayFontHtmlTag(DateTools.datetimeToPrettyStringFr(pic.getShotAt())))
             td.addTag(legend)
             if (pic.getRemarks()):
-                td.addTag(HtmlTag('p', self.replaceRemarkLinks(pic.getRemarks())))
+                td.addTag(HtmlTag('p', self.replaceRemarkLinks(pic)))
         if len(taxon.getPictures()) % 2 == 1:
             tablePics.getNextCell() # fill the last table row
 
@@ -707,19 +709,20 @@ class Exporter():
             case TaxonRank.GENUS:
                 return HtmlTag('i', taxon.getName())
     
-    def replaceRemarkLinks(self, remark: str) -> str:
+    def replaceRemarkLinks(self, pic: Picture) -> str:
         """Replace species references in the specified remark with a link to that species."""
+        remark = pic.getRemarks()
         pat = re.compile(".+\\[\\[(.+)\\]\\].*")
         match = pat.match(remark)
         if match:
             taxName = match.group(1)
-            repl = taxName
+            repl = f'<i>{taxName}</i>'
             tax = self.taxCache.findByName(taxName)
             if tax:
-                link = LinkHtmlTag(self.getTaxonLink(tax, ''), tax.getName(), False, tax.getNameFr())
+                link = LinkHtmlTag(self.getTaxonLink(tax, ''), f'<i>{tax.getName()}</i>', False, tax.getNameFr())
                 repl = link.getHtml(0, True)
             else:
-                self.log.error('Failed to find taxon %s', taxName)
+                self.log.warning('Failed to find taxon %s in remark of %s', taxName, pic)
             remark = remark.replace(f'[[{taxName}]]', repl)
         return remark
 
