@@ -93,11 +93,13 @@ class PynorpaManager():
         self.log.info('Will add %s of %s', pic, taxon)
 
         # Copy files to gallery
-        dryrun = True
+        dryrun = False
         self.runSystemCommand(f'cp {filename} {dest}', dryrun)
         self.runSystemCommand(f'convert {filename} -resize 500x500 {config.dirPicsBase}medium/{basename}', dryrun)
         self.runSystemCommand(f'convert {filename} -resize 180x180 {config.dirPicsBase}thumbs/{basename}', dryrun)
 
+        # Save to DB
+        self.pictureCache.save(pic)
         return pic
             
     def addLocation(self, filename: str) -> Location:

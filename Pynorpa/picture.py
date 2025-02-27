@@ -72,8 +72,8 @@ class Picture():
         self.remarks = remarks
 
     def getIdxTaxon(self) -> int:
-        """Getter for taxon"""
-        return self.taxon
+        """Getter for idxTaxon"""
+        return self.idxTaxon
 
     def setIdxTaxon(self, idxTaxon: int):
         """Setter for taxon"""
@@ -239,7 +239,27 @@ class PictureCache():
     def insert(self, obj: Picture):
         """Insert the specified Picture in database."""
         self.log.info('Inserting %s', obj)
-        pass
+        query = Database.Query('Insert Picture')
+        query.add('Insert into Picture (idxPicture, picFilename, picShotAt, picRemarks, picTaxon, picUpdatedAt, picIdxLocation, picRating)')
+        query.add('values (null')
+        query.add(',').addEscapedString(obj.getFilename())
+        query.add(',').addDate(obj.getShotAt())
+        query.add(',').addEscapedString(obj.getRemarks())
+        query.add(f', {obj.getIdxTaxon()}')
+        query.add(',').addDate(obj.getUpdatedAt())
+        query.add(f', {obj.getIdxLocation()}')
+        query.add(f', {obj.getRating()}')
+        query.add(')')
+        self.db.connect(config.dbUser, config.dbPass)
+        idx = self.db.execute(query.getSQL())
+        self.db.disconnect()
+        query.close()
+        if idx:
+            self.log.info(f'Inserted with idx {idx}')
+            obj.idx = idx
+            self.pictures.append(obj)
+        else:
+            self.log.error('No idx after insertion!')
 
     def getLatest(self, limit=10) -> list[Picture]:
         """Get the latest pictures."""
