@@ -391,6 +391,7 @@ class TaxonCache():
         """Find a Taxon from a file name."""
         name = filename.removesuffix('.jpg')
         name = ''.join([i for i in name if not i.isdigit()])
+        name = name.replace('-sp', '')
         name = name.replace('-', ' ')
         name = TextTools.upperCaseFirst(name)
         return self.findByName(name)
