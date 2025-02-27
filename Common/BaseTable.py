@@ -143,7 +143,11 @@ class TableWithColumns(BaseTable):
     def addRows(self, data):
         """Add on table row for each object in data."""
         for object in data:
-            rowdata = []
-            for col in self.getColumns():
-                rowdata.append(col.mtdGetter(object))
-            self.addRow(rowdata)
+            self.addObject(object)
+
+    def addObject(self, object):
+        """Add a single object as a table row."""
+        rowdata = []
+        for col in self.getColumns():
+            rowdata.append(col.mtdGetter(object))
+        self.addRow(rowdata)
