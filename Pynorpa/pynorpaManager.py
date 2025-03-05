@@ -100,6 +100,10 @@ class PynorpaManager():
 
         # Save to DB
         self.pictureCache.save(pic)
+
+        # Update caches
+        taxon.addPicture(pic)
+        loc.addPicture(pic)
         return pic
             
     def addLocation(self, filename: str) -> Location:

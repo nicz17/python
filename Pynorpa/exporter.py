@@ -558,6 +558,9 @@ class Exporter():
                     self.buildTaxon(genus)
                 for species in genus.getChildren():
                     pic = species.getBestPicture()
+                    if not pic:
+                        self.log.error('No picture for %s', species)
+                        continue
                     link = LinkHtmlTag(self.getTaxonLink(species), None)
                     link.addTag(ImageHtmlTag(f'thumbs/{pic.getFilename()}', species.getNameFr(), species.getName()))
                     link.addTag(HtmlTag('i', f'<br>{species.getName()}'))
