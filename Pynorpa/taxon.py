@@ -395,6 +395,16 @@ class TaxonCache():
         name = name.replace('-', ' ')
         name = TextTools.upperCaseFirst(name)
         return self.findByName(name)
+    
+    def createTaxonForFilename(self, filename: str) -> Taxon:
+        """Create a Taxon from a file name."""
+        self.log.info('Will create a taxon for %s', filename)
+        name = filename.removesuffix('.jpg')
+        rank = TaxonRank.SPECIES
+        if '-sp' in name:
+            rank = TaxonRank.GENUS
+        return None
+        
 
     def __str__(self):
         return f'TaxonCache with {len(self.dictById)} taxa'

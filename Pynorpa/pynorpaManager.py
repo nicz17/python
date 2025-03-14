@@ -7,6 +7,7 @@ __version__ = "1.0.0"
 import config
 import logging
 import os
+from tkinter import messagebox as mb
 
 import DateTools
 import TextTools
@@ -80,7 +81,12 @@ class PynorpaManager():
         taxon = self.taxonCache.findByFilename(basename)
         if not taxon:
             self.log.error('Failed to find taxon for %s', filename)
-            raise PynorpaException(f"Taxon inconnu pour {basename}")
+            reply = mb.askquestion('Taxon inconnu', f'Créer des taxons pour {basename} ?')
+            if reply == 'yes':
+                self.log.info('Will create taxa for %s', basename)
+                raise PynorpaException('Not implemented yet!')
+            else:
+                raise PynorpaException(f"Taxon inconnu pour {basename}")
         
         # Create Picture
         tShotAt = DateTools.timestampToDatetimeUTC(info.getShotAt())
