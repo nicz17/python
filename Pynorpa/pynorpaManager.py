@@ -84,7 +84,13 @@ class PynorpaManager():
             reply = mb.askquestion('Taxon inconnu', f'Créer des taxons pour {basename} ?')
             if reply == 'yes':
                 self.log.info('Will create taxa for %s', basename)
-                raise PynorpaException('Not implemented yet!')
+                taxon = self.taxonCache.createTaxonForFilename(basename)
+                if taxon:
+                    self.log.info('Created %s', taxon)
+                    if taxon.getIdx() < 1:
+                        raise PynorpaException(f"Taxon invalide pour {basename}")
+                else:
+                    raise PynorpaException(f'Echec de création de taxon pour {basename}')
             else:
                 raise PynorpaException(f"Taxon inconnu pour {basename}")
         

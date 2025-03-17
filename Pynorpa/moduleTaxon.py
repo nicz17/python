@@ -58,6 +58,7 @@ class ModuleTaxon(TabModule):
 
     def onAddTaxon(self, evt=None):
         """Create a child of the selected taxon and display it in editor."""
+        # TODO move to TaxonCache
         rank = TaxonRank(self.taxon.rank.value+1)
         name = None
         nameFr = None

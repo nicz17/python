@@ -321,7 +321,7 @@ class TaxonCache():
         query.add(',').addEscapedString(obj.getName())
         query.add(',').addEscapedString(obj.getNameFr())
         query.add(',').addEscapedString(obj.getRank().name)
-        query.add(f', {obj.getIdxParent()}')
+        query.add(',').addNullableFK(obj.getIdxParent())
         query.add(f', {obj.getOrder()}')
         query.add(',').addBool(obj.getTypical())
         query.add(')')
@@ -390,22 +390,28 @@ class TaxonCache():
     def findByFilename(self, filename: str) -> Taxon:
         """Find a Taxon from a file name."""
         name = filename.removesuffix('.jpg')
-        name = ''.join([i for i in name if not i.isdigit()])
+        name = TextTools.removeDigits(name)
+        name = TextTools.upperCaseFirst(name)
         name = name.replace('-sp', '')
         name = name.replace('-', ' ')
-        name = TextTools.upperCaseFirst(name)
         return self.findByName(name)
     
     def createTaxonForFilename(self, filename: str) -> Taxon:
-        """Create a Taxon from a file name."""
+        """Create a Taxon from a file name and save to DB."""
         self.log.info('Will create a taxon for %s', filename)
         name = filename.removesuffix('.jpg')
+        name = TextTools.removeDigits(name)
+        name = TextTools.upperCaseFirst(name)
         rank = TaxonRank.SPECIES
         if '-sp' in name:
+            name = name.replace('-sp', '')
             rank = TaxonRank.GENUS
-        return None
+        name = name.replace('-', ' ')
+        # TODO: if species, also find or create Genus
+        taxon = Taxon(-1, name, name, rank.name, -1, 0, False)
+        self.insert(taxon)
+        return taxon
         
-
     def __str__(self):
         return f'TaxonCache with {len(self.dictById)} taxa'
 

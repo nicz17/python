@@ -107,6 +107,14 @@ class Query():
         else:
             self.add('1' if bValue else '0')
         return self
+    
+    def addNullableFK(self, fk: int):
+        """Add the specified foreign key, or null if negative or None."""
+        if fk is None or fk <= 0:
+            self.add('null')
+        else:
+            self.add(f'{fk}')
+        return self
 
     def getSQL(self):
         """Return the accumulated SQL"""
