@@ -411,6 +411,18 @@ class TaxonCache():
         taxon = Taxon(-1, name, name, rank.name, -1, 0, False)
         self.insert(taxon)
         return taxon
+    
+    def createChildTaxon(self, parent: Taxon):
+        """Create a child of the specified taxon and return it unsaved."""
+        rank = TaxonRank(parent.rank.value+1)
+        name = None
+        nameFr = None
+        if parent.rank == TaxonRank.GENUS:
+            name   = parent.name
+            nameFr = parent.nameFr
+        child = Taxon(-1, name, nameFr, rank.name, parent.idx, 0, False)
+        child.setParent(parent)
+        return child
         
     def __str__(self):
         return f'TaxonCache with {len(self.dictById)} taxa'
