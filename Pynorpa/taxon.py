@@ -396,9 +396,11 @@ class TaxonCache():
         name = name.replace('-', ' ')
         return self.findByName(name)
     
-    def createTaxonForFilename(self, filename: str) -> Taxon:
+    def createTaxonForFilename(self, filename: str, dryrun=False) -> Taxon:
         """Create a Taxon from a file name and save to DB."""
-        self.log.info('Will create a taxon for %s', filename)
+        self.log.info('Will create a taxon for filename %s', filename)
+
+        # Extract taxon name from filename
         name = filename.removesuffix('.jpg')
         name = TextTools.removeDigits(name)
         name = TextTools.upperCaseFirst(name)
@@ -407,9 +409,28 @@ class TaxonCache():
             name = name.replace('-sp', '')
             rank = TaxonRank.GENUS
         name = name.replace('-', ' ')
-        # TODO: if species, also find or create Genus
-        taxon = Taxon(-1, name, name, rank.name, -1, 0, False)
-        self.insert(taxon)
+
+        # If species, also find or create Genus
+        parent = None
+        if rank == TaxonRank.SPECIES:
+            nameGenus = name.split()[0]
+            parent = self.findByName(nameGenus)
+            if parent:
+                if parent.rank != TaxonRank.GENUS:
+                    self.log.error('Wrong rank for parent %s, expected Genus', parent)
+                else:
+                    self.log.info('Using existing Genus %s as parent', parent)
+            else:
+                self.log.info('Creating Genus %s as parent', nameGenus)
+                parent = self.createTaxonForFilename(nameGenus + '-sp', dryrun)
+
+        # Create taxon and save to DB unless dry-run
+        idxParent = parent.getIdx() if parent else -1
+        taxon = Taxon(-1, name, name, rank.name, idxParent, 0, False)
+        taxon.setParent(parent)
+        if not dryrun:
+            self.insert(taxon)
+        self.log.info('Created taxon %s', taxon)
         return taxon
     
     def createChildTaxon(self, parent: Taxon):
@@ -451,6 +472,13 @@ def testTaxonCache():
     taxon = cache.findByFilename(filename)
     cache.log.info('File %s taxon %s', filename, taxon)
 
+def testCreateTaxaFromFilename():
+    """Unit test for creating a species and its genus from a file name."""
+    cache = TaxonCache()
+    cache.log.info('Testing creation of taxa from filenames')
+    cache.createTaxonForFilename('blastus-vulgaris001.jpg', True)
+    cache.createTaxonForFilename('anas-fantasticus001.jpg', True)
+
 def testReflection():
     """Simple reflection test"""
     TaxonCache.log.info("Testing reflection")
@@ -463,5 +491,6 @@ if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",
         level=logging.INFO, handlers=[logging.StreamHandler()])
     testTaxonCache()
-    testReflection()
+    testCreateTaxaFromFilename()
+    #testReflection()
 
