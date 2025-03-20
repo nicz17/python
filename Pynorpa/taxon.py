@@ -405,9 +405,11 @@ class TaxonCache():
         name = TextTools.removeDigits(name)
         name = TextTools.upperCaseFirst(name)
         rank = TaxonRank.SPECIES
-        if '-sp' in name:
-            name = name.replace('-sp', '')
+        if name.endswith('-sp'):
+            name = name.removesuffix('-sp')
             rank = TaxonRank.GENUS
+        elif name.endswith('idae') or name.endswith('aceae'):
+            rank = TaxonRank.FAMILY
         name = name.replace('-', ' ')
 
         # If species, also find or create Genus
@@ -425,6 +427,7 @@ class TaxonCache():
                 parent = self.createTaxonForFilename(nameGenus + '-sp', dryrun)
 
         # Create taxon and save to DB unless dry-run
+        # TODO: find or create parents all the way up
         idxParent = parent.getIdx() if parent else -1
         taxon = Taxon(-1, name, name, rank.name, idxParent, 0, False)
         taxon.setParent(parent)
@@ -478,6 +481,7 @@ def testCreateTaxaFromFilename():
     cache.log.info('Testing creation of taxa from filenames')
     cache.createTaxonForFilename('blastus-vulgaris001.jpg', True)
     cache.createTaxonForFilename('anas-fantasticus001.jpg', True)
+    cache.createTaxonForFilename('blastidae4242.jpg', True)
 
 def testReflection():
     """Simple reflection test"""
