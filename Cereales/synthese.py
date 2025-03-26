@@ -52,32 +52,33 @@ class OrderReader():
         """Read order files and merge into the synthesis table."""
         self.log.info('Reading %d order files:', len(self.orders))
         dfMerged = pd.DataFrame()
-        iRowFrom = 6
-        iRowTo = 28
+        iRowFrom = 7
+        iRowTo = 27
         iOrder = 1
         for order in self.orders:
             dfOrder = pd.read_excel(order)
             if iOrder == 1:
-                rowNames = dfOrder.iloc[iRowFrom:iRowTo, 0]
+                rowNames = dfOrder.iloc[iRowFrom:iRowTo, 1]
                 rowNames.at[-1] = 'Subsides'
                 dfMerged.insert(0, 'Produits', rowNames)
-            #print(dfOrder)
-            name = dfOrder.iloc[2][3]
-            if pd.isna(dfOrder.iloc[2, 3]):
+            print(dfOrder)
+            name = dfOrder.iloc[3][5]  # [row][col]
+            self.log.info('Name cell is %s', name)
+            if pd.isna(dfOrder.iloc[3, 5]):
                 # Hope to find name in filename
                 name = os.path.basename(order)
-                name = name.replace('commande_groupee_avril2024_', '')
-                name = name.replace('sans_subsides_', '')
-                name = name.replace('avec_subsides_', '')
+                name = name.replace('commande_groupee_avril2025_', '')
+                name = name.replace('sans_subsides', '')
+                name = name.replace('avec_subsides', '')
                 name = name.replace('.xlsx', '')
             hasSubsidy = not pd.isna(dfOrder.iloc[0, 0])
-            quant = dfOrder.iloc[iRowFrom:iRowTo, 3]
+            quant = dfOrder.iloc[iRowFrom:iRowTo, 5]
             quant.at[-1] = 'x' if hasSubsidy else ''
             self.log.info('Commande %s subsides par "%s"', 
                         'AVEC' if hasSubsidy else 'sans', name)
             dfMerged.insert(iOrder, name, quant)
             iOrder += 1
-        #print(dfMerged)
+        print(dfMerged)
         dfMerged.to_csv('synthese.csv')
         dfMerged.to_excel('synthese-brute.xlsx')
 
@@ -121,6 +122,10 @@ def main():
     """Main function. Reads XLS files and builds the synthesis."""
     log.info('Bienvenue dans le script de synthèse des commandes')
     log.info('Chemin: %s', dOptions['path'])
+
+    if not dOptions['path']:
+        log.error('Entrez le chemin vers les commandes avec -p')
+        exit()
 
     reader = OrderReader(dOptions['path'])
     reader.loadOrders()

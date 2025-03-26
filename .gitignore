@@ -47,6 +47,7 @@ SimpleUML/uml/*
 SimpleUML/*.uml
 SimpleUML/settings.json
 Cereales/synthese.csv
-Cereales/synthese-brute.xlsx
+Cereales/*.xlsx
+Cereales/test/*
 
 Cassino/resources/*
