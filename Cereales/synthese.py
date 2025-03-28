@@ -28,9 +28,10 @@ class OrderReader():
     """
     log = logging.getLogger("OrderReader")
 
-    def __init__(self, path: str):
+    def __init__(self, path: str, debug=False):
         """Constructor."""
         self.path = path
+        self.debug = debug
         self.orders = []
 
     def loadOrders(self):
@@ -61,17 +62,25 @@ class OrderReader():
                 rowNames = dfOrder.iloc[iRowFrom:iRowTo, 1]
                 rowNames.at[-1] = 'Subsides'
                 dfMerged.insert(0, 'Produits', rowNames)
-            print(dfOrder)
+            if self.debug:
+                print(dfOrder)
             name = dfOrder.iloc[3][5]  # [row][col]
-            self.log.info('Name cell is %s', name)
+            if self.debug:
+                self.log.info('Name cell is %s', name)
+            hasSubsidy = 'avec subside' in order
             if pd.isna(dfOrder.iloc[3, 5]):
                 # Hope to find name in filename
                 name = os.path.basename(order)
-                name = name.replace('commande_groupee_avril2025_', '')
-                name = name.replace('sans_subsides', '')
-                name = name.replace('avec_subsides', '')
+                name = name.replace('formulaire', '')
+                name = name.replace('commandes groupees avril 2025', '')
+                name = name.replace('sans subside', '')
+                name = name.replace('avec subside', '')
                 name = name.replace('.xlsx', '')
-            hasSubsidy = not pd.isna(dfOrder.iloc[0, 0])
+                name = name.replace(' - ', '')
+                name = name.replace('-', '')
+                name = name.replace('_', '')
+                name = name.strip()
+            #hasSubsidy = not pd.isna(dfOrder.iloc[0, 0])
             quant = dfOrder.iloc[iRowFrom:iRowTo, 5]
             quant.at[-1] = 'x' if hasSubsidy else ''
             self.log.info('Commande %s subsides par "%s"', 
@@ -104,9 +113,9 @@ def configureLogging():
 
 def getOptions():
     """Parse program arguments and store them in a dict."""
-    dOptions = {'path': None}
+    dOptions = {'path': None, 'debug': False}
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'hp:', ['help', 'path'])
+        opts, args = getopt.getopt(sys.argv[1:], 'hdp:', ['help', 'debug', 'path'])
     except getopt.GetoptError:
         print("Invalid options: %s", sys.argv[1:])
     for opt, arg in opts:
@@ -116,6 +125,8 @@ def getOptions():
             sys.exit()
         elif opt in ("-p", "--path"):
             dOptions['path'] = arg
+        elif opt in ("-d", "--debug"):
+            dOptions['debug'] = True
     return dOptions
 
 def main():
