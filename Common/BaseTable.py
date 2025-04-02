@@ -151,3 +151,15 @@ class TableWithColumns(BaseTable):
         for col in self.getColumns():
             rowdata.append(col.mtdGetter(object))
         self.addRow(rowdata)
+
+    def updateObject(self, object):
+        """Update the selected row with the specified object."""
+        #tree.item(iid, values=(new, values, here))
+        iid = self.getSelectedRow()
+        self.log.info(f'Will update row {iid}')
+        rowdata = []
+        for col in self.getColumns():
+            rowdata.append(col.mtdGetter(object))
+        self.tree.item(iid, values=rowdata)
+
+        
