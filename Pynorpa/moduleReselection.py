@@ -34,7 +34,7 @@ class ModuleReselection(TabModule):
         self.table = TableReselection(self.onSelectPhoto)
         self.imageWidget = imageWidget.ImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
         self.editor = PhotoEditorReselection()
-        self.selector = TaxonReselector(self.loadData)
+        self.selector = TaxonReselector(self.onRename)
         self.dirSelector = DirectorySelector(self.onSelectDir)
         self.photos = []
         self.dir = None
@@ -85,6 +85,11 @@ class ModuleReselection(TabModule):
         self.imageWidget.loadData(thumbfile)
         self.editor.loadData(photo)
         self.selector.loadData(photo)
+
+    def onRename(self, photo):
+        """Callback after selected photo was renamed."""
+        self.table.updateObject(photo)
+        self.editor.loadData(photo)
 
     def onLocate(self):
         dlgLocate = DialogLocate(self.window, self.photos)
@@ -211,9 +216,11 @@ class TaxonReselector(TaxonSelector):
         self.runSystemCommand(cmd)
         self.runSystemCommand(cmd.replace('photos/', 'thumbs/'))
         self.enableWidgets()
-        self.cbkReselection()
+        self.photo.filename = target
+        self.cbkReselection(self.photo)
 
     def runSystemCommand(self, cmd: str):
+        """Runs the specified system command."""
         self.log.info(cmd)
         os.system(cmd)
 
