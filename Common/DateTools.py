@@ -33,6 +33,10 @@ def timestampToDatetimeUTC(tAt: float) -> datetime.datetime:
     """Convert a float timestamp to a UTC aware datetime object."""
     return pytz.UTC.localize(datetime.datetime.utcfromtimestamp(tAt))
 
+def datetimeToLocal(dtAt: datetime.datetime) -> datetime.datetime:
+    """Convert datetime to localtime offset-naive datetime."""
+    return dtAt.astimezone(tz=None).replace(tzinfo=None)
+
 def stringToTimestamp(strExif: str, format = "%Y.%m.%d %H:%M:%S") -> float:
     """Convert string like 2023.12.28 13:15:36 to float timestamp."""
     return time.mktime(datetime.datetime.strptime(strExif, format).timetuple())
