@@ -61,15 +61,39 @@ class ModuleTaxon(TabModule):
         child = self.cache.createChildTaxon(self.taxon)
         self.log.info('Adding child taxon %s', child)
         self.editor.loadData(child)
+        self.editor.txtName.oWidget.focus()
+
+    def onSearch(self, evt=None):
+        """Search taxon and select it in tree."""
+        input = self.txtSearch.get()
+        if input and len(input) > 2:
+            where = f"taxName like '%{input.replace(' ', '% %')}%'"
+            ids = self.cache.fetchFromWhere(where)
+            if ids and len(ids) > 0:
+                taxon = self.cache.findById(ids[0])
+                self.log.info('Found %s', taxon)
+                self.tree.setSelection(taxon)
+                self.enableWidgets()
 
     def createWidgets(self):
         """Create user widgets."""
         self.createLeftRightFrames()
 
-        # Taxon tree and editor
+        # Taxon tree
         self.tree.createWidgets(self.frmLeft)
-        self.btnAdd = BaseWidgets.Button(self.frmLeft, 'Ajouter enfant', self.onAddTaxon, 'add')
+
+        # Toolbar
+        frmToolbar = ttk.Frame(self.frmLeft)
+        self.btnAdd = BaseWidgets.Button(frmToolbar, 'Ajouter enfant', self.onAddTaxon, 'add')
         self.btnAdd.pack()
+        self.txtSearch = ttk.Entry(frmToolbar, width=18)
+        self.txtSearch.pack(side=tk.LEFT, padx=3)
+        self.txtSearch.bind('<Return>', self.onSearch)
+        self.btnSearch = BaseWidgets.Button(frmToolbar, 'Chercher', self.onSearch, 'find')
+        self.btnSearch.pack()
+        frmToolbar.pack()
+
+        # Editor and image
         self.editor.createWidgets(self.frmRight)
         self.imageWidget.createWidgets(self.frmRight)
         self.editor.loadData(None)
@@ -107,6 +131,13 @@ class TaxonTree(BaseTree):
     def onSelectEvent(self, event):
         self.cbkSelectItem(self.getSelectedId())
 
+    def setSelection(self, taxon: Taxon):
+        """Set the tree selection to the specified taxon."""
+        if taxon:
+            iid = str(taxon.getIdx())
+            self.tree.see(iid)
+            self.tree.focus(iid)
+            self.tree.selection_set(iid)
 
 class TaxonEditor(BaseWidgets.BaseEditor):
     """A widget for editing Pynorpa taxa."""
