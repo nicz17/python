@@ -12,10 +12,11 @@ from tkinter import messagebox as mb
 import DateTools
 import TextTools
 from GeoTracker import GeoTrack
-from LocationCache import Location
+from LocationCache import Location, LocationCache
 from PhotoInfo import PhotoInfo
 from picture import Picture, PictureCache
 from taxon import TaxonCache
+from expedition import Expedition, ExpeditionCache
 
 
 class PynorpaException(Exception):
@@ -43,6 +44,8 @@ class PynorpaManager():
         """Initialize members."""
         self.taxonCache = TaxonCache()
         self.pictureCache = PictureCache()
+        self.locationCache = LocationCache()
+        self.expeditionCache = ExpeditionCache()
 
     def addPicture(self, filename: str, loc: Location) -> Picture:
         """Add a new Picture to gallery."""
@@ -136,6 +139,39 @@ class PynorpaManager():
                        track.center.elevation, 'Vaud', 16, 'Suisse')
         self.log.info('Adding %s', loc)
         return loc
+    
+    def addExcursionFromGeoTrack(self, filename: str) -> Expedition:
+        """Add an excursion from a GeoTrack file."""
+        self.log.info('Adding excursion from %s', filename)
+
+        # Check file exists
+        if not os.path.exists(filename):
+            raise PynorpaException(f"Le GeoTrack n'existe pas : {filename}")
+        
+        # Load track
+        track = GeoTrack(filename)
+        track.loadData()
+
+        # Find location
+        loc = self.locationCache.getClosest(track.getCenter().latitude, track.getCenter().longitude)
+        self.log.info('GeoTrack is closest to %s', loc)
+        if not loc:
+            raise PynorpaException(f"Le GeoTrack ne correspond à aucun lieu : {filename}")
+
+        # Create Expedition
+        name = TextTools.removeDigits(track.name)
+        excursion = Expedition(-1, name, None, loc.getIdx(), 
+                               DateTools.datetimeToLocal(track.tStart), 
+                               DateTools.datetimeToLocal(track.tEnd), 
+                               os.path.basename(filename).removesuffix('.gpx'))
+        self.log.info('Adding %s', excursion)
+
+        # Set location and pictures
+        self.expeditionCache.setLocationPictures(excursion, loc)
+
+        # TODO: copy GPX file
+
+        return excursion
     
     def runSystemCommand(self, cmd: str, dryrun=False):
         """Run a system command."""

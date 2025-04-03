@@ -167,14 +167,18 @@ class ExpeditionCache():
         # Set locations and pictures
         for exped in self.getExpeditions():
             location = self.locationCache.getById(exped.getIdxLocation())
-            if location:
-                exped.setLocation(location)
-                location.addExcursion(exped)
-                picture: Picture
-                for picture in location.getPictures():
-                    if picture.getShotAt() >= exped.getFrom() and picture.getShotAt() <= exped.getTo():
-                        exped.addPicture(picture)
-                exped.pictures = sorted(exped.pictures, key=lambda pic: pic.shotAt)
+            self.setLocationPictures(exped, location)
+
+    def setLocationPictures(self, exped: Expedition, location: Location):
+        """Add pictures from the specified location."""
+        if location:
+            exped.setLocation(location)
+            location.addExcursion(exped)
+            picture: Picture
+            for picture in location.getPictures():
+                if picture.getShotAt() >= exped.getFrom() and picture.getShotAt() <= exped.getTo():
+                    exped.addPicture(picture)
+            exped.pictures = sorted(exped.pictures, key=lambda pic: pic.shotAt)
 
     def save(self, obj: Expedition):
         """Insert or update the specified Expedition in database."""

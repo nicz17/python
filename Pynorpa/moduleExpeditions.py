@@ -1,10 +1,14 @@
-"""Module moduleExpeditions"""
+"""Module for Expeditions"""
 
 __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
+
+import config
 import logging
+from tkinter import filedialog as fd
+
 from BaseTable import *
 from TabsApp import *
 import BaseWidgets
@@ -14,6 +18,8 @@ from expedition import Expedition, ExpeditionCache
 from LocationCache import Location, LocationCache
 from picture import Picture, PictureCache
 from moduleReselection import DialogLocate
+from pynorpaManager import PynorpaManager, PynorpaException
+
 
 class ModuleExpeditions(TabModule):
     """Class ModuleExpeditions"""
@@ -25,7 +31,7 @@ class ModuleExpeditions(TabModule):
         self.table  = ExpeditionTable(self.onSelectExpedition)
         self.editor = ExpeditionEditor(self.onSaveExpedition, parent.window)
         self.photos = MultiImageWidget()
-        self.factory = ExcursionFactory(self.onNewExcursion)
+        self.factory = ExcursionFactory(self.onNewExcursion, parent)
         super().__init__(parent, 'Excursions')
 
     def loadData(self):
@@ -93,12 +99,15 @@ class ExcursionFactory():
     """Widget to create new excursion from location or GeoTrack."""
     log = logging.getLogger('ExcursionFactory')
 
-    def __init__(self, cbkAdd):
+    def __init__(self, cbkAdd, parent: TabsApp):
         """Constructor with add callback."""
         self.locationCache = LocationCache()
+        self.manager = PynorpaManager()
         self.cbkAdd = cbkAdd
+        self.parent = parent
 
     def onAdd(self, evt=None):
+        """Create an excursion from the latest photos in a location."""
         loc = self.locationCache.getByName(self.cboLocation.getValue())
         self.log.info('Adding Excursion at %s', loc)
         pics = sorted(loc.getPictures(), key=lambda pic: pic.shotAt)
@@ -124,6 +133,20 @@ class ExcursionFactory():
         self.log.info('Adding %s', excursion)
         self.cbkAdd(excursion)
 
+    def onAddFromGeoTrack(self, evt=None):
+        """Create an excursion from a GeoTrack file."""
+        filename = fd.askopenfilename(
+            title = 'Ajouter une excursion',
+            initialdir = config.dirSourceGeoTrack,
+            filetypes = [('GeoTrack', '*.gpx')])
+        if filename:
+            self.log.info('Adding excursion from %s', filename)
+            try:
+                excursion = self.manager.addExcursionFromGeoTrack(filename)
+                self.cbkAdd(excursion)
+            except PynorpaException as exc:
+                self.parent.showErrorMsg(exc)
+
     def loadData(self):
         self.cboLocation.setValue(self.locationCache.getDefaultLocation().getName())
 
@@ -135,6 +158,8 @@ class ExcursionFactory():
         self.cboLocation.setValues([loc.name for loc in self.locationCache.getLocations()])
         self.btnAdd = BaseWidgets.Button(self.frmMain, 'Ajouter', self.onAdd, 'add')
         self.btnAdd.grid(0, 1)
+        self.btnAddTrack = BaseWidgets.Button(self.frmMain, 'GeoTrack', self.onAddFromGeoTrack, 'add')
+        self.btnAddTrack.grid(0, 2)
 
 
 class ExpeditionEditor(BaseWidgets.BaseEditor):
