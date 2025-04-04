@@ -169,8 +169,8 @@ class PynorpaManager():
         # Set location and pictures
         self.expeditionCache.setLocationPictures(excursion, loc)
 
-        # TODO: copy GPX file
-
+        # Copy GPX file
+        self.runSystemCommand(f'cp {filename} {config.dirExportGeoTrack}')
         return excursion
     
     def runSystemCommand(self, cmd: str, dryrun=False):
