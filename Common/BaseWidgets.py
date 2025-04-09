@@ -28,9 +28,11 @@ class Button():
     def __init__(self, parent: ttk.Frame, label: str, cmd, iconName=None, tooltip=None):
         self.log.debug('Constructor %s %s', label, iconName)
         self.icon = self.getIcon(iconName)
-        if self.icon:
+        if self.icon and label:
             self.log.debug('Button with icon for %s %s', label, iconName)
             self.btn = ttk.Button(parent, text=label, image=self.icon, compound=tk.LEFT, command=cmd)
+        elif self.icon:
+            self.btn = ttk.Button(parent, image=self.icon, command=cmd)
         else:
             self.btn = ttk.Button(parent, text=label, command=cmd)
 
