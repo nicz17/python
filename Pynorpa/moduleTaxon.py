@@ -30,9 +30,8 @@ class ModuleTaxon(TabModule):
         self.imageWidget = imageWidget.ImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
 
     def loadData(self):
-        self.cache  = TaxonCache()
-        for tax in self.cache.getTopLevelTaxa():
-            self.tree.addTaxon(tax)
+        self.cache = TaxonCache()
+        self.tree.loadData()
         self.enableWidgets()
 
     def onSelectTaxon(self, id: str):
@@ -85,13 +84,15 @@ class ModuleTaxon(TabModule):
 
         # Toolbar
         frmToolbar = ttk.Frame(self.frmLeft)
-        self.btnAdd = BaseWidgets.Button(frmToolbar, 'Ajouter enfant', self.onAddTaxon, 'add')
+        self.btnAdd = BaseWidgets.Button(frmToolbar, 'Enfant', self.onAddTaxon, 'add')
         self.btnAdd.pack()
         self.txtSearch = ttk.Entry(frmToolbar, width=18)
         self.txtSearch.pack(side=tk.LEFT, padx=3)
         self.txtSearch.bind('<Return>', self.onSearch)
         self.btnSearch = BaseWidgets.Button(frmToolbar, 'Chercher', self.onSearch, 'find')
         self.btnSearch.pack()
+        self.btnReload = BaseWidgets.Button(frmToolbar, None, self.tree.loadData, 'refresh')
+        self.btnReload.pack()
         frmToolbar.pack()
 
         # Editor and image
@@ -110,6 +111,7 @@ class TaxonTree(BaseTree):
     def __init__(self, cbkSelectItem):
         super().__init__(self.onSelectEvent)
         self.cbkSelectItem = cbkSelectItem
+        self.cache = None
 
     def addTaxon(self, taxon: Taxon):
         """Adds a taxon and its children to the tree."""
@@ -128,6 +130,13 @@ class TaxonTree(BaseTree):
         super().createWidgets(parent)
         for rank in TaxonRank:
             self.tree.tag_configure(f'taxon-rank{rank.value}', background=rank.getColor())
+
+    def loadData(self):
+        if not self.cache:
+            self.cache = TaxonCache()
+        self.clear()
+        for tax in self.cache.getTopLevelTaxa():
+            self.addTaxon(tax)
 
     def onSelectEvent(self, event):
         self.cbkSelectItem(self.getSelectedId())
