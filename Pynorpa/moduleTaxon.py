@@ -62,6 +62,7 @@ class ModuleTaxon(TabModule):
         self.log.info('Adding child taxon %s', child)
         self.editor.loadData(child)
         self.editor.txtName.oWidget.focus()
+        self.imageWidget.loadThumb(None)
 
     def onSearch(self, evt=None):
         """Search taxon and select it in tree."""
