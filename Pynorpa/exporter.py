@@ -105,7 +105,7 @@ class Exporter():
         ul = ListHtmlTag([])
         tableCat.getNextCell().addTag(ul)
         ul.addItem(LinkHtmlTag("Pteridophyta.html", "Fougères", False, "Fougères"))
-        ul.addItem(LinkHtmlTag("Pinophyta.html", "Conifères", False, "Conifères"))
+        ul.addItem(LinkHtmlTag("Bryophyta.html", "Mousses", False, "Mousses"))
         ul.addItem(LinkHtmlTag("Magnoliophyta.html#Liliopsida", "Monocots", False, "Monocotylédones"))
         ul.addItem(LinkHtmlTag("Magnoliophyta.html#Magnoliopsida", "Dicots", False, "Dicotylédones"))
 		
