@@ -279,13 +279,22 @@ class Exporter():
         script.addLine(f'renderMap(6.3902, 46.5377, 9);')
         page.add(script)
 
+        # Locations table
+        table = TableHtmlTag(None).addAttr("width", "1000px").addAttr('class', 'align-top')
+        page.add(table)
         ul = ListHtmlTag([])
-        page.add(ul)
-        for loc in self.locCache.getLocations():
-            ul.addItem().addTag(LinkHtmlTag(f'lieu{loc.getIdx()}.html', loc.getName()))
+        table.getNextCell().addTag(ul)
+        for index, loc in enumerate(self.locCache.getLocations()):
+            if index == int(self.locCache.size()/2)+1:
+                ul = ListHtmlTag([])
+                table.getNextCell().addTag(ul)
+            npics = f'&#013;{len(loc.getPictures())} photos'
+            title = f'{loc.getName()}&#013;{loc.getRegion()}, {loc.getState()}&#013;{loc.getAltitude()}m{npics}'
+            ul.addItem().addTag(LinkHtmlTag(f'lieu{loc.getIdx()}.html', loc.getName(), False, title))
             script.addLine(f'addMapMarker({loc.lon}, {loc.lat}, "{loc.getName()}");')
         page.save(f'{config.dirWebExport}locations.html')
 
+        # Build individual location pages
         for loc in self.locCache.getLocations():
             self.buildLocation(loc)
 
