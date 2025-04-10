@@ -251,6 +251,9 @@ class LocationCache:
             return self.getById(apDefLoc.getIntVal())
         self.log.error('Failed to find default location AppParam')
 
+    def size(self):
+        return len(self.locations)
+
     def __str__(self):
         return f'LocationCache with {len(self.locations)} locations'
 
