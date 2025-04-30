@@ -6,9 +6,11 @@ __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
-import logging
 import config
 import glob
+import logging
+import re
+
 import BaseWidgets
 import imageWidget
 import DateTools
@@ -127,8 +129,8 @@ class TaxonSelector():
                 basename += '-sp'
         seq = self.getSequenceNext(basename, taxon)
         if taxon and taxon.getRank().value < TaxonRank.GENUS.value:
-            seq = int(self.photo.getNameShort()[-8:-4])
-            # TODO also handle 3 digits
+            #seq = int(self.photo.getNameShort()[-8:-4])
+            seq = self.extractNumber(self.photo.getNameShort())
         self.newName = f'{basename}{seq:03d}.jpg'
 
     def getSequenceNext(self, basename: str, taxon: Taxon) -> int:
@@ -139,15 +141,24 @@ class TaxonSelector():
             self.log.info(f'Found {len(picsDb)} pictures for {taxon}:')
             for pic in picsDb:
                 self.log.info(f'  {pic}')
-                seq = int(pic.getFilename()[-7:-4])
+                #seq = int(pic.getFilename()[-7:-4])
+                seq = self.extractNumber(pic.getFilename())
                 imax = max(seq, imax)
         picsLocal = glob.glob(f'{self.dir}/photos/{basename}*.jpg')
         self.log.info(f'Found {len(picsLocal)} local files for {basename}:')
         for file in picsLocal:
             self.log.info(f'  {file}')
-            seq = int(file[-7:-4])
+            #seq = int(file[-7:-4])
+            seq = self.extractNumber(file)
             imax = max(seq, imax)
         return imax+1
+    
+    def extractNumber(self, filename: str) -> int:
+        """Extracts the last number sequence from a file name."""
+        if filename:
+            listNums = re.findall(r'\d+', filename)
+            return int(listNums[-1]) if listNums else None
+        return None 
 
     def loadData(self, photo: PhotoInfo):
         """Sets the original photo to select and rename."""
