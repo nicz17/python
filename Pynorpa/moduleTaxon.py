@@ -169,6 +169,11 @@ class TaxonEditor(BaseWidgets.BaseEditor):
         self.taxon.setNameFr(self.txtNameFr.getValue())
         self.taxon.setOrder(self.intOrder.getValue())
         self.taxon.setTypical(self.chkTypical.getValue())
+
+        # Fill fr name from latin name if empty
+        if not self.taxon.nameFr:
+            self.taxon.nameFr = self.taxon.name
+
         self.cbkSave(self.taxon)
 
     def onCancel(self):
