@@ -17,6 +17,7 @@ from PhotoInfo import PhotoInfo
 from picture import Picture, PictureCache
 from taxon import TaxonCache
 from expedition import Expedition, ExpeditionCache
+from iNatApiRequest import INatApiRequest, INatTaxon
 
 
 class PynorpaException(Exception):
@@ -172,6 +173,36 @@ class PynorpaManager():
         # Copy GPX file
         self.runSystemCommand(f'cp {filename} {config.dirExportGeoTrack}')
         return excursion
+    
+    def addTaxonFromINat(self, name: str):
+        """Add a taxon and its ancestors if needed. Query iNat API for the ancestors."""
+        self.log.info(f'Will query iNat API for ancestors of {name}')
+        if not name:
+            raise PynorpaException(f'Nom de taxon invalide: {name}')
+
+        # iNat API request
+        req = INatApiRequest()
+        id = req.getIdFromName(name)
+        if not id:
+            self.log.error(f'Failed to find iNat id for taxon name {name}')
+            raise PynorpaException(f'iNat ne connait pas {name}')
+        
+        ancestors = req.getAncestors(id)
+        if ancestors is None or len(ancestors) == 0:
+            self.log.error(f'Failed to find iNat ancestors for {id}')
+            raise PynorpaException(f'iNat ne trouve pas la hiérarchie de {name} ({id})')
+        
+        # Loop over ancestors, look if already in Panorpa DB
+        self.log.info(f'Found {len(ancestors)} ancestors')
+        for ancestor in ancestors:
+            self.log.info(ancestor)
+            taxon = self.taxonCache.findByName(ancestor.name)
+            if taxon:
+                self.log.info(f'  Found: {taxon}')
+            else:
+                # TODO build taxon to insert in DB
+                self.log.info(f'  Missing')
+
     
     def runSystemCommand(self, cmd: str, dryrun=False):
         """Run a system command."""
