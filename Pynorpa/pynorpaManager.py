@@ -179,7 +179,8 @@ class PynorpaManager():
         taxon = self.taxonCache.findByName(name)
         if taxon:
             self.log.info(f'{name} already in DB: {taxon}')
-            return taxon
+            raise PynorpaException(f'Le taxon existe déjà :\n{taxon}')
+            #return taxon
         
         self.log.info(f'Will query iNat API for ancestors of {name}')
         if not name:
@@ -199,6 +200,7 @@ class PynorpaManager():
         
         # Loop over ancestors, look if already in Panorpa DB
         self.log.info(f'Found {len(ancestors)} ancestors')
+        taxa = []
         idxParent = None
         for ancestor in ancestors:
             self.log.info(ancestor)
@@ -210,13 +212,24 @@ class PynorpaManager():
                 taxon = self.taxonCache.createFromINatTaxon(ancestor, idxParent)
                 self.log.info(f'  Missing: {taxon}')
                 idxParent = taxon.idx
+            taxa.append(taxon)
 
         # Add the taxon itself
         # TODO also support other ranks
         taxon = Taxon(-1, name, None, TaxonRank.SPECIES.name, idxParent, 0, False)
         self.log.info(f'  Missing: {taxon}')
+        taxa.append(taxon)
 
         # Ask user for confirmation
+        iNewTaxa = 0
+        msgConfirm = ''
+        taxon: Taxon
+        for taxon in taxa:
+            msgConfirm += 'Existe' if taxon.idx > 0 else 'Manque'
+            msgConfirm += f' : {taxon.getRankFr()} {taxon.name}\n'
+            if taxon.idx < 0:
+                iNewTaxa += 1
+        reply = mb.askyesno(f'Ajout de {iNewTaxa} taxons', msgConfirm)
 
         # Save new taxa to DB
 

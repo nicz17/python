@@ -13,6 +13,8 @@ from BaseTree import *
 import BaseWidgets
 import imageWidget
 from taxon import Taxon, TaxonCache, TaxonRank
+from tkinter import simpledialog as dialog
+from pynorpaManager import PynorpaManager, PynorpaException
 
 
 class ModuleTaxon(TabModule):
@@ -22,9 +24,11 @@ class ModuleTaxon(TabModule):
     def __init__(self, parent: TabsApp) -> None:
         """Constructor."""
         self.window = parent.window
+        self.parent = parent
         super().__init__(parent, 'Taxons')
         self.cache  = None
         self.taxon  = None
+        self.manager = PynorpaManager()
         self.tree   = TaxonTree(self.onSelectTaxon)
         self.editor = TaxonEditor(self.onSaveTaxon)
         self.imageWidget = imageWidget.ImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
@@ -63,6 +67,14 @@ class ModuleTaxon(TabModule):
         self.editor.txtName.oWidget.focus()
         self.imageWidget.loadThumb(None)
 
+    def onAddTaxonINat(self, evt=None):
+        name = dialog.askstring('Ajouter un taxon via iNat', "Entrer le nom de l'espèce à ajouter :")
+        self.log.info(f'User input: {name}')
+        try:
+            self.manager.addTaxonFromINat(name)
+        except PynorpaException as exc:
+            self.parent.showErrorMsg(exc)
+
     def onSearch(self, evt=None):
         """Search taxon and select it in tree."""
         input = self.txtSearch.get()
@@ -94,6 +106,8 @@ class ModuleTaxon(TabModule):
         self.btnReload = BaseWidgets.Button(frmToolbar, None, self.tree.loadData, 'refresh')
         self.btnReload.pack()
         frmToolbar.pack()
+        self.btnAddINat = BaseWidgets.Button(self.frmLeft, 'iNat', self.onAddTaxonINat, 'add')
+        self.btnAddINat.pack()
 
         # Editor and image
         self.editor.createWidgets(self.frmRight)
