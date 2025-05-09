@@ -10,6 +10,7 @@ import logging
 
 import Database
 import TextTools
+from iNatApiRequest import INatTaxon
 
 
 class TaxonRank(Enum):
@@ -447,6 +448,11 @@ class TaxonCache():
         child = Taxon(-1, name, nameFr, rank.name, parent.idx, 0, False)
         child.setParent(parent)
         return child
+    
+    def createFromINatTaxon(self, inat: INatTaxon, idxParent: int) -> Taxon:
+        """Create an unsaved taxon from an iNat taxon."""
+        taxon = Taxon(-1*inat.id, inat.name, None, inat.rank.upper(), idxParent, 0, False)
+        return taxon
         
     def __str__(self):
         return f'TaxonCache with {len(self.dictById)} taxa'

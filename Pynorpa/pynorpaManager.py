@@ -15,7 +15,7 @@ from GeoTracker import GeoTrack
 from LocationCache import Location, LocationCache
 from PhotoInfo import PhotoInfo
 from picture import Picture, PictureCache
-from taxon import TaxonCache
+from taxon import TaxonCache, Taxon, TaxonRank
 from expedition import Expedition, ExpeditionCache
 from iNatApiRequest import INatApiRequest, INatTaxon
 
@@ -176,6 +176,11 @@ class PynorpaManager():
     
     def addTaxonFromINat(self, name: str):
         """Add a taxon and its ancestors if needed. Query iNat API for the ancestors."""
+        taxon = self.taxonCache.findByName(name)
+        if taxon:
+            self.log.info(f'{name} already in DB: {taxon}')
+            return taxon
+        
         self.log.info(f'Will query iNat API for ancestors of {name}')
         if not name:
             raise PynorpaException(f'Nom de taxon invalide: {name}')
@@ -194,14 +199,26 @@ class PynorpaManager():
         
         # Loop over ancestors, look if already in Panorpa DB
         self.log.info(f'Found {len(ancestors)} ancestors')
+        idxParent = None
         for ancestor in ancestors:
             self.log.info(ancestor)
             taxon = self.taxonCache.findByName(ancestor.name)
             if taxon:
                 self.log.info(f'  Found: {taxon}')
+                idxParent = taxon.idx
             else:
-                # TODO build taxon to insert in DB
-                self.log.info(f'  Missing')
+                taxon = self.taxonCache.createFromINatTaxon(ancestor, idxParent)
+                self.log.info(f'  Missing: {taxon}')
+                idxParent = taxon.idx
+
+        # Add the taxon itself
+        # TODO also support other ranks
+        taxon = Taxon(-1, name, None, TaxonRank.SPECIES.name, idxParent, 0, False)
+        self.log.info(f'  Missing: {taxon}')
+
+        # Ask user for confirmation
+
+        # Save new taxa to DB
 
     
     def runSystemCommand(self, cmd: str, dryrun=False):
@@ -215,8 +232,9 @@ def testManager():
     """Unit test for manager"""
     mgr = PynorpaManager()
     mgr.log.info('Testing PynorpaManager')
-    mgr.addLocation(config.dirSourceGeoTrack + 'Lauenensee250216.gpx')
-    mgr.addPicture('vanessa-cardui004.jpg', None)
+    #mgr.addLocation(config.dirSourceGeoTrack + 'Lauenensee250216.gpx')
+    #mgr.addPicture('vanessa-cardui004.jpg', None)
+    mgr.addTaxonFromINat('Solorina saccata')
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",
