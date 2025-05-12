@@ -451,8 +451,11 @@ class TaxonCache():
     
     def createFromINatTaxon(self, inat: INatTaxon, idxParent: int) -> Taxon:
         """Create an unsaved taxon from an iNat taxon."""
-        # TODO adapt name to fr
         nameFr = inat.name
+        if nameFr.endswith('aceae'):
+            nameFr = nameFr.replace('aceae', 'acées')
+        if nameFr.endswith('idae'):
+            nameFr = nameFr.replace('idae', 'idés')
         taxon = Taxon(-1*inat.id, inat.name, nameFr, inat.rank.upper(), idxParent, 0, False)
         return taxon
         

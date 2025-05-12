@@ -174,7 +174,7 @@ class PynorpaManager():
         self.runSystemCommand(f'cp {filename} {config.dirExportGeoTrack}')
         return excursion
     
-    def addTaxonFromINat(self, name: str):
+    def addTaxonFromINat(self, name: str, module):
         """Add a taxon and its ancestors if needed. Query iNat API for the ancestors."""
         taxon = self.taxonCache.findByName(name)
         if taxon:
@@ -216,6 +216,7 @@ class PynorpaManager():
 
         # Add the taxon itself
         # TODO also support other ranks
+        self.log.info(f'last rank is {taxon.rank}')
         taxon = Taxon(-1, name, name, TaxonRank.SPECIES.name, idxParent, 0, False)
         self.log.info(f'  Missing: {taxon}')
         taxa.append(taxon)
@@ -229,6 +230,7 @@ class PynorpaManager():
             msgConfirm += f' : {taxon.getRankFr()} {taxon.name}\n'
             if taxon.idx < 0:
                 iNewTaxa += 1
+        module.setLoadingIcon(True)
         reply = mb.askyesno(f'Ajout de {iNewTaxa} taxons', msgConfirm)
         if not reply:
             self.log.error(f'Canceled by user.')

@@ -71,8 +71,10 @@ class ModuleTaxon(TabModule):
         name = dialog.askstring('Ajouter un taxon via iNat', "Entrer le nom de l'espèce à ajouter :")
         self.log.info(f'User input: {name}')
         try:
-            self.manager.addTaxonFromINat(name)
+            self.setLoadingIcon()
+            self.manager.addTaxonFromINat(name, self)
         except PynorpaException as exc:
+            self.setLoadingIcon(True)
             self.parent.showErrorMsg(exc)
 
     def onSearch(self, evt=None):
