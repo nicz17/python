@@ -451,7 +451,9 @@ class TaxonCache():
     
     def createFromINatTaxon(self, inat: INatTaxon, idxParent: int) -> Taxon:
         """Create an unsaved taxon from an iNat taxon."""
-        taxon = Taxon(-1*inat.id, inat.name, None, inat.rank.upper(), idxParent, 0, False)
+        # TODO adapt name to fr
+        nameFr = inat.name
+        taxon = Taxon(-1*inat.id, inat.name, nameFr, inat.rank.upper(), idxParent, 0, False)
         return taxon
         
     def __str__(self):

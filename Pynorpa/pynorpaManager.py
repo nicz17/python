@@ -216,7 +216,7 @@ class PynorpaManager():
 
         # Add the taxon itself
         # TODO also support other ranks
-        taxon = Taxon(-1, name, None, TaxonRank.SPECIES.name, idxParent, 0, False)
+        taxon = Taxon(-1, name, name, TaxonRank.SPECIES.name, idxParent, 0, False)
         self.log.info(f'  Missing: {taxon}')
         taxa.append(taxon)
 
@@ -230,9 +230,23 @@ class PynorpaManager():
             if taxon.idx < 0:
                 iNewTaxa += 1
         reply = mb.askyesno(f'Ajout de {iNewTaxa} taxons', msgConfirm)
+        if not reply:
+            self.log.error(f'Canceled by user.')
+            raise PynorpaException(f'Annulé.')
 
         # Save new taxa to DB
-
+        parent = None
+        for taxon in taxa:
+            if taxon.idx < 0:
+                if taxon.idxParent < 0:
+                    taxon.idxParent = idxParent
+                    taxon.parent = parent
+                self.log.info(f'Will save {taxon}')
+                self.taxonCache.insert(taxon)
+                self.log.info(f'Saved {taxon}')
+                idxParent = taxon.idx
+                parent = taxon
+        mb.showinfo('Succès', f'Créé {iNewTaxa} nouveaux taxons.')
     
     def runSystemCommand(self, cmd: str, dryrun=False):
         """Run a system command."""
