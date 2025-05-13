@@ -334,6 +334,10 @@ class TaxonCache():
             self.log.info(f'Inserted with idx {idx}')
             obj.idx = idx
             self.dictById[obj.getIdx()] = obj
+            if obj.parent is not None:
+                obj.parent.addChild(obj)
+            else:
+                self.log.warning(f'No parent for {obj}')
         else:
             self.log.error('No idx after insertion!')
 
@@ -428,7 +432,7 @@ class TaxonCache():
                 parent = self.createTaxonForFilename(nameGenus + '-sp', dryrun)
 
         # Create taxon and save to DB unless dry-run
-        # TODO: find or create parents all the way up
+        # TODO: find or create parents all the way up: use iNat method
         idxParent = parent.getIdx() if parent else -1
         taxon = Taxon(-1, name, name, rank.name, idxParent, 0, False)
         taxon.setParent(parent)
