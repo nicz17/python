@@ -215,9 +215,8 @@ class PynorpaManager():
             taxa.append(taxon)
 
         # Add the taxon itself
-        # TODO also support other ranks
-        self.log.info(f'last rank is {taxon.rank}')
-        taxon = Taxon(-1, name, name, TaxonRank.SPECIES.name, idxParent, 0, False)
+        rank = TaxonRank(taxon.rank.value +1)
+        taxon = Taxon(-1*id, name, name, rank.name, idxParent, 0, False)
         self.log.info(f'  Missing: {taxon}')
         taxa.append(taxon)
 
@@ -231,7 +230,7 @@ class PynorpaManager():
             if taxon.idx < 0:
                 iNewTaxa += 1
         module.setLoadingIcon(True)
-        reply = mb.askyesno(f'Ajout de {iNewTaxa} taxons', msgConfirm)
+        reply = mb.askyesno(name, f'Ajouter {iNewTaxa} taxons ?', detail=msgConfirm)
         if not reply:
             self.log.error(f'Canceled by user.')
             raise PynorpaException(f'Annulé.')
