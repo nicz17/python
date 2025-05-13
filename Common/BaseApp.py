@@ -3,7 +3,7 @@
 """
 
 __author__ = "Nicolas Zwahlen"
-__copyright__ = "Copyright 2023 N. Zwahlen"
+__copyright__ = "Copyright 2023"
 __version__ = "1.0.0"
 
 import tkinter as tk
@@ -89,10 +89,9 @@ class BaseApp:
 
     def showAboutMsg(self):
         """Display a tk info message about this app."""
-        sMsg  = f'{self.sTitle} by {__author__}\n'
-        sMsg += f'Version {__version__}\n\n{__copyright__}\n\n'
-        sMsg += f'Python {sys.version}\nTkinter {tk.TkVersion}'
-        messagebox.showinfo(title='About', message=sMsg)
+        sMsg  = f'{self.sTitle} v{__version__}'
+        sDetails = f'{__copyright__} by {__author__}\n\nPython {sys.version}\nTkinter {tk.TkVersion}'
+        messagebox.showinfo(title='About', message=sMsg, detail=sDetails)
 
     def showInfoMsg(self, msg: str):
         """Display a tk info message box."""

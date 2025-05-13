@@ -3,7 +3,7 @@
 """
 
 __author__ = "Nicolas Zwahlen"
-__copyright__ = "Copyright 2024 N. Zwahlen"
+__copyright__ = "Copyright 2024"
 __version__ = "1.0.0"
 
 import config
