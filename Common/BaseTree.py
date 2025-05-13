@@ -19,6 +19,7 @@ class BaseTree():
         """Constructor with item selection callback."""
         self.log.info('Constructor')
         self.cbkSelectionEvent = cbkSelectionEvent
+        self.nItems = 0
 
     def createWidgets(self, parent: tk.Frame):
         """Create user widgets."""
@@ -42,6 +43,7 @@ class BaseTree():
         else:
             iid = self.tree.insert(parentId, tk.END, text=text, iid=id, tags=tags)
         #self.log.info('Added item %s %s', iid, text)
+        self.nItems += 1
         return iid
 
     def addTestItems(self):
@@ -69,6 +71,12 @@ class BaseTree():
         else:
             return int(sel)
         
+    def size(self):
+        """Returns the number of items in the tree."""
+        return self.nItems
+        #return len(self.tree.get_children())
+        
     def clear(self):
         """Clears the tree contents."""
         self.tree.delete(*self.tree.get_children())
+        self.nItems = 0

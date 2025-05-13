@@ -458,6 +458,10 @@ class TaxonCache():
             nameFr = nameFr.replace('idae', 'idés')
         taxon = Taxon(-1*inat.id, inat.name, nameFr, inat.rank.upper(), idxParent, 0, False)
         return taxon
+    
+    def size(self):
+        """Returns the number of taxa in cache."""
+        return len(self.dictById)
         
     def __str__(self):
         return f'TaxonCache with {len(self.dictById)} taxa'

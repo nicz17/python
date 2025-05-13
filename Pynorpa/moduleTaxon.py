@@ -153,6 +153,8 @@ class TaxonTree(BaseTree):
         self.clear()
         for tax in self.cache.getTopLevelTaxa():
             self.addTaxon(tax)
+        self.log.info(f'Reloaded with {self.size()} taxa')
+        self.log.info(f'Cache has {self.cache.size()} taxa')
 
     def onSelectEvent(self, event):
         self.cbkSelectItem(self.getSelectedId())
