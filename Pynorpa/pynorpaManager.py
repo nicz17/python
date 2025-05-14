@@ -246,7 +246,7 @@ class PynorpaManager():
                 self.taxonCache.insert(taxon)
                 self.log.info(f'Saved {taxon}')
                 idxParent = taxon.idx
-                parent = taxon
+            parent = taxon
         mb.showinfo('Succès', f'Créé {iNewTaxa} nouveaux taxons.')
     
     def runSystemCommand(self, cmd: str, dryrun=False):
