@@ -241,6 +241,7 @@ class PynorpaManager():
             if taxon.idx < 0:
                 if taxon.idxParent < 0:
                     taxon.idxParent = idxParent
+                if taxon.parent is None and parent is not None and parent.idx == idxParent:
                     taxon.parent = parent
                 self.log.info(f'Will save {taxon}')
                 self.taxonCache.insert(taxon)
