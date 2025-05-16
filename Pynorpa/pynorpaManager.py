@@ -180,7 +180,6 @@ class PynorpaManager():
         if taxon:
             self.log.info(f'{name} already in DB: {taxon}')
             raise PynorpaException(f'Le taxon existe déjà :\n{taxon}')
-            #return taxon
         
         self.log.info(f'Will query iNat API for ancestors of {name}')
         if not name:
@@ -188,15 +187,17 @@ class PynorpaManager():
 
         # iNat API request
         req = INatApiRequest()
-        id = req.getIdFromName(name)
-        if not id:
+        inatTaxon = req.getTaxonFromName(name)
+        if not inatTaxon:
             self.log.error(f'Failed to find iNat id for taxon name {name}')
             raise PynorpaException(f'iNat ne connait pas {name}')
+        else:
+            self.log.info(f'Found {inatTaxon}')
         
-        ancestors = req.getAncestors(id)
+        ancestors = req.getAncestors(inatTaxon.id)
         if ancestors is None or len(ancestors) == 0:
-            self.log.error(f'Failed to find iNat ancestors for {id}')
-            raise PynorpaException(f'iNat ne trouve pas la hiérarchie de {name} ({id})')
+            self.log.error(f'Failed to find iNat ancestors for {inatTaxon.id}')
+            raise PynorpaException(f'iNat ne trouve pas la hiérarchie de {name} ({inatTaxon.id})')
         
         # Loop over ancestors, look if already in Panorpa DB
         self.log.info(f'Found {len(ancestors)} ancestors')
@@ -215,8 +216,7 @@ class PynorpaManager():
             taxa.append(taxon)
 
         # Add the taxon itself
-        rank = TaxonRank(taxon.rank.value +1)
-        taxon = Taxon(-1*id, name, name, rank.name, idxParent, 0, False)
+        taxon = Taxon(-1*inatTaxon.id, name, name, inatTaxon.rank.upper(), idxParent, 0, False)
         self.log.info(f'  Missing: {taxon}')
         taxa.append(taxon)
 
