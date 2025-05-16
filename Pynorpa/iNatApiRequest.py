@@ -41,6 +41,17 @@ class INatApiRequest():
         self.log.info(f'Found id {id} for {name}')
         return id
     
+    def getTaxonFromName(self, name: str) -> INatTaxon:
+        """Get iNat taxon from taxon name."""
+        data = self.sendRequestByName(name)
+        self.log.info('Total results: %d', data['total_results'])
+        for result in data['results']:
+            if result['name'] == name:
+                commonName = result['preferred_common_name'] if 'preferred_common_name' in result else None
+                taxon = INatTaxon(result['id'], result['name'], result['rank'], commonName)
+                return taxon
+        return None
+    
     def getAncestors(self, id: int) -> list[INatTaxon]:
         """Get list of ancestor taxa from taxon id."""
         if id:
@@ -106,12 +117,14 @@ def testRequest():
     name = 'Harpocera thoracica'
     name = 'Blastit notfound'
     name = 'Solorina saccata'
-    id = req.getIdFromName(name)
-    if id:
-        ancestors = req.getAncestors(id)
-        if ancestors:
-            for ancestor in ancestors:
-                req.log.info(ancestor)
+    taxon = req.getTaxonFromName(name)
+    req.log.info(f'Found {taxon} for name {name}')
+    # id = req.getIdFromName(name)
+    # if id:
+    #     ancestors = req.getAncestors(id)
+    #     if ancestors:
+    #         for ancestor in ancestors:
+    #             req.log.info(ancestor)
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s", 
