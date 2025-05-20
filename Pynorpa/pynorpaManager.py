@@ -78,8 +78,8 @@ class PynorpaManager():
         info = PhotoInfo(filename)
         info.identify()
         if info.width > 2000 or info.height > 2000:
-            self.log.error('Invalid photo size %s', info.getSizeString())
-            raise PynorpaException(f'Taille invalide : {info.getSizeString()}')
+            self.log.warning('Invalid photo size %s', info.getSizeString())
+            #raise PynorpaException(f'Taille invalide : {info.getSizeString()}')
 
         # Check taxon can be found from file name
         taxon = self.taxonCache.findByFilename(basename)
