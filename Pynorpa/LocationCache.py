@@ -251,6 +251,14 @@ class LocationCache:
             return self.getById(apDefLoc.getIntVal())
         self.log.error('Failed to find default location AppParam')
 
+    def setDefaultLocation(self, location: Location):
+        """Save the default location AppParam to database."""
+        apCache = appParam.AppParamCache()
+        apDefLoc = apCache.findByName('defLocation')
+        if apDefLoc and location and location.idx > 0:
+            apDefLoc.setNumVal(location.idx)
+            apCache.save(apDefLoc)
+
     def size(self):
         return len(self.locations)
 

@@ -105,6 +105,7 @@ class ModuleCamera(TabModule):
             self.defLocation = self.cache.getByName(name)
         if self.defLocation:
             self.mapWidget.setLatLonZoom(self.defLocation.getLatLonZoom())
+            self.cache.setDefaultLocation(self.defLocation)
         self.tracker.setDefaultLocation(self.defLocation)
         self.enableWidgets()
 

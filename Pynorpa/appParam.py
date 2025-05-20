@@ -141,7 +141,7 @@ class AppParamCache():
         query.close()
 
     def save(self, obj: AppParam):
-        """Insert or update the specified AppParam in database."""
+        """Update the specified AppParam in database."""
         if obj is None:
             self.log.error('Undefined object to save!')
             return
