@@ -21,6 +21,7 @@ class ModulePublish(TabModule):
 
     def __init__(self, parent: TabsApp) -> None:
         """Constructor."""
+        #self.parent = parent
         self.window = parent.window
         self.tasks = []
         self.isRunning = False
@@ -31,9 +32,10 @@ class ModulePublish(TabModule):
 
     def onExport(self):
         """Create HTML pages."""
-        self.exporter.buildTest()
+        self.setLoadingIcon()
         self.exporter.buildBasePages()
         self.loadData()
+        self.setLoadingIcon(True)
 
     def onReload(self):
         """Reload our home page."""
