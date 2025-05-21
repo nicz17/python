@@ -71,10 +71,11 @@ class ModuleLocations(TabModule):
 
         # Location widgets
         self.table.createWidgets(self.frmLeft)
-        self.btnAdd = BaseWidgets.Button(self.frmLeft, 'Ajouter', self.onAddLocation, 'add')
+        self.btnAdd = BaseWidgets.Button(self.table.frmToolBar, 'Ajouter', self.onAddLocation, 'add')
         self.btnAdd.pack()
         self.mapWidget.createWidgets(self.frmRight)
         self.editor.createWidgets(self.frmRight)
+        self.table.setStatus('Chargement...')
 
 
 class TableLocations(TableWithColumns):
@@ -84,7 +85,7 @@ class TableLocations(TableWithColumns):
     def __init__(self, cbkSelect):
         """Constructor with selection callback."""
         self.log.info('Constructor')
-        super().__init__(cbkSelect, 'locations')
+        super().__init__(cbkSelect, 'lieux')
         self.addColumn(TableColumn('Nom',      Location.getName,     200))
         self.addColumn(TableColumn('Région',   Location.getRegion,   150))
         self.addColumn(TableColumn('Altitude', Location.getAltitude,  80))
@@ -168,7 +169,7 @@ class LocationEditor(BaseWidgets.BaseEditor):
 
     def createWidgets(self, parent: tk.Frame):
         """Add the editor widgets to the parent widget."""
-        super().createWidgets(parent, 'Location Editor')
+        super().createWidgets(parent, 'Editeur de lieu')
 
         # Location attributes
         self.txtName     = self.addText('Nom', Location.getName)

@@ -48,8 +48,10 @@ class BaseTable():
         self.tree.pack(pady=5, anchor=tk.W)
 
         # Status and toolbar frame
-        self.frmToolBar = ttk.Frame(parent)
-        self.frmToolBar.pack(fill=tk.X, anchor=tk.W)
+        self.frmToolBar = ttk.Frame(parent, relief=tk.RAISED)
+        self.frmToolBar.pack(fill=tk.X, side=tk.TOP)
+        #self.toolbar = ttk.Frame(self.frmLeft, relief=tk.RAISED)
+        #self.toolbar.pack(side=tk.TOP, fill=tk.X)
         self.lblStatus = ttk.Label(master=self.frmToolBar)
         self.lblStatus.pack(fill=tk.X, side=tk.LEFT) 
 
@@ -58,7 +60,7 @@ class BaseTable():
         idx = self.nRows
         self.tree.insert(parent='', index='end', iid=idx, text='', values=rowData)
         self.nRows += 1
-        self.lblStatus.configure(text=f'{self.nRows} {self.objectlabel}')
+        self.setStatus(f'{self.nRows} {self.objectlabel}')
 
     def getSelectedRow(self) -> int:
         """Get the selected row index."""
@@ -68,6 +70,12 @@ class BaseTable():
             return None
         else:
             return int(sel)
+        
+    def setStatus(self, text: str):
+        """Set the status label message."""
+        if text is None:
+            text = ''
+        self.lblStatus.configure(text=text)
         
     def clear(self):
         """Clears the tree contents."""

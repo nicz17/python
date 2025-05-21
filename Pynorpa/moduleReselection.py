@@ -107,10 +107,7 @@ class ModuleReselection(TabModule):
         self.editor.createWidgets(self.frmRight)
         self.selector.createWidgets(self.frmRight)
         self.dirSelector.createWidgets(self.frmRight)
-
-        # Buttons frame
-        self.frmButtons = ttk.Frame(self.frmLeft, padding=5)
-        self.frmButtons.pack(anchor=tk.W)
+        self.table.setStatus('Chargement...')
 
         # Buttons
         #self.btnReload = self.addButton('Recharger', self.loadData, 'refresh')
@@ -118,7 +115,7 @@ class ModuleReselection(TabModule):
 
     def addButton(self, label: str, cmd, icon: str) -> Button:
         """Add a Tk Button to this module's frmButtons."""
-        btn = Button(self.frmButtons, label, cmd, icon)
+        btn = Button(self.table.frmToolBar, label, cmd, icon)
         btn.pack()
         return btn
     
