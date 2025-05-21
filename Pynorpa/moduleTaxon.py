@@ -99,17 +99,17 @@ class ModuleTaxon(TabModule):
         # Toolbar
         frmToolbar = ttk.Frame(self.frmLeft)
         self.btnAdd = BaseWidgets.Button(frmToolbar, 'Enfant', self.onAddTaxon, 'add')
-        self.btnAdd.pack()
+        self.btnAdd.pack(0)
         self.txtSearch = ttk.Entry(frmToolbar, width=18)
         self.txtSearch.pack(side=tk.LEFT, padx=3)
         self.txtSearch.bind('<Return>', self.onSearch)
         self.btnSearch = BaseWidgets.Button(frmToolbar, 'Chercher', self.onSearch, 'find')
-        self.btnSearch.pack()
+        self.btnSearch.pack(0)
         self.btnReload = BaseWidgets.Button(frmToolbar, None, self.tree.loadData, 'refresh')
-        self.btnReload.pack()
+        self.btnReload.pack(0)
         frmToolbar.pack()
         self.btnAddINat = BaseWidgets.Button(self.frmLeft, 'iNat', self.onAddTaxonINat, 'add')
-        self.btnAddINat.pack()
+        self.btnAddINat.pack(0)
 
         # Editor and image
         self.editor.createWidgets(self.frmRight)

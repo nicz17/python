@@ -105,7 +105,7 @@ class ModuleSelection(TabModule):
     def addButton(self, label: str, cmd, icon: str) -> BaseWidgets.Button:
         """Add a Tk Button to this module's frmButtons."""
         btn = BaseWidgets.Button(self.table.frmToolBar, label, cmd, icon)
-        btn.pack()
+        btn.pack(0)
         return btn
     
 class TaxonSelector():

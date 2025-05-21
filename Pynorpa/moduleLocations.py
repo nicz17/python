@@ -72,7 +72,7 @@ class ModuleLocations(TabModule):
         # Location widgets
         self.table.createWidgets(self.frmLeft)
         self.btnAdd = BaseWidgets.Button(self.table.frmToolBar, 'Ajouter', self.onAddLocation, 'add')
-        self.btnAdd.pack()
+        self.btnAdd.pack(0)
         self.mapWidget.createWidgets(self.frmRight)
         self.editor.createWidgets(self.frmRight)
         self.table.setStatus('Chargement...')

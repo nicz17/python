@@ -116,7 +116,7 @@ class ModuleReselection(TabModule):
     def addButton(self, label: str, cmd, icon: str) -> Button:
         """Add a Tk Button to this module's frmButtons."""
         btn = Button(self.table.frmToolBar, label, cmd, icon)
-        btn.pack()
+        btn.pack(0)
         return btn
     
 
