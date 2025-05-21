@@ -92,19 +92,20 @@ class ModuleSelection(TabModule):
         self.imageWidget.createWidgets(self.frmRight)
         self.editor.createWidgets(self.frmRight)
         self.selector.createWidgets(self.frmRight)
+        self.table.setStatus('Chargement...')
 
         # Buttons frame
         self.frmButtons = ttk.Frame(self.frmLeft, padding=5)
         self.frmButtons.pack(anchor=tk.W)
 
         # Buttons
-        self.btnReload = self.addButton('Recharger', self.loadData)
-        self.btnOpen   = self.addButton('Ouvrir', self.selectDir)
+        self.btnReload = self.addButton('Recharger', self.loadData, 'refresh')
+        self.btnOpen   = self.addButton('Ouvrir', self.selectDir, 'open')
 
-    def addButton(self, label: str, cmd):
+    def addButton(self, label: str, cmd, icon: str) -> BaseWidgets.Button:
         """Add a Tk Button to this module's frmButtons."""
-        btn = ttk.Button(self.frmButtons, text = label, command = cmd)
-        btn.pack(side=tk.LEFT)
+        btn = BaseWidgets.Button(self.table.frmToolBar, label, cmd, icon)
+        btn.pack()
         return btn
     
 class TaxonSelector():
