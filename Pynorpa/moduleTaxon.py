@@ -15,6 +15,7 @@ import imageWidget
 from taxon import Taxon, TaxonCache, TaxonRank
 from tkinter import simpledialog as dialog
 from pynorpaManager import PynorpaManager, PynorpaException
+from iNatTaxonDialog import INatTaxonDialog
 
 
 class ModuleTaxon(TabModule):
@@ -77,6 +78,12 @@ class ModuleTaxon(TabModule):
             self.setLoadingIcon(True)
             self.parent.showErrorMsg(exc)
 
+    def onAddTaxonINatDialog(self):
+        dlg = INatTaxonDialog(self.window)
+        self.log.info('Opened dialog window, waiting')
+        self.window.wait_window(dlg.root)
+        self.log.info(f'Dialog closed with data: {dlg.data}')
+
     def onSearch(self, evt=None):
         """Search taxon and select it in tree."""
         input = self.txtSearch.get()
@@ -110,6 +117,8 @@ class ModuleTaxon(TabModule):
         frmToolbar.pack()
         self.btnAddINat = BaseWidgets.Button(self.frmLeft, 'iNat', self.onAddTaxonINat, 'add')
         self.btnAddINat.pack(0)
+        self.btnAddINatDlg = BaseWidgets.Button(self.frmLeft, 'iNat dlg', self.onAddTaxonINatDialog, 'add')
+        self.btnAddINatDlg.pack(0)
 
         # Editor and image
         self.editor.createWidgets(self.frmRight)
