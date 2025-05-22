@@ -15,11 +15,13 @@ from TabsApp import *
 from BaseTable import TableColumn
 from BaseWidgets import BaseEditor, Button, ComboBox, SpinBox
 from moduleSelection import TablePhotos, PhotoEditor, TaxonSelector
+from pynorpaManager import PynorpaManager, PynorpaException
 from PhotoInfo import *
 import imageWidget
 from MapWidget import MapWidget
 from ModalDialog import *
 from LatLonZoom import LatLonZoom
+from tkinter import messagebox as mb
 
 class ModuleReselection(TabModule):
     """Pynorpa Module for reselecting photos."""
@@ -36,7 +38,9 @@ class ModuleReselection(TabModule):
         self.editor = PhotoEditorReselection()
         self.selector = TaxonReselector(self.onRename)
         self.dirSelector = DirectorySelector(self.onSelectDir)
+        self.manager = PynorpaManager()
         self.photos = []
+        self.photo = None
         self.dir = None
         self.getDefaultDir()
 
@@ -62,9 +66,11 @@ class ModuleReselection(TabModule):
             photo.setCloseTo(self.locationCache.getClosest(photo.lat, photo.lon))
             self.photos.append(photo)
         self.photos = sorted(self.photos, key=lambda pic: pic.tShotAt)
+        self.photo = None
         self.table.loadData(self.photos)
         self.setLoadingIcon(True)
         self.app.setStatus(f'Chargé {self.dir}')
+        self.enableWidgets()
 
     def onSelectDir(self, dir: str):
         """Change the photos directory and reload our data."""
@@ -72,6 +78,7 @@ class ModuleReselection(TabModule):
         self.dir = dir
         self.selector.setDir(dir.replace('/photos', ''))
         self.loadData()
+        self.enableWidgets()
 
     def onSelectPhoto(self, photo: PhotoInfo):
         """Photo selection callback."""
@@ -82,9 +89,11 @@ class ModuleReselection(TabModule):
             if not os.path.exists(thumbfile):
                 sCmd = f'convert {photo.filename} -resize 500x500 {thumbfile}'
                 os.system(sCmd)
+        self.photo = photo
         self.imageWidget.loadData(thumbfile)
         self.editor.loadData(photo)
         self.selector.loadData(photo)
+        self.enableWidgets()
 
     def onRename(self, photo):
         """Callback after selected photo was renamed."""
@@ -96,6 +105,20 @@ class ModuleReselection(TabModule):
         self.log.info('Opened dialog window, waiting')
         self.window.wait_window(dlgLocate.root)
         self.log.info(f'Dialog closed with data: {dlgLocate.data}')
+
+    def onAddPic(self, event=None):
+        """Add the selected PhotoInfo as picture in gallery."""
+        self.log.info(f'Will add {self.photo} to gallery')
+        pic = None
+        try:
+            pic = self.manager.addPicture(self.photo.getNameFull(), self.photo.getClosestLocation())
+        except PynorpaException as exc:
+            self.app.showErrorMsg(exc)
+        if pic is not None:
+            self.photo.isAdded = True
+            mb.showinfo('Ajouté', 'Ajouté en galerie', 
+                        detail=f'{pic.getFilename()}\nà {pic.getLocationName()}')
+        self.enableWidgets()
 
     def createWidgets(self):
         """Create user widgets."""
@@ -110,8 +133,13 @@ class ModuleReselection(TabModule):
         self.table.setStatus('Chargement...')
 
         # Buttons
-        #self.btnReload = self.addButton('Recharger', self.loadData, 'refresh')
         self.btnLocate = self.addButton('Localiser', self.onLocate, 'location22')
+        self.btnAddPic = self.addButton('Ajouter', self.onAddPic, 'add')
+        self.enableWidgets()
+
+    def enableWidgets(self):
+        """Enable or disable user widgets."""
+        self.btnAddPic.enableWidget(self.photo and not self.photo.isAdded)
 
     def addButton(self, label: str, cmd, icon: str) -> Button:
         """Add a Tk Button to this module's frmButtons."""

@@ -32,6 +32,7 @@ class PhotoInfo:
         self.fNumber = None
         self.isoRating = None
         self.closeTo = None
+        self.isAdded = False
 
     def getNameShort(self) -> str:
         """Get the base file name of this photo."""
@@ -69,12 +70,16 @@ class PhotoInfo:
             return 'No GPS data'
         
     def getCloseTo(self) -> str:
+        """Get closest known location name."""
+        return self.closeTo.getName() if self.closeTo else 'Inconnu'
+        
+    def getClosestLocation(self) -> Location:
         """Get closest known location."""
-        return self.closeTo if self.closeTo else 'Inconnu'
+        return self.closeTo
     
     def setCloseTo(self, location: Location):
-        if location:
-            self.closeTo = location.getName()
+        """Set closest known location."""
+        self.closeTo = location
 
     def identify(self):
         """Load details like size, shot-at and GPS from this image's EXIF tags."""
