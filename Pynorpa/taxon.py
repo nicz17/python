@@ -397,7 +397,9 @@ class TaxonCache():
         name = filename.removesuffix('.jpg')
         name = TextTools.removeDigits(name)
         name = TextTools.upperCaseFirst(name)
-        name = name.replace('-sp', '')
+        if name.endswith('-sp'):
+            name = name.removesuffix('-sp')
+        #name = name.replace('-sp', '')
         name = name.replace('-', ' ')
         return self.findByName(name)
     
