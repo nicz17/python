@@ -69,11 +69,17 @@ class ModuleTaxon(TabModule):
         self.imageWidget.loadThumb(None)
 
     def onAddTaxonINat(self, evt=None):
+        """Add a taxon and its hierarchy using iNaturalist API."""
         name = dialog.askstring('Ajouter un taxon via iNat', "Entrer le nom de l'espèce à ajouter :")
         self.log.info(f'User input: {name}')
+        if not name:
+            return
         try:
             self.setLoadingIcon()
-            self.manager.addTaxonFromINat(name, self)
+            taxon = self.manager.addTaxonFromINat(name, self)
+            if taxon:
+                self.tree.loadData()
+                self.tree.setSelection(taxon)
         except PynorpaException as exc:
             self.setLoadingIcon(True)
             self.parent.showErrorMsg(exc)

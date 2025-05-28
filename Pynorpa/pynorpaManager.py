@@ -249,6 +249,7 @@ class PynorpaManager():
             idxParent = taxon.idx
             parent = taxon
         mb.showinfo('Succès', f'Créé {iNewTaxa} nouveaux taxons.')
+        return taxon
     
     def runSystemCommand(self, cmd: str, dryrun=False):
         """Run a system command."""
