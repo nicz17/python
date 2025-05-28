@@ -34,10 +34,22 @@ class INatTaxonDialog(ModalDialog):
             taxon = self.cache.findByName(input)
         if taxon:
             self.log.info(f'Found {taxon}')
-            self.lblStatus.configure(text=f'Existe en DB: {taxon}')
+            self.setStatus(f'Existe en DB: {taxon}')
             self.displayTaxon(taxon)
         else:
-            self.lblStatus.configure(text=f'Pas de résultats pour {input}')
+            self.setStatus(f'Pas de résultats pour {input}')
+            # TODO query iNat API
+
+    def onReset(self):
+        """Reset the results grid."""
+        self.txtEntry.delete(0, tk.END)
+        self.setStatus('Entrez le nom du taxon à ajouter')
+        for rank in TaxonRank:
+            iRank = rank.value
+            self.lblName[iRank].configure(text='')
+            self.lblNameFr[iRank].configure(text='')
+        self.enableWidgets()
+        self.txtEntry.focus()
 
     def displayTaxon(self, taxon: Taxon):
         """Display the taxon in the results table."""
@@ -47,6 +59,9 @@ class INatTaxonDialog(ModalDialog):
         self.lblName[iRank].configure(text=taxon.getName())
         self.lblNameFr[iRank].configure(text=taxon.getNameFr())
         self.displayTaxon(taxon.parent)
+
+    def setStatus(self, msg: str):
+        self.lblStatus.configure(text=msg)
 
     def createWidgets(self):
         # Main frame
@@ -60,7 +75,7 @@ class INatTaxonDialog(ModalDialog):
         self.txtEntry.grid(column=0, row=0)
         self.btnRequest = Button(self.frmInput, 'Requête', self.onSearch, 'find')
         self.btnRequest.grid(0, 1)
-        self.lblStatus = ttk.Label(self.frmInput, text='Entrez le nom du taxon à ajouter')
+        self.lblStatus = ttk.Label(self.frmInput, text='Status')
         self.lblStatus.grid(column=0, row=1, columnspan=2)
 
         # Results frame
@@ -79,13 +94,19 @@ class INatTaxonDialog(ModalDialog):
             lblNameFr = ttk.Label(self.frmResult, text='Nom français')
             lblNameFr.grid(column=2, row=iRank, padx=6)
             self.lblNameFr.append(lblNameFr)
+            # TODO add icons
 
         # Save/cancel buttons
         self.frmButtons = ttk.Frame(self.frmMain)
         self.frmButtons.pack(fill=tk.X, padx=3, pady=10)
         self.btnSave  = Button(self.frmButtons, 'Enregistrer', self.exit, 'filesave')
         self.btnExit  = Button(self.frmButtons, 'Annuler', self.exit, 'cancel')
-        self.btnReset = Button(self.frmButtons, 'Reset', self.exit, 'refresh')
+        self.btnReset = Button(self.frmButtons, 'Reset', self.onReset, 'refresh')
         self.btnSave.pack()
         self.btnExit.pack()
         self.btnReset.pack()
+
+        self.onReset()
+
+    def enableWidgets(self):
+        self.btnSave.enableWidget(False)
