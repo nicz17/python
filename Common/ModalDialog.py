@@ -30,6 +30,14 @@ class ModalDialog(object):
         self.root.transient(parent)
         self.parent = parent
 
+    def setLoadingIcon(self, isLoading=True):
+        """Set the window icon to waiting, or reset it to normal."""
+        if isLoading:
+            self.root.configure(cursor='watch')
+            self.root.update()
+        else:
+            self.root.configure(cursor='')
+
     def createWidgets(self):
         """Create the user widgets."""
         self.entry = tk.Entry(self.root)
