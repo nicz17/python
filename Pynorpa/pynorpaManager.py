@@ -234,9 +234,13 @@ class PynorpaManager():
         if not reply:
             self.log.error(f'Canceled by user.')
             raise PynorpaException(f'Annulé.')
-
-        # Save new taxa to DB
+        self.saveINatTaxa(taxa)
+        
+    def saveINatTaxa(self, taxa: list[Taxon], cbkStatus=None):
+        """Save new taxa to DB"""
+        iNewTaxa = 0
         parent = None
+        idxParent = None
         for taxon in taxa:
             if taxon.idx < 0:
                 if taxon.idxParent < 0:
@@ -246,9 +250,14 @@ class PynorpaManager():
                 self.log.info(f'Will save {taxon}')
                 self.taxonCache.insert(taxon)
                 self.log.info(f'Saved {taxon}')
+                iNewTaxa += 1
             idxParent = taxon.idx
             parent = taxon
-        mb.showinfo('Succès', f'Créé {iNewTaxa} nouveaux taxons.')
+        msg = f'Créé {iNewTaxa} nouveaux taxons.'
+        if cbkStatus:
+            cbkStatus(msg)
+        else:
+            mb.showinfo('Succès', msg)
         return taxon
     
     def runSystemCommand(self, cmd: str, dryrun=False):

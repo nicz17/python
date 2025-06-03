@@ -85,10 +85,15 @@ class ModuleTaxon(TabModule):
             self.parent.showErrorMsg(exc)
 
     def onAddTaxonINatDialog(self):
+        """Show dialog to add a taxon and its hierarchy using iNaturalist API."""
         dlg = INatTaxonDialog(self.window)
         self.log.info('Opened dialog window, waiting')
         self.window.wait_window(dlg.root)
         self.log.info(f'Dialog closed with data: {dlg.data}')
+        taxon = dlg.data
+        if taxon:
+            self.tree.loadData()
+            self.tree.setSelection(taxon)
 
     def onSearch(self, evt=None):
         """Search taxon and select it in tree."""

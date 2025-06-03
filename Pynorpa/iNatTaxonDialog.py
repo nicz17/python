@@ -15,6 +15,7 @@ from ModalDialog import ModalDialog
 from BaseWidgets import Button
 from iNatApiRequest import INatApiRequest
 from taxon import TaxonRank, Taxon, TaxonCache
+from pynorpaManager import PynorpaManager
 
 
 class INatTaxonDialog(ModalDialog):
@@ -24,9 +25,10 @@ class INatTaxonDialog(ModalDialog):
         """Constructor."""
         super().__init__(parent, 'Ajouter des taxons via iNaturalist')
         self.root.geometry('1020x600+300+150')
+        self.manager = PynorpaManager()
         self.cache = TaxonCache()
-        self.log.info(self.cache)
         self.req = INatApiRequest()
+        self.taxa = []
 
     def queryINat(self, name: str):
         """Query the iNat API about the named taxon."""
@@ -43,7 +45,9 @@ class INatTaxonDialog(ModalDialog):
             self.displayTaxon(taxon)
             self.root.update()
             self.queryAncestors(inatTaxon.id)
+            self.taxa.append(taxon)
         self.setLoadingIcon(False)
+        self.enableWidgets()
 
     def queryAncestors(self, inatId: int):
         """Query the ancestors of an iNat taxon."""
@@ -55,7 +59,6 @@ class INatTaxonDialog(ModalDialog):
         
         # Loop over ancestors, look if already in Panorpa DB
         self.log.info(f'Found {len(ancestors)} ancestors')
-        taxa = []
         idxParent = None
         for ancestor in ancestors:
             self.log.info(ancestor)
@@ -67,9 +70,8 @@ class INatTaxonDialog(ModalDialog):
                 taxon = self.cache.createFromINatTaxon(ancestor, idxParent)
                 self.log.info(f'  Missing: {taxon}')
                 idxParent = taxon.idx
-            taxa.append(taxon)
+            self.taxa.append(taxon)
             self.displayTaxon(taxon)
-            # TODO store and save
 
     def onSearch(self):
         """Callback for search button."""
@@ -89,6 +91,7 @@ class INatTaxonDialog(ModalDialog):
 
     def onReset(self):
         """Reset the results grid."""
+        self.taxa = []
         self.txtEntry.delete(0, tk.END)
         self.setStatus('Entrez le nom du taxon à ajouter')
         for rank in TaxonRank:
@@ -100,12 +103,19 @@ class INatTaxonDialog(ModalDialog):
         self.enableWidgets()
         self.txtEntry.focus()
 
+    def onSave(self):
+        """Save the new taxa to database."""
+        self.log.info(f'Saving new taxa from {len(self.taxa)} taxa')
+        self.data = self.manager.saveINatTaxa(self.taxa, self.setStatus)
+        self.taxa = []
+        self.enableWidgets()
+
     def displayTaxon(self, taxon: Taxon):
         """Display the taxon in the results table."""
         if not taxon:
             return
         iRank = taxon.rank.value
-        iconName = 'ok' if taxon.idx > 0 else 'add'
+        iconName = 'ok' if taxon.idx > 0 else 'filesave'
         icon = tk.PhotoImage(file=f'{config.dirIcons}{iconName}.png')
         self.icons[iRank] = icon
         self.lblName[iRank].configure(text=taxon.getName())
@@ -117,6 +127,14 @@ class INatTaxonDialog(ModalDialog):
         """Set our status message."""
         self.lblStatus.configure(text=msg)
         #self.root.update()  # no, blocks init
+
+    def hasChanges(self):
+        """Check if we have new taxa to save."""
+        if self.taxa is not None:
+            for taxon in self.taxa:
+                if taxon.idx < 0:
+                    return True
+        return False
 
     def createWidgets(self):
         # Main frame
@@ -159,7 +177,7 @@ class INatTaxonDialog(ModalDialog):
         # Save/cancel buttons
         self.frmButtons = ttk.Frame(self.frmMain)
         self.frmButtons.pack(fill=tk.X, padx=3, pady=10)
-        self.btnSave  = Button(self.frmButtons, 'Enregistrer', self.exit, 'filesave')
+        self.btnSave  = Button(self.frmButtons, 'Enregistrer', self.onSave, 'filesave')
         self.btnExit  = Button(self.frmButtons, 'Annuler', self.exit, 'cancel')
         self.btnReset = Button(self.frmButtons, 'Reset', self.onReset, 'refresh')
         self.btnSave.pack()
@@ -169,4 +187,4 @@ class INatTaxonDialog(ModalDialog):
         self.onReset()
 
     def enableWidgets(self):
-        self.btnSave.enableWidget(False)
+        self.btnSave.enableWidget(self.hasChanges())
