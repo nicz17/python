@@ -108,6 +108,8 @@ class INatTaxonDialog(ModalDialog):
         self.log.info(f'Saving new taxa from {len(self.taxa)} taxa')
         self.data = self.manager.saveINatTaxa(self.taxa, self.setStatus)
         self.taxa = []
+        if self.data:
+            self.displayTaxon(self.data)
         self.enableWidgets()
 
     def displayTaxon(self, taxon: Taxon):
@@ -178,7 +180,7 @@ class INatTaxonDialog(ModalDialog):
         self.frmButtons = ttk.Frame(self.frmMain)
         self.frmButtons.pack(fill=tk.X, padx=3, pady=10)
         self.btnSave  = Button(self.frmButtons, 'Enregistrer', self.onSave, 'filesave')
-        self.btnExit  = Button(self.frmButtons, 'Annuler', self.exit, 'cancel')
+        self.btnExit  = Button(self.frmButtons, 'Quitter', self.exit, 'cancel')
         self.btnReset = Button(self.frmButtons, 'Reset', self.onReset, 'refresh')
         self.btnSave.pack()
         self.btnExit.pack()
