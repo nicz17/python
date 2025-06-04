@@ -336,6 +336,16 @@ class Exporter():
                 li.addTag(LinkHtmlTag(f'excursion{exc.getIdx()}.html', exc.getName()))
                 li.addTag(GrayFontHtmlTag(DateTools.datetimeToPrettyStringFr(exc.getFrom())))
 
+        # TODO Add nearby locations
+
+
+        # Add map links
+        parLinks = HtmlTag('p', 'Liens ').addAttr('style', 'padding-top: 10px;')
+        tdRight.addTag(parLinks)
+        parLinks.addTag(LinkHtmlTag(f'https://www.openstreetmap.org/#map=15/{loc.lat:.5f}/{loc.lon:.5f}', 'OpenStreetMap ', True))
+        parLinks.addTag(LinkHtmlTag(f'https://macrostrat.org/map/#x={loc.lon:.5f}&y={loc.lat:.5f}&z=15', 'MacroStrat  ', True))
+        parLinks.addTag(LinkHtmlTag(f'https://www.google.com/maps/@{loc.lat:.5f},{loc.lon:.5f},15z', 'Google Maps', True))
+
         # Location pictures
         page.addHeading(2, 'Photos')
         table = TableHtmlTag(None).addAttr('class', 'table-thumbs')
