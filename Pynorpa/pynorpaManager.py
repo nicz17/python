@@ -260,6 +260,14 @@ class PynorpaManager():
             mb.showinfo('Succès', msg)
         return taxon
     
+    def backupDatabase(self):
+        """Create a database dump as backup."""
+        backupName = f'{config.dirBackup}{config.dbName}-pynorpa-bkp.sql'
+        self.log.info(f'Creating DB dump of {config.dbName} as {backupName}')
+        cmd = f'mysqldump --no-tablespaces -u {config.dbUser} -p{config.dbPass} {config.dbName} > {backupName}'
+        self.runSystemCommand(cmd)
+        self.log.info('DB backup done.')
+    
     def runSystemCommand(self, cmd: str, dryrun=False):
         """Run a system command."""
         if dryrun:
@@ -273,7 +281,8 @@ def testManager():
     mgr.log.info('Testing PynorpaManager')
     #mgr.addLocation(config.dirSourceGeoTrack + 'Lauenensee250216.gpx')
     #mgr.addPicture('vanessa-cardui004.jpg', None)
-    mgr.addTaxonFromINat('Solorina saccata')
+    #mgr.addTaxonFromINat('Solorina saccata')
+    mgr.backupDatabase()
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",
