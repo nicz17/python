@@ -336,8 +336,20 @@ class Exporter():
                 li.addTag(LinkHtmlTag(f'excursion{exc.getIdx()}.html', exc.getName()))
                 li.addTag(GrayFontHtmlTag(DateTools.datetimeToPrettyStringFr(exc.getFrom())))
 
-        # TODO Add nearby locations
-
+        # Add nearby locations
+        closest = self.locCache.getClosestList(loc)
+        if len(closest) > 0:
+            divClosest = MyBoxHtmlTag('Lieux à proximité')
+            tdRight.addTag(divClosest)
+            ul = ListHtmlTag([])
+            divClosest.addTag(ul)
+            for pair in closest:
+                locClose = pair[0]
+                dist = pair[1]
+                sDist = f'à {dist:.0f} m' if dist < 1000 else f'à {(dist/1000.0):.1f} km'
+                li = ul.addItem()
+                li.addTag(LinkHtmlTag(f'lieu{locClose.getIdx()}.html', locClose.getName()))
+                li.addTag(GrayFontHtmlTag(sDist))
 
         # Add map links
         parLinks = HtmlTag('p', 'Liens ').addAttr('style', 'padding-top: 10px;')

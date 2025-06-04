@@ -13,6 +13,7 @@ import geopy.distance
 import Database
 import appParam
 from LatLonZoom import *
+from Timer import Timer
 
 
 class Location:
@@ -243,6 +244,22 @@ class LocationCache:
                 minDist = dist
         return closest
     
+    def getClosestList(self, loc: Location, maxCount=4, maxDist=10000) -> list:
+        """Get the list of closest locations to another location. Returns location-distance pairs."""
+        #timer = Timer()
+        self.log.info(f'Looking for locations close to {loc}')
+        closest = []
+        for loc2 in self.getLocations():
+            if loc2.idx != loc.idx: 
+                dist = loc.getDistance(loc2.lat, loc2.lon)
+                if dist < maxDist:
+                    closest.append((loc2, dist))
+        closest = sorted(closest, key=lambda x: x[1])
+        #for result in closest[:maxCount]:
+        #    self.log.info(f'  {result[0].name} at {result[1]:.1f}m')
+        #self.log.info(f'Done in {timer.getElapsed()}')
+        return closest[:maxCount]
+    
     def getDefaultLocation(self) -> Location:
         """Get the current default location from AppParam defLocation."""
         apCache = appParam.AppParamCache()
@@ -277,6 +294,7 @@ def testLocationCache():
     cache.log.info(locById)
     defloc = cache.getDefaultLocation()
     cache.log.info('Default location: %s', defloc)
+    cache.getClosestList(defloc)
 
 
 if __name__ == '__main__':
