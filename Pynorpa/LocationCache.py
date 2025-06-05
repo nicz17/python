@@ -9,6 +9,7 @@ __version__ = "1.0.0"
 import config
 import logging
 import geopy.distance
+import numpy as np
 
 import Database
 import appParam
@@ -260,6 +261,37 @@ class LocationCache:
         #self.log.info(f'Done in {timer.getElapsed()}')
         return closest[:maxCount]
     
+    def getClosestListCached(self, loc: Location, maxCount=4, maxDist=10000) -> list:
+        pass
+        # TODO build a cache of location distances using a numpy matrix
+        # matrix = np.zeros((n, n), dtype=float)
+        # where n is the highest location idx
+        # compute it on demand
+
+    def computeDistancesCache(self):
+        self.log.info('Computing location distances cache')
+
+        # Get max idxLocation
+        maxIdx = 0
+        for loc in self.getLocations():
+            maxIdx = max(maxIdx, loc.idx)
+        self.log.info(f'Max idxLocation is {maxIdx} out of {self.size()}')
+
+        # Build square matrix
+        matrix = np.zeros((maxIdx, maxIdx), dtype=float)
+        self.log.info(f'Matrix shape {matrix.shape}')
+        self.log.info(f'Matrix value at (1, 1) is {matrix[1][1]}')
+
+        # Fill matrix with haversine distances
+        for loci in self.getLocations():
+            i = loci.idx -1
+            for locj in self.getLocations():
+                j = locj.idx -1
+                if i < j:
+                    dist = loci.getDistance(locj.lat, locj.lon)
+                    matrix[i][j] = dist
+                    matrix[j][i] = dist
+    
     def getDefaultLocation(self) -> Location:
         """Get the current default location from AppParam defLocation."""
         apCache = appParam.AppParamCache()
@@ -296,8 +328,26 @@ def testLocationCache():
     cache.log.info('Default location: %s', defloc)
     cache.getClosestList(defloc)
 
+def testAllDistances():
+    """Performance test computing all loc-loc distances."""
+    cache = LocationCache()
+    cache.log.info('Computing all closest location lists')
+    timer = Timer()
+    for loc in cache.getLocations():
+        cache.getClosestList(loc)
+    cache.log.info(f'Done in {timer.getElapsed()}')
+    # brute-force takes 2.047s
+
+def testDistancesCache():
+    cache = LocationCache()
+    timer = Timer()
+    cache.computeDistancesCache()
+    cache.log.info(f'Done in {timer.getElapsed()}')
+    # cache init takes 0.738s
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s", 
         level=logging.INFO, handlers=[logging.StreamHandler()])
-    testLocationCache()
+    #testLocationCache()
+    #testAllDistances()
+    testDistancesCache()
