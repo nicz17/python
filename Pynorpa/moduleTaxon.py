@@ -16,6 +16,7 @@ from taxon import Taxon, TaxonCache, TaxonRank
 from tkinter import simpledialog as dialog
 from pynorpaManager import PynorpaManager, PynorpaException
 from iNatTaxonDialog import INatTaxonDialog
+from uploader import Uploader
 
 
 class ModuleTaxon(TabModule):
@@ -30,6 +31,7 @@ class ModuleTaxon(TabModule):
         self.cache  = None
         self.taxon  = None
         self.manager = PynorpaManager()
+        self.uploader = Uploader()
         self.tree   = TaxonTree(self.onSelectTaxon)
         self.editor = TaxonEditor(self.onSaveTaxon)
         self.imageWidget = imageWidget.ImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
@@ -68,21 +70,21 @@ class ModuleTaxon(TabModule):
         self.editor.txtName.oWidget.focus()
         self.imageWidget.loadThumb(None)
 
-    def onAddTaxonINat(self, evt=None):
-        """Add a taxon and its hierarchy using iNaturalist API."""
-        name = dialog.askstring('Ajouter un taxon via iNat', "Entrer le nom de l'espèce à ajouter :")
-        self.log.info(f'User input: {name}')
-        if not name:
-            return
-        try:
-            self.setLoadingIcon()
-            taxon = self.manager.addTaxonFromINat(name, self)
-            if taxon:
-                self.tree.loadData()
-                self.tree.setSelection(taxon)
-        except PynorpaException as exc:
-            self.setLoadingIcon(True)
-            self.parent.showErrorMsg(exc)
+    # def onAddTaxonINat(self, evt=None):
+    #     """Add a taxon and its hierarchy using iNaturalist API."""
+    #     name = dialog.askstring('Ajouter un taxon via iNat', "Entrer le nom de l'espèce à ajouter :")
+    #     self.log.info(f'User input: {name}')
+    #     if not name:
+    #         return
+    #     try:
+    #         self.setLoadingIcon()
+    #         taxon = self.manager.addTaxonFromINat(name, self)
+    #         if taxon:
+    #             self.tree.loadData()
+    #             self.tree.setSelection(taxon)
+    #     except PynorpaException as exc:
+    #         self.setLoadingIcon(True)
+    #         self.parent.showErrorMsg(exc)
 
     def onAddTaxonINatDialog(self):
         """Show dialog to add a taxon and its hierarchy using iNaturalist API."""
@@ -94,6 +96,11 @@ class ModuleTaxon(TabModule):
         if taxon:
             self.tree.loadData()
             self.tree.setSelection(taxon)
+
+    def onUpload(self):
+        """Upload the selected taxon page."""
+        if self.taxon:
+            self.uploader.uploadSingleTaxon(self.taxon)
 
     def onSearch(self, evt=None):
         """Search taxon and select it in tree."""
@@ -126,10 +133,12 @@ class ModuleTaxon(TabModule):
         self.btnReload = BaseWidgets.Button(frmToolbar, None, self.tree.loadData, 'refresh')
         self.btnReload.pack(0)
         frmToolbar.pack()
-        self.btnAddINat = BaseWidgets.Button(self.frmLeft, 'iNat', self.onAddTaxonINat, 'add')
+        self.btnAddINat = BaseWidgets.Button(self.frmLeft, 'iNat', self.onAddTaxonINatDialog, 'add')
         self.btnAddINat.pack(0)
-        self.btnAddINatDlg = BaseWidgets.Button(self.frmLeft, 'iNat dlg', self.onAddTaxonINatDialog, 'add')
-        self.btnAddINatDlg.pack(0)
+        self.btnUpload = BaseWidgets.Button(self.frmLeft, 'Publier', self.onUpload, 'go-up')
+        self.btnUpload.pack(0)
+        # self.btnAddINatDlg = BaseWidgets.Button(self.frmLeft, 'iNat dlg', self.onAddTaxonINatDialog, 'add')
+        # self.btnAddINatDlg.pack(0)
 
         # Editor and image
         self.editor.createWidgets(self.frmRight)
@@ -137,8 +146,11 @@ class ModuleTaxon(TabModule):
         self.editor.loadData(None)
 
     def enableWidgets(self):
-        canAdd = (self.taxon and self.taxon.rank != TaxonRank.SPECIES)
+        """Enable or disable the buttons."""
+        canAdd    = (self.taxon and self.taxon.rank != TaxonRank.SPECIES)
+        canUpload = (self.taxon and self.taxon.rank == TaxonRank.SPECIES)
         self.btnAdd.enableWidget(canAdd)
+        self.btnUpload.enableWidget(canUpload)
 
 class TaxonTree(BaseTree):
     """Subclass of BaseTree displaying taxa."""

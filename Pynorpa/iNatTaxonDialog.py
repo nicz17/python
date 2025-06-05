@@ -73,7 +73,7 @@ class INatTaxonDialog(ModalDialog):
             self.taxa.append(taxon)
             self.displayTaxon(taxon)
 
-    def onSearch(self):
+    def onSearch(self, event=None):
         """Callback for search button."""
         input = TextTools.upperCaseFirst(self.txtEntry.get().strip())
         self.log.info(f'Searching for {input}')
@@ -148,6 +148,7 @@ class INatTaxonDialog(ModalDialog):
         self.frmInput.pack(fill=tk.X, padx=3, pady=3)
         self.txtEntry = tk.Entry(self.frmInput, width=50)
         self.txtEntry.grid(column=0, row=0)
+        self.txtEntry.bind('<Return>', self.onSearch)
         self.btnRequest = Button(self.frmInput, 'Requête', self.onSearch, 'find')
         self.btnRequest.grid(0, 1)
         self.lblStatus = ttk.Label(self.frmInput, text='Status')

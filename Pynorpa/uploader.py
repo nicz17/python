@@ -10,6 +10,7 @@ import os
 import time
 
 from picture import Picture
+from taxon import Taxon
 from Timer import *
 
 class Uploader:
@@ -40,6 +41,18 @@ class Uploader:
         self.log.info('Will upload %s', filename)
         self.connect()
         self.upload(filename, 'photos/')
+        self.quit()
+
+    def uploadSingleTaxon(self, taxon: Taxon):
+        """Upload a single taxon page."""
+        pageName = f"{taxon.getName().replace(' ', '-').lower()}.html"
+        filename = f'{config.dirWebExport}pages/{pageName}'
+        self.log.info('Will upload %s for taxon %s', filename, taxon)
+        if not os.path.exists(filename):
+            self.log.error(f'Fle to upload does not exist: {filename}')
+            return
+        self.connect()
+        self.upload(filename, 'pages/')
         self.quit()
 
     def uploadBaseFiles(self):
