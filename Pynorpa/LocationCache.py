@@ -125,6 +125,39 @@ class Location:
         return f'Location {self.idx} {self.name} ({self.alt}m)'
     
 
+class LocationDistanceCache:
+    """Class to store distances between locations, to avoid recomputing."""
+    log = logging.getLogger('LocationDistanceCache')
+
+    def __init__(self, locations: list[Location]):
+        """Constructor from list of locations."""
+        self.log.info(f'Building distances cache from {len(locations)} locations')
+
+        # Get max idxLocation
+        maxIdx = 0
+        for loc in locations:
+            maxIdx = max(maxIdx, loc.idx)
+        self.log.info(f'Max idxLocation is {maxIdx} out of {len(locations)}')
+
+        # Build square matrix and fill it with haversine distances
+        self.matrix = np.zeros((maxIdx, maxIdx), dtype=float)
+        self.log.debug(f'Matrix shape {self.matrix.shape}')
+        for loci in locations:
+            i = loci.idx -1
+            for locj in locations:
+                j = locj.idx -1
+                if i < j:
+                    dist = loci.getDistance(locj.lat, locj.lon)
+                    self.matrix[i][j] = dist
+                    self.matrix[j][i] = dist
+
+    def getDistance(self, loc1: Location, loc2: Location) -> float:
+        """Get the cached distance between locations."""
+        if loc1 is None or loc2 is None:
+            return None
+        return self.matrix[loc1.idx -1][loc2.idx -1]
+
+
 class LocationCache:
     """Singleton to fetch and store Location records from Panorpa database."""
     log = logging.getLogger('LocationCache')
@@ -145,6 +178,7 @@ class LocationCache:
     def load(self):
         """Fetch and store the location records."""
         self.locations = []
+        self.distanceCache = None
         self.db = Database.Database(config.dbName)
         self.db.connect(config.dbUser, config.dbPass)
         query = Database.Query("Locations fetch")
@@ -211,6 +245,8 @@ class LocationCache:
             self.log.info(f'Inserted with idx {idx}')
             obj.idx = idx
             self.locations.append(obj)
+            # Invalidate location distances cache
+            self.distanceCache = None
         else:
             self.log.error('No idx after insertion!')
 
@@ -247,7 +283,6 @@ class LocationCache:
     
     def getClosestList(self, loc: Location, maxCount=4, maxDist=10000) -> list:
         """Get the list of closest locations to another location. Returns location-distance pairs."""
-        #timer = Timer()
         self.log.info(f'Looking for locations close to {loc}')
         closest = []
         for loc2 in self.getLocations():
@@ -258,39 +293,20 @@ class LocationCache:
         closest = sorted(closest, key=lambda x: x[1])
         #for result in closest[:maxCount]:
         #    self.log.info(f'  {result[0].name} at {result[1]:.1f}m')
-        #self.log.info(f'Done in {timer.getElapsed()}')
         return closest[:maxCount]
     
     def getClosestListCached(self, loc: Location, maxCount=4, maxDist=10000) -> list:
-        pass
-        # TODO build a cache of location distances using a numpy matrix
-        # matrix = np.zeros((n, n), dtype=float)
-        # where n is the highest location idx
-        # compute it on demand
-
-    def computeDistancesCache(self):
-        self.log.info('Computing location distances cache')
-
-        # Get max idxLocation
-        maxIdx = 0
-        for loc in self.getLocations():
-            maxIdx = max(maxIdx, loc.idx)
-        self.log.info(f'Max idxLocation is {maxIdx} out of {self.size()}')
-
-        # Build square matrix
-        matrix = np.zeros((maxIdx, maxIdx), dtype=float)
-        self.log.info(f'Matrix shape {matrix.shape}')
-        self.log.info(f'Matrix value at (1, 1) is {matrix[1][1]}')
-
-        # Fill matrix with haversine distances
-        for loci in self.getLocations():
-            i = loci.idx -1
-            for locj in self.getLocations():
-                j = locj.idx -1
-                if i < j:
-                    dist = loci.getDistance(locj.lat, locj.lon)
-                    matrix[i][j] = dist
-                    matrix[j][i] = dist
+        self.log.info(f'Looking for locations close to {loc} in dist cache')
+        closest = []
+        if self.distanceCache is None:
+            self.distanceCache = LocationDistanceCache(self.getLocations())
+        for loc2 in self.getLocations():
+            if loc2.idx != loc.idx: 
+                dist = self.distanceCache.getDistance(loc, loc2)
+                if dist < maxDist:
+                    closest.append((loc2, dist))
+        closest = sorted(closest, key=lambda x: x[1])
+        return closest[:maxCount]
     
     def getDefaultLocation(self) -> Location:
         """Get the current default location from AppParam defLocation."""
@@ -341,7 +357,8 @@ def testAllDistances():
 def testDistancesCache():
     cache = LocationCache()
     timer = Timer()
-    cache.computeDistancesCache()
+    for loc in cache.getLocations():
+        cache.getClosestListCached(loc)
     cache.log.info(f'Done in {timer.getElapsed()}')
     # cache init takes 0.738s
 
@@ -349,5 +366,5 @@ if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s", 
         level=logging.INFO, handlers=[logging.StreamHandler()])
     #testLocationCache()
-    #testAllDistances()
+    testAllDistances()
     testDistancesCache()

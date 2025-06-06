@@ -337,7 +337,7 @@ class Exporter():
                 li.addTag(GrayFontHtmlTag(DateTools.datetimeToPrettyStringFr(exc.getFrom())))
 
         # Add nearby locations
-        closest = self.locCache.getClosestList(loc)
+        closest = self.locCache.getClosestListCached(loc)
         if len(closest) > 0:
             divClosest = MyBoxHtmlTag('Lieux à proximité')
             tdRight.addTag(divClosest)
