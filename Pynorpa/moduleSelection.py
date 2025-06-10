@@ -22,6 +22,7 @@ import LocationCache
 from taxon import Taxon, TaxonRank, TaxonCache
 from picture import PictureCache
 from tkinter import filedialog as fd
+from Timer import Timer
 
 
 class ModuleSelection(TabModule):
@@ -58,6 +59,7 @@ class ModuleSelection(TabModule):
         """Load the photos to display."""
         self.setLoadingIcon()
         self.photos = []
+        timer = Timer()
         files = sorted(glob.glob(f'{self.dir}/*.JPG'))
         for file in files:
             photo = PhotoInfo(file)
@@ -66,7 +68,7 @@ class ModuleSelection(TabModule):
             self.photos.append(photo)
         self.table.loadData(self.photos)
         self.setLoadingIcon(True)
-        self.app.setStatus(f'Chargé {self.dir}')
+        self.app.setStatus(f'Chargé {self.dir} en {timer.getElapsed()}')
 
     def onSelectPhoto(self, photo: PhotoInfo):
         """Photo selection callback."""
