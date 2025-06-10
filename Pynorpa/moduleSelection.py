@@ -8,6 +8,7 @@ __version__ = "1.0.0"
 
 import config
 import glob
+import json
 import logging
 import re
 
@@ -58,17 +59,56 @@ class ModuleSelection(TabModule):
     def loadData(self):
         """Load the photos to display."""
         self.setLoadingIcon()
-        self.photos = []
         timer = Timer()
+        self.photos = []
+        metadata = self.loadMetadata()
         files = sorted(glob.glob(f'{self.dir}/*.JPG'))
         for file in files:
             photo = PhotoInfo(file)
             photo.identify()
-            photo.setCloseTo(self.locationCache.getClosest(photo.lat, photo.lon))
+            if metadata and photo.getNameShort() in metadata['orig']:
+                idxLocClosest = metadata['orig'][photo.getNameShort()]['closeTo']
+                #self.log.info(f'Using metadata closeTo {idxLocClosest} for {photo.getNameShort()}')
+                photo.setCloseTo(self.locationCache.getById(idxLocClosest))
+            else:
+                photo.setCloseTo(self.locationCache.getClosest(photo.lat, photo.lon))
             self.photos.append(photo)
         self.table.loadData(self.photos)
         self.setLoadingIcon(True)
         self.app.setStatus(f'Chargé {self.dir} en {timer.getElapsed()}')
+        self.writeMetadata()
+
+    def loadMetadata(self):
+        """Read metadata about orig photos from a json file."""
+        filename = f'{self.dir.removesuffix("orig")}metadata.json'
+        metadata = None
+        if os.path.exists(filename):
+            self.log.info(f'Loading metadata from {filename}')
+            file = open(filename, 'r')
+            metadata = json.load(file)
+            file.close()
+        else:
+            self.log.info(f'No metadata found under {filename}')
+        return metadata
+
+    def writeMetadata(self):
+        """Write metadata about orig photos to a json file."""
+        filename = f'{self.dir.removesuffix("orig")}metadata.json'
+        self.log.info(f'Writing metadata to {filename}')
+        metadata = {
+            'tAt': DateTools.nowAsString(),
+            'orig': {}
+        }
+        photo: PhotoInfo
+        for photo in self.photos:
+            loc = photo.getClosestLocation()
+            metadata['orig'][photo.getNameShort()] = {
+                'closeTo': loc.getIdx() if loc else None
+            }
+        file = open(filename, 'w')
+        file.write(json.dumps(metadata, indent=2))
+        file.close()
+
 
     def onSelectPhoto(self, photo: PhotoInfo):
         """Photo selection callback."""
