@@ -7,11 +7,14 @@ __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
 import config
-import tkinter as tk
 import logging
-from TabsApp import *
+import tkinter as tk
+
 import exporter
 import uploader
+import DateTools
+from appParam import AppParamCache
+from TabsApp import *
 from BaseWidgets import Button
 from browserWidget import BrowserWidget
 
@@ -28,6 +31,7 @@ class ModulePublish(TabModule):
         self.exporter = exporter.Exporter()
         self.uploader = uploader.Uploader(True)
         self.web = BrowserWidget()
+        self.apCache = AppParamCache()
         super().__init__(parent, 'Publier')
 
     def onExport(self):
@@ -46,8 +50,10 @@ class ModulePublish(TabModule):
         self.uploader.uploadAll()
 
     def loadData(self):
+        tLastUpload = self.apCache.getLastUploadAt()
         homePage = f'{config.dirWebExport}index.html'
         self.oParent.setStatus(f'Chargement de {homePage}')
+        self.lblStatus.configure(text=f'Dernier upload: {DateTools.datetimeToString(tLastUpload)}')
         self.web.loadData(homePage)
 
     def addButton(self, label: str, icon: str, cmd) -> Button:
@@ -68,10 +74,15 @@ class ModulePublish(TabModule):
         self.btnReload = self.addButton('Recharger', 'refresh',  self.onReload)
         self.btnUpload = self.addButton('Publier',   'go-up',    self.onUpload)
 
+        # Status label
+        self.lblStatus = ttk.Label(self.frmButtons)
+        self.lblStatus.pack(side=tk.LEFT)
+
         # Browser widget 
         self.web.createWidgets(self.oFrame)
+        self.enableWidgets()
 
     def enableWidgets(self):
         self.btnExport.enableWidget(not self.isRunning)
-        self.btnUpload.enableWidget(not self.isRunning)
+        self.btnUpload.enableWidget(False) # TODO have to export first
         self.btnReload.enableWidget(not self.isRunning)

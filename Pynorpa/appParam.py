@@ -189,6 +189,13 @@ class AppParamCache():
             if item.name == name:
                 return item
         return None
+    
+    def getLastUploadAt(self) -> datetime:
+        """Returns the last website upload timestamp."""
+        apLastUpload = self.findByName('websiteUpload')
+        if apLastUpload:
+            return apLastUpload.getDateVal()
+        return None
 
     def __str__(self):
         return 'AppParamCache'
@@ -201,6 +208,8 @@ def testAppParamCache():
         cache.log.info(ap)
     apDefLoc = cache.findByName('defLocation')
     cache.log.info('Default location: %d', apDefLoc.getIntVal())
+    dtLastUpload = cache.getLastUploadAt()
+    cache.log.info(f'last upload: {dtLastUpload}')
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",
