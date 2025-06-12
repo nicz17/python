@@ -17,7 +17,7 @@ from TabsApp import *
 class Module(TabsApp):
     log = logging.getLogger('Module')
 
-    def __init__(self, sTitle) -> None:
+    def __init__(self, sTitle: str) -> None:
         self.iImgWidth  = 600
         self.iImgHeight = 400
         self.sFilename = 'images/RandomImage00.png'
@@ -70,13 +70,15 @@ class Module(TabsApp):
         self.lblImage.image = imgRandom
 
     def createWidgets(self):
-        tabImg = self.addTab('Image')
-        tabSet = self.addTab('Settings')
+        #tabImg = self.addTab('Image')
+        #tabSet = self.addTab('Settings')
+        tabImg = TabModule(self, 'Image')
+        tabSet = TabModule(self, 'Settings')
         
         # Image tab
-        self.frmButtons = tk.Frame(master=tabImg, width=100, height=100)
+        self.frmButtons = tk.Frame(master=tabImg.oFrame, width=100, height=100)
         self.frmButtons.pack(fill=tk.Y, side=tk.LEFT)
-        self.frmMain = tk.Frame(master=tabImg, width=700, bg='black')
+        self.frmMain = tk.Frame(master=tabImg.oFrame, width=700, bg='black')
         self.frmMain.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
 
         self.addButton('Generate', self.regenerate)
@@ -85,7 +87,7 @@ class Module(TabsApp):
         self.lblImage.pack()
         
         # Settings tab 
-        lfPalettes = ttk.LabelFrame(tabSet, text='Palettes')
+        lfPalettes = ttk.LabelFrame(tabSet.oFrame, text='Palettes')
         lfPalettes.pack(side=tk.LEFT, pady=20)
         
         aPalettes = ['RandomPalette', 'HeatPalette', 'GhostPalette', 'SepiaPalette']

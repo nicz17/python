@@ -17,8 +17,8 @@ class TabsApp(BaseApp):
 
     def __init__(self, sTitle, sGeometry='1200x800', sIconFile=None) -> None:
         """Constructor with title and sizes."""
-        super().__init__(sTitle, sGeometry, sIconFile)
         self.dictTabs = {}
+        super().__init__(sTitle, sGeometry, sIconFile)
 
     def createBaseWidgets(self):
         """Create base widgets"""
@@ -36,7 +36,7 @@ class TabsApp(BaseApp):
         self.lblStatus = ttk.Label(master=self.frmBottom)
         self.lblStatus.pack(fill=tk.X) 
         
-    def addTab(self, oTab):
+    def addTab(self, oTab: 'TabModule'):
         """Add a TabModule object to our tabs. Returns the added frame."""
         self.log.info('Adding tab %s', oTab.getTitle())
         tab = ttk.Frame(self.tabControl)
