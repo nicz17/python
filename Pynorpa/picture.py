@@ -298,6 +298,15 @@ class PictureCache():
         query.close()
         self.db.disconnect()
         return result
+    
+    def fetchPicsToUpload(self) -> list[Picture]:
+        """Fetch pictures modified after last upload."""
+        query = Database.Query('PicsToUpload')
+        query.add('picUpdatedAt > (select apDateVal from AppParam')
+        query.add("where apName = 'websiteUpload')")
+        query.add('order by picShotAt asc')
+        ids = self.fetchFromWhere(query.getSQL())
+        return [self.findById(id) for id in ids]
 
     def findById(self, idx: int) -> Picture:
         """Find a Picture from its primary key."""
@@ -335,6 +344,10 @@ def testPictureCache():
         cache.log.info(pic)
     best = cache.getRandomBest(5)
     for pic in best:
+        cache.log.info(pic)
+    picsToUpload = cache.fetchPicsToUpload()
+    cache.log.info(f'Fetched {len(picsToUpload)} pics to upload:')
+    for pic in picsToUpload:
         cache.log.info(pic)
 
 if __name__ == '__main__':
