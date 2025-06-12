@@ -46,6 +46,12 @@ class SimulationMask(ImageMask):
             y = int(p1.y + f*(p2.y - p1.y))
             self.aMask[x, y] = value
 
+    def fillSquare(self, center: Vertex, side: int, value: float):
+        """Fills a square."""
+        hs = int(side/2)
+        for x in range(center.x - hs, center.x + hs):
+            for y in range(center.y - hs, center.y + hs):
+                self.aMask[x, y] = value
 
 class LorenzAttractorMask(SimulationMask):
     """An ImageMask based on the Lorenz Attractor.
@@ -252,3 +258,27 @@ class MeshMask(SimulationMask):
         for edge in mesh.edges:
             self.drawLine(edge.v1, edge.v2, valEdges)
         self.aMask = gaussian_filter(self.aMask, sigma=2)
+    
+class SquaresMask(SimulationMask):
+    """A mask based on drawing squares."""
+
+    def __init__(self, w, h):
+        super().__init__('SquaresMask', w, h)
+        self.side = 50
+
+    def randomize(self):
+        self.side = 50
+
+    def runSimulation(self):
+        #repeats = 4
+        for x in range(9):
+            for y in range(6):
+                center = Vertex(50 + x*(self.side + 10), 50 + y*(self.side + 10))
+                side = int(ImageMask.random(self.side, self.side/2))
+                value = ImageMask.random(100, 200)
+                self.fillSquare(center, side, value)
+                repeats = random.randint(3, 6)
+                for r in range(repeats):
+                    side = int(0.8*side)
+                    value = 1.05*value
+                    self.fillSquare(center, side, value)

@@ -31,7 +31,9 @@ class Module(TabsApp):
                   StarFishImageMask(self.iImgWidth, self.iImgHeight),
                   #RoseWindowImageMask(self.iImgWidth, self.iImgHeight),
                   FractalMask(self.iImgWidth, self.iImgHeight)]
-        oMask = random.choice(aMasks)
+        #oMask = random.choice(aMasks)
+        #oMask = RoseWindowImageMask(self.iImgWidth, self.iImgHeight)
+        oMask = SquaresMask(self.iImgWidth, self.iImgHeight)
         return oMask
     
     def getPalette(self) -> Palette:
@@ -43,6 +45,7 @@ class Module(TabsApp):
                      SepiaPalette(),
                      PinkGreenPalette()]
         oPalette = random.choice(aPalettes)
+        #oPalette = SepiaPalette()
         return oPalette
 
     def regenerate(self):

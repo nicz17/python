@@ -56,7 +56,7 @@ class ImageMask:
     def gauss(x, mu, sig):
         return math.exp(-(x-mu)*(x-mu)/(sig*sig))
 
-    def random(min, max):
+    def random(min, max) -> float:
         return min + (max - min)*random.random()
 
     def __str__(self) -> str:
