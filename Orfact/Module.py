@@ -21,7 +21,7 @@ class Module(TabsApp):
         self.iImgWidth  = 900
         self.iImgHeight = 600
         self.sFilename = 'images/RandomImage00.png'
-        super().__init__(sTitle, f'{self.iImgWidth+200}x{self.iImgHeight+100}')
+        super().__init__(sTitle, f'{self.iImgWidth+300}x{self.iImgHeight+100}')
 
     def getMask(self) -> ImageMask:
         """Choose an image mask at random."""

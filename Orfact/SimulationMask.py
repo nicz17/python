@@ -264,17 +264,17 @@ class SquaresMask(SimulationMask):
 
     def __init__(self, w, h):
         super().__init__('SquaresMask', w, h)
-        self.side = 50
+        self.side = 60
 
     def randomize(self):
-        self.side = 50
+        self.side = 60
 
     def runSimulation(self):
         #repeats = 4
-        for x in range(14):
+        for x in range(15):
             for y in range(10):
-                center = Vertex(50 + x*(self.side + 10), 30 + y*(self.side + 10))
-                side = int(ImageMask.random(self.side, self.side/2))
+                center = Vertex(30 + x*(self.side), 30 + y*(self.side))
+                side = int(ImageMask.random(0.65*self.side, self.side))
                 value = ImageMask.random(100, 200)
                 self.fillSquare(center, side, value)
                 repeats = random.randint(3, 6)
