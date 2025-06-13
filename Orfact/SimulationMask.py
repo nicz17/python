@@ -271,9 +271,9 @@ class SquaresMask(SimulationMask):
 
     def runSimulation(self):
         #repeats = 4
-        for x in range(9):
-            for y in range(6):
-                center = Vertex(50 + x*(self.side + 10), 50 + y*(self.side + 10))
+        for x in range(14):
+            for y in range(10):
+                center = Vertex(50 + x*(self.side + 10), 30 + y*(self.side + 10))
                 side = int(ImageMask.random(self.side, self.side/2))
                 value = ImageMask.random(100, 200)
                 self.fillSquare(center, side, value)

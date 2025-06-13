@@ -18,10 +18,10 @@ class Module(TabsApp):
     log = logging.getLogger('Module')
 
     def __init__(self, sTitle: str) -> None:
-        self.iImgWidth  = 600
-        self.iImgHeight = 400
+        self.iImgWidth  = 900
+        self.iImgHeight = 600
         self.sFilename = 'images/RandomImage00.png'
-        super().__init__(sTitle, '800x500')
+        super().__init__(sTitle, f'{self.iImgWidth+200}x{self.iImgHeight+100}')
 
     def getMask(self) -> ImageMask:
         """Choose an image mask at random."""
@@ -73,8 +73,6 @@ class Module(TabsApp):
         self.lblImage.image = imgRandom
 
     def createWidgets(self):
-        #tabImg = self.addTab('Image')
-        #tabSet = self.addTab('Settings')
         tabImg = TabModule(self, 'Image')
         tabSet = TabModule(self, 'Settings')
         
@@ -85,7 +83,6 @@ class Module(TabsApp):
         self.frmMain.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
 
         self.addButton('Generate', self.regenerate)
-        self.addButton('Exit', self.close)
         self.lblImage = tk.Label(master=self.frmMain, borderwidth=20, relief='solid', text='Image')
         self.lblImage.pack()
         
