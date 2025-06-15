@@ -165,6 +165,7 @@ class LocationEditor(BaseWidgets.BaseEditor):
         self.location.setDesc(self.txtDesc.getValue())
         self.location.setLatLonZoom(self.widPosition.getValue())
         self.location.setAltitude(self.intAltitude.getValue())
+        self.location.setRegion(self.txtRegion.getValue())
         self.cbkSave(self.location)
 
     def createWidgets(self, parent: tk.Frame):
