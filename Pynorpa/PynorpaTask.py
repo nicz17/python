@@ -159,6 +159,7 @@ class GeoTrackerTask(PynorpaTask):
         super().__init__('Géolocalisation', 'Géolocalisation des photos copiées', nPhotos)
         self.tracker = tracker
         self.cbkUpdate = cbkUpdate
+        self.setDesc(self.tracker.getStatusMessage())
 
     def prepare(self):
         self.log.info('Prepare')

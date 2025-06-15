@@ -69,9 +69,13 @@ class GeoTracker:
         filter = self.dirSource + '*' + date.strftime("%y%m") + '*.gpx'
         self.files = sorted(glob.glob(filter))
         self.log.info('Found %d GeoTrack files in %s', len(self.files), filter)
+        aNewTracks = []
         for file in self.files:
             self.log.info(f'  {file}')
-        self.statusMsg = 'Prepared'
+            dest = self.dirTarget + os.path.basename(file)
+            if not os.path.exists(dest):
+                aNewTracks.append(os.path.basename(file))
+        self.statusMsg = 'Nouveau: ' + ', '.join(aNewTracks)
 
     def setDefaultLocation(self, defLocation: Location):
         """Set the default location to use if there is no GeoTrack."""
