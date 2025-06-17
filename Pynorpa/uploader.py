@@ -9,8 +9,8 @@ import logging
 import os
 import time
 
-from picture import Picture
-from taxon import Taxon
+from picture import Picture, PictureCache
+from taxon import Taxon, TaxonRank
 from Timer import *
 
 class Uploader:
@@ -22,6 +22,19 @@ class Uploader:
         self.tLastUpload = self.getLastUpload()
         self.bDryRun = bDryRun
         self.log.info('Last upload at %s', self.timeToStr(self.tLastUpload))
+        self.cache = None
+
+    def uploadModified(self):
+        """Upload modified pictures and their pages."""
+        self.log.info('Uploading modified pictures and pages')
+        self.cache = PictureCache()
+        picsModified = self.cache.fetchPicsToUpload()
+        taxaModified = set()
+        for pic in picsModified:
+            taxaModified.add(pic.getTaxon())
+            # TODO add ancestor taxa
+        self.log.info(f'Fetched {len(picsModified)} pictures in {len(taxaModified)} taxa')
+        # TODO upload pics, medium, thumbs and pages
 
     def uploadAll(self):
         """Upload base files, photos and thumbs more recent than last upload."""
@@ -45,7 +58,7 @@ class Uploader:
 
     def uploadSingleTaxon(self, taxon: Taxon):
         """Upload a single taxon page."""
-        pageName = f"{taxon.getName().replace(' ', '-').lower()}.html"
+        pageName = self.getTaxonPage(taxon)
         filename = f'{config.dirWebExport}pages/{pageName}'
         self.log.info('Will upload %s for taxon %s', filename, taxon)
         if not os.path.exists(filename):
@@ -121,3 +134,14 @@ class Uploader:
     
     def timeToStr(self, tAt):
         return time.strftime('%Y.%m.%d %H:%M:%S', time.gmtime(tAt))
+    
+    def getTaxonPage(self, taxon: Taxon) -> str:
+        """Return the file name for the specified taxon."""
+        if taxon is None:
+            return None
+        match taxon.getRank():
+            case TaxonRank.SPECIES:
+                return f"{taxon.getName().replace(' ', '-').lower()}.html"
+            case TaxonRank.GENUS | TaxonRank.FAMILY:
+                return f'{taxon.getName().lower()}.html'
+        return None

@@ -47,7 +47,7 @@ class ModulePublish(TabModule):
 
     def onUpload(self):
         """Upload HTML pages."""
-        self.uploader.uploadAll()
+        self.uploader.uploadModified()
 
     def loadData(self):
         tLastUpload = self.apCache.getLastUploadAt()
@@ -84,5 +84,5 @@ class ModulePublish(TabModule):
 
     def enableWidgets(self):
         self.btnExport.enableWidget(not self.isRunning)
-        self.btnUpload.enableWidget(False) # TODO have to export first
+        self.btnUpload.enableWidget(True) # TODO have to export first
         self.btnReload.enableWidget(not self.isRunning)
