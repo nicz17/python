@@ -260,17 +260,34 @@ class MeshMask(SimulationMask):
         self.aMask = gaussian_filter(self.aMask, sigma=2)
     
 class SquaresMask(SimulationMask):
-    """A mask based on drawing squares."""
+    """A mask based on drawing squares within squares."""
 
     def __init__(self, w, h):
         super().__init__('SquaresMask', w, h)
+        self.side = 3
+        self.margin = 1
+        self.depth = 5
+
+    def randomize(self):
+        pass
+
+    def runSimulation(self):
+        for iter in range(self.depth):
+            size = 3*self.side + 4*self.margin
+            self.log.info(f'Iteration {iter} takes {size}px')
+            self.side = size
+    
+class SquaresArrayMask(SimulationMask):
+    """A mask based on drawing an array of squares."""
+
+    def __init__(self, w, h):
+        super().__init__('SquaresArrayMask', w, h)
         self.side = 60
 
     def randomize(self):
         self.side = 60
 
     def runSimulation(self):
-        #repeats = 4
         for x in range(15):
             for y in range(10):
                 center = Vertex(30 + x*(self.side), 30 + y*(self.side))
@@ -282,3 +299,13 @@ class SquaresMask(SimulationMask):
                     side = int(0.8*side)
                     value = 1.05*value
                     self.fillSquare(center, side, value)
+
+def testSimulationMask():
+    """Unit test for SimulationMask"""
+    mask = SquaresMask(100, 100)
+    mask.runSimulation()
+
+if __name__ == '__main__':
+    logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",
+        level=logging.INFO, handlers=[logging.StreamHandler()])
+    testSimulationMask()
