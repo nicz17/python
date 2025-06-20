@@ -145,12 +145,22 @@ class Uploader:
     
     def getTaxonPage(self, taxon: Taxon) -> str:
         """Return the file name for the specified taxon."""
-        # TODO return None if page not created for taxon
         if taxon is None:
             return None
         match taxon.getRank():
             case TaxonRank.SPECIES:
                 return f"{taxon.getName().replace(' ', '-').lower()}.html"
             case TaxonRank.GENUS | TaxonRank.FAMILY:
-                return f'{taxon.getName().lower()}.html'
+                # return None if no pictures
+                if len(taxon.getPictures()) > 0:
+                    return f'{taxon.getName().lower()}.html'
+                return None
+            case TaxonRank.ORDER | TaxonRank.PHYLUM:
+                return f'{taxon.getName()}.html'
+            case TaxonRank.CLASS | TaxonRank.KINGDOM:
+                return None
         return None
+    
+    def getTaxonDir(self, taxon: Taxon) -> str:
+        """Return the path for the specified taxon."""
+        pass
