@@ -31,10 +31,18 @@ class Uploader:
         picsModified = self.cache.fetchPicsToUpload()
         taxaModified = set()
         for pic in picsModified:
-            taxaModified.add(pic.getTaxon())
-            # TODO add ancestor taxa
+            taxon: Taxon
+            taxon = pic.getTaxon()
+            while (taxon is not None):
+                taxaModified.add(taxon)
+                taxon = taxon.getParent()
+            
         self.log.info(f'Fetched {len(picsModified)} pictures in {len(taxaModified)} taxa')
         # TODO upload pics, medium, thumbs and pages
+        for pic in picsModified:
+            self.log.info(f'Will upload {pic}')
+        for taxon in taxaModified:
+            self.log.info(f'Will upload page for {taxon}')
 
     def uploadAll(self):
         """Upload base files, photos and thumbs more recent than last upload."""
@@ -137,6 +145,7 @@ class Uploader:
     
     def getTaxonPage(self, taxon: Taxon) -> str:
         """Return the file name for the specified taxon."""
+        # TODO return None if page not created for taxon
         if taxon is None:
             return None
         match taxon.getRank():
