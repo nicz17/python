@@ -545,6 +545,7 @@ class Exporter():
                 pic = subchild.getTypicalPicture()
                 if not pic:
                     self.log.error('No typical picture found for %s', subchild)
+                    continue
                 link = LinkHtmlTag(f'{subchild.getName()}.html', None)
                 link.addTag(ImageHtmlTag(f'thumbs/{pic.getFilename()}', subchild.getNameFr(), subchild.getName()))
                 link.addTag(HtmlTag('span', f'<br>{subchild.getName()} ({len(subchild.getChildren())})'))
