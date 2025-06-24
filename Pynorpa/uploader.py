@@ -100,16 +100,29 @@ class Uploader:
         """Upload the photo thumbnail files."""
         pass
 
-    def upload(self, sFilename: str, dir=None):
+    def upload(self, filename: str, dir=None):
         """Upload the specified file to FTP."""
         if self.oSession:
-            self.log.info('Uploading %s', sFilename)
+            self.log.info('Uploading %s', filename)
             if dir:
                 self.oSession.cwd(dir)
                 self.log.info(f'Now in ftp:{self.oSession.pwd()}')
-            oFile = open(sFilename, 'rb')
-            self.oSession.storbinary('STOR ' + os.path.basename(sFilename), oFile)
-            oFile.close()
+            with open(filename, 'rb') as file:
+                self.oSession.storbinary('STOR ' + os.path.basename(filename), file)
+            if dir:
+                self.oSession.cwd('..')
+                self.log.info(f'Now in ftp:{self.oSession.pwd()}')
+
+    def uploadMulti(self, files: list[str], dir=None):
+        """Upload multiple files to the same FTP dir."""
+        if self.oSession:
+            self.log.info(f'Uploading {len(files)} files')
+            if dir:
+                self.oSession.cwd(dir)
+                self.log.info(f'Now in ftp:{self.oSession.pwd()}')
+            for filename in files:
+                with open(filename, 'rb') as file:
+                    self.oSession.storbinary('STOR ' + os.path.basename(filename), file)
             if dir:
                 self.oSession.cwd('..')
                 self.log.info(f'Now in ftp:{self.oSession.pwd()}')
