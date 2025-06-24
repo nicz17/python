@@ -67,10 +67,13 @@ class Uploader:
     def uploadSingleTaxon(self, taxon: Taxon):
         """Upload a single taxon page."""
         pageName = self.getTaxonPage(taxon)
+        if pageName is None:
+            self.log.warning(f'No page for {taxon}, will not upload')
+            return
         filename = f'{config.dirWebExport}pages/{pageName}'
         self.log.info('Will upload %s for taxon %s', filename, taxon)
         if not os.path.exists(filename):
-            self.log.error(f'Fle to upload does not exist: {filename}')
+            self.log.error(f'File to upload does not exist: {filename}')
             return
         self.connect()
         self.upload(filename, 'pages/')
@@ -103,9 +106,13 @@ class Uploader:
             self.log.info('Uploading %s', sFilename)
             if dir:
                 self.oSession.cwd(dir)
+                self.log.info(f'Now in ftp:{self.oSession.pwd()}')
             oFile = open(sFilename, 'rb')
             self.oSession.storbinary('STOR ' + os.path.basename(sFilename), oFile)
             oFile.close()
+            if dir:
+                self.oSession.cwd('..')
+                self.log.info(f'Now in ftp:{self.oSession.pwd()}')
 
     def connect(self):
         """Connect to FTP server."""
@@ -144,7 +151,7 @@ class Uploader:
         return time.strftime('%Y.%m.%d %H:%M:%S', time.gmtime(tAt))
     
     def getTaxonPage(self, taxon: Taxon) -> str:
-        """Return the file name for the specified taxon."""
+        """Return the file name for the specified taxon, or None if no page."""
         if taxon is None:
             return None
         match taxon.getRank():
@@ -163,4 +170,10 @@ class Uploader:
     
     def getTaxonDir(self, taxon: Taxon) -> str:
         """Return the path for the specified taxon."""
-        pass
+        if taxon is None:
+            return None
+        match taxon.getRank():
+            case TaxonRank.SPECIES | TaxonRank.GENUS | TaxonRank.FAMILY:
+                return 'pages/'
+            case _:
+                return None

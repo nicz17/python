@@ -4,10 +4,12 @@ __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2025 N. Zwahlen"
 __version__ = "1.0.0"
 
-import logging
 import config
+import logging
 from datetime import datetime
+
 import Database
+import DateTools
 
 
 class AppParam():
@@ -196,6 +198,13 @@ class AppParamCache():
         if apLastUpload:
             return apLastUpload.getDateVal()
         return None
+    
+    def setLastUploadAt(self):
+        """Set last website upload timestamp to now."""
+        apLastUpload = self.findByName('websiteUpload')
+        if apLastUpload:
+            apLastUpload.dateVal = DateTools.nowDatetime()
+            self.update(apLastUpload)
 
     def __str__(self):
         return 'AppParamCache'
