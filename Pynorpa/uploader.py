@@ -38,11 +38,15 @@ class Uploader:
                 taxon = taxon.getParent()
             
         self.log.info(f'Fetched {len(picsModified)} pictures in {len(taxaModified)} taxa')
-        # TODO upload pics, medium, thumbs and pages
+        # Upload pics, medium, thumbs and pages
         for pic in picsModified:
             self.log.info(f'Will upload {pic}')
+        self.uploadPhotos(picsModified, config.dirPictures, 'photos/')
+        self.uploadPhotos(picsModified, f'{config.dirPicsBase}medium/', 'medium/')
+        self.uploadPhotos(picsModified, f'{config.dirPicsBase}thumbs/', 'thumbs/')
         for taxon in taxaModified:
             self.log.info(f'Will upload page for {taxon}')
+            # TODO: upload taxon pages if they exist
 
     def uploadAll(self):
         """Upload base files, photos and thumbs more recent than last upload."""
@@ -50,7 +54,6 @@ class Uploader:
         oTimer = Timer()
         self.connect()
         self.uploadBaseFiles()
-        self.uploadThumbs()
         self.uploadPhotos()
         self.setLastUpload()
         self.quit()
@@ -92,13 +95,17 @@ class Uploader:
                 self.log.info('  %s has been modified, will upload', sFile)
                 self.upload(sFile)
 
-    def uploadPhotos(self):
-        """Upload the photo JPG files."""
-        pass
-
-    def uploadThumbs(self):
-        """Upload the photo thumbnail files."""
-        pass
+    def uploadPhotos(self, pics: list[Picture], localDir: str, ftpDir: str):
+        """Upload the photo/medium/thumbs JPG files."""
+        self.log.info(f'Uploading {len(pics)} pics from {localDir} to {ftpDir}')
+        files = []
+        for pic in pics:
+            filename = f'{localDir}{pic.filename}'
+            if not os.path.exists(filename):
+                self.log.error(f'Missing file: {filename}')
+            else:
+                files.append(filename)
+        #self.uploadMulti(files, ftpDir)
 
     def upload(self, filename: str, dir=None):
         """Upload the specified file to FTP."""
