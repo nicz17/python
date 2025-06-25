@@ -73,8 +73,14 @@ class LogBookApp(BaseApp):
         """Update rendering for the current task."""
         if self.task is None:
             self.lblTasks.configure(text = 'Tasks table')
+            self.window.title('LogBook')
         else:
-            self.lblTasks.configure(text = self.task.title)
+            maxlen = 54
+            title = self.task.title
+            if len(title) > maxlen:
+                title = title[:maxlen-3] + '...'
+            self.lblTasks.configure(text=title)
+            self.window.title('LogBook - ' + self.task.title)
 
     def addTask(self, input: str):
         """Add a task from text input widget."""
