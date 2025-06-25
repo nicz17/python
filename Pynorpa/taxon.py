@@ -462,7 +462,11 @@ class TaxonCache():
             nameFr = nameFr.replace('aceae', 'acées')
         if nameFr.endswith('idae'):
             nameFr = nameFr.replace('idae', 'idés')
-        taxon = Taxon(-1*inat.id, inat.name, nameFr, inat.rank.upper(), idxParent, 0, False)
+        sRank = inat.rank.upper()
+        # Handle complex like species
+        if sRank == 'COMPLEX':
+            sRank = TaxonRank.SPECIES.name
+        taxon = Taxon(-1*inat.id, inat.name, nameFr, sRank, idxParent, 0, False)
         return taxon
     
     def size(self):
