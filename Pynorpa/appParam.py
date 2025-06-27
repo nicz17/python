@@ -158,8 +158,9 @@ class AppParamCache():
         query = Database.Query('Update AppParam')
         query.add('Update AppParam set')
         query.add('apStrVal = ').addEscapedString(obj.getStrVal()).add(',')
-        query.add('apDateVal = ').addDate(obj.getDateVal()).add(',')
-        query.add(f'apNumVal = {obj.getNumVal()}')
+        query.add('apDateVal = ').addDate(obj.getDateVal())
+        if obj.getNumVal() is not None:
+            query.add(',').add(f'apNumVal = {obj.getNumVal()}')
         query.add(f'where idxAppParam = {obj.getIdx()}')
         self.db.connect(config.dbUser, config.dbPass)
         self.db.execute(query.getSQL())
