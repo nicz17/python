@@ -9,6 +9,8 @@ import logging
 import os
 import time
 
+from appParam import AppParamCache
+from LocationCache import Location
 from picture import Picture, PictureCache
 from taxon import Taxon, TaxonRank
 from Timer import *
@@ -16,37 +18,81 @@ from Timer import *
 class Uploader:
     """Upload files to website using FTP."""
     log = logging.getLogger('Uploader')
+    # TODO cleanup unused methods
 
     def __init__(self, bDryRun=False) -> None:
         self.oSession = None
         self.tLastUpload = self.getLastUpload()
         self.bDryRun = bDryRun
         self.log.info('Last upload at %s', self.timeToStr(self.tLastUpload))
-        self.cache = None
+        self.apCache = AppParamCache()
+        self.picCache = None
 
     def uploadModified(self):
         """Upload modified pictures and their pages."""
         self.log.info('Uploading modified pictures and pages')
-        self.cache = PictureCache()
-        picsModified = self.cache.fetchPicsToUpload()
+        oTimer = Timer()
+        self.connect()
+
+        # Fetch pics, taxa and locations to upload
+        self.picCache = PictureCache()
+        picsModified = self.picCache.fetchPicsToUpload()
         taxaModified = set()
+        locsModified = set()
         for pic in picsModified:
+            self.log.info(f'Will upload {pic}')
             taxon: Taxon
             taxon = pic.getTaxon()
             while (taxon is not None):
                 taxaModified.add(taxon)
                 taxon = taxon.getParent()
-            
-        self.log.info(f'Fetched {len(picsModified)} pictures in {len(taxaModified)} taxa')
-        # Upload pics, medium, thumbs and pages
-        for pic in picsModified:
-            self.log.info(f'Will upload {pic}')
+            loc = pic.getLocation()
+            if loc:
+                locsModified.add(loc)
+        self.log.info(f'Fetched {len(picsModified)} pictures in {len(taxaModified)} taxa and {len(locsModified)} locations')
+
+        # Upload pics, medium, thumbs
         self.uploadPhotos(picsModified, config.dirPictures, 'photos/')
         self.uploadPhotos(picsModified, f'{config.dirPicsBase}medium/', 'medium/')
         self.uploadPhotos(picsModified, f'{config.dirPicsBase}thumbs/', 'thumbs/')
+
+        # Upload taxon pages if they exist
+        taxaBase  = []
+        taxaPages = []
         for taxon in taxaModified:
-            self.log.info(f'Will upload page for {taxon}')
-            # TODO: upload taxon pages if they exist
+            filename = self.getTaxonPage(taxon)
+            if filename:
+                self.log.debug(f'Will upload page for {taxon}')
+                dir = self.getTaxonDir(taxon)
+                if dir is None:
+                    taxaBase.append(f'{config.dirWebExport}{filename}')
+                else:
+                    taxaPages.append(f'{config.dirWebExport}{dir}{filename}')
+        self.uploadMulti(taxaBase,  'base taxa')
+        self.uploadMulti(taxaPages, 'page taxa', 'pages/')
+
+        # Upload modified locations
+        locFiles = []
+        loc: Location
+        for loc in locsModified:
+            filename = f'{config.dirWebExport}lieu{loc.getIdx()}.html'
+            locFiles.append(filename)
+        self.uploadMulti(locFiles, 'location')
+
+        # Upload index and other base html pages
+        # TODO generate and upload taxa.json
+        htmlFiles = []
+        homePages = ['index', 'classification', 'latest', 'locations', 'noms-latins', 'noms-verna', 'expeditions', 'liens']
+        for page in homePages:
+            filename = f'{config.dirWebExport}{page}.html'
+            htmlFiles.append(filename)
+        self.uploadMulti(htmlFiles, 'home')
+
+        # TODO set appParam last upload
+        #self.apCache.setLastUploadAt()
+
+        self.quit()
+        self.log.info('Done uploading modifs in %s', oTimer.getElapsed())
 
     def uploadAll(self):
         """Upload base files, photos and thumbs more recent than last upload."""
@@ -105,7 +151,7 @@ class Uploader:
                 self.log.error(f'Missing file: {filename}')
             else:
                 files.append(filename)
-        #self.uploadMulti(files, ftpDir)
+        self.uploadMulti(files, 'pics', ftpDir)
 
     def upload(self, filename: str, dir=None):
         """Upload the specified file to FTP."""
@@ -120,19 +166,20 @@ class Uploader:
                 self.oSession.cwd('..')
                 self.log.info(f'Now in ftp:{self.oSession.pwd()}')
 
-    def uploadMulti(self, files: list[str], dir=None):
+    def uploadMulti(self, files: list[str], kind: str, dir=None):
         """Upload multiple files to the same FTP dir."""
+        sDryRun = '[dryrun] ' if self.bDryRun else ''
+        self.log.info(f'{sDryRun}Uploading {len(files)} {kind} files to {dir}')
         if self.oSession:
-            self.log.info(f'Uploading {len(files)} files')
             if dir:
                 self.oSession.cwd(dir)
-                self.log.info(f'Now in ftp:{self.oSession.pwd()}')
+                self.log.debug(f'Now in ftp:{self.oSession.pwd()}')
             for filename in files:
                 with open(filename, 'rb') as file:
                     self.oSession.storbinary('STOR ' + os.path.basename(filename), file)
             if dir:
                 self.oSession.cwd('..')
-                self.log.info(f'Now in ftp:{self.oSession.pwd()}')
+                self.log.debug(f'Now in ftp:{self.oSession.pwd()}')
 
     def connect(self):
         """Connect to FTP server."""

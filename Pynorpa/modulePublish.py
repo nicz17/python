@@ -24,15 +24,15 @@ class ModulePublish(TabModule):
 
     def __init__(self, parent: TabsApp) -> None:
         """Constructor."""
-        #self.parent = parent
         self.window = parent.window
         self.tasks = []
         self.isRunning = False
         self.exporter = exporter.Exporter()
-        self.uploader = uploader.Uploader(True)
+        self.uploader = uploader.Uploader()
         self.web = BrowserWidget()
         self.apCache = AppParamCache()
         super().__init__(parent, 'Publier')
+        self.isExported = False
 
     def onExport(self):
         """Create HTML pages."""
@@ -40,6 +40,8 @@ class ModulePublish(TabModule):
         self.exporter.buildBasePages()
         self.loadData()
         self.setLoadingIcon(True)
+        self.isExported = True
+        self.enableWidgets()
 
     def onReload(self):
         """Reload our home page."""
@@ -47,7 +49,11 @@ class ModulePublish(TabModule):
 
     def onUpload(self):
         """Upload HTML pages."""
+        self.setLoadingIcon()
         self.uploader.uploadModified()
+        self.setLoadingIcon(True)
+        self.isExported = False
+        self.enableWidgets()
 
     def loadData(self):
         tLastUpload = self.apCache.getLastUploadAt()
@@ -84,5 +90,5 @@ class ModulePublish(TabModule):
 
     def enableWidgets(self):
         self.btnExport.enableWidget(not self.isRunning)
-        self.btnUpload.enableWidget(True) # TODO have to export first
+        self.btnUpload.enableWidget(self.isExported)
         self.btnReload.enableWidget(not self.isRunning)
