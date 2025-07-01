@@ -7,7 +7,6 @@ import config
 import ftplib
 import logging
 import os
-import time
 
 from appParam import AppParamCache
 from LocationCache import Location
@@ -18,13 +17,11 @@ from Timer import *
 class Uploader:
     """Upload files to website using FTP."""
     log = logging.getLogger('Uploader')
-    # TODO cleanup unused methods
 
     def __init__(self, bDryRun=False) -> None:
         self.oSession = None
-        self.tLastUpload = self.getLastUpload()
         self.bDryRun = bDryRun
-        self.log.info('Last upload at %s', self.timeToStr(self.tLastUpload))
+        self.log.info(f'Dry-run: {bDryRun}')
         self.apCache = AppParamCache()
         self.picCache = None
 
@@ -88,22 +85,9 @@ class Uploader:
             htmlFiles.append(filename)
         self.uploadMulti(htmlFiles, 'home')
 
-        # TODO set appParam last upload
-        #self.apCache.setLastUploadAt()
-
         self.quit()
+        self.apCache.setLastUploadAt()
         self.log.info('Done uploading modifs in %s', oTimer.getElapsed())
-
-    def uploadAll(self):
-        """Upload base files, photos and thumbs more recent than last upload."""
-        self.log.info('Uploading all files as needed')
-        oTimer = Timer()
-        self.connect()
-        self.uploadBaseFiles()
-        self.uploadPhotos()
-        self.setLastUpload()
-        self.quit()
-        self.log.info('Done uploading in %s', oTimer.getElapsed())
 
     def uploadSinglePhoto(self, pic: Picture):
         """Upload a single picture file."""
@@ -127,19 +111,6 @@ class Uploader:
         self.connect()
         self.upload(filename, 'pages/')
         self.quit()
-
-    def uploadBaseFiles(self):
-        """Upload the base files like index, locations, links etc."""
-        self.log.info('Uploading base files')
-        aTypes = ['*.html', '*.js']
-        # aFiles = []
-        # for sType in aTypes:
-        #     aFiles.extend(glob.glob(config.sDirExport + sType))
-        aFiles = [f'{config.dirWebExport}liens.html']
-        for sFile in aFiles:
-            if (self.needsUpload(sFile)):
-                self.log.info('  %s has been modified, will upload', sFile)
-                self.upload(sFile)
 
     def uploadPhotos(self, pics: list[Picture], localDir: str, ftpDir: str):
         """Upload the photo/medium/thumbs JPG files."""
@@ -198,24 +169,9 @@ class Uploader:
         if self.oSession:
             self.log.info('Closing FTP connection')
             self.oSession.close()
-
-    def needsUpload(self, sFile):
-        #self.log.info('  %s modifed at %s', sFile, self.timeToStr(self.getModifiedAt(sFile)))
-        return self.getModifiedAt(sFile) > self.tLastUpload
-
-    def setLastUpload(self):
-        if not self.bDryRun:
-            self.log.info('Setting last-upload timestamp file to now')
-            os.system('touch last-upload')
-
-    def getLastUpload(self):
-        return self.getModifiedAt('last-upload')
     
     def getModifiedAt(self, sFile):
         return os.path.getmtime(sFile)
-    
-    def timeToStr(self, tAt):
-        return time.strftime('%Y.%m.%d %H:%M:%S', time.gmtime(tAt))
     
     def getTaxonPage(self, taxon: Taxon) -> str:
         """Return the file name for the specified taxon, or None if no page."""
