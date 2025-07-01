@@ -59,7 +59,8 @@ class ModulePublish(TabModule):
         tLastUpload = self.apCache.getLastUploadAt()
         homePage = f'{config.dirWebExport}index.html'
         self.oParent.setStatus(f'Chargement de {homePage}')
-        self.lblStatus.configure(text=f'Dernier upload: {DateTools.datetimeToString(tLastUpload)}')
+        status = f'Dernier upload: {DateTools.datetimeToString(tLastUpload)}, {self.uploader.countModified()} photos à publier'
+        self.lblStatus.configure(text=status)
         self.web.loadData(homePage)
 
     def addButton(self, label: str, icon: str, cmd) -> Button:

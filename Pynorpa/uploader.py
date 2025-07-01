@@ -25,6 +25,12 @@ class Uploader:
         self.apCache = AppParamCache()
         self.picCache = None
 
+    def countModified(self) -> int:
+        """Returns the number of pics to upload."""
+        self.picCache = PictureCache()
+        picsModified = self.picCache.fetchPicsToUpload()
+        return len(picsModified)
+
     def uploadModified(self):
         """Upload modified pictures and their pages."""
         self.log.info('Uploading modified pictures and pages')
