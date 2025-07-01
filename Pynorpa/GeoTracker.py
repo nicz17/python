@@ -75,7 +75,7 @@ class GeoTracker:
             dest = self.dirTarget + os.path.basename(file)
             if not os.path.exists(dest):
                 aNewTracks.append(os.path.basename(file))
-        self.statusMsg = 'Nouveau: ' + ', '.join(aNewTracks)
+        self.statusMsg = 'Nouveau: ' + (', '.join(aNewTracks) if len(aNewTracks) > 0 else 'aucun')
 
     def setDefaultLocation(self, defLocation: Location):
         """Set the default location to use if there is no GeoTrack."""
@@ -92,7 +92,7 @@ class GeoTracker:
                 self.copiedTracks.append(dest)
         msg = ', '.join([os.path.basename(file) for file in self.copiedTracks])
         #self.statusMsg = f'Copied {len(self.files)} GPX files'
-        self.statusMsg = f'Copied {msg}'
+        self.statusMsg = f'Copié {msg}'
         self.log.info('Copied %s', msg)
 
     def loadGeoTracks(self):
@@ -119,7 +119,7 @@ class GeoTracker:
             self.log.info('Looking for photos in %s', filter)
             self.jpgFiles = sorted(glob.glob(filter))
         self.log.info('Will try to update %d photos with GPS tags', len(self.jpgFiles))
-        self.statusMsg = 'Prepared'
+        self.statusMsg = 'Préparé'
 
     def getLocationAt(self, tAt: float):
         """Get the GPS coordinates for the specified UNIX timestamp."""
@@ -170,7 +170,7 @@ class GeoTracker:
                     cbkProgress()
             self.photos.append(photo)
             self.addPhotoToTrack(photo)
-        self.statusMsg = f'Photos geo-tagged: {nUpdated}, default: {nDefault}, already tagged: {nAlreadyDone}, out of track: {nUntracked}'
+        self.statusMsg = f'Photos géo-taggées: {nUpdated}, défault: {nDefault}, déjà taggé: {nAlreadyDone}, hors track: {nUntracked}'
         self.log.info(self.statusMsg)
 
     def callExifTool(self, file: str, gpxloc: gpxpy.geo.Location):

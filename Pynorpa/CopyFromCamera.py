@@ -44,7 +44,7 @@ class CopyFromCamera:
         # Glob images
         self.images = sorted(glob.glob(self.sourceDir + '*.JPG'))
         self.log.info('Found %d images', len(self.images))
-        self.statusMsg = f'Loaded {len(self.images)} images from {self.sourceDir}'
+        self.statusMsg = f'Chargé {len(self.images)} photos de {self.sourceDir}'
 
     def copyImages(self, cbkProgress = None):
         """Copy JPG images from the mounted camera."""
@@ -56,7 +56,7 @@ class CopyFromCamera:
             photo = PhotoInfo(img)
             photo.identify()
             self.log.info('Copying %s', photo)
-            self.statusMsg = f'Copying {photo.filename}'
+            self.statusMsg = f'Copie de {photo.filename}'
             destDir = f'{self.targetDir}orig/'
             destFile = destDir + os.path.basename(img)
             if os.path.exists(destFile):
@@ -70,7 +70,7 @@ class CopyFromCamera:
                 cbkProgress()
         timer.stop()
         self.log.info('Copied %d photos in %s', len(self.copied), timer.getElapsed())
-        self.statusMsg = f'Copied {len(self.copied)} photos to {self.targetDir} in {timer.getElapsed()}'
+        self.statusMsg = f'Copié {len(self.copied)} photos vers {self.targetDir} en {timer.getElapsed()}'
 
     def createThumbs(self, cbkProgress = None):
         """Create thumbnail images if needed."""
@@ -154,7 +154,7 @@ class CopyFromDropBox():
         self.images = []  # Photos found on DropBox
         self.copied = []  # Images copied to disk
         self.sourceDir = config.dirDropBox
-        self.statusMsg = 'Init'
+        self.statusMsg = 'Initialisation'
 
     def loadImages(self):
         """Load the list of images to copy."""
@@ -189,7 +189,7 @@ class CopyFromDropBox():
                 self.log.error('Unhandled file name %s: wrong length', name)
         timer.stop()
         self.log.info('Copied %d photos in %s', len(self.copied), timer.getElapsed())
-        self.statusMsg = f'Copied {len(self.copied)} photos in {timer.getElapsed()}'
+        self.statusMsg = f'Copié {len(self.copied)} photos en {timer.getElapsed()}'
     
     def getNumberImages(self):
         """Get the number of photos to copy."""
