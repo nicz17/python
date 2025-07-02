@@ -2,20 +2,21 @@
 
 __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2024 N. Zwahlen"
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 import config
 import logging
 import re
-import pynorpaHtml
+import DateTools
+import TextTools
+import Timer
+
 from HtmlPage import *
+from pynorpaHtml import PynorpaHtmlPage
 from picture import Picture, PictureCache
 from taxon import Taxon, TaxonRank, TaxonCache
 from expedition import Expedition, ExpeditionCache
 from LocationCache import LocationCache, Location
-import DateTools
-import TextTools
-import Timer
 from taxonUrlProvider import TaxonUrlProvider
 
 class Exporter():
@@ -25,6 +26,7 @@ class Exporter():
     def __init__(self):
         """Constructor."""
         self.log.info('Constructor')
+        PynorpaHtmlPage.version = __version__
 
         # Configure TaxonUrlProviders
         self.taxonUrlProviders = [
@@ -78,7 +80,7 @@ class Exporter():
 
     def buildHome(self):
         """Build Home page"""
-        page = pynorpaHtml.PynorpaHtmlPage('Nature - Accueil')
+        page = PynorpaHtmlPage('Nature - Accueil')
         tableLeftRight = TableHtmlTag(None, 2)
         page.add(tableLeftRight)
         tdLeft = tableLeftRight.getNextCell()
@@ -201,7 +203,7 @@ class Exporter():
 
     def buildLinks(self):
         """Build Links page"""
-        page = pynorpaHtml.PynorpaHtmlPage('Nature - Liens')
+        page = PynorpaHtmlPage('Nature - Liens')
         page.addHeading(1, 'Liens')
 		
         page.addHeading(2, "Insectes")
@@ -256,7 +258,7 @@ class Exporter():
 
     def buildLatest(self):
         """Build latest images page"""
-        page = pynorpaHtml.PynorpaHtmlPage('Nature - Dernières photos')
+        page = PynorpaHtmlPage('Nature - Dernières photos')
         page.addHeading(1, 'Dernières photos')
         table = TableHtmlTag(None).addAttr('class', 'table-thumbs')
         aPics = self.picCache.getLatest(12)
@@ -267,7 +269,7 @@ class Exporter():
 
     def buildLocations(self):
         """Build the Locations page."""
-        page = pynorpaHtml.PynorpaHtmlPage('Nature - Lieux')
+        page = PynorpaHtmlPage('Nature - Lieux')
         page.addOpenLayerHeaders()
         page.addHeading(1, 'Lieux')
 
@@ -300,7 +302,7 @@ class Exporter():
 
     def buildLocation(self, loc: Location):
         """Build a single Location page."""
-        page = pynorpaHtml.PynorpaHtmlPage('Nature - Lieux')
+        page = PynorpaHtmlPage('Nature - Lieux')
         page.addOpenLayerHeaders()
         page.addHeading(1, loc.getName())
         tableTop = TableHtmlTag([], 2).addAttr("width", "1440px").addAttr('class', 'align-top')
@@ -369,7 +371,7 @@ class Exporter():
 
     def buildExcursions(self):
         """Build excursions pages"""
-        page = pynorpaHtml.PynorpaHtmlPage('Nature - Excursions')
+        page = PynorpaHtmlPage('Nature - Excursions')
         page.addHeading(1, 'Excursions')
         page.menu.addTag(HtmlTag('h2', 'Excursions'))
         tableMenu = TableHtmlTag([], 2).addAttr('width', '120px')
@@ -395,7 +397,7 @@ class Exporter():
 
     def buildExcursion(self, excursion: Expedition):
         """Build a single excursion page."""
-        page = pynorpaHtml.PynorpaHtmlPage('Nature - Excursions')
+        page = PynorpaHtmlPage('Nature - Excursions')
         page.addOpenLayerHeaders()
         page.addHeading(1, excursion.getName())
         tableTop = TableHtmlTag([], 2).addAttr("width", "1440px").addAttr('class', 'align-top')
@@ -438,7 +440,7 @@ class Exporter():
 
     def buildAlpha(self):
         """Build names index page"""
-        page = pynorpaHtml.PynorpaHtmlPage('Nature - Noms latins')
+        page = PynorpaHtmlPage('Nature - Noms latins')
         page.addHeading(1, 'Noms latins')
         page.menu.addTag(HtmlTag('h2', 'Noms latins'))
         tableMenu = TableHtmlTag([], 4).addAttr('width', '120px')
@@ -464,7 +466,7 @@ class Exporter():
         page.save(f'{config.dirWebExport}noms-latins.html')
 
         # French names
-        page = pynorpaHtml.PynorpaHtmlPage('Nature - Noms communs')
+        page = PynorpaHtmlPage('Nature - Noms communs')
         page.addHeading(1, 'Noms communs')
         page.menu.addTag(HtmlTag('h2', 'Noms communs'))
         tableMenu = TableHtmlTag([], 4)
@@ -503,7 +505,7 @@ class Exporter():
 
     def buildClassification(self):
         """Build main classification page."""
-        page = pynorpaHtml.PynorpaHtmlPage(f'Nature - Classification')
+        page = PynorpaHtmlPage(f'Nature - Classification')
         page.menu.addTag(HtmlTag('h2', 'Classification'))
         page.addHeading(1, 'Classification')
 
@@ -528,7 +530,7 @@ class Exporter():
 
     def buildPhylum(self, taxon: Taxon):
         """Build a Phylum classification page."""
-        page = pynorpaHtml.PynorpaHtmlPage(f'Nature - {taxon.getName()}')
+        page = PynorpaHtmlPage(f'Nature - {taxon.getName()}')
         page.menu.addTag(HtmlTag('h2', 'Classification'))
         page.addHeading(1, f'{taxon.getName()} &mdash; {taxon.getRankFr()} {taxon.getNameFr()}')
 
@@ -556,7 +558,7 @@ class Exporter():
 
     def buildOrder(self, taxon: Taxon):
         """Build an Order classification page with its families and species."""
-        page = pynorpaHtml.PynorpaHtmlPage(f'Nature - {taxon.getName()}')
+        page = PynorpaHtmlPage(f'Nature - {taxon.getName()}')
         page.menu.addTag(HtmlTag('h2', 'Classification'))
         page.addHeading(1, f'{taxon.getName()} &mdash; {taxon.getRankFr()} {taxon.getNameFr()}')
 
@@ -605,7 +607,7 @@ class Exporter():
 
     def buildTaxon(self, taxon: Taxon):
         """Build the page for the taxon: genus or species."""
-        page = pynorpaHtml.PynorpaHtmlPage(f'Nature - {taxon.getName()}', '../')
+        page = PynorpaHtmlPage(f'Nature - {taxon.getName()}', '../')
         page.menu.addTag(HtmlTag('h2', 'Classification'))
         title = taxon.getName()
         if taxon.getNameFr() != taxon.getName():
@@ -669,7 +671,7 @@ class Exporter():
 
     def buildTest(self):
         """Build a simple test page."""
-        page = pynorpaHtml.PynorpaHtmlPage('Test')
+        page = PynorpaHtmlPage('Test')
         page.addHeading(1, 'Test')
         page.addHeading(2, 'Bibliographie')
         page.save(f'{config.dirWebExport}test.html')

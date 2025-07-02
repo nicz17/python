@@ -4,14 +4,15 @@
 
 __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2024 N. Zwahlen"
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 import logging
-from HtmlPage import *
 import DateTools
+from HtmlPage import *
 
 class PynorpaHtmlPage(HtmlPage):
     log = logging.getLogger('PynorpaHtmlPage')
+    version = '0'
 
     def __init__(self, sTitle, sPath = ''):
         self.sPath = sPath
@@ -41,7 +42,7 @@ class PynorpaHtmlPage(HtmlPage):
     def buildFooter(self):
         footer = DivHtmlTag('footer')
         date = DateTools.nowAsString('%d.%m.%Y')
-        footer.addTag(HtmlTag('p', f'Copyleft Nicolas Zwahlen &mdash; {date} &mdash; Pynorpa v{__version__}'))
+        footer.addTag(HtmlTag('p', f'Copyleft Nicolas Zwahlen &mdash; {date} &mdash; Pynorpa v{self.version}'))
         self.body.addTag(footer)
 
     def addOpenLayerHeaders(self):
