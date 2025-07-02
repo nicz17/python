@@ -70,22 +70,6 @@ class ModuleTaxon(TabModule):
         self.editor.txtName.oWidget.focus()
         self.imageWidget.loadThumb(None)
 
-    # def onAddTaxonINat(self, evt=None):
-    #     """Add a taxon and its hierarchy using iNaturalist API."""
-    #     name = dialog.askstring('Ajouter un taxon via iNat', "Entrer le nom de l'espèce à ajouter :")
-    #     self.log.info(f'User input: {name}')
-    #     if not name:
-    #         return
-    #     try:
-    #         self.setLoadingIcon()
-    #         taxon = self.manager.addTaxonFromINat(name, self)
-    #         if taxon:
-    #             self.tree.loadData()
-    #             self.tree.setSelection(taxon)
-    #     except PynorpaException as exc:
-    #         self.setLoadingIcon(True)
-    #         self.parent.showErrorMsg(exc)
-
     def onAddTaxonINatDialog(self):
         """Show dialog to add a taxon and its hierarchy using iNaturalist API."""
         dlg = INatTaxonDialog(self.window)
@@ -148,7 +132,7 @@ class ModuleTaxon(TabModule):
     def enableWidgets(self):
         """Enable or disable the buttons."""
         canAdd    = (self.taxon and self.taxon.rank != TaxonRank.SPECIES)
-        canUpload = (self.taxon and self.taxon.rank == TaxonRank.SPECIES)
+        canUpload = (self.uploader.getTaxonPage(self.taxon) is not None)
         self.btnAdd.enableWidget(canAdd)
         self.btnUpload.enableWidget(canUpload)
 

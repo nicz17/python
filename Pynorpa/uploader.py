@@ -109,13 +109,15 @@ class Uploader:
         if pageName is None:
             self.log.warning(f'No page for {taxon}, will not upload')
             return
-        filename = f'{config.dirWebExport}pages/{pageName}'
+        
+        dir = self.getTaxonDir(taxon)
+        filename = f'{config.dirWebExport}{"" if dir is None else dir}{pageName}'
         self.log.info('Will upload %s for taxon %s', filename, taxon)
         if not os.path.exists(filename):
             self.log.error(f'File to upload does not exist: {filename}')
             return
         self.connect()
-        self.upload(filename, 'pages/')
+        self.upload(filename, dir)
         self.quit()
 
     def uploadPhotos(self, pics: list[Picture], localDir: str, ftpDir: str):
