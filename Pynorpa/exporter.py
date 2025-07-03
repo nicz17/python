@@ -502,6 +502,22 @@ class Exporter():
             self.buildOrder(taxon)
         for taxon in self.taxCache.getForRank(TaxonRank.SPECIES):
             self.buildTaxon(taxon)
+        self.buildTaxaJson()
+
+    def buildTaxaJson(self):
+        """Generate the taxa.json file for the classification tree."""
+        # [
+        #     {"parent":"#","a_attr":{"link":"aster-alpinus002","href":"classification.html#Plantae",
+        #                             "title":"Plantes","pics":1789},"icon":"rank1.svg","id":"353",
+        #                             "text":"Plantae","state":{"opened":true}},
+        #     {"parent":"353","a_attr":{"link":"chara-sp001","href":"Charophyta.html",
+        #                               "title":"Charophytes","pics":1},"icon":"rank2.svg","id":"3531",
+        #                               "text":"Charophyta","state":{"opened":false}}
+        # ]
+        data = []
+        for taxon in self.taxCache.getTopLevelTaxa():
+            pass
+            # TODO implement
 
     def buildClassification(self):
         """Build main classification page."""
