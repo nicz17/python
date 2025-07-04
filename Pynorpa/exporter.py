@@ -5,6 +5,7 @@ __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.1"
 
 import config
+import json
 import logging
 import re
 import DateTools
@@ -516,8 +517,23 @@ class Exporter():
         # ]
         data = []
         for taxon in self.taxCache.getTopLevelTaxa():
-            pass
-            # TODO implement
+            data.append(self.taxonToTreeJson(taxon))
+        with open(f'{config.dirWebExport}taxa.json', 'w') as file:
+            file.write(json.dumps(data))
+
+    def taxonToTreeJson(self, taxon: Taxon):
+        return {
+            'id': taxon.idx,
+            'parent': taxon.idxParent if taxon.idxParent > 0 else '#',
+            'icon': f'rank{taxon.rank.value}.svg',
+            'text': taxon.getName(),
+            'a_attr': {
+                'link': taxon.getBestPicture().getFilename(),
+                'href': self.getTaxonLink(taxon),
+                'title': taxon.getNameFr(),
+                'pics': len(taxon.getPictures())
+            }
+        }
 
     def buildClassification(self):
         """Build main classification page."""
