@@ -126,6 +126,13 @@ class Taxon():
             return typicalChild.getTypicalPicture()
         return None
     
+    def countAllPictures(self) -> int:
+        """Count all pictures of this taxon and its children."""
+        count = len(self.pictures)
+        for child in self.getChildren():
+            count += child.countAllPictures()
+        return count
+    
     def getPictures(self) -> list:
         return self.pictures
 

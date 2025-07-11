@@ -58,6 +58,12 @@ class Exporter():
             TaxonUrlProvider('Fishipedia', 'https://www.fishipedia.fr/fr/poissons/', 'fishipedia.fr',
                 TaxonRank.CLASS, ['Actinopterygii'], TaxonUrlProvider.formatLibellenschutz)
         ]
+    def initCaches(self):
+        """Init database caches."""
+        self.picCache = PictureCache()
+        self.taxCache = TaxonCache()
+        self.locCache = LocationCache()
+        self.excCache = ExpeditionCache()
 
     def getTaxonUrlProviders(self) -> list[TaxonUrlProvider]:
         return self.taxonUrlProviders
@@ -65,11 +71,8 @@ class Exporter():
     def buildBasePages(self):
         """Build base html pages."""
         timer = Timer.Timer()
-        self.picCache = PictureCache()
-        self.taxCache = TaxonCache()
-        self.locCache = LocationCache()
-        self.excCache = ExpeditionCache()
-        
+        self.initCaches()
+
         self.buildHome()
         self.buildLatest()
         self.buildLinks()
@@ -507,6 +510,7 @@ class Exporter():
 
     def buildTaxaJson(self):
         """Generate the taxa.json file for the classification tree."""
+        self.log.info('Building taxa.json for classification tree')
         # [
         #     {"parent":"#","a_attr":{"link":"aster-alpinus002","href":"classification.html#Plantae",
         #                             "title":"Plantes","pics":1789},"icon":"rank1.svg","id":"353",
@@ -517,23 +521,31 @@ class Exporter():
         # ]
         data = []
         for taxon in self.taxCache.getTopLevelTaxa():
-            data.append(self.taxonToTreeJson(taxon))
+            self.taxonToTreeJson(taxon, data)
         with open(f'{config.dirWebExport}taxa.json', 'w') as file:
-            file.write(json.dumps(data))
+            file.write(json.dumps(data, indent=2))
 
-    def taxonToTreeJson(self, taxon: Taxon):
-        return {
+    def taxonToTreeJson(self, taxon: Taxon, data: list):
+        link = None
+        pic = taxon.getAnyPicture()
+        if pic is None:
+            self.log.warning(f'No picture found for {taxon}')
+        else:
+            link = pic.getFilename()
+        data.append({
             'id': taxon.idx,
-            'parent': taxon.idxParent if taxon.idxParent > 0 else '#',
+            'parent': taxon.idxParent if taxon.idxParent and taxon.idxParent > 0 else '#',
             'icon': f'rank{taxon.rank.value}.svg',
             'text': taxon.getName(),
             'a_attr': {
-                'link': taxon.getBestPicture().getFilename(),
-                'href': self.getTaxonLink(taxon),
+                'link': link,
+                'href': self.getTaxonTreeLink(taxon),
                 'title': taxon.getNameFr(),
-                'pics': len(taxon.getPictures())
+                'pics': taxon.countAllPictures()
             }
-        }
+        })
+        for child in taxon.getChildren():
+            self.taxonToTreeJson(child, data)
 
     def buildClassification(self):
         """Build main classification page."""
@@ -742,13 +754,27 @@ class Exporter():
         return f'{path}lieu{loc.getIdx()}.html'
 
     def getTaxonLink(self, taxon: Taxon, rel='pages/') -> str:
-        """Get the home-relative link to the specified taxon page."""
+        """Get the relative link to the specified taxon page."""
         match taxon.getRank():
             case TaxonRank.SPECIES:
                 return f"{rel}{taxon.getName().replace(' ', '-').lower()}.html"
             case TaxonRank.GENUS | TaxonRank.FAMILY:
                 return f'{rel}{taxon.getName().lower()}.html'
         return 'not-implemented.html'
+
+    def getTaxonTreeLink(self, taxon: Taxon) -> str:
+        """Get the home-relative link to the specified taxon page."""
+        match taxon.getRank():
+            case TaxonRank.SPECIES:
+                return f"pages/{taxon.getName().replace(' ', '-').lower()}.html"
+            case TaxonRank.GENUS:
+                return self.getTaxonTreeLink(taxon.getParent())
+            case TaxonRank.CLASS | TaxonRank.FAMILY:
+                return f'{taxon.getParent().getName()}.html#{taxon.getName()}'
+            case TaxonRank.PHYLUM | TaxonRank.ORDER:
+                return f'{taxon.getName()}.html'
+            case TaxonRank.KINGDOM:
+                return f'classification.html#{taxon.getName()}'
 
     def getPictureLink(self, pic: Picture, rel='pages/') -> str:
         """Get the home-relative link to the specified taxon page."""
@@ -808,8 +834,10 @@ def testExporter():
     """Unit test for Exporter"""
     Exporter.log.info("Testing Exporter")
     exporter = Exporter()
-    exporter.buildTest()
-    exporter.buildBasePages()
+    exporter.initCaches()
+    #exporter.buildTest()
+    #exporter.buildBasePages()
+    exporter.buildTaxaJson()
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",
