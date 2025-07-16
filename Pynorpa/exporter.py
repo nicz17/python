@@ -511,14 +511,6 @@ class Exporter():
     def buildTaxaJson(self):
         """Generate the taxa.json file for the classification tree."""
         self.log.info('Building taxa.json for classification tree')
-        # [
-        #     {"parent":"#","a_attr":{"link":"aster-alpinus002","href":"classification.html#Plantae",
-        #                             "title":"Plantes","pics":1789},"icon":"rank1.svg","id":"353",
-        #                             "text":"Plantae","state":{"opened":true}},
-        #     {"parent":"353","a_attr":{"link":"chara-sp001","href":"Charophyta.html",
-        #                               "title":"Charophytes","pics":1},"icon":"rank2.svg","id":"3531",
-        #                               "text":"Charophyta","state":{"opened":false}}
-        # ]
         data = []
         for taxon in self.taxCache.getTopLevelTaxa():
             self.taxonToTreeJson(taxon, data)
@@ -526,16 +518,18 @@ class Exporter():
             file.write(json.dumps(data, indent=2))
 
     def taxonToTreeJson(self, taxon: Taxon, data: list):
+        """Export the taxon and its children for the classification tree."""
         link = None
-        pic = taxon.getAnyPicture()
+        pic: Picture
+        pic = taxon.getTypicalPicture()
         if pic is None:
             self.log.warning(f'No picture found for {taxon}')
         else:
-            link = pic.getFilename()
-        data.append({
+            link = pic.getFilename().removesuffix('.jpg')
+        item = {
             'id': taxon.idx,
             'parent': taxon.idxParent if taxon.idxParent and taxon.idxParent > 0 else '#',
-            'icon': f'rank{taxon.rank.value}.svg',
+            'icon': f'rank{taxon.rank.value+1}.svg',
             'text': taxon.getName(),
             'a_attr': {
                 'link': link,
@@ -543,7 +537,11 @@ class Exporter():
                 'title': taxon.getNameFr(),
                 'pics': taxon.countAllPictures()
             }
-        })
+        }
+        if taxon.rank == TaxonRank.KINGDOM:
+            item['state'] = {'opened': True}
+        data.append(item)
+
         for child in taxon.getChildren():
             self.taxonToTreeJson(child, data)
 

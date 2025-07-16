@@ -83,13 +83,13 @@ class Uploader:
         self.uploadMulti(locFiles, 'location')
 
         # Upload index and other base html pages
-        # TODO generate and upload taxa.json
         htmlFiles = []
         homePages = ['index', 'classification', 'latest', 'locations', 'noms-latins', 'noms-verna', 'expeditions', 'liens']
         for page in homePages:
             filename = f'{config.dirWebExport}{page}.html'
             htmlFiles.append(filename)
         self.uploadMulti(htmlFiles, 'home')
+        self.upload(f'{config.dirWebExport}taxa.json')
 
         self.quit()
         self.apCache.setLastUploadAt()
