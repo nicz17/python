@@ -33,7 +33,8 @@ class Module(TabsApp):
                   FractalMask(self.iImgWidth, self.iImgHeight)]
         #oMask = random.choice(aMasks)
         #oMask = RoseWindowImageMask(self.iImgWidth, self.iImgHeight)
-        oMask = SquaresMask(self.iImgWidth, self.iImgHeight)
+        #oMask = SquaresMask(self.iImgWidth, self.iImgHeight)
+        oMask = GyroidMask(self.iImgWidth, self.iImgHeight)
         return oMask
     
     def getPalette(self) -> Palette:
@@ -44,8 +45,9 @@ class Module(TabsApp):
                      GhostPalette(),
                      SepiaPalette(),
                      PinkGreenPalette()]
-        oPalette = random.choice(aPalettes)
+        #oPalette = random.choice(aPalettes)
         #oPalette = SepiaPalette()
+        oPalette = FractalPalette()
         return oPalette
 
     def regenerate(self):

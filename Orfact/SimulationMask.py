@@ -299,10 +299,37 @@ class SquaresArrayMask(SimulationMask):
                     side = int(0.8*side)
                     value = 1.05*value
                     self.fillSquare(center, side, value)
+    
+class GyroidMask(SimulationMask):
+    """A mask based on a gyroid."""
+
+    def __init__(self, w, h):
+        super().__init__('GyroidMask', w, h)
+        self.z = 0.0
+        self.period = 0.02
+
+    def randomize(self):
+        self.z = random.random()*2.0*math.pi
+
+    def runSimulation(self):
+        self.log.info(f'Running Gyroid with z={self.z}')
+        for px in range(self.w):
+            for py in range(self.h):
+                # TODO z should depend on x and y
+                x = px*self.period
+                y = py*self.period
+                g = GyroidMask.gyroid(x, y, self.z)
+                self.aMask[px, py] = g
+
+    def gyroid(x: float, y: float, z: float) -> float:
+        # Definition: sin(x)cos(y) + sin(x)cos(z) + sin(z)cos(x) = 0
+        return math.sin(x)*math.cos(y) + math.sin(x)*math.cos(z) + math.sin(z)*math.cos(x)
 
 def testSimulationMask():
     """Unit test for SimulationMask"""
-    mask = SquaresMask(100, 100)
+    #mask = SquaresMask(100, 100)
+    mask = GyroidMask(100, 100)
+    mask.randomize()
     mask.runSimulation()
 
 if __name__ == '__main__':
