@@ -63,6 +63,16 @@ def removeDigits(text: str) -> str:
     """Return a copy of the string with digits removed."""
     return ''.join([ch for ch in text if not ch.isdigit()])
 
+def fileSizeToString(size: int) -> str:
+    """Formats a file size to human-readable."""
+    if size > 1024**3:
+        return f'{int(size/(1024**3))}GB'
+    if size > 1024*1024:
+        return f'{int(size/(1024*1024))}MB'
+    if size > 1024:
+        return f'{int(size/1024)}kB'
+    return f'{size}B'
+
 def testTextTools():
     log = logging.getLogger('TextTools')
     log.info('Distance is %s', distanceToString(1000.0/3.0))
