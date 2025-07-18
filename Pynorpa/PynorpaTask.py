@@ -4,15 +4,18 @@
 
 __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2024 N. Zwahlen"
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
-import logging
 import config
+import logging
+import shutil
 import time
 import TextTools
+
 from Task import *
 from CopyFromCamera import *
 from GeoTracker import *
+
 
 class PynorpaTask(Task):
     log = logging.getLogger(__name__)
@@ -183,6 +186,32 @@ class GeoTrackerTask(PynorpaTask):
         self.setDesc(self.tracker.getStatusMessage())
         self.cbkUpdate()
 
+class CheckDiskSpace(PynorpaTask):
+    """Check available disk space."""
+    log = logging.getLogger('CheckDiskSpace')
+
+    def __init__(self):
+        super().__init__('Espace disque', "Vérifier l'espace disque restant", 1)
+        self.file = config.dirPhotosBase
+
+    def prepare(self):
+        self.log.info('Prepare')
+        self.log.info(f'Checking disk usage on {self.file}')
+        total, used, free = shutil.disk_usage(self.file)
+        self.log.info(f'Free disk space: {TextTools.fileSizeToString(free)}')
+        self.setDesc(f'Espace disponible : {TextTools.fileSizeToString(free)}')
+
+    def run(self):
+        super().run()
+        total, used, free = shutil.disk_usage(self.file)
+        if free < 16*1024*1024*1024:
+            self.log.error(f'Insufficiant disk space: {TextTools.fileSizeToString(free)}')
+            self.setDesc(f'Espace insuffisant : {TextTools.fileSizeToString(free)}')
+            self.setStatus('Error')
+        else:
+            self.inc()
+
+
 class TestMapView(PynorpaTask):
     """Test map widget interactions with static GeoTrack."""
     log = logging.getLogger('TestMapView')
@@ -250,3 +279,15 @@ class TestPynorpaTask(PynorpaTask):
             time.sleep(1)
             self.inc()
         self.setDesc('Slept well.')
+
+
+def testTasks():
+    """Unit test for Pynorpa tasks."""
+    task = CheckDiskSpace()
+    task.prepare()
+    task.run()
+
+if __name__ == '__main__':
+    logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",
+        level=logging.INFO, handlers=[logging.StreamHandler()])
+    testTasks()

@@ -53,6 +53,7 @@ class ModuleCamera(TabModule):
         self.tracker.prepare()
         #self.tasks.append(TestMapView(self.onCenterMap, self.onBoundingBoxMap, self.onAddCoords))
         #self.tasks.append(TestPynorpaTask(5, self.updateTaskDisplay))
+        self.tasks.append(CheckDiskSpace())
         self.tasks.append(CopyFromDropBoxTask(self.copierDropBox, self.updateTaskDisplay))
         self.tasks.append(MountCameraTask(self.copier, self.updateTaskDisplay))
         self.tasks.append(CopyFromCameraTask(self.copier, self.updateTaskDisplay))
