@@ -515,7 +515,7 @@ class Exporter():
         for taxon in self.taxCache.getTopLevelTaxa():
             self.taxonToTreeJson(taxon, data)
         with open(f'{config.dirWebExport}taxa.json', 'w') as file:
-            file.write(json.dumps(data, indent=2))
+            file.write(json.dumps(data))
 
     def taxonToTreeJson(self, taxon: Taxon, data: list):
         """Export the taxon and its children for the classification tree."""
@@ -523,7 +523,8 @@ class Exporter():
         pic: Picture
         pic = taxon.getTypicalPicture()
         if pic is None:
-            self.log.warning(f'No picture found for {taxon}')
+            self.log.warning(f'No picture found for {taxon}, skipping')
+            return
         else:
             link = pic.getFilename().removesuffix('.jpg')
         item = {
