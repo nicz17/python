@@ -47,6 +47,9 @@ class INatApiRequest():
         self.log.info('Total results: %d', data['total_results'])
         for result in data['results']:
             if result['name'] == name:
+                if result['rank'] == 'section':
+                    self.log.info(f'Skipping SECTION {name}')
+                    continue
                 commonName = result['preferred_common_name'] if 'preferred_common_name' in result else None
                 taxon = INatTaxon(result['id'], result['name'], result['rank'], commonName)
                 return taxon
