@@ -245,7 +245,8 @@ class TaxonSelector():
         if input and len(input) > 2:
             self.log.info('Looking for taxon named like %s', f'%{input}%')
             #where = f"taxName like '%{input.replace(' ', '%')}%'"
-            where = f"taxName like '%{input.replace(' ', '% %')}%'"
+            #where = f"taxName like '%{input.replace(' ', '% %')}%'"
+            where = f"taxName like '{input.replace(' ', '% %')}%'"
             ids = self.taxonCache.fetchFromWhere(where)
             taxon = None
             if ids and len(ids) > 0:
