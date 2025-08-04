@@ -9,6 +9,7 @@ __version__ = "1.0.0"
 import logging
 import config
 import glob
+
 import DateTools
 import LocationCache
 from TabsApp import *
@@ -22,6 +23,7 @@ from MapWidget import MapWidget
 from ModalDialog import *
 from LatLonZoom import LatLonZoom
 from tkinter import messagebox as mb
+from taxon import Taxon, TaxonRank
 
 class ModuleReselection(TabModule):
     """Pynorpa Module for reselecting photos."""
@@ -116,8 +118,11 @@ class ModuleReselection(TabModule):
             self.app.showErrorMsg(exc)
         if pic is not None:
             self.photo.isAdded = True
-            mb.showinfo('Ajouté', 'Ajouté en galerie', 
-                        detail=f'{pic.getFilename()}\nà {pic.getLocationName()}')
+            taxon: Taxon
+            taxon = pic.getTaxon()
+            sTaxonDesc = f'{taxon.getRankFr()} {taxon.getNameFr()}'
+            msg = f'{pic.getFilename()}\n{sTaxonDesc}\nà {pic.getLocationName()}'
+            mb.showinfo('Ajouté', 'Ajouté en galerie', detail=msg)
         self.enableWidgets()
 
     def createWidgets(self):
