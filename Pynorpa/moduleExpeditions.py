@@ -19,6 +19,7 @@ from LocationCache import Location, LocationCache
 from picture import Picture, PictureCache
 from moduleReselection import DialogLocate
 from pynorpaManager import PynorpaManager, PynorpaException
+from uploader import Uploader
 
 
 class ModuleExpeditions(TabModule):
@@ -33,6 +34,7 @@ class ModuleExpeditions(TabModule):
         self.photos = MultiImageWidget()
         self.factory = ExcursionFactory(self.onNewExcursion, parent)
         super().__init__(parent, 'Excursions')
+        self.excursion = None
 
     def loadData(self):
         """Load data from cache and populate table."""
@@ -41,9 +43,11 @@ class ModuleExpeditions(TabModule):
         self.pictureCache = PictureCache()
         self.table.loadData(self.expeditionCache.getExpeditions())
         self.factory.loadData()
+        self.uploader = Uploader(True)
 
     def onSelectExpedition(self, expedition: Expedition):
         """Display selected object in editor."""
+        self.excursion = expedition
         self.editor.loadData(expedition)
         pics = None
         if expedition:
@@ -62,6 +66,11 @@ class ModuleExpeditions(TabModule):
         if excursion:
             self.onSelectExpedition(excursion)
 
+    def onUpload(self):
+        """Upload the selected excursion page."""
+        if self.excursion:
+            self.uploader.uploadExcursion(self.excursion)
+
     def createWidgets(self):
         """Create user widgets."""
         self.createLeftRightFrames()
@@ -69,6 +78,8 @@ class ModuleExpeditions(TabModule):
         self.factory.createWidgets(self.frmLeft)
         self.editor.createWidgets(self.frmRight)
         self.photos.createWidgets(self.frmRight)
+        self.btnUpload = BaseWidgets.Button(self.frmLeft, 'Publier', self.onUpload, 'go-up')
+        self.btnUpload.pack(0)
 
     def __str__(self):
         return "ModuleExpeditions"

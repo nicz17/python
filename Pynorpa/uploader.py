@@ -12,6 +12,7 @@ from appParam import AppParamCache
 from LocationCache import Location
 from picture import Picture, PictureCache
 from taxon import Taxon, TaxonRank
+from expedition import Expedition
 from Timer import *
 
 class Uploader:
@@ -120,20 +121,34 @@ class Uploader:
         self.upload(filename, dir)
         self.quit()
 
+    def uploadExcursion(self, excursion: Expedition):
+        """Upload a single excursion."""
+        self.log.info(f'Uploading {excursion}')
+        filename = f'{config.dirWebExport}excursion{excursion.getIdx()}.html'
+        self.connect()
+        if self.checkFileExists(filename):
+            self.upload(filename)
+        if excursion.getTrack() is not None:
+            filename = f'{config.dirGeoTrack}{excursion.getTrack()}.gpx'
+            if self.checkFileExists(filename):
+                self.upload(filename, 'geotrack/')
+        self.quit()
+
     def uploadPhotos(self, pics: list[Picture], localDir: str, ftpDir: str):
         """Upload the photo/medium/thumbs JPG files."""
         self.log.info(f'Uploading {len(pics)} pics from {localDir} to {ftpDir}')
         files = []
         for pic in pics:
             filename = f'{localDir}{pic.filename}'
-            if not os.path.exists(filename):
-                self.log.error(f'Missing file: {filename}')
-            else:
+            if self.checkFileExists(filename):
                 files.append(filename)
         self.uploadMulti(files, 'pics', ftpDir)
 
     def upload(self, filename: str, dir=None):
         """Upload the specified file to FTP."""
+        if self.bDryRun:
+            self.log.info(f'dry-run upload {filename} to {dir}')
+            return
         if self.oSession:
             self.log.info('Uploading %s', filename)
             if dir:
@@ -159,6 +174,14 @@ class Uploader:
             if dir:
                 self.oSession.cwd('..')
                 self.log.debug(f'Now in ftp:{self.oSession.pwd()}')
+
+    def checkFileExists(self, filename: str) -> bool:
+        """Return False if file does not exist."""
+        if os.path.exists(filename):
+            return True
+        else:
+            self.log.error(f'File to upload does not exist: {filename}')
+            return False
 
     def connect(self):
         """Connect to FTP server."""
