@@ -265,7 +265,7 @@ class Exporter():
         page = PynorpaHtmlPage('Nature - Dernières photos')
         page.addHeading(1, 'Dernières photos')
         table = TableHtmlTag(None).addAttr('class', 'table-thumbs')
-        aPics = self.picCache.getLatest(12)
+        aPics = self.picCache.getLatest(16)
         for pic in aPics:
             self.addThumbLink(pic, table.getNextCell())
         page.add(table)
