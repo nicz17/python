@@ -40,11 +40,12 @@ class Card():
     """A card of the Set game."""
 
     def __init__(self, color: CardColor, shape: CardShape, fill: CardFill, number: int):
+        """Constructor with card values."""
         self.color = color
         self.shape = shape
         self.fill = fill
         self.number = number
 
     def __str__(self):
-        return f'Card {self.number} {self.shape} {self.color} {self.fill}'
+        return f'Card {self.number} {self.shape.name} {self.color.name} {self.fill.name}'
         

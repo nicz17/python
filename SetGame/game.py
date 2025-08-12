@@ -2,6 +2,10 @@
 The Set game.
 """
 
+__author__ = "Nicolas Zwahlen"
+__copyright__ = "Copyright 2025 N. Zwahlen"
+__version__ = "1.0.0"
+
 import logging
 import random
 

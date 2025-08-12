@@ -3,6 +3,10 @@ Rendering for the Set game.
 See https://note.nkmk.me/en/python-pillow-imagedraw/
 """
 
+__author__ = "Nicolas Zwahlen"
+__copyright__ = "Copyright 2025 N. Zwahlen"
+__version__ = "1.0.0"
+
 import logging
 import os
 
@@ -58,7 +62,7 @@ class Renderer():
         for coords in coordsArray:
             if card.shape == CardShape.Oval:
                 draw.ellipse(coords, fill=fill, outline=outline, width=5)
-            if card.shape == CardShape.Wave:
+            elif card.shape == CardShape.Wave:
                 draw.polygon(coords, fill=outline, outline=outline)
                 coordsInner = self.getDiamondCoordsInner(coords)
                 draw.polygon(coordsInner, fill=fill, outline=fill)
@@ -112,6 +116,7 @@ class Renderer():
         return coords
     
     def getDiamondCoordsAt(self, y: int):
+        """Get diamond polygon coordinates at the specified y."""
         xl = self.margin
         xr = self.cardWidth - self.margin
         xm = self.cardWidth/2
@@ -119,13 +124,14 @@ class Renderer():
         return ((xl, y), (xm, y - sh/2), (xr, y), (xm, y + sh/2))
     
     def getDiamondCoordsInner(self, coords):
+        """Get inner diamond polygon coordinates."""
         tx = 9
         ty = 5
         xl = coords[0][0] + tx
         xm = coords[1][0]
         xr = coords[2][0] - tx
-        ym = coords[0][1]
         yt = coords[1][1] + ty
+        ym = coords[0][1]
         yb = coords[3][1] - ty
         return ((xl, ym), (xm, yt), (xr, ym), (xm, yb))
 
@@ -134,15 +140,16 @@ class Renderer():
         """Get the outline and fill colors for the card."""
 
         # Shape colors
-        if (card.color == CardColor.Red):
+        h = 164
+        if card.color == CardColor.Red:
             outline = (255, 0, 0)
-            fill    = (255, 128, 128)
-        elif (card.color == CardColor.Blue):
+            fill    = (255, h, h)
+        elif card.color == CardColor.Blue:
             outline = (0, 0, 255)
-            fill    = (128, 128, 255)
+            fill    = (h, h, 255)
         else:
             outline = (0, 255, 0)
-            fill    = (128, 255, 128)
+            fill    = (h, 255, h)
 
         # Adapt fill color
         if (card.fill == CardFill.Empty):
