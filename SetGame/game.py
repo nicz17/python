@@ -33,8 +33,6 @@ class Game():
                         self.cards.append(card)
 
         self.log.info(f'Generated {len(self.cards)} cards')
-        #for card in self.cards:
-        #    self.log.info(card)
 
     def shuffle(self):
         """Shuffle the cards."""
@@ -44,14 +42,49 @@ class Game():
         """Deal an amount of cards."""
         self.log.info(f'Dealing {amount} cards')
         dealt = self.cards[0:amount]
-        for card in dealt:
-            self.log.info(card)
+        #for card in dealt:
+        #    self.log.info(card)
+        return dealt
+
+    def isSet(self, cards: list[Card]) -> bool:
+        """Check if the cards form a valid set."""
+        if cards is None:
+            return False
+        if len(cards) != 3:
+            return False
+        
+        setNums = set(card.number for card in cards)
+        if len(setNums) == 2:
+            self.log.info('Invalid numbers')
+            return False
+        setShapes = set(card.shape for card in cards)
+        if len(setShapes) == 2:
+            self.log.info('Invalid shapes')
+            return False
+        setColors = set(card.color for card in cards)
+        if len(setColors) == 2:
+            self.log.info('Invalid colors')
+            return False
+        setFills = set(card.fill for card in cards)
+        if len(setFills) == 2:
+            self.log.info('Invalid fills')
+            return False
+        return True
+
+
+def testIsSet(game: Game, cards: list[Card]):
+    game.log.info('Testing isSet for:')
+    for card in cards:
+        game.log.info(card)
+    isSet = game.isSet(cards)
+    game.log.info('Valid set' if isSet else 'Not a set')
 
 def testSetGame():
     game = Game()
     game.createDeck()
     game.shuffle()
-    game.deal(12)
+    #game.deal(12)
+    testIsSet(game, game.deal(3))
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",
