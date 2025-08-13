@@ -43,6 +43,9 @@ class Renderer():
         for card in cards:
             self.generateCardImage(card)
 
+        # Generate card back
+        self.generateCardBack()
+
     def generateCardImage(self, card: Card):
         """Generate a single card image."""
         filename = self.getImageFilename(card)
@@ -135,7 +138,6 @@ class Renderer():
         yb = coords[3][1] - ty
         return ((xl, ym), (xm, yt), (xr, ym), (xm, yb))
 
-
     def getShapeColors(self, card: Card):
         """Get the outline and fill colors for the card."""
 
@@ -162,6 +164,11 @@ class Renderer():
     def getImageFilename(self, card: Card) -> str:
         """Get the file name for the card image."""
         return f'{card.shape.name}{card.color.name}{card.fill.name}{card.number}.png'
+    
+    def generateCardBack(self):
+        """Generate the card back."""
+        # TODO SET written in dark violet on violet bg, each letter in a rect
+        pass
 
     def __str__(self):
         return 'Renderer'
