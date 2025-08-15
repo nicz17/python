@@ -19,7 +19,6 @@ from LocationCache import Location, LocationCache
 from picture import Picture, PictureCache
 from moduleReselection import DialogLocate
 from pynorpaManager import PynorpaManager, PynorpaException
-from uploader import Uploader
 
 
 class ModuleExpeditions(TabModule):
@@ -33,6 +32,7 @@ class ModuleExpeditions(TabModule):
         self.editor = ExpeditionEditor(self.onSaveExpedition, parent.window)
         self.photos = MultiImageWidget()
         self.factory = ExcursionFactory(self.onNewExcursion, parent)
+        self.manager = PynorpaManager()
         super().__init__(parent, 'Excursions')
         self.excursion = None
 
@@ -43,7 +43,7 @@ class ModuleExpeditions(TabModule):
         self.pictureCache = PictureCache()
         self.table.loadData(self.expeditionCache.getExpeditions())
         self.factory.loadData()
-        self.uploader = Uploader(True)
+        self.enableWidgets()
 
     def onSelectExpedition(self, expedition: Expedition):
         """Display selected object in editor."""
@@ -54,6 +54,7 @@ class ModuleExpeditions(TabModule):
             self.log.info('Selected %s', expedition)
             pics = expedition.getPictures()
         self.photos.loadImages(pics)
+        self.enableWidgets()
 
     def onSaveExpedition(self, excursion: Expedition):
         """Save changes to edited excursion."""
@@ -69,7 +70,7 @@ class ModuleExpeditions(TabModule):
     def onUpload(self):
         """Upload the selected excursion page."""
         if self.excursion:
-            self.uploader.uploadExcursion(self.excursion)
+            self.manager.publishExcursion(self.excursion)
 
     def createWidgets(self):
         """Create user widgets."""
@@ -80,6 +81,12 @@ class ModuleExpeditions(TabModule):
         self.photos.createWidgets(self.frmRight)
         self.btnUpload = BaseWidgets.Button(self.frmLeft, 'Publier', self.onUpload, 'go-up')
         self.btnUpload.pack(0)
+        self.enableWidgets()
+
+    def enableWidgets(self):
+        """Enable or disable the buttons."""
+        canUpload = (self.excursion is not None)
+        self.btnUpload.enableWidget(canUpload)
 
     def __str__(self):
         return "ModuleExpeditions"

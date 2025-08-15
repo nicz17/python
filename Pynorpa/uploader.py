@@ -129,9 +129,11 @@ class Uploader:
         if self.checkFileExists(filename):
             self.upload(filename)
         if excursion.getTrack() is not None:
-            filename = f'{config.dirGeoTrack}{excursion.getTrack()}.gpx'
+            filename = f'{config.dirExportGeoTrack}{excursion.getTrack()}.gpx'
             if self.checkFileExists(filename):
                 self.upload(filename, 'geotrack/')
+        filename = f'{config.dirWebExport}expeditions.html'
+        self.upload(filename)
         self.quit()
 
     def uploadPhotos(self, pics: list[Picture], localDir: str, ftpDir: str):

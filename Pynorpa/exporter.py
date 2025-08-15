@@ -58,6 +58,7 @@ class Exporter():
             TaxonUrlProvider('Fishipedia', 'https://www.fishipedia.fr/fr/poissons/', 'fishipedia.fr',
                 TaxonRank.CLASS, ['Actinopterygii'], TaxonUrlProvider.formatLibellenschutz)
         ]
+        
     def initCaches(self):
         """Init database caches."""
         self.picCache = PictureCache()

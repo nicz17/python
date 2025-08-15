@@ -11,6 +11,7 @@ from tkinter import messagebox as mb
 
 import DateTools
 import TextTools
+
 from GeoTracker import GeoTrack
 from LocationCache import Location, LocationCache
 from PhotoInfo import PhotoInfo
@@ -18,6 +19,8 @@ from picture import Picture, PictureCache
 from taxon import TaxonCache, Taxon, TaxonRank
 from expedition import Expedition, ExpeditionCache
 from iNatApiRequest import INatApiRequest, INatTaxon
+from exporter import Exporter
+from uploader import Uploader
 
 
 class PynorpaException(Exception):
@@ -173,6 +176,22 @@ class PynorpaManager():
         # Copy GPX file
         self.runSystemCommand(f'cp {filename} {config.dirExportGeoTrack}')
         return excursion
+    
+    def publishExcursion(self, excursion: Expedition):
+        """Export and upload a single excursion."""
+        self.log.info(f'Publishing {excursion}')
+        if excursion is None:
+            return
+
+        # Export
+        exporter = Exporter()
+        exporter.initCaches()
+        exporter.buildExcursions()
+
+        # Upload
+        uploader = Uploader()
+        uploader.uploadExcursion(excursion)
+
     
     def addTaxonFromINat(self, name: str, module):
         """Add a taxon and its ancestors if needed. Query iNat API for the ancestors."""
