@@ -12,7 +12,8 @@ import os
 
 from card import Card, CardColor, CardFill, CardShape
 from game import Game
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
+
 
 class Renderer():
     """Renderer for the Set game."""
@@ -167,8 +168,27 @@ class Renderer():
     
     def generateCardBack(self):
         """Generate the card back."""
-        # TODO SET written in dark violet on violet bg, each letter in a rect
-        pass
+        # SET written in dark violet on violet bg, each letter in a rect
+        # Create the image
+        img = Image.new('RGB', (self.cardWidth, self.cardHeight), (256, 128, 256))
+        draw = ImageDraw.Draw(img)
+
+        # Writing and font
+        letters = ['S', 'E', 'T']
+        fontfile = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'
+        font = ImageFont.truetype(fontfile, size=46)
+        
+        # Draw the shapes
+        card = Card(None, CardShape.Rect, CardFill.Empty, 3)
+        coordsArray = self.getShapeCoords(card)
+        for yi, coords in enumerate(coordsArray):
+            tx = self.cardWidth/2 -16
+            ty = coords[1] + 12
+            draw.rectangle(coords, (255, 128, 255), (255, 0, 255), 12)
+            draw.text((tx, ty), letters[yi], fill=(128, 0, 128), font=font)
+
+        # Save the image
+        img.save(f'{self.dirImages}cardback.png')
 
     def __str__(self):
         return 'Renderer'

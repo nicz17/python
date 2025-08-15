@@ -38,15 +38,18 @@ class Playmat():
             self.log.info(f'Display card image {filename}')
             img = PhotoImage(file=f'images/{filename}')
             self.cardImages[card] = img
-            x = self.margin + ((iCard % 4)+1)*(self.cardw + self.margin)
+            x = self.margin + ((iCard % 4)+1)*(self.cardw + self.margin) + 100
             y = self.margin + int(iCard/4)*(self.cardh + self.margin)
             id = self.canvas.create_image(x, y, anchor=tk.NW, image=img)
 
     def render(self):
         """Render the current game state."""
-        msgId = self.canvas.create_text(self.width/2, self.height/2, fill=self.colorFg, font=self.fontBg, text='SET')
+        msgId = self.canvas.create_text(110, 100, fill=self.colorFg, font=self.fontBg, text='SET')
         self.canvas.create_text(110, self.height/2, fill=self.colorBd, text='Pioche')
         self.renderCardRect(110, self.height/2)
+        imgCardBack = PhotoImage(file=f'images/cardback.png')
+        self.cardImages['back'] = imgCardBack
+        self.canvas.create_image(110, self.height/2, anchor=tk.CENTER, image=imgCardBack)
 
     def renderCardRect(self, cx: int, cy: int):
         """Render a card placement rectangle."""
