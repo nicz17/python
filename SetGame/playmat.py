@@ -7,7 +7,10 @@ __version__ = "1.0.0"
 import logging
 import tkinter as tk
 from tkinter import font as tkfont
+from tkinter import PhotoImage
 
+from card import Card
+from renderer import Renderer
 
 class Playmat():
     """A Set game playmat."""
@@ -17,18 +20,33 @@ class Playmat():
     colorBd = '#004000'
     cardw = 200
     cardh = 300
+    margin = 20
 
     def __init__(self, width: int, height: int):
         """Constructor."""
         self.width = width
         self.height = height
         self.canvas = None
+        self.renderer = Renderer()
+        self.cardImages = {}
+
+    def addCards(self, cards: list[Card]):
+        """Display cards on the playmat."""
+        self.log.info(f'Adding {len(cards)} cards to playmat')
+        for iCard, card in enumerate(cards):
+            filename = self.renderer.getImageFilename(card)
+            self.log.info(f'Display card image {filename}')
+            img = PhotoImage(file=f'images/{filename}')
+            self.cardImages[card] = img
+            x = self.margin + ((iCard % 4)+1)*(self.cardw + self.margin)
+            y = self.margin + int(iCard/4)*(self.cardh + self.margin)
+            id = self.canvas.create_image(x, y, anchor=tk.NW, image=img)
 
     def render(self):
         """Render the current game state."""
         msgId = self.canvas.create_text(self.width/2, self.height/2, fill=self.colorFg, font=self.fontBg, text='SET')
-        self.canvas.create_text(100, self.height/2, fill=self.colorBd, text='Pioche')
-        self.renderCardRect(100, self.height/2)
+        self.canvas.create_text(110, self.height/2, fill=self.colorBd, text='Pioche')
+        self.renderCardRect(110, self.height/2)
 
     def renderCardRect(self, cx: int, cy: int):
         """Render a card placement rectangle."""
