@@ -71,6 +71,11 @@ class Game():
             self.log.info('Invalid fills')
             return False
         return True
+    
+    def getInvalidSetReason(self, cards: list[Card]) -> str:
+        """Returns the reason why the cards don't form a set."""
+        # TODO implement reason
+        return 'Non'
 
 
 def testIsSet(game: Game, cards: list[Card]):
