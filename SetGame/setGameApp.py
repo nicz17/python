@@ -60,7 +60,7 @@ class SetGameApp(BaseApp):
             isSet = self.game.isSet(self.selectedCards)
             if isSet:
                 self.showInfoMsg("Bravo, c'est un set !")
-                #self.replaceSetCards()
+                self.replaceSetCards()
             else:
                 self.showErrorMsg("Ce n'est pas un set.")
             self.selectedCards = []
@@ -73,6 +73,7 @@ class SetGameApp(BaseApp):
         repl = self.game.deal(3)
         for card in repl:
             self.activeCards.append(card)
+        self.playmat.reset()
         self.playmat.addCards(self.activeCards)
 
     def createWidgets(self):
