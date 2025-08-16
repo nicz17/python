@@ -38,13 +38,14 @@ class Game():
         """Shuffle the cards."""
         random.shuffle(self.cards)
 
-    def deal(self, amount: int):
+    def deal(self, amount: int) -> list[Card]:
         """Deal an amount of cards."""
         self.log.info(f'Dealing {amount} cards')
-        dealt = self.cards[0:amount]
-        #for card in dealt:
-        #    self.log.info(card)
-        return dealt
+        result = []
+        for i in range(amount):
+            if len(self.cards) > 0:
+                result.append(self.cards.pop(0))
+        return result
 
     def isSet(self, cards: list[Card]) -> bool:
         """Check if the cards form a valid set."""

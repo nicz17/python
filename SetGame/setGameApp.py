@@ -11,6 +11,7 @@ __version__ = "1.0.0"
 import logging
 
 from BaseApp import *
+from card import Card
 from game import Game
 from playmat import Playmat
 
@@ -20,11 +21,13 @@ class SetGameApp(BaseApp):
     log = logging.getLogger('SetGameApp')
 
     def __init__(self) -> None:
+        """Constructor."""
         self.iWidth  = 1500
         self.iHeight =  980
         self.game = None
-        self.dragdroptag = None
-        self.playmat = Playmat(self.iWidth, self.iHeight)
+        self.activeCards = []
+        self.selectedCards = []
+        self.playmat = Playmat(self.iWidth, self.iHeight, self.onCardSelection)
         sGeometry = str(self.iWidth + 320) + 'x' + str(self.iHeight + 30)
         super().__init__('Set', sGeometry)
         self.window.resizable(width=False, height=False)
@@ -34,12 +37,43 @@ class SetGameApp(BaseApp):
 
     def onNewGame(self):
         """Start a new game."""
-        if self.game is None:
-            self.game = Game()
-            self.game.createDeck()
-            self.game.shuffle()
-            cards = self.game.deal(12)
-            self.playmat.addCards(cards)
+        self.activeCards = []
+        self.game = Game()
+        self.game.createDeck()
+        self.game.shuffle()
+        cards = self.game.deal(12)
+        for card in cards:
+            self.activeCards.append(card)
+        self.selectedCards = []
+        self.playmat.reset()
+        self.playmat.addCards(cards)
+
+    def onCardSelection(self, card: Card):
+        """Card selection callback."""
+        if card:
+            self.selectedCards.append(card)
+            self.validateSet()
+
+    def validateSet(self):
+        """Validate the selected card set."""
+        if len(self.selectedCards) == 3:
+            isSet = self.game.isSet(self.selectedCards)
+            if isSet:
+                self.showInfoMsg("Bravo, c'est un set !")
+                #self.replaceSetCards()
+            else:
+                self.showErrorMsg("Ce n'est pas un set.")
+            self.selectedCards = []
+            self.playmat.deleteHighlights()
+
+    def replaceSetCards(self):
+        """Replace 3 cards on playmat after a valid set was found."""
+        for card in self.selectedCards:
+            self.activeCards.remove(card)
+        repl = self.game.deal(3)
+        for card in repl:
+            self.activeCards.append(card)
+        self.playmat.addCards(self.activeCards)
 
     def createWidgets(self):
         """Create user widgets."""
