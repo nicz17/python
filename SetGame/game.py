@@ -6,10 +6,20 @@ __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2025 N. Zwahlen"
 __version__ = "1.0.0"
 
+from enum import Enum
 import logging
 import random
 
 from card import Card, CardColor, CardFill, CardShape
+
+class InvalidSetReason(Enum):
+    """Enumeration of reasons why a set is not valid."""
+    InvalidCardCount = 0,
+    InvalidNumbers = 1,
+    InvalidColors = 2,
+    InvalidShapes = 3,
+    InvalidFills = 4
+
 
 class Game():
     """The Set game."""
@@ -56,27 +66,54 @@ class Game():
         
         setNums = set(card.number for card in cards)
         if len(setNums) == 2:
-            self.log.info('Invalid numbers')
+            #self.log.info('Invalid numbers')
             return False
         setShapes = set(card.shape for card in cards)
         if len(setShapes) == 2:
-            self.log.info('Invalid shapes')
+            #self.log.info('Invalid shapes')
             return False
         setColors = set(card.color for card in cards)
         if len(setColors) == 2:
-            self.log.info('Invalid colors')
+            #self.log.info('Invalid colors')
             return False
         setFills = set(card.fill for card in cards)
         if len(setFills) == 2:
-            self.log.info('Invalid fills')
+            #self.log.info('Invalid fills')
             return False
         return True
     
-    def getInvalidSetReason(self, cards: list[Card]) -> str:
+    def getInvalidSetReason(self, cards: list[Card]) -> InvalidSetReason:
         """Returns the reason why the cards don't form a set."""
-        # TODO implement reason
-        return 'Non'
-
+        if len(cards) != 3:
+            return InvalidSetReason.InvalidCardCount
+        setNums = set(card.number for card in cards)
+        if len(setNums) == 2:
+            return InvalidSetReason.InvalidNumbers
+        setShapes = set(card.shape for card in cards)
+        if len(setShapes) == 2:
+            return InvalidSetReason.InvalidShapes
+        setColors = set(card.color for card in cards)
+        if len(setColors) == 2:
+            return InvalidSetReason.InvalidColors
+        setFills = set(card.fill for card in cards)
+        if len(setFills) == 2:
+            return InvalidSetReason.InvalidFills
+        return None
+    
+    def findSets(self, cards: list[Card]) -> int:
+        """Look for sets and return number of sets found."""
+        self.log.info(f'Looking for sets among {len(cards)} cards')
+        count = 0
+        for c1 in cards:
+            for c2 in cards:
+                if c1 == c2: continue
+                for c3 in cards:
+                    if c1 == c3: continue
+                    if c2 == c3: continue
+                    if self.isSet([c1, c2, c3]):
+                        count += 1
+        self.log.info(f'Found {count} sets')
+        return count
 
 def testIsSet(game: Game, cards: list[Card]):
     game.log.info('Testing isSet for:')

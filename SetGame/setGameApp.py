@@ -12,7 +12,7 @@ import logging
 
 from BaseApp import *
 from card import Card
-from game import Game
+from game import Game, InvalidSetReason
 from playmat import Playmat
 
 
@@ -54,6 +54,11 @@ class SetGameApp(BaseApp):
             self.selectedCards.append(card)
             self.validateSet()
 
+    def onHint(self):
+        """Hint button callback."""
+        nSets = self.game.findSets(self.activeCards)
+        self.showInfoMsg(f'Il y a {nSets} sets.')
+
     def validateSet(self):
         """Validate the selected card set."""
         if len(self.selectedCards) == 3:
@@ -62,7 +67,8 @@ class SetGameApp(BaseApp):
                 self.showInfoMsg("Bravo, c'est un set !")
                 self.replaceSetCards()
             else:
-                self.showErrorMsg("Ce n'est pas un set.")
+                reason = self.game.getInvalidSetReason(self.selectedCards)
+                self.showErrorMsg(f"Ce n'est pas un set :\n{reason}")
             self.selectedCards = []
             self.playmat.deleteHighlights()
 
@@ -82,7 +88,7 @@ class SetGameApp(BaseApp):
         # Buttons
         self.btnPlayers = self.addButton('Joueurs', self.onSetPlayers)
         self.btnStart   = self.addButton('Nouvelle partie', self.onNewGame)
-
+        self.btnHint    = self.addButton('Indice', self.onHint)
         # Playmat
         self.playmat.createWidgets(self.frmMain)
         self.playmat.render()
