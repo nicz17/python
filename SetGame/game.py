@@ -44,6 +44,10 @@ class Game():
 
         self.log.info(f'Generated {len(self.cards)} cards')
 
+    def getDeckCount(self) -> int:
+        """Count cards left in deck."""
+        return len(self.cards)
+
     def shuffle(self):
         """Shuffle the cards."""
         random.shuffle(self.cards)
@@ -66,19 +70,15 @@ class Game():
         
         setNums = set(card.number for card in cards)
         if len(setNums) == 2:
-            #self.log.info('Invalid numbers')
             return False
         setShapes = set(card.shape for card in cards)
         if len(setShapes) == 2:
-            #self.log.info('Invalid shapes')
             return False
         setColors = set(card.color for card in cards)
         if len(setColors) == 2:
-            #self.log.info('Invalid colors')
             return False
         setFills = set(card.fill for card in cards)
         if len(setFills) == 2:
-            #self.log.info('Invalid fills')
             return False
         return True
     
