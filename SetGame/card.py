@@ -46,6 +46,10 @@ class Card():
         self.fill = fill
         self.number = number
 
+    def toShortStr(self):
+        """Returns a compact 4-letter string representation of this card."""
+        return f'{self.shape.name[0]}{self.number}{self.color.name[0]}{self.fill.name[0]}'
+
     def __str__(self):
         return f'Card {self.number} {self.shape.name} {self.color.name} {self.fill.name}'
         

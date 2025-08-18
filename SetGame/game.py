@@ -104,16 +104,28 @@ class Game():
         """Look for sets and return number of sets found."""
         self.log.info(f'Looking for sets among {len(cards)} cards')
         count = 0
-        for c1 in cards:
-            for c2 in cards:
-                if c1 == c2: continue
-                for c3 in cards:
-                    if c1 == c3: continue
-                    if c2 == c3: continue
+        for i, c1 in enumerate(cards[0:-2]):
+            for j, c2 in enumerate(cards[i+1:-1]):
+                for c3 in cards[i+j+2:]:
                     if self.isSet([c1, c2, c3]):
                         count += 1
+                        self.log.info(f'Set {c1.toShortStr()} {c2.toShortStr()} {c3.toShortStr()}')
         self.log.info(f'Found {count} sets')
         return count
+    
+    def computeStats(self):
+        """Evaluate how often there is at least one set in a deal of 12 cards."""
+        n = 10000
+        noSets = 0
+        for i in range(n):
+            self.createDeck()
+            self.shuffle()
+            cards = self.deal(12)
+            count = self.findSets(cards)
+            if count == 0:
+                noSets += 1
+        self.log.info(f'Prob of no set in 12 cards: {(noSets/n):.3f} from {n} tries')
+        # Result is 3.4%
 
 def testIsSet(game: Game, cards: list[Card]):
     game.log.info('Testing isSet for:')
@@ -127,7 +139,10 @@ def testSetGame():
     game.createDeck()
     game.shuffle()
     #game.deal(12)
-    testIsSet(game, game.deal(3))
+    #testIsSet(game, game.deal(3))
+    cards = game.deal(12)
+    game.findSets(cards)
+    #game.computeStats()
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",
