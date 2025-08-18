@@ -48,9 +48,9 @@ class Playmat():
 
     def render(self):
         """Render the current game state."""
-        msgId = self.canvas.create_text(110, 100, fill=self.colorFg, font=self.fontBg, text='SET')
+        self.canvas.create_text(110, 100, fill=self.colorFg, font=self.fontBg, text='SET')
         self.canvas.create_text(110, self.height/2, fill=self.colorBd, text='Pioche')
-        self.renderCardRect(110, self.height/2)
+        #self.renderCardRect(110, self.height/2)
         imgCardBack = PhotoImage(file=f'images/cardback.png')
         self.cardImages['back'] = imgCardBack
         self.canvas.create_image(110, self.height/2, anchor=tk.CENTER, image=imgCardBack)

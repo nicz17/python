@@ -5,7 +5,7 @@ See https://note.nkmk.me/en/python-pillow-imagedraw/
 
 __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2025 N. Zwahlen"
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 import logging
 import os
@@ -22,10 +22,12 @@ class Renderer():
     cardWidth  = 200
     cardHeight = 300
     margin = 20
+    radius = 12
+    colorBg = '#006400'
 
     def __init__(self):
         """Constructor."""
-        self.log.info(f'Constructor for {self}')
+        self.log.info(f'Constructor for {self} using PIL v{Image.__version__}')
 
     def generateCardImages(self):
         """Generate all card images."""
@@ -59,8 +61,12 @@ class Renderer():
         outline, fill = self.getShapeColors(card)
 
         # Create the image
-        img = Image.new('RGB', (self.cardWidth, self.cardHeight), (256, 256, 256))
+        img = Image.new('RGB', (self.cardWidth, self.cardHeight), self.colorBg)
         draw = ImageDraw.Draw(img)
+
+        # Card outline, rounded
+        draw.rounded_rectangle((0, 0, self.cardWidth, self.cardHeight), radius=self.radius, 
+                               fill=(256, 256, 256), outline=(242, 242, 242), width=5)
 
         # Draw the shapes
         for coords in coordsArray:
@@ -170,8 +176,13 @@ class Renderer():
         """Generate the card back."""
         # SET written in dark violet on violet bg, each letter in a rect
         # Create the image
-        img = Image.new('RGB', (self.cardWidth, self.cardHeight), (256, 128, 256))
+        self.log.info('Generating card back')
+        img = Image.new('RGB', (self.cardWidth, self.cardHeight), self.colorBg)
         draw = ImageDraw.Draw(img)
+
+        # Card outline, rounded
+        draw.rounded_rectangle((0, 0, self.cardWidth, self.cardHeight), radius=self.radius, 
+                               fill=(256, 128, 256), outline=(255, 0, 255), width=5)
 
         # Writing and font
         letters = ['S', 'E', 'T']
@@ -197,6 +208,7 @@ class Renderer():
 def testRenderer():
     renderer = Renderer()
     renderer.generateCardImages()
+    #renderer.generateCardBack()
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",
