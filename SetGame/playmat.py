@@ -68,13 +68,13 @@ class Playmat():
         """Draw a highlight square at the specified grid position."""
         w = 4
         x0 = x -2
-        x1 = x + self.cardw
+        x1 = x + self.cardw +2
         y0 = y -2
-        y1 = y + self.cardh
-        self.aHighlightIds.append(self.canvas.create_line(x0, y0, x1, y0,   fill=color, width=w))
-        self.aHighlightIds.append(self.canvas.create_line(x0, y0, x0, y1+2, fill=color, width=w))
-        self.aHighlightIds.append(self.canvas.create_line(x0, y1, x1, y1,   fill=color, width=w))
-        self.aHighlightIds.append(self.canvas.create_line(x1, y0, x1, y1+2, fill=color, width=w))
+        y1 = y + self.cardh +2
+        self.aHighlightIds.append(self.canvas.create_line(x0-2, y0, x1+2, y0, fill=color, width=w))
+        self.aHighlightIds.append(self.canvas.create_line(x0, y0, x0, y1+2,   fill=color, width=w))
+        self.aHighlightIds.append(self.canvas.create_line(x0, y1, x1, y1,     fill=color, width=w))
+        self.aHighlightIds.append(self.canvas.create_line(x1, y0, x1, y1+2,   fill=color, width=w))
 
     def reset(self):
         """Reset the playmat."""
