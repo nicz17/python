@@ -71,10 +71,23 @@ class SetGameApp(BaseApp):
                 self.showInfoMsg("Bravo, c'est un set !")
                 self.replaceSetCards()
             else:
-                reason = self.game.getInvalidSetReason(self.selectedCards)
-                self.showErrorMsg(f"Ce n'est pas un set :\n{reason}")
+                kind = self.game.getInvalidSetReason(self.selectedCards)
+                reason = self.explainInvalidSet(kind)
+                self.showErrorMsg(f"Ce n'est pas un set :\n{reason}.")
             self.selectedCards = []
             self.playmat.deleteHighlights()
+
+    def explainInvalidSet(self, kind: InvalidSetReason) -> str:
+        """Explain why the selected cards don't form a set."""
+        if kind == InvalidSetReason.InvalidShapes:
+            return 'les formes ne sont pas toutes identiques ou toutes différentes'
+        if kind == InvalidSetReason.InvalidNumbers: 
+            return 'les nombres ne sont pas tous identiques ou tous différents'
+        if kind == InvalidSetReason.InvalidColors:
+            return 'les couleurs ne sont pas toutes identiques ou toutes différentes'
+        if kind == InvalidSetReason.InvalidFills:
+            return 'les remplissages ne sont pas tous identiques ou tous différents'
+        return kind
 
     def replaceSetCards(self):
         """Replace 3 cards on playmat after a valid set was found."""
