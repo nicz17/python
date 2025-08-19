@@ -47,6 +47,7 @@ class SetGameApp(BaseApp):
         self.selectedCards = []
         self.playmat.reset()
         self.playmat.addCards(cards)
+        self.updatePlaymat()
 
     def onCardSelection(self, card: Card):
         """Card selection callback."""
@@ -57,7 +58,10 @@ class SetGameApp(BaseApp):
     def onHint(self):
         """Hint button callback."""
         nSets = self.game.findSets(self.activeCards)
-        self.showInfoMsg(f'Il y a {nSets} sets.')
+        msg = "Il n'y a pas de set." 
+        if nSets == 1: msg = f'Il y a {nSets} set.'
+        if nSets >= 2: msg = f'Il y a {nSets} sets.'
+        self.showInfoMsg(msg)
 
     def validateSet(self):
         """Validate the selected card set."""
@@ -81,6 +85,11 @@ class SetGameApp(BaseApp):
             self.activeCards.append(card)
         self.playmat.reset()
         self.playmat.addCards(self.activeCards)
+        self.updatePlaymat()
+
+    def updatePlaymat(self):
+        """Update the playmat with the current game state."""
+        self.playmat.updateState(self.game.getDeckCount())
 
     def createWidgets(self):
         """Create user widgets."""
@@ -89,6 +98,7 @@ class SetGameApp(BaseApp):
         self.btnPlayers = self.addButton('Joueurs', self.onSetPlayers)
         self.btnStart   = self.addButton('Nouvelle partie', self.onNewGame)
         self.btnHint    = self.addButton('Indice', self.onHint)
+
         # Playmat
         self.playmat.createWidgets(self.frmMain)
         self.playmat.render()

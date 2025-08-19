@@ -47,13 +47,18 @@ class Playmat():
             self.cardPositions[card] = (x, y)
 
     def render(self):
-        """Render the current game state."""
+        """Render the initial game state."""
         self.canvas.create_text(110, 100, fill=self.colorFg, font=self.fontBg, text='SET')
-        self.canvas.create_text(110, self.height/2, fill=self.colorBd, text='Pioche')
+        ty = self.height/2 + self.cardh/2 + 16
+        self.txtDeck = self.canvas.create_text(110, ty, fill=self.colorBd, text='Pioche')
         #self.renderCardRect(110, self.height/2)
         imgCardBack = PhotoImage(file=f'images/cardback.png')
         self.cardImages['back'] = imgCardBack
         self.canvas.create_image(110, self.height/2, anchor=tk.CENTER, image=imgCardBack)
+
+    def updateState(self, deckSize: int):
+        """Update to the current game state."""
+        self.canvas.itemconfigure(self.txtDeck, text=f'Pioche : {deckSize} cartes')
 
     def renderCardRect(self, cx: int, cy: int):
         """Render a card placement rectangle."""
