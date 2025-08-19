@@ -66,7 +66,7 @@ class Renderer():
 
         # Card outline, rounded
         draw.rounded_rectangle((0, 0, self.cardWidth, self.cardHeight), radius=self.radius, 
-                               fill=(256, 256, 256), outline=(242, 242, 242), width=5)
+                               fill=(256, 256, 256), outline=(256, 256, 256), width=5)
 
         # Draw the shapes
         for coords in coordsArray:
