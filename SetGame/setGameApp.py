@@ -33,6 +33,8 @@ class SetGameApp(BaseApp):
         self.window.resizable(width=False, height=False)
 
     def onSetPlayers(self):
+        """Display player config dialog."""
+        # TODO implement player config dialog
         pass
 
     def onNewGame(self):
@@ -57,6 +59,7 @@ class SetGameApp(BaseApp):
 
     def onHint(self):
         """Hint button callback."""
+        # TODO highlight hint card
         nSets = self.game.findSets(self.activeCards)
         msg = "Il n'y a pas de set." 
         if nSets == 1: msg = f'Il y a {nSets} set.'
@@ -65,9 +68,11 @@ class SetGameApp(BaseApp):
 
     def validateSet(self):
         """Validate the selected card set."""
+        # TODO implement set validation dialog
         if len(self.selectedCards) == 3:
             isSet = self.game.isSet(self.selectedCards)
             if isSet:
+                # TODO display elapsed time
                 self.showInfoMsg("Bravo, c'est un set !")
                 self.replaceSetCards()
             else:
@@ -91,6 +96,7 @@ class SetGameApp(BaseApp):
 
     def replaceSetCards(self):
         """Replace 3 cards on playmat after a valid set was found."""
+        # TODO detect game over: empty deck, no sets on playmat
         for card in self.selectedCards:
             self.activeCards.remove(card)
         repl = self.game.deal(3)
