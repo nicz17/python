@@ -23,11 +23,11 @@ class Renderer():
     cardHeight = 300
     margin = 20
     radius = 12
-    colorBg = '#006400'
+    colorTransparent = (256, 256, 256, 0)
 
     def __init__(self):
         """Constructor."""
-        self.log.info(f'Constructor for {self} using PIL v{Image.__version__}')
+        self.log.info(f'Constructor {self} using PIL v{Image.__version__}')
 
     def generateCardImages(self):
         """Generate all card images."""
@@ -61,7 +61,7 @@ class Renderer():
         outline, fill = self.getShapeColors(card)
 
         # Create the image
-        img = Image.new('RGB', (self.cardWidth, self.cardHeight), self.colorBg)
+        img = Image.new('RGBA', (self.cardWidth, self.cardHeight), self.colorTransparent)
         draw = ImageDraw.Draw(img)
 
         # Card outline, rounded
@@ -177,7 +177,7 @@ class Renderer():
         # SET written in dark violet on violet bg, each letter in a rect
         # Create the image
         self.log.info('Generating card back')
-        img = Image.new('RGB', (self.cardWidth, self.cardHeight), self.colorBg)
+        img = Image.new('RGBA', (self.cardWidth, self.cardHeight), self.colorTransparent)
         draw = ImageDraw.Draw(img)
 
         # Card outline, rounded
@@ -205,12 +205,53 @@ class Renderer():
         return 'Renderer'
     
 
+class Meeple():
+    """
+        Renderer for meeples.
+        Rendering is done with Pillow,
+        transparent backgrounds and antialiasing.
+    """
+    log = logging.getLogger('Meeple')
+
+    def __init__(self, color: str):
+        """Constructor with color."""
+        self.color = color
+        self.size = 50*4
+
+    def render(self):
+        """Render an image of a meeple."""
+        filename = 'meeple.png'
+        self.log.info(f'Rendering as {filename}')
+
+        # Create image with transparent background
+        img = Image.new('RGBA', (self.size, self.size), (256, 256, 256, 0))
+        draw = ImageDraw.Draw(img)
+
+        # Draw the meeple shapes
+        draw.ellipse((50, 5, 150, 100), self.color)
+        draw.rounded_rectangle((25, 105, 175, 250), 20, self.color)
+
+        # Resize with anti-aliasing
+        img = img.resize((self.size//4, self.size//4), resample=Image.LANCZOS)
+
+        # Save the image
+        img.save(f'{Renderer.dirImages}{filename}')
+
+    def __str__(self):
+        return f'Meeple {self.color}'
+
+
 def testRenderer():
     renderer = Renderer()
     renderer.generateCardImages()
     #renderer.generateCardBack()
 
+def testMeeple():
+    meeple = Meeple('red')
+    meeple.render()
+
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",
         level=logging.INFO, handlers=[logging.StreamHandler()])
     testRenderer()
+    testMeeple()
