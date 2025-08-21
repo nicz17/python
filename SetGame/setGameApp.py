@@ -14,7 +14,7 @@ from BaseApp import *
 from card import Card
 from game import Game, InvalidSetReason
 from playmat import Playmat
-
+from Timer import Timer
 
 class SetGameApp(BaseApp):
     """Set game app window."""
@@ -24,6 +24,7 @@ class SetGameApp(BaseApp):
         """Constructor."""
         self.iWidth  = 1500
         self.iHeight =  980
+        self.timer = Timer()
         self.game = None
         self.activeCards = []
         self.selectedCards = []
@@ -49,6 +50,7 @@ class SetGameApp(BaseApp):
         self.selectedCards = []
         self.playmat.addCards(cards)
         self.updatePlaymat()
+        self.timer.start()
 
     def onCardSelection(self, card: Card):
         """Card selection callback."""
@@ -71,10 +73,12 @@ class SetGameApp(BaseApp):
         if len(self.selectedCards) == 3:
             isSet = self.game.isSet(self.selectedCards)
             if isSet:
-                # TODO display elapsed time
-                self.showInfoMsg("Bravo, c'est un set !")
+                self.timer.stop()
+                self.log.info('Found valid set')
+                self.showInfoMsg(f"Bravo, c'est un set !\nTrouvé en {self.timer.getElapsed()}")
                 self.replaceSetCards()
             else:
+                self.log.info('Selection is not a set')
                 kind = self.game.getInvalidSetReason(self.selectedCards)
                 reason = self.explainInvalidSet(kind)
                 self.showErrorMsg(f"Ce n'est pas un set :\n{reason}.")
@@ -103,6 +107,7 @@ class SetGameApp(BaseApp):
             self.activeCards.append(card)
         self.playmat.addCards(self.activeCards)
         self.updatePlaymat()
+        self.timer.start()
 
     def updatePlaymat(self):
         """Update the playmat with the current game state."""
