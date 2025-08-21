@@ -40,7 +40,7 @@ class Playmat():
         self.log.info(f'Adding {len(cards)} cards to playmat')
         for iCard, card in enumerate(cards):
             filename = self.renderer.getImageFilename(card)
-            self.log.info(f'Display card image {filename}')
+            #self.log.info(f'Display card image {filename}')
             img = PhotoImage(file=f'images/{filename}')
             self.cardImages[card] = img
             x = self.margin + ((iCard % 4)+1)*(self.cardw + self.margin) + 100
@@ -61,6 +61,7 @@ class Playmat():
 
     def updateState(self, deckSize: int):
         """Update to the current game state."""
+        # TODO remove card back image if deck is empty
         self.canvas.itemconfigure(self.txtDeck, text=f'Pioche : {deckSize} cartes')
 
     def renderCardRect(self, cx: int, cy: int):
@@ -77,7 +78,8 @@ class Playmat():
         
         # Redraw card image
         img = self.cardImages[card]
-        self.canvas.create_image(x, y, anchor=tk.NW, image=img)
+        id = self.canvas.create_image(x, y, anchor=tk.NW, image=img)
+        self.cardImageIds.append(id)
 
     def reset(self):
         """Reset the playmat."""
