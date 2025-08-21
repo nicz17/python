@@ -31,11 +31,12 @@ class Playmat():
         self.cardImages = {}
         self.cardPositions = {}
         self.aHighlightIds = []
+        self.cardImageIds = []
         self.cbkCardSelection = cbkCardSelection
 
     def addCards(self, cards: list[Card]):
         """Display cards on the playmat."""
-        # TODO clear card images first!
+        self.reset()
         self.log.info(f'Adding {len(cards)} cards to playmat')
         for iCard, card in enumerate(cards):
             filename = self.renderer.getImageFilename(card)
@@ -44,8 +45,9 @@ class Playmat():
             self.cardImages[card] = img
             x = self.margin + ((iCard % 4)+1)*(self.cardw + self.margin) + 100
             y = self.margin + int(iCard/4)*(self.cardh + self.margin)
-            self.canvas.create_image(x, y, anchor=tk.NW, image=img)
+            id = self.canvas.create_image(x, y, anchor=tk.NW, image=img)
             self.cardPositions[card] = (x, y)
+            self.cardImageIds.append(id)
 
     def render(self):
         """Render the initial game state."""
@@ -80,12 +82,16 @@ class Playmat():
     def reset(self):
         """Reset the playmat."""
         self.cardPositions = {}
+        for id in self.cardImageIds:
+            self.canvas.delete(id)
+        self.cardImageIds = []
         self.deleteHighlights()
 
     def deleteHighlights(self):
         """Delete the highlights on the grid canvas."""
         for id in self.aHighlightIds:
             self.canvas.delete(id)
+        self.aHighlightIds = []
         
     def onClick(self, event):
         """Canvas click event callback."""

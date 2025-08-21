@@ -47,7 +47,6 @@ class SetGameApp(BaseApp):
         for card in cards:
             self.activeCards.append(card)
         self.selectedCards = []
-        self.playmat.reset()
         self.playmat.addCards(cards)
         self.updatePlaymat()
 
@@ -102,7 +101,6 @@ class SetGameApp(BaseApp):
         repl = self.game.deal(3)
         for card in repl:
             self.activeCards.append(card)
-        self.playmat.reset()
         self.playmat.addCards(self.activeCards)
         self.updatePlaymat()
 
