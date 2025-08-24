@@ -32,6 +32,7 @@ class Playmat():
         self.cardPositions = {}
         self.aHighlightIds = []
         self.cardImageIds = []
+        self.cardBackId = None
         self.cbkCardSelection = cbkCardSelection
 
     def addCards(self, cards: list[Card]):
@@ -57,12 +58,15 @@ class Playmat():
         #self.renderCardRect(110, self.height/2)
         imgCardBack = PhotoImage(file=f'images/cardback.png')
         self.cardImages['back'] = imgCardBack
-        self.canvas.create_image(110, self.height/2, anchor=tk.CENTER, image=imgCardBack)
+        self.cardBackId = self.canvas.create_image(110, self.height/2, anchor=tk.CENTER, image=imgCardBack)
 
     def updateState(self, deckSize: int):
         """Update to the current game state."""
-        # TODO remove card back image if deck is empty
         self.canvas.itemconfigure(self.txtDeck, text=f'Pioche : {deckSize} cartes')
+        if deckSize == 0:
+            self.canvas.itemconfigure(self.txtDeck, text=f'Pioche vide')
+            self.canvas.delete(self.cardBackId)
+
 
     def renderCardRect(self, cx: int, cy: int):
         """Render a card placement rectangle."""
