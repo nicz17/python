@@ -10,6 +10,7 @@ from tkinter import font as tkfont
 from tkinter import PhotoImage
 
 from card import Card
+from player import Player
 from renderer import Renderer
 
 class Playmat():
@@ -32,8 +33,17 @@ class Playmat():
         self.cardPositions = {}
         self.aHighlightIds = []
         self.cardImageIds = []
+        self.playerBoxes = []
         self.cardBackId = None
         self.cbkCardSelection = cbkCardSelection
+
+    def addPlayers(self, players: list[Player]):
+        """Display player boxes on the playmat."""
+        self.log.info(f'Adding {len(players)} players to playmat')
+        for i, player in enumerate(players):
+            box = PlayerBox(player, i)
+            box.render(self.canvas)
+            self.playerBoxes.append(box)
 
     def addCards(self, cards: list[Card]):
         """Display cards on the playmat."""
@@ -67,7 +77,6 @@ class Playmat():
             self.canvas.itemconfigure(self.txtDeck, text=f'Pioche vide')
             self.canvas.delete(self.cardBackId)
 
-
     def renderCardRect(self, cx: int, cy: int):
         """Render a card placement rectangle."""
         self.canvas.create_rectangle(cx-self.cardw/2, cy-self.cardh/2, cx+self.cardw/2, cy+self.cardh/2, outline=self.colorBd)
@@ -99,13 +108,16 @@ class Playmat():
             self.canvas.delete(id)
         self.aHighlightIds = []
         
-    def onClick(self, event):
+    def onClick(self, event: tk.Event):
         """Canvas click event callback."""
         card = self.getCardAt(event.x, event.y)
-        self.log.info(f'Click at {event.x}:{event.y} is {card}')
         if card:
+            self.log.info(f'Clicked [{event.x}:{event.y}] on {card}')
             self.drawHighlight(card, 'red')
             self.cbkCardSelection(card)
+        for playerBox in self.getPlayerBoxes():
+            if playerBox.contains(event.x, event.y):
+                self.log.info(f'Clicked [{event.x}:{event.y}] on {playerBox}')
 
     def getCardAt(self, x: int, y: int) -> Card:
         """Gets the card at position x, y or None if no card there."""
@@ -115,6 +127,9 @@ class Playmat():
             if x >= cx and x < cx + self.cardw and y >= cy and y < cy + self.cardh:
                 return card
         return None
+    
+    def getPlayerBoxes(self) -> list['PlayerBox']:
+        return self.playerBoxes
     
     def createWidgets(self, parent: tk.Frame):
         # Canvas
@@ -128,3 +143,50 @@ class Playmat():
         self.fontBg = tkfont.Font(family="Helvetica", size=42)
         self.fontFg = tkfont.Font(family="Helvetica", size=16, weight='bold')
         
+
+class PlayerBox():
+    """A box displaying the player name, icon and score."""
+    log = logging.getLogger('PlayerBox')
+    width  = 200
+    height = 200
+    margin = 20
+    colorBg = '#127812'
+    colorFg = '#005600'
+
+    def __init__(self, player: Player, iy: int):
+        self.player = player
+        self.iy = iy
+        self.fontFg = tkfont.Font(family="Helvetica", size=24, weight='bold')
+        self.icon = None
+        self.x = 1300
+        self.y = self.margin + self.iy*(self.height + self.margin)
+
+    def render(self, parent: tk.Canvas):
+        """Render this player box on the parent canvas."""
+
+        # Box position
+        x = self.x
+        y = self.y
+
+        # Layout
+        parent.create_rectangle(x, y, x+self.width, y+self.height, fill=self.colorBg, outline=self.colorBg)
+        parent.create_text(x+60, y+20, anchor=tk.NW, fill=self.colorFg, text=self.player.getName(), font=self.fontFg)
+
+        # Player icon
+        self.icon = PhotoImage(file=self.player.getImage())
+        parent.create_image(x+10, y+10, anchor=tk.NW, image=self.icon)
+
+        # Score
+        score = f'{self.player.getScore()} points'
+        parent.create_text(x+10, y+80, anchor=tk.NW, fill=self.colorFg, text=score, font=self.fontFg)
+
+    def getPlayer(self) -> Player:
+        """Returns the player in this box."""
+        return self.player
+
+    def contains(self, x: int, y: int):
+        """Check if this box contains the click location."""
+        return x >= self.x and x < self.x + self.width and y >= self.y and y < self.y + self.height
+
+    def __str__(self):
+        return f'PlayerBox for {self.player}'

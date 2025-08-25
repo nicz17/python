@@ -13,6 +13,7 @@ import logging
 from BaseApp import *
 from card import Card
 from game import Game, InvalidSetReason
+from player import Player
 from playmat import Playmat
 from Timer import Timer
 
@@ -22,21 +23,24 @@ class SetGameApp(BaseApp):
 
     def __init__(self) -> None:
         """Constructor."""
-        self.iWidth  = 1500
+        self.iWidth  = 1600
         self.iHeight =  980
         self.timer = Timer()
         self.game = None
         self.activeCards = []
         self.selectedCards = []
+        self.players = []
         self.playmat = Playmat(self.iWidth, self.iHeight, self.onCardSelection)
-        sGeometry = str(self.iWidth + 320) + 'x' + str(self.iHeight + 30)
+        sGeometry = f'{self.iWidth + 220}x{self.iHeight + 30}'
         super().__init__('Set', sGeometry)
         self.window.resizable(width=False, height=False)
 
     def onSetPlayers(self):
         """Display player config dialog."""
         # TODO implement player config dialog
-        pass
+        self.players.append(Player('Esti', '#ff69b4'))
+        self.players.append(Player('Nicz', '#add8e6'))
+        self.playmat.addPlayers(self.players)
 
     def onNewGame(self):
         """Start a new game."""
@@ -126,6 +130,7 @@ class SetGameApp(BaseApp):
         self.playmat.render()
 
         # Auto-start game
+        self.onSetPlayers()
         self.onNewGame()
 
 

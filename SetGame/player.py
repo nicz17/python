@@ -11,11 +11,13 @@ class Player():
     """Class Player"""
     log = logging.getLogger("Player")
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, color: str):
         """Constructor."""
         self.name = name
+        self.color = color
         self.score = 0
-        self.image = "images/player.png"
+        self.image = "images/meeple.png"
+        #self.image = f"images/meeple{name}.png"
 
     def getName(self) -> str:
         """Getter for name"""
