@@ -65,6 +65,7 @@ class SetGameApp(BaseApp):
     def onHint(self):
         """Hint button callback."""
         # TODO highlight hint card
+        # TODO if no sets, reshuffle and deal again
         nSets = self.game.findSets(self.activeCards)
         msg = "Il n'y a pas de set." 
         if nSets == 1: msg = f'Il y a {nSets} set.'

@@ -170,7 +170,7 @@ class Renderer():
 
     def getImageFilename(self, card: Card) -> str:
         """Get the file name for the card image."""
-        return f'{card.shape.name}{card.color.name}{card.fill.name}{card.number}.png'
+        return card.getImageFilename()
     
     def generateCardBack(self):
         """Generate the card back."""

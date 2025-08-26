@@ -144,7 +144,56 @@ class Playmat():
         # Fonts
         self.fontBg = tkfont.Font(family="Helvetica", size=42)
         self.fontFg = tkfont.Font(family="Helvetica", size=16, weight='bold')
-        
+
+
+class CardBox():
+    """A box displaying a card and its highlight."""
+    log = logging.getLogger('CardBox')
+    width  = Playmat.cardw
+    height = Playmat.cardh
+
+    def __init__(self, card: Card, parent: tk.Canvas, x: int, y: int):
+        """Constructor with card and position."""
+        self.card = card
+        self.parent = parent
+        self.x = x
+        self.y = y
+        self.img = None
+        self.idImg = None
+        self.idHighlight = None
+
+    def render(self):
+        """Render this card box on the parent canvas."""
+        self.img = PhotoImage(file=f'images/{self.card.getImageFilename()}')
+        self.idImg = self.parent.create_image(self.x, self.y, anchor=tk.NW, image=self.img)
+
+    def dispose(self):
+        """Delete all images and highlights."""
+        self.parent.delete(self.idImg)
+        self.parent.delete(self.idHighlight)
+
+    def addHighlight(self, color: str):
+        """Add a highlight frame."""
+        self.parent.delete(self.idImg)
+        self.idHighlight = self.parent.create_rectangle(self.x-4, self.y-4, 
+            self.x+self.width+4, self.y+self.height+4, fill=color, outline=color)
+        self.idImg = self.parent.create_image(self.x, self.y, anchor=tk.NW, image=self.img)
+
+    def deleteHighlight(self):
+        """Delete any highlights."""
+        self.parent.delete(self.idHighlight)
+
+    def contains(self, x: int, y: int):
+        """Check if this box contains the click location."""
+        return x >= self.x and x < self.x + self.width and y >= self.y and y < self.y + self.height
+    
+    def getCard(self) -> Card:
+        """Get the card displayed in this box."""
+        return self.card
+
+    def __str__(self):
+        return f'CardBox for {self.card}'
+
 
 class PlayerBox():
     """A box displaying the player name, icon and score."""
