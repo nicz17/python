@@ -39,7 +39,7 @@ class SetGameApp(BaseApp):
         """Display player config dialog."""
         # TODO implement player config dialog
         self.players.append(Player('Esti', '#ff69b4'))
-        self.players.append(Player('Nicz', '#add8e6'))
+        self.players.append(Player('Nicz', '#add8f6'))
         self.playmat.addPlayers(self.players)
 
     def onNewGame(self):

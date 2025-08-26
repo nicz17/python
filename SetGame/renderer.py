@@ -218,9 +218,8 @@ class Meeple():
         self.color = color
         self.size = 50*4
 
-    def render(self):
+    def render(self, filename='meeple.png'):
         """Render an image of a meeple."""
-        filename = 'meeple.png'
         self.log.info(f'Rendering as {filename}')
 
         # Create image with transparent background
@@ -235,7 +234,7 @@ class Meeple():
         img = img.resize((self.size//4, self.size//4), resample=Image.LANCZOS)
 
         # Save the image
-        img.save(f'{Renderer.dirImages}{filename}')
+        img.save(filename)
 
     def __str__(self):
         return f'Meeple {self.color}'

@@ -16,23 +16,26 @@ class Player():
         self.name = name
         self.color = color
         self.score = 0
-        self.image = "images/meeple.png"
-        #self.image = f"images/meeple{name}.png"
+        self.image = f"images/meeple{name}.png"
 
     def getName(self) -> str:
         """Getter for name"""
         return self.name
+    
+    def getColor(self) -> str:
+        """Getter for icon color."""
+        return self.color
 
     def getScore(self) -> int:
         """Getter for score"""
         return self.score
 
     def addScore(self, points: int):
-        """Add score."""
+        """Add points to score."""
         self.score += points
 
     def getImage(self) -> str:
-        """Getter for image"""
+        """Getter for image filename."""
         return self.image
 
     def toJson(self):

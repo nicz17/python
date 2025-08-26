@@ -5,13 +5,14 @@ __copyright__ = "Copyright 2025 N. Zwahlen"
 __version__ = "1.0.0"
 
 import logging
+import os
 import tkinter as tk
 from tkinter import font as tkfont
 from tkinter import PhotoImage
 
 from card import Card
 from player import Player
-from renderer import Renderer
+from renderer import Renderer, Meeple
 
 class Playmat():
     """A Set game playmat."""
@@ -29,6 +30,7 @@ class Playmat():
         self.height = height
         self.canvas = None
         self.renderer = Renderer()
+        # TODO add CardBox class for card positions, images and highlights
         self.cardImages = {}
         self.cardPositions = {}
         self.aHighlightIds = []
@@ -62,13 +64,13 @@ class Playmat():
 
     def render(self):
         """Render the initial game state."""
-        self.canvas.create_text(110, 100, fill=self.colorFg, font=self.fontBg, text='SET')
+        tx = self.cardw/2 + self.margin
         ty = self.height/2 + self.cardh/2 + 18
-        self.txtDeck = self.canvas.create_text(110, ty, fill=self.colorFg, font=self.fontFg, text='Pioche')
-        #self.renderCardRect(110, self.height/2)
+        self.canvas.create_text(tx, 100, fill=self.colorFg, font=self.fontBg, text='SET')
         imgCardBack = PhotoImage(file=f'images/cardback.png')
         self.cardImages['back'] = imgCardBack
-        self.cardBackId = self.canvas.create_image(110, self.height/2, anchor=tk.CENTER, image=imgCardBack)
+        self.cardBackId = self.canvas.create_image(tx, self.height/2, anchor=tk.CENTER, image=imgCardBack)
+        self.txtDeck = self.canvas.create_text(tx, ty, fill=self.colorFg, font=self.fontFg, text='Pioche')
 
     def updateState(self, deckSize: int):
         """Update to the current game state."""
@@ -173,7 +175,7 @@ class PlayerBox():
         parent.create_text(x+60, y+20, anchor=tk.NW, fill=self.colorFg, text=self.player.getName(), font=self.fontFg)
 
         # Player icon
-        self.icon = PhotoImage(file=self.player.getImage())
+        self.icon = self.getPlayerIcon()
         parent.create_image(x+10, y+10, anchor=tk.NW, image=self.icon)
 
         # Score
@@ -183,6 +185,15 @@ class PlayerBox():
     def getPlayer(self) -> Player:
         """Returns the player in this box."""
         return self.player
+    
+    def getPlayerIcon(self) -> PhotoImage:
+        """Get or generate the player meeple icon."""
+        filename = self.player.getImage()
+        if not os.path.exists(filename):
+            self.log.info(f'Generating player icon {filename}')
+            meeple = Meeple(self.player.getColor())
+            meeple.render(filename)
+        return PhotoImage(file=filename)
 
     def contains(self, x: int, y: int):
         """Check if this box contains the click location."""
