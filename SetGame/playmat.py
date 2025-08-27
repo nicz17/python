@@ -85,6 +85,14 @@ class Playmat():
         """Delete the highlights on the grid canvas."""
         for box in self.getCardBoxes():
             box.deleteHighlight()
+
+    def unselectCard(self, card: Card):
+        """Unselect the card. Remove its highlight."""
+        for box in self.getCardBoxes():
+            if box.getCard() == card:
+                box.deleteHighlight()
+                return
+        self.log.error(f'Could not find card to unselect: {card}')
         
     def onClick(self, event: tk.Event):
         """Canvas click event callback."""
@@ -148,13 +156,15 @@ class CardBox():
     def addHighlight(self, color: str):
         """Add a highlight frame."""
         self.parent.delete(self.idImg)
+        self.deleteHighlight()
         self.idHighlight = self.parent.create_rectangle(self.x-4, self.y-4, 
             self.x+self.width+4, self.y+self.height+4, fill=color, outline=color)
         self.idImg = self.parent.create_image(self.x, self.y, anchor=tk.NW, image=self.img)
 
     def deleteHighlight(self):
         """Delete any highlights."""
-        self.parent.delete(self.idHighlight)
+        if self.idHighlight is not None:
+            self.parent.delete(self.idHighlight)
 
     def contains(self, x: int, y: int):
         """Check if this box contains the click location."""

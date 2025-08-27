@@ -58,7 +58,13 @@ class SetGameApp(BaseApp):
 
     def onCardSelection(self, card: Card):
         """Card selection callback."""
-        if card:
+        if card is None:
+            return
+        if card in self.selectedCards:
+            self.log.info(f'Card is already selected, unselecting')
+            self.selectedCards.remove(card)
+            self.playmat.unselectCard(card)
+        else:
             self.selectedCards.append(card)
             self.validateSet()
 
@@ -104,13 +110,18 @@ class SetGameApp(BaseApp):
 
     def replaceSetCards(self):
         """Replace 3 cards on playmat after a valid set was found."""
-        # TODO detect game over: empty deck, no sets on playmat
         for card in self.selectedCards:
             self.activeCards.remove(card)
-        repl = self.game.deal(3)
-        for card in repl:
-            self.activeCards.append(card)
-        self.playmat.addCards(self.activeCards)
+        if self.game.getDeckCount() == 0:
+            nSets = self.game.findSets(self.activeCards)
+            if nSets == 0:
+                self.log.info('Game over!')
+                # TODO display game over on playmat
+        else:
+            repl = self.game.deal(3)
+            for card in repl:
+                self.activeCards.append(card)
+            self.playmat.addCards(self.activeCards)
         self.updatePlaymat()
         self.timer.start()
 
