@@ -30,13 +30,10 @@ class Playmat():
         self.height = height
         self.canvas = None
         self.renderer = Renderer()
-        # TODO add CardBox class for card positions, images and highlights
-        self.cardImages = {}
-        self.cardPositions = {}
-        self.aHighlightIds = []
-        self.cardImageIds = []
+        self.cardBoxes = []
         self.playerBoxes = []
         self.cardBackId = None
+        self.imgCardBack = None
         self.cbkCardSelection = cbkCardSelection
 
     def addPlayers(self, players: list[Player]):
@@ -52,24 +49,19 @@ class Playmat():
         self.reset()
         self.log.info(f'Adding {len(cards)} cards to playmat')
         for iCard, card in enumerate(cards):
-            filename = self.renderer.getImageFilename(card)
-            #self.log.info(f'Display card image {filename}')
-            img = PhotoImage(file=f'images/{filename}')
-            self.cardImages[card] = img
             x = self.margin + ((iCard % 4)+1)*(self.cardw + self.margin) + 100
             y = self.margin + int(iCard/4)*(self.cardh + self.margin)
-            id = self.canvas.create_image(x, y, anchor=tk.NW, image=img)
-            self.cardPositions[card] = (x, y)
-            self.cardImageIds.append(id)
+            cardBox = CardBox(card, self.canvas, x, y)
+            cardBox.render()
+            self.cardBoxes.append(cardBox)
 
     def render(self):
         """Render the initial game state."""
         tx = self.cardw/2 + self.margin
         ty = self.height/2 + self.cardh/2 + 18
         self.canvas.create_text(tx, 100, fill=self.colorFg, font=self.fontBg, text='SET')
-        imgCardBack = PhotoImage(file=f'images/cardback.png')
-        self.cardImages['back'] = imgCardBack
-        self.cardBackId = self.canvas.create_image(tx, self.height/2, anchor=tk.CENTER, image=imgCardBack)
+        self.imgCardBack = PhotoImage(file=f'images/cardback.png')
+        self.cardBackId = self.canvas.create_image(tx, self.height/2, anchor=tk.CENTER, image=self.imgCardBack)
         self.txtDeck = self.canvas.create_text(tx, ty, fill=self.colorFg, font=self.fontFg, text='Pioche')
 
     def updateState(self, deckSize: int):
@@ -83,52 +75,33 @@ class Playmat():
         """Render a card placement rectangle."""
         self.canvas.create_rectangle(cx-self.cardw/2, cy-self.cardh/2, cx+self.cardw/2, cy+self.cardh/2, outline=self.colorBd)
 
-    def drawHighlight(self, card: Card, color: str):
-        """Draw a highlight rectangle for the specified card."""
-
-        # Draw highlight rectangle
-        (x, y) = self.cardPositions[card]
-        id = self.canvas.create_rectangle(x-4, y-4, x+self.cardw+4, y+self.cardh+4, fill=color, outline=color)
-        self.aHighlightIds.append(id)
-        
-        # Redraw card image
-        img = self.cardImages[card]
-        id = self.canvas.create_image(x, y, anchor=tk.NW, image=img)
-        self.cardImageIds.append(id)
-
     def reset(self):
         """Reset the playmat."""
-        self.cardPositions = {}
-        for id in self.cardImageIds:
-            self.canvas.delete(id)
-        self.cardImageIds = []
-        self.deleteHighlights()
+        for box in self.getCardBoxes():
+            box.dispose()
+        self.cardBoxes = []
 
     def deleteHighlights(self):
         """Delete the highlights on the grid canvas."""
-        for id in self.aHighlightIds:
-            self.canvas.delete(id)
-        self.aHighlightIds = []
+        for box in self.getCardBoxes():
+            box.deleteHighlight()
         
     def onClick(self, event: tk.Event):
         """Canvas click event callback."""
-        card = self.getCardAt(event.x, event.y)
-        if card:
-            self.log.info(f'Clicked [{event.x}:{event.y}] on {card}')
-            self.drawHighlight(card, 'red')
-            self.cbkCardSelection(card)
+        for box in self.getCardBoxes():
+            if box.contains(event.x, event.y):
+                card = box.getCard()
+                self.log.info(f'Clicked [{event.x}:{event.y}] on {card}')
+                box.addHighlight('red')
+                self.cbkCardSelection(card)
+                return
         for playerBox in self.getPlayerBoxes():
             if playerBox.contains(event.x, event.y):
                 self.log.info(f'Clicked [{event.x}:{event.y}] on {playerBox}')
-
-    def getCardAt(self, x: int, y: int) -> Card:
-        """Gets the card at position x, y or None if no card there."""
-        for card, pos in self.cardPositions.items():
-            cx = pos[0]
-            cy = pos[1]
-            if x >= cx and x < cx + self.cardw and y >= cy and y < cy + self.cardh:
-                return card
-        return None
+                return
+    
+    def getCardBoxes(self) -> list['CardBox']:
+        return self.cardBoxes
     
     def getPlayerBoxes(self) -> list['PlayerBox']:
         return self.playerBoxes
