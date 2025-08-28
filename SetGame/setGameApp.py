@@ -30,7 +30,9 @@ class SetGameApp(BaseApp):
         self.activeCards = []
         self.selectedCards = []
         self.players = []
-        self.playmat = Playmat(self.iWidth, self.iHeight, self.onCardSelection)
+        self.activePlayer = None
+        self.playmat = Playmat(self.iWidth, self.iHeight, 
+                self.onCardSelection, self.onPlayerSelection)
         sGeometry = f'{self.iWidth + 220}x{self.iHeight + 30}'
         super().__init__('Set', sGeometry)
         self.window.resizable(width=False, height=False)
@@ -68,6 +70,13 @@ class SetGameApp(BaseApp):
             self.selectedCards.append(card)
             self.validateSet()
 
+    def onPlayerSelection(self, player: Player):
+        """Player selection callback."""
+        if player is None:
+            return
+        self.activePlayer = player
+        self.log.info(f'Active player: {player}')
+
     def onHint(self):
         """Hint button callback."""
         # TODO highlight hint card
@@ -85,7 +94,9 @@ class SetGameApp(BaseApp):
             isSet = self.game.isSet(self.selectedCards)
             if isSet:
                 self.timer.stop()
-                self.log.info('Found valid set')
+                self.log.info(f'Valid set found by {self.activePlayer}')
+                if self.activePlayer:
+                    self.activePlayer.addScore(3)
                 self.showInfoMsg(f"Bravo, c'est un set !\nTrouvé en {self.timer.getElapsed()}")
                 self.replaceSetCards()
             else:

@@ -24,7 +24,7 @@ class Playmat():
     cardh = 300
     margin = 20
 
-    def __init__(self, width: int, height: int, cbkCardSelection):
+    def __init__(self, width: int, height: int, cbkCardSelection, cbkPlayerSelection):
         """Constructor."""
         self.width = width
         self.height = height
@@ -35,13 +35,14 @@ class Playmat():
         self.cardBackId = None
         self.imgCardBack = None
         self.cbkCardSelection = cbkCardSelection
+        self.cbkPlayerSelection = cbkPlayerSelection
 
     def addPlayers(self, players: list[Player]):
         """Display player boxes on the playmat."""
         self.log.info(f'Adding {len(players)} players to playmat')
         for i, player in enumerate(players):
-            box = PlayerBox(player, i)
-            box.render(self.canvas)
+            box = PlayerBox(player, self.canvas, i)
+            box.render()
             self.playerBoxes.append(box)
 
     def addCards(self, cards: list[Card]):
@@ -70,6 +71,8 @@ class Playmat():
         if deckSize == 0:
             self.canvas.itemconfigure(self.txtDeck, text=f'Pioche vide')
             self.canvas.delete(self.cardBackId)
+        for playerBox in self.getPlayerBoxes():
+            playerBox.updateState()
 
     def renderCardRect(self, cx: int, cy: int):
         """Render a card placement rectangle."""
@@ -106,6 +109,7 @@ class Playmat():
         for playerBox in self.getPlayerBoxes():
             if playerBox.contains(event.x, event.y):
                 self.log.info(f'Clicked [{event.x}:{event.y}] on {playerBox}')
+                self.cbkPlayerSelection(playerBox.getPlayer())
                 return
     
     def getCardBoxes(self) -> list['CardBox']:
@@ -187,15 +191,17 @@ class PlayerBox():
     colorBg = '#127812'
     colorFg = '#005600'
 
-    def __init__(self, player: Player, iy: int):
+    def __init__(self, player: Player, parent: tk.Canvas, iy: int):
         self.player = player
+        self.parent = parent
         self.iy = iy
         self.fontFg = tkfont.Font(family="Helvetica", size=24, weight='bold')
         self.icon = None
         self.x = 1300
         self.y = self.margin + self.iy*(self.height + self.margin)
+        self.txtScore = None
 
-    def render(self, parent: tk.Canvas):
+    def render(self):
         """Render this player box on the parent canvas."""
 
         # Box position
@@ -203,16 +209,24 @@ class PlayerBox():
         y = self.y
 
         # Layout
-        parent.create_rectangle(x, y, x+self.width, y+self.height, fill=self.colorBg, outline=self.colorBg)
-        parent.create_text(x+60, y+20, anchor=tk.NW, fill=self.colorFg, text=self.player.getName(), font=self.fontFg)
+        self.parent.create_rectangle(x, y, x+self.width, y+self.height, 
+                fill=self.colorBg, outline=self.colorBg)
+        self.parent.create_text(x+60, y+20, anchor=tk.NW, fill=self.colorFg, 
+                text=self.player.getName(), font=self.fontFg)
 
         # Player icon
         self.icon = self.getPlayerIcon()
-        parent.create_image(x+10, y+10, anchor=tk.NW, image=self.icon)
+        self.parent.create_image(x+10, y+10, anchor=tk.NW, image=self.icon)
 
         # Score
         score = f'{self.player.getScore()} points'
-        parent.create_text(x+10, y+80, anchor=tk.NW, fill=self.colorFg, text=score, font=self.fontFg)
+        self.txtScore = self.parent.create_text(x+10, y+80, anchor=tk.NW, 
+                fill=self.colorFg, text=score, font=self.fontFg)
+
+    def updateState(self):
+        """Update player score."""
+        score = f'{self.player.getScore()} points'
+        self.parent.itemconfigure(self.txtScore, text=score)
 
     def getPlayer(self) -> Player:
         """Returns the player in this box."""
