@@ -20,6 +20,25 @@ class InvalidSetReason(Enum):
     InvalidShapes = 3,
     InvalidFills = 4
 
+class CardSet():
+    """A valid set of 3 cards."""
+    log = logging.getLogger('CardSet')
+
+    def __init__(self, cards: list[Card]):
+        """Constructor."""
+        self.cards = cards
+
+    def getRandomCard(self):
+        """Return a card at random from this set."""
+        return random.choice(self.cards)
+    
+    def getSortedCards(self):
+        """Return the cards sorted."""
+        # TODO sort the cards
+        return self.cards
+
+    def getScore(self):
+        return 3
 
 class Game():
     """The Set game."""
