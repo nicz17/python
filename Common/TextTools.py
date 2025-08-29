@@ -56,6 +56,8 @@ def replaceAccents(text: str) -> str:
     result = result.replace('é', 'e')
     result = result.replace('è', 'e')
     result = result.replace('ê', 'e')
+    result = result.replace('ï', 'i')
+    result = result.replace('î', 'i')
     result = result.replace('ô', 'o')
     return result
 
