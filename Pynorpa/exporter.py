@@ -445,6 +445,15 @@ class Exporter():
 
     def buildAlpha(self):
         """Build names index page"""
+
+        # Taxa to add: all species, genus with sp. pics
+        taxa  = self.taxCache.getForRank(TaxonRank.SPECIES)
+        genus = self.taxCache.getForRank(TaxonRank.GENUS)
+        for taxon in genus:
+            if len(taxon.getPictures()) > 0:
+                taxa.append(taxon)
+
+        # Page for latin names
         page = PynorpaHtmlPage('Nature - Noms latins')
         page.addHeading(1, 'Noms latins')
         page.menu.addTag(HtmlTag('h2', 'Noms latins'))
@@ -453,8 +462,8 @@ class Exporter():
 
         letter = None
         ul = None
-        species = self.taxCache.getForRank(TaxonRank.SPECIES)
-        for tax in species:
+        taxa = sorted(taxa, key=lambda tax: tax.name)
+        for tax in taxa:
             letterTax = tax.getName()[:1].upper()
             if letterTax != letter:
                 letter = letterTax
@@ -470,7 +479,7 @@ class Exporter():
                 li.addTag(GrayFontHtmlTag(f'- {family.getName()}'))
         page.save(f'{config.dirWebExport}noms-latins.html')
 
-        # French names
+        # Page for French names
         page = PynorpaHtmlPage('Nature - Noms communs')
         page.addHeading(1, 'Noms communs')
         page.menu.addTag(HtmlTag('h2', 'Noms communs'))
@@ -480,8 +489,8 @@ class Exporter():
 
         letter = None
         ul = None
-        species = sorted(species, key=lambda tax: tax.nameFrNorm)
-        for tax in species:
+        taxa = sorted(taxa, key=lambda tax: tax.nameFrNorm)
+        for tax in taxa:
             if tax.getNameFr() != tax.getName():
                 letterTax = tax.getNameFr()[:1].upper()
                 if letterTax != letter:
@@ -836,8 +845,8 @@ def testExporter():
     exporter = Exporter()
     exporter.initCaches()
     #exporter.buildTest()
-    #exporter.buildBasePages()
-    exporter.buildTaxaJson()
+    exporter.buildBasePages()
+    #exporter.buildTaxaJson()
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",

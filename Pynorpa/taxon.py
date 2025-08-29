@@ -134,6 +134,7 @@ class Taxon():
         return count
     
     def getPictures(self) -> list:
+        """Return the pictures of this taxon, excluding children."""
         return self.pictures
 
     def getIdx(self) -> int:
