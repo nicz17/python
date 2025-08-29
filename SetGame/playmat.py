@@ -195,7 +195,8 @@ class PlayerBox():
         self.player = player
         self.parent = parent
         self.iy = iy
-        self.fontFg = tkfont.Font(family="Helvetica", size=24, weight='bold')
+        self.fontFg  = tkfont.Font(family="Helvetica", size=24, weight='bold')
+        self.fontBig = tkfont.Font(family="Helvetica", size=32, weight='bold')
         self.icon = None
         self.x = 1300
         self.y = self.margin + self.iy*(self.height + self.margin)
@@ -204,14 +205,14 @@ class PlayerBox():
     def render(self):
         """Render this player box on the parent canvas."""
 
-        # Box position
+        # Box position on parent canvas
         x = self.x
         y = self.y
 
         # Layout
         self.parent.create_rectangle(x, y, x+self.width, y+self.height, 
                 fill=self.colorBg, outline=self.colorBg)
-        self.parent.create_text(x+60, y+20, anchor=tk.NW, fill=self.colorFg, 
+        self.parent.create_text(x+64, y+20, anchor=tk.NW, fill=self.colorFg, 
                 text=self.player.getName(), font=self.fontFg)
 
         # Player icon
@@ -220,8 +221,12 @@ class PlayerBox():
 
         # Score
         score = f'{self.player.getScore()} points'
-        self.txtScore = self.parent.create_text(x+10, y+80, anchor=tk.NW, 
+        self.txtScore = self.parent.create_text(x+self.width/2, y+100,
                 fill=self.colorFg, text=score, font=self.fontFg)
+        
+        # SET! label
+        self.parent.create_text(x+self.width/2, y+160,
+                fill=self.colorFg, text='SET!', font=self.fontBig)
 
     def updateState(self):
         """Update player score."""
