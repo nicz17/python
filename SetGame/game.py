@@ -34,8 +34,7 @@ class CardSet():
     
     def getSortedCards(self):
         """Return the cards sorted."""
-        # TODO sort the cards
-        return self.cards
+        return sorted(self.cards)
 
     def getScore(self):
         return 3
