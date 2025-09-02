@@ -118,18 +118,22 @@ class Game():
             return InvalidSetReason.InvalidFills
         return None
     
-    def findSets(self, cards: list[Card]) -> int:
+    def findSets(self, cards: list[Card]) -> list[CardSet]:
         """Look for sets and return number of sets found."""
         self.log.info(f'Looking for sets among {len(cards)} cards')
-        count = 0
+        sets = []
         for i, c1 in enumerate(cards[0:-2]):
             for j, c2 in enumerate(cards[i+1:-1]):
                 for c3 in cards[i+j+2:]:
                     if self.isSet([c1, c2, c3]):
-                        count += 1
-                        self.log.info(f'Set {c1.toShortStr()} {c2.toShortStr()} {c3.toShortStr()}')
-        self.log.info(f'Found {count} sets')
-        return count
+                        sets.append(CardSet([c1, c2, c3]))
+                        #self.log.info(f'Set {c1.toShortStr()} {c2.toShortStr()} {c3.toShortStr()}')
+        self.log.info(f'Found {len(sets)} sets')
+        return sets
+    
+    def countSets(self, cards: list[Card]) -> int:
+        """Look for sets and return the number of sets found."""
+        return len(self.findSets(cards))
     
     def computeStats(self):
         """Evaluate how often there is at least one set in a deal of 12 cards."""

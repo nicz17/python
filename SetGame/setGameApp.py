@@ -9,10 +9,11 @@ __copyright__ = "Copyright 2025 N. Zwahlen"
 __version__ = "1.0.0"
 
 import logging
+import random
 
 from BaseApp import *
 from card import Card
-from game import Game, InvalidSetReason
+from game import Game, CardSet, InvalidSetReason
 from player import Player
 from playmat import Playmat
 from Timer import Timer
@@ -79,13 +80,20 @@ class SetGameApp(BaseApp):
 
     def onHint(self):
         """Hint button callback."""
-        # TODO highlight hint card
-        # TODO if no sets, reshuffle and deal again
-        nSets = self.game.findSets(self.activeCards)
-        msg = "Il n'y a pas de set." 
-        if nSets == 1: msg = f'Il y a {nSets} set.'
-        if nSets >= 2: msg = f'Il y a {nSets} sets.'
-        self.showInfoMsg(msg)
+        sets = self.game.findSets(self.activeCards)
+        nSets = len(sets)
+        if nSets == 0:
+            msg = "Il n'y a pas de set." 
+            self.showInfoMsg(msg)
+            # TODO if no sets, reshuffle and deal again
+        else:
+            # if nSets == 1: msg = f'Il y a {nSets} set.'
+            # if nSets >= 2: msg = f'Il y a {nSets} sets.'
+            cardSet = random.choice(sets)
+            hint = cardSet.getRandomCard()
+            self.log.info(f'Hint: {hint}')
+            self.playmat.displayHint(hint)
+            # TODO disable hint button
 
     def validateSet(self):
         """Validate the selected card set."""

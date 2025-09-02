@@ -74,6 +74,14 @@ class Playmat():
         for playerBox in self.getPlayerBoxes():
             playerBox.updateState()
 
+    def displayHint(self, hint: Card):
+        """Display a highlight around the hint card."""
+        for cardBox in self.getCardBoxes():
+            if cardBox.getCard() == hint:
+                cardBox.addHighlight('orange')
+                return
+        self.log.error(f'Could not find hint card {hint}')
+
     def renderCardRect(self, cx: int, cy: int):
         """Render a card placement rectangle."""
         self.canvas.create_rectangle(cx-self.cardw/2, cy-self.cardh/2, cx+self.cardw/2, cy+self.cardh/2, outline=self.colorBd)
