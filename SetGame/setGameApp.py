@@ -32,6 +32,7 @@ class SetGameApp(BaseApp):
         self.selectedCards = []
         self.players = []
         self.activePlayer = None
+        self.hintAvailable = True
         self.playmat = Playmat(self.iWidth, self.iHeight, 
                 self.onCardSelection, self.onPlayerSelection)
         sGeometry = f'{self.iWidth + 220}x{self.iHeight + 30}'
@@ -57,6 +58,7 @@ class SetGameApp(BaseApp):
         self.selectedCards = []
         self.playmat.addCards(cards)
         self.updatePlaymat()
+        self.enableWidgets()
         self.timer.start()
 
     def onCardSelection(self, card: Card):
@@ -93,7 +95,8 @@ class SetGameApp(BaseApp):
             hint = cardSet.getRandomCard()
             self.log.info(f'Hint: {hint}')
             self.playmat.displayHint(hint)
-            # TODO disable hint button
+            self.hintAvailable = False
+        self.enableWidgets()
 
     def validateSet(self):
         """Validate the selected card set."""
@@ -107,6 +110,7 @@ class SetGameApp(BaseApp):
                     self.activePlayer.addScore(3)
                 self.showInfoMsg(f"Bravo, c'est un set !\nTrouvé en {self.timer.getElapsed()}")
                 self.replaceSetCards()
+                self.hintAvailable = True
             else:
                 self.log.info('Selection is not a set')
                 kind = self.game.getInvalidSetReason(self.selectedCards)
@@ -114,6 +118,7 @@ class SetGameApp(BaseApp):
                 self.showErrorMsg(f"Ce n'est pas un set :\n{reason}.")
             self.selectedCards = []
             self.playmat.deleteHighlights()
+            self.enableWidgets()
 
     def explainInvalidSet(self, kind: InvalidSetReason) -> str:
         """Explain why the selected cards don't form a set."""
@@ -132,7 +137,7 @@ class SetGameApp(BaseApp):
         for card in self.selectedCards:
             self.activeCards.remove(card)
         if self.game.getDeckCount() == 0:
-            nSets = self.game.findSets(self.activeCards)
+            nSets = self.game.countSets(self.activeCards)
             if nSets == 0:
                 self.log.info('Game over!')
                 # TODO display game over on playmat
@@ -140,7 +145,7 @@ class SetGameApp(BaseApp):
             repl = self.game.deal(3)
             for card in repl:
                 self.activeCards.append(card)
-            self.playmat.addCards(self.activeCards)
+        self.playmat.addCards(self.activeCards)
         self.updatePlaymat()
         self.timer.start()
 
@@ -163,6 +168,10 @@ class SetGameApp(BaseApp):
         # Auto-start game
         self.onSetPlayers()
         self.onNewGame()
+
+    def enableWidgets(self):
+        """Enable or diasable the game buttons."""
+        self.enableButton(self.btnHint, self.hintAvailable)
 
 
 def configureLogging():
