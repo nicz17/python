@@ -298,7 +298,7 @@ class Exporter():
             npics = f'&#013;{len(loc.getPictures())} photos'
             title = f'{loc.getName()}&#013;{loc.getRegion()}, {loc.getState()}&#013;{loc.getAltitude()}m{npics}'
             ul.addItem().addTag(LinkHtmlTag(f'lieu{loc.getIdx()}.html', loc.getName(), False, title))
-            script.addLine(f'addMapMarker({loc.lon}, {loc.lat}, "{loc.getName()}");')
+            script.addLine(f'addMapMarker({loc.lon}, {loc.lat}, "{loc.getName()}", "lieu{loc.getIdx()}.html");')
         page.save(f'{config.dirWebExport}locations.html')
 
         # Build individual location pages
