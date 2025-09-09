@@ -359,6 +359,7 @@ class Exporter():
                 li.addTag(GrayFontHtmlTag(sDist))
 
         # Add map links
+        # TODO display in a one-line table
         parLinks = HtmlTag('p', 'Liens ').addAttr('style', 'padding-top: 10px;')
         tdRight.addTag(parLinks)
         parLinks.addTag(LinkHtmlTag(f'https://www.openstreetmap.org/#map=15/{loc.lat:.5f}/{loc.lon:.5f}', 'OpenStreetMap ', True))
@@ -613,6 +614,7 @@ class Exporter():
         """Build an Order classification page with its families and species."""
         page = PynorpaHtmlPage(f'Nature - {taxon.getName()}')
         page.menu.addTag(HtmlTag('h2', 'Classification'))
+        # TODO add parent taxa links
         page.addHeading(1, f'{taxon.getName()} &mdash; {taxon.getRankFr()} {taxon.getNameFr()}')
 
         for family in taxon.getChildren():
