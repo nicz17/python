@@ -117,8 +117,16 @@ class Playmat():
         for playerBox in self.getPlayerBoxes():
             if playerBox.contains(event.x, event.y):
                 self.log.info(f'Clicked [{event.x}:{event.y}] on {playerBox}')
+                self.highlightPlayer(playerBox)
                 self.cbkPlayerSelection(playerBox.getPlayer())
                 return
+            
+    def highlightPlayer(self, box: 'PlayerBox'):
+        """Highlight the specified player, or None."""
+        for playerBox in self.getPlayerBoxes():
+            playerBox.setHighlight(False)
+        if box:
+            box.setHighlight(True)
     
     def getCardBoxes(self) -> list['CardBox']:
         return self.cardBoxes
@@ -209,6 +217,7 @@ class PlayerBox():
         self.x = 1300
         self.y = self.margin + self.iy*(self.height + self.margin)
         self.txtScore = None
+        self.txtSet   = None
 
     def render(self):
         """Render this player box on the parent canvas."""
@@ -233,13 +242,17 @@ class PlayerBox():
                 fill=self.colorFg, text=score, font=self.fontFg)
         
         # SET! label
-        self.parent.create_text(x+self.width/2, y+160,
+        self.txtSet = self.parent.create_text(x+self.width/2, y+160,
                 fill=self.colorFg, text='SET!', font=self.fontBig)
 
     def updateState(self):
         """Update player score."""
         score = f'{self.player.getScore()} points'
         self.parent.itemconfigure(self.txtScore, text=score)
+
+    def setHighlight(self, enabled: bool):
+        """Enable or diable player highlight."""
+        self.parent.itemconfigure(self.txtSet, fill=('orange' if enabled else self.colorFg))
 
     def getPlayer(self) -> Player:
         """Returns the player in this box."""

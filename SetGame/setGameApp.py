@@ -111,6 +111,7 @@ class SetGameApp(BaseApp):
                 self.showInfoMsg(f"Bravo, c'est un set !\nTrouvé en {self.timer.getElapsed()}")
                 self.replaceSetCards()
                 self.hintAvailable = True
+                self.playmat.highlightPlayer(None)
             else:
                 self.log.info('Selection is not a set')
                 kind = self.game.getInvalidSetReason(self.selectedCards)
