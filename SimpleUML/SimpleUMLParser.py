@@ -31,7 +31,7 @@ class SimpleUMLParser():
 
     def __init__(self, lang: str, dir='test') -> None:
         """Constructor with language."""
-        self.log.info('Constructor, language: %s', lang)
+        self.log.info(f'Constructor for {lang} in {dir}')
         self.lang = lang
         self.dir = dir
         self.clazz: SimpleUMLClass
@@ -115,7 +115,7 @@ class SimpleUMLParser():
             #self.clazz = SimpleUMLClassPython()
             self.clazz = None
         
-        # Read file
+        # Read UML file
         file = open(filename, 'r')
         for line in file.readlines():
             line = line.rstrip()
@@ -136,7 +136,7 @@ class SimpleUMLParser():
                 self.parseLine(line, mode)
             
         file.close()
-        if self.clazz:
-            self.clazz.generate()
-        elif self.module:
+        if self.module:
             self.module.generate()
+        elif self.clazz:
+            self.clazz.generate()
