@@ -614,7 +614,11 @@ class Exporter():
         """Build an Order classification page with its families and species."""
         page = PynorpaHtmlPage(f'Nature - {taxon.getName()}')
         page.menu.addTag(HtmlTag('h2', 'Classification'))
-        # TODO add parent taxa links
+        parent = taxon.getParent()
+        menuLink = HtmlTag('h3')
+        menuLink.addTag(LinkHtmlTag(f'{self.getTaxonTreeLink(parent)}', parent.getName()))
+        page.menu.addTag(menuLink)
+        page.menu.addTag(HtmlTag('h2', taxon.getName()))
         page.addHeading(1, f'{taxon.getName()} &mdash; {taxon.getRankFr()} {taxon.getNameFr()}')
 
         for family in taxon.getChildren():
