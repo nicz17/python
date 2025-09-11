@@ -273,3 +273,38 @@ class PlayerBox():
 
     def __str__(self):
         return f'PlayerBox for {self.player}'
+    
+class MessageBox():
+    """Displays a short message."""
+    log = logging.getLogger('MessageBox')
+
+    def __init__(self, text: str, player: Player):
+        """Constructor."""
+        self.text = text
+        self.player = player
+
+    def __str__(self):
+        return f'MessageBox [{self.text}]'
+
+class MessageBoard():
+    """Class to display short messages on the playmat."""
+    log = logging.getLogger('MessageBoard')
+
+    def __init__(self, parent: tk.Canvas):
+        """Constructor with parent Canvas."""
+        self.parent = parent
+        self.messages = []
+
+    def render(self):
+        """Render the latest messages."""
+        pass
+
+    def addMessage(self, msg: MessageBox):
+        """Adds a message to display."""
+        self.messages.append(msg)
+
+    def getMessages(self) -> list[MessageBox]:
+        return self.messages
+
+    def __str__(self):
+        return f'MessageBoard'
