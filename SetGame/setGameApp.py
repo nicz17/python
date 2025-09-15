@@ -15,7 +15,7 @@ from BaseApp import *
 from card import Card
 from game import Game, CardSet, InvalidSetReason
 from player import Player
-from playmat import Playmat
+from playmat import Playmat, MessageBox
 from Timer import Timer
 
 class SetGameApp(BaseApp):
@@ -42,6 +42,9 @@ class SetGameApp(BaseApp):
     def onSetPlayers(self):
         """Display player config dialog."""
         # TODO implement player config dialog
+
+    def onSetDefaultPlayers(self):
+        """Display default players."""
         self.players.append(Player('Esti', '#ff69b4'))
         self.players.append(Player('Nicz', '#add8f6'))
         self.playmat.addPlayers(self.players)
@@ -57,9 +60,15 @@ class SetGameApp(BaseApp):
             self.activeCards.append(card)
         self.selectedCards = []
         self.playmat.addCards(cards)
+        self.playmat.addMessage(MessageBox('La partie commence !', None))
         self.updatePlaymat()
         self.enableWidgets()
         self.timer.start()
+
+    def onGameOver(self):
+        """Game is over."""
+        self.log.info('Game over!')
+        self.playmat.addMessage(MessageBox('La partie est terminée !', None))
 
     def onCardSelection(self, card: Card):
         """Card selection callback."""
@@ -108,10 +117,12 @@ class SetGameApp(BaseApp):
                 self.log.info(f'Valid set found by {self.activePlayer}')
                 if self.activePlayer:
                     self.activePlayer.addScore(3)
-                self.showInfoMsg(f"Bravo, c'est un set !\nTrouvé en {self.timer.getElapsed()}")
+                tFound = self.timer.getElapsed()
+                self.showInfoMsg(f"Bravo, c'est un set !\nTrouvé en {tFound}")
                 self.replaceSetCards()
                 self.hintAvailable = True
                 self.playmat.highlightPlayer(None)
+                self.playmat.addMessage(MessageBox(f'a trouvé un Set en {tFound}', self.activePlayer))
             else:
                 self.log.info('Selection is not a set')
                 kind = self.game.getInvalidSetReason(self.selectedCards)
@@ -140,8 +151,7 @@ class SetGameApp(BaseApp):
         if self.game.getDeckCount() == 0:
             nSets = self.game.countSets(self.activeCards)
             if nSets == 0:
-                self.log.info('Game over!')
-                # TODO display game over on playmat
+                self.onGameOver()
         else:
             repl = self.game.deal(3)
             for card in repl:
@@ -167,7 +177,7 @@ class SetGameApp(BaseApp):
         self.playmat.render()
 
         # Auto-start game
-        self.onSetPlayers()
+        self.onSetDefaultPlayers()
         self.onNewGame()
 
     def enableWidgets(self):

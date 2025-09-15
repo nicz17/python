@@ -36,6 +36,7 @@ class Playmat():
         self.imgCardBack = None
         self.cbkCardSelection = cbkCardSelection
         self.cbkPlayerSelection = cbkPlayerSelection
+        self.msgBoard = None
 
     def addPlayers(self, players: list[Player]):
         """Display player boxes on the playmat."""
@@ -81,6 +82,13 @@ class Playmat():
                 cardBox.addHighlight('orange')
                 return
         self.log.error(f'Could not find hint card {hint}')
+
+    def addMessage(self, msg: 'MessageBox'):
+        """Add a message to display."""
+        if not self.msgBoard:
+            self.log.error(f'Too early for messages: {msg}')
+        else:
+            self.msgBoard.addMessage(msg)
 
     def renderCardRect(self, cx: int, cy: int):
         """Render a card placement rectangle."""
@@ -141,6 +149,7 @@ class Playmat():
                                 highlightthickness=2, highlightbackground=self.colorBd)
         self.canvas.bind("<Button-1>", self.onClick)
         self.canvas.pack(side=tk.LEFT)
+        self.msgBoard = MessageBoard(self.canvas)
 
         # Fonts
         self.fontBg = tkfont.Font(family="Helvetica", size=42)
@@ -294,14 +303,29 @@ class MessageBoard():
         """Constructor with parent Canvas."""
         self.parent = parent
         self.messages = []
+        self.txtIds = []
+        self.ytop = 500
+        self.xl = 1300
 
     def render(self):
         """Render the latest messages."""
-        pass
+        self.clear()
+        for i, msg in enumerate(self.getMessages()):
+            text = f'{msg.player.name} ' if msg.player else ''
+            text += msg.text
+            id = self.parent.create_text(self.xl, self.ytop + i*20, text=text, anchor=tk.NW)
+            self.txtIds.append(id)
+
+    def clear(self):
+        """Clear all displayed messages."""
+        for id in self.txtIds:
+            self.parent.delete(id)
+        self.txtIds = []
 
     def addMessage(self, msg: MessageBox):
         """Adds a message to display."""
-        self.messages.append(msg)
+        self.messages.insert(0, msg)
+        self.render()
 
     def getMessages(self) -> list[MessageBox]:
         return self.messages
