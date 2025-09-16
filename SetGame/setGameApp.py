@@ -52,6 +52,8 @@ class SetGameApp(BaseApp):
     def onNewGame(self):
         """Start a new game."""
         self.activeCards = []
+        for player in self.players:
+            player.score = 0
         self.game = Game()
         self.game.createDeck()
         self.game.shuffle()
@@ -59,6 +61,7 @@ class SetGameApp(BaseApp):
         for card in cards:
             self.activeCards.append(card)
         self.selectedCards = []
+        self.playmat.resetMessageBoard()
         self.playmat.addCards(cards)
         self.playmat.addMessage(MessageBox('La partie commence !', None))
         self.updatePlaymat()
@@ -118,6 +121,7 @@ class SetGameApp(BaseApp):
                 if self.activePlayer:
                     self.activePlayer.addScore(3)
                 tFound = self.timer.getElapsed()
+                # TODO remember record time
                 self.showInfoMsg(f"Bravo, c'est un set !\nTrouvé en {tFound}")
                 self.replaceSetCards()
                 self.hintAvailable = True

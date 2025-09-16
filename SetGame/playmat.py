@@ -90,6 +90,10 @@ class Playmat():
         else:
             self.msgBoard.addMessage(msg)
 
+    def resetMessageBoard(self):
+        """Remove messages from message board."""
+        self.msgBoard.reset()
+
     def renderCardRect(self, cx: int, cy: int):
         """Render a card placement rectangle."""
         self.canvas.create_rectangle(cx-self.cardw/2, cy-self.cardh/2, cx+self.cardw/2, cy+self.cardh/2, outline=self.colorBd)
@@ -298,14 +302,16 @@ class MessageBox():
 class MessageBoard():
     """Class to display short messages on the playmat."""
     log = logging.getLogger('MessageBoard')
+    colorFg = '#004200'
+    maxSize = 12
+    ytop = 500
+    xl = 1300
 
     def __init__(self, parent: tk.Canvas):
         """Constructor with parent Canvas."""
         self.parent = parent
         self.messages = []
         self.txtIds = []
-        self.ytop = 500
-        self.xl = 1300
 
     def render(self):
         """Render the latest messages."""
@@ -313,7 +319,8 @@ class MessageBoard():
         for i, msg in enumerate(self.getMessages()):
             text = f'{msg.player.name} ' if msg.player else ''
             text += msg.text
-            id = self.parent.create_text(self.xl, self.ytop + i*20, text=text, anchor=tk.NW)
+            id = self.parent.create_text(self.xl, self.ytop + i*20, text=text, 
+                                         anchor=tk.NW, fill=self.colorFg)
             self.txtIds.append(id)
 
     def clear(self):
@@ -322,9 +329,16 @@ class MessageBoard():
             self.parent.delete(id)
         self.txtIds = []
 
+    def reset(self):
+        """Delete and clear all messages."""
+        self.messages = []
+        self.clear()
+
     def addMessage(self, msg: MessageBox):
         """Adds a message to display."""
         self.messages.insert(0, msg)
+        while len(self.messages) > self.maxSize:
+            self.messages.pop()
         self.render()
 
     def getMessages(self) -> list[MessageBox]:
