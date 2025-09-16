@@ -229,6 +229,7 @@ class ExpeditionCache():
             self.log.info(f'Inserted with idx {idx}')
             obj.idx = idx
             self.expeditions.append(obj)
+            # TODO sort by tFrom desc
         else:
             self.log.error('No idx after insertion!')
 
@@ -243,6 +244,12 @@ class ExpeditionCache():
         query.close()
         self.db.disconnect()
         return result
+    
+    def fetchMostRecent(self, nMax: int) -> list[Expedition]:
+        """Fetch the most recent excursions."""
+        where = f'1 == 1 order by expFrom desc limit {nMax}'
+        ids = self.fetchFromWhere(where)
+        return [self.findById(id) for id in ids]
 
     def findById(self, idx: int) -> Expedition:
         """Find an Expedition from its primary key."""

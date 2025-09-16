@@ -173,7 +173,8 @@ class Exporter():
         divExcursions = MyBoxHtmlTag('Excursions récentes')
         tdRight.addTag(divExcursions)
         ul = divExcursions.addList()
-        excursions = self.excCache.getExpeditions()[:6]
+        #excursions = self.excCache.getExpeditions()[:6]
+        excursions = self.excCache.fetchMostRecent(6)
         for excursion in excursions:
             li = ul.addItem()
             li.addTag(LinkHtmlTag(f'excursion{excursion.getIdx()}.html', excursion.getName()))
