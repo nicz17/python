@@ -247,7 +247,7 @@ class ExpeditionCache():
     
     def fetchMostRecent(self, nMax: int) -> list[Expedition]:
         """Fetch the most recent excursions."""
-        where = f'1 == 1 order by expFrom desc limit {nMax}'
+        where = f'1 = 1 order by expFrom desc limit {nMax}'
         ids = self.fetchFromWhere(where)
         return [self.findById(id) for id in ids]
 
