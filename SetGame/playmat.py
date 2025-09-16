@@ -312,6 +312,7 @@ class MessageBoard():
         self.parent = parent
         self.messages = []
         self.txtIds = []
+        self.font = tkfont.Font(family="Helvetica", size=14)
 
     def render(self):
         """Render the latest messages."""
@@ -319,8 +320,8 @@ class MessageBoard():
         for i, msg in enumerate(self.getMessages()):
             text = f'{msg.player.name} ' if msg.player else ''
             text += msg.text
-            id = self.parent.create_text(self.xl, self.ytop + i*20, text=text, 
-                                         anchor=tk.NW, fill=self.colorFg)
+            id = self.parent.create_text(self.xl, self.ytop + i*22, text=text, 
+                    anchor=tk.NW, fill=self.colorFg, font=self.font)
             self.txtIds.append(id)
 
     def clear(self):

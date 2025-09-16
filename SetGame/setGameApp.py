@@ -24,7 +24,7 @@ class SetGameApp(BaseApp):
 
     def __init__(self) -> None:
         """Constructor."""
-        self.iWidth  = 1600
+        self.iWidth  = 1700
         self.iHeight =  980
         self.timer = Timer()
         self.game = None
@@ -35,7 +35,7 @@ class SetGameApp(BaseApp):
         self.hintAvailable = True
         self.playmat = Playmat(self.iWidth, self.iHeight, 
                 self.onCardSelection, self.onPlayerSelection)
-        sGeometry = f'{self.iWidth + 220}x{self.iHeight + 30}'
+        sGeometry = f'{self.iWidth + 120}x{self.iHeight + 30}'
         super().__init__('Set', sGeometry)
         self.window.resizable(width=False, height=False)
 
@@ -107,6 +107,7 @@ class SetGameApp(BaseApp):
             hint = cardSet.getRandomCard()
             self.log.info(f'Hint: {hint}')
             self.playmat.displayHint(hint)
+            self.playmat.addMessage(MessageBox('Indice demandé', None))
             self.hintAvailable = False
         self.enableWidgets()
 
@@ -126,7 +127,7 @@ class SetGameApp(BaseApp):
                 self.replaceSetCards()
                 self.hintAvailable = True
                 self.playmat.highlightPlayer(None)
-                self.playmat.addMessage(MessageBox(f'a trouvé un Set en {tFound}', self.activePlayer))
+                self.playmat.addMessage(MessageBox(f'a trouvé un set en {tFound}', self.activePlayer))
             else:
                 self.log.info('Selection is not a set')
                 kind = self.game.getInvalidSetReason(self.selectedCards)
