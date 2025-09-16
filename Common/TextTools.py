@@ -27,6 +27,8 @@ def durationToString(dur: float) -> str:
         min = int(dur/60)
         sec = int(dur - 60*min)
         str = f'{min}m{sec}s'
+    elif dur > 1.0:
+        str = f'{dur:.1f}s'
     return str
 
 def upperCaseFirst(text: str) -> str:

@@ -24,7 +24,13 @@ class Timer:
         """Stops the timer."""
         self.tEnd = time.time()
 
-    def getElapsed(self):
+    def getElapsedSeconds(self):
+        """Returns the elapsed time in seconds as a float."""
+        if not self.tEnd:
+            self.tEnd = time.time()
+        return self.tEnd - self.tStart
+
+    def getElapsed(self) -> str:
         """Returns the elapsed time as a string, formatted with millisecond precision."""
         if not self.tEnd:
             self.tEnd = time.time()

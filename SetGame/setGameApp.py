@@ -17,6 +17,7 @@ from game import Game, CardSet, InvalidSetReason
 from player import Player
 from playmat import Playmat, MessageBox
 from Timer import Timer
+import TextTools
 
 class SetGameApp(BaseApp):
     """Set game app window."""
@@ -33,6 +34,7 @@ class SetGameApp(BaseApp):
         self.players = []
         self.activePlayer = None
         self.hintAvailable = True
+        self.fBestTime = 60.0
         self.playmat = Playmat(self.iWidth, self.iHeight, 
                 self.onCardSelection, self.onPlayerSelection)
         sGeometry = f'{self.iWidth + 120}x{self.iHeight + 30}'
@@ -54,6 +56,7 @@ class SetGameApp(BaseApp):
         self.activeCards = []
         for player in self.players:
             player.score = 0
+        self.fBestTime = 60.0
         self.game = Game()
         self.game.createDeck()
         self.game.shuffle()
@@ -117,17 +120,27 @@ class SetGameApp(BaseApp):
         if len(self.selectedCards) == 3:
             isSet = self.game.isSet(self.selectedCards)
             if isSet:
+                # Time to find the set
                 self.timer.stop()
+                tFound = self.timer.getElapsedSeconds()
+                sTime = TextTools.durationToString(tFound)
+
+                # Update player score
                 self.log.info(f'Valid set found by {self.activePlayer}')
                 if self.activePlayer:
                     self.activePlayer.addScore(3)
-                tFound = self.timer.getElapsed()
-                # TODO remember record time
-                self.showInfoMsg(f"Bravo, c'est un set !\nTrouvé en {tFound}")
+                self.playmat.addMessage(MessageBox(f'a trouvé un set en {sTime}', self.activePlayer))
+
+                # Check best time record
+                if tFound < self.fBestTime:
+                    self.fBestTime = tFound
+                    self.playmat.addMessage(MessageBox(f'a battu le record en {sTime}', self.activePlayer))
+
+                # Update game state
+                self.showInfoMsg(f"Bravo, c'est un set !\nTrouvé en {sTime}")
                 self.replaceSetCards()
                 self.hintAvailable = True
                 self.playmat.highlightPlayer(None)
-                self.playmat.addMessage(MessageBox(f'a trouvé un set en {tFound}', self.activePlayer))
             else:
                 self.log.info('Selection is not a set')
                 kind = self.game.getInvalidSetReason(self.selectedCards)
