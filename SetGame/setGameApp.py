@@ -104,9 +104,7 @@ class SetGameApp(BaseApp):
             self.log.error('Game over, no hint available!')
             return
         if nSets == 0:
-            msg = "Il n'y a pas de set." 
-            self.showInfoMsg(msg)
-            # TODO if no sets, reshuffle and deal again
+            self.reshuffleAndDeal()
         else:
             msg = f'Indice : il y a {nSets} set{"s" if nSets>1 else ""}'
             cardSet = random.choice(sets)
@@ -181,6 +179,26 @@ class SetGameApp(BaseApp):
         self.updatePlaymat()
         self.timer.start()
 
+    def reshuffleAndDeal(self):
+        """If no more sets, reshuffle and deal again."""
+        self.log.info('No more sets on playmat, will reshuffle')
+        msg = "Il n'y a pas de set.\nLes cartes vont être remélangées." 
+        self.showInfoMsg(msg)
+
+        # Shuffle active cards back into deck and deal 12
+        for card in self.activeCards:
+            self.game.cards.append(card)
+        self.game.shuffle()
+        self.activeCards = self.game.deal(12)
+        self.selectedCards = []
+
+        # Update playmat
+        self.playmat.reset()
+        self.playmat.addCards(self.activeCards)
+        self.updatePlaymat()
+        self.playmat.addMessage(MessageBox('Pas de set, nouvelle donne', None))
+        self.timer.start()
+
     def updatePlaymat(self):
         """Update the playmat with the current game state."""
         self.playmat.updateState(self.game.getDeckCount())
@@ -203,6 +221,7 @@ class SetGameApp(BaseApp):
 
     def enableWidgets(self):
         """Enable or diasable the game buttons."""
+        # TODO add game status enum
         self.enableButton(self.btnHint, self.hintAvailable)
 
 
