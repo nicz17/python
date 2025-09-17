@@ -109,7 +109,6 @@ class ModuleSelection(TabModule):
         file.write(json.dumps(metadata, indent=2))
         file.close()
 
-
     def onSelectPhoto(self, photo: PhotoInfo):
         """Photo selection callback."""
         self.log.info(f'Selected {photo}')
@@ -120,10 +119,16 @@ class ModuleSelection(TabModule):
 
     def selectDir(self):
         """Display a dialog to choose a photo dir."""
-        self.dir = fd.askdirectory(mustexist=True, initialdir=config.dirPhotosBase)
-        self.selector.setDir(self.dir.replace('orig', ''))
-        self.oParent.setStatus(f'Selected {self.dir}')
-        self.loadData()
+        dirNew = fd.askdirectory(mustexist=True, initialdir=config.dirPhotosBase)
+        if dirNew:
+            self.log.info(f'Opening {dirNew}')
+            if not dirNew.endswith('orig'):
+                self.oParent.showErrorMsg('Choisir un dossier orig !')
+                return
+            self.dir = dirNew
+            self.selector.setDir(self.dir.replace('orig', ''))
+            self.oParent.setStatus(f'Selected {self.dir}')
+            self.loadData()
 
     def createWidgets(self):
         """Create user widgets."""
