@@ -229,7 +229,7 @@ class ExpeditionCache():
             self.log.info(f'Inserted with idx {idx}')
             obj.idx = idx
             self.expeditions.append(obj)
-            # TODO sort by tFrom desc
+            self.expeditions = sorted(self.getExpeditions(), key=lambda exp: exp.getFrom(), reverse=True)
         else:
             self.log.error('No idx after insertion!')
 
