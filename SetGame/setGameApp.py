@@ -99,18 +99,21 @@ class SetGameApp(BaseApp):
         """Hint button callback."""
         sets = self.game.findSets(self.activeCards)
         nSets = len(sets)
+        if nSets == 0 and self.game.getDeckCount() == 0:
+            # Game over, hint should be disabled
+            self.log.error('Game over, no hint available!')
+            return
         if nSets == 0:
             msg = "Il n'y a pas de set." 
             self.showInfoMsg(msg)
             # TODO if no sets, reshuffle and deal again
         else:
-            # if nSets == 1: msg = f'Il y a {nSets} set.'
-            # if nSets >= 2: msg = f'Il y a {nSets} sets.'
+            msg = f'Indice : il y a {nSets} set{"s" if nSets>1 else ""}'
             cardSet = random.choice(sets)
             hint = cardSet.getRandomCard()
             self.log.info(f'Hint: {hint}')
             self.playmat.displayHint(hint)
-            self.playmat.addMessage(MessageBox('Indice demandé', None))
+            self.playmat.addMessage(MessageBox(msg, None))
             self.hintAvailable = False
         self.enableWidgets()
 
