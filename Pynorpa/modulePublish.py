@@ -13,10 +13,13 @@ import tkinter as tk
 import exporter
 import uploader
 import DateTools
+import TextTools
+
 from appParam import AppParamCache
 from TabsApp import *
 from BaseWidgets import Button
 from browserWidget import BrowserWidget
+
 
 class ModulePublish(TabModule):
     """Pynorpa Module for creating and uploading HTML pages."""
@@ -50,9 +53,11 @@ class ModulePublish(TabModule):
     def onUpload(self):
         """Upload HTML pages."""
         self.setLoadingIcon()
-        self.uploader.uploadModified()
+        fDuration = self.uploader.uploadModified()
         self.setLoadingIcon(True)
         self.isExported = False
+        status = f'Publié en {TextTools.durationToString(fDuration)}'
+        self.lblStatus.configure(text=status)
         self.enableWidgets()
 
     def loadData(self):

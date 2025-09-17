@@ -95,6 +95,7 @@ class Uploader:
         self.quit()
         self.apCache.setLastUploadAt()
         self.log.info('Done uploading modifs in %s', oTimer.getElapsed())
+        return oTimer.getElapsedSeconds()
 
     def uploadSinglePhoto(self, pic: Picture):
         """Upload a single picture file."""
