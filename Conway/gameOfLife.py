@@ -6,6 +6,7 @@ __version__ = "1.0.0"
 
 import json
 import logging
+import numpy as np
 import os
 import random
 
@@ -163,8 +164,16 @@ class GameOfLife():
     
     def findVariance(self, maxTicks: int) -> float:
         """Find the variance of the number of alive cells."""
-        # TODO: implement variance
-        pass
+        self.state = self.seed
+        counts = []
+        for tick in range(maxTicks):
+            nAlive = self.state.countAlive()
+            counts.append(nAlive)
+            if nAlive == 0:
+                break
+            else:
+                self.evolve()
+        return np.var(counts)
 
     def findPeriod(self) -> int:
         """Find period."""
@@ -228,16 +237,16 @@ def testGameOfLife():
     size = (15, 10)
     density = 0.15
     gen = SeedGenerator(size)
-    #game = GameOfLife('TestGame', gen.random(density))
-    game = GameOfLife('TestGame', gen.fromFile('glider.json'))
+    #game = GameOfLife('TestGame', gen.blank())
+    game = GameOfLife('TestGame', gen.random(density))
+    #game = GameOfLife('TestGame', gen.fromFile('glider.json'))
     #blinker = [[0,0,0,0,0], [0,0,0,0,0], [0,1,1,1,0], [0,0,0,0,0], [0,0,0,0,0]]
-    #game.state = State(blinker)
     game.log.info(game)
     game.toJsonFile()
-    #game.log.info(game.toJson())
     game.run(20)
     longevity = game.findLongevity(1000)
-    game.log.info(f'Longevity: {longevity} ticks')
+    variance  = game.findVariance(100)
+    game.log.info(f'Longevity: {longevity} ticks, variance: {variance}')
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",
