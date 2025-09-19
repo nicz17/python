@@ -66,6 +66,7 @@ class ModuleExpeditions(TabModule):
         """Display a new excursion in editor."""
         if excursion:
             self.onSelectExpedition(excursion)
+            self.table.addObject(excursion)
 
     def onUpload(self):
         """Upload the selected excursion page."""
@@ -232,6 +233,7 @@ class ExpeditionEditor(BaseWidgets.BaseEditor):
         super().enableWidgets(editing)
         self.enableButtons(modified, modified, False)
         self.btnLocate.enableWidget(editing)
+        self.widDesc.resetModified()
 
     def __str__(self):
         return "ExpeditionEditor"
