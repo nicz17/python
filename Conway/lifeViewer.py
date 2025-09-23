@@ -63,7 +63,7 @@ class LifeGrig():
 class LifeViewApp(BaseApp):
     """Game of Life app window."""
     log = logging.getLogger('LifeViewApp')
-    size = (20, 16)
+    size = (24, 18)
     density = 0.12
     maxTicks = 100
     interval = 800
@@ -102,6 +102,10 @@ class LifeViewApp(BaseApp):
             self.tick = 0
             self.tickDisplay()
 
+    def onSave(self):
+        """Save the game seed to a json file."""
+        self.game.toJsonFile()
+
     def tickDisplay(self):
         """Display the next tick."""
         self.tick += 1
@@ -125,8 +129,9 @@ class LifeViewApp(BaseApp):
         self.grid = LifeGrig(self.frmMain, self.size)
         self.grid.createWidgets()
 
-        self.btnRun = self.addButton('Run', self.onRunGame)
+        self.btnRun   = self.addButton('Run',   self.onRunGame)
         self.btnReset = self.addButton('Reset', self.onReset)
+        self.btnSave  = self.addButton('Save',  self.onSave)
 
     def __str__(self):
         return 'LifeViewApp'

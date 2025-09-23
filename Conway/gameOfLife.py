@@ -209,6 +209,7 @@ class GameOfLife():
     def toJsonFile(self):
         """Save as json file."""
         filename = f'{self.id}.json'
+        self.log.info(f'Saving seed as {filename}')
         with open(filename, 'w') as file:
             file.write(json.dumps(self.toJson(), indent=2))
 
