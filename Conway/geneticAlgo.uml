@@ -1,0 +1,29 @@
+--------------------------
+Chromosome
+--------------------------
+-id: str
+-seed: State
+-score: float
+--------------------------
++Chromosome(id, seed)
++setScore(score)
++getScore()
+--------------------------
+
+
+--------------------------
+Population
+--------------------------
+-name: str
+-size: int
+-chromosomes: list
+-game: GameOfLife
+--------------------------
++Population(name, size)
++populate()
++evolve()
+-getFitnessScore(cs: Chromosome): float
+-crossover(cs1: Chromosome, cs2: Chromosome): Chromosome
+-mutate(cs: Chromosome): Chromosome
+--------------------------
+
