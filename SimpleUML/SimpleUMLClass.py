@@ -293,8 +293,11 @@ class SimpleUMLClassPython(SimpleUMLClass):
             return '3.14'
         elif type == 'bool':
             return 'True'
-        elif type == 'array':
+        elif type == 'array' or type == 'list':
             return '[]'
+        elif TextTools.upperCaseFirst(type) == type:
+            # May be a class
+            return f'{type}()'
         else:
             self.log.warning('No default value for type %s', type)
         return 'None'
