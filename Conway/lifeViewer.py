@@ -40,16 +40,16 @@ class LifeGrig():
         """Create user widgets."""
 
         # Canvas
-        width  = self.cellw*self.size[0]
-        height = self.cellw*self.size[1]
+        width  = self.cellw*self.size[0] +1
+        height = self.cellw*self.size[1] +1
         self.canvas = tk.Canvas(self.parent, width=width, height=height, bg='blue')
-        self.canvas.pack()
+        self.canvas.pack(pady=10)
 
         # Cell squares
         for y in range(self.size[1]):
-            yr = y*self.cellw
+            yr = y*self.cellw +1
             for x in range(self.size[0]):
-                xr = x*self.cellw
+                xr = x*self.cellw +1
                 id = self.canvas.create_rectangle(xr, yr, xr + self.cellw-1, yr + self.cellw-1, fill='red')
                 self.cells.append(id)
 
@@ -64,6 +64,9 @@ class LifeViewApp(BaseApp):
     """Game of Life app window."""
     log = logging.getLogger('LifeViewApp')
     size = (20, 16)
+    density = 0.12
+    maxTicks = 100
+    interval = 800
 
     def __init__(self) -> None:
         """Constructor."""
@@ -77,16 +80,21 @@ class LifeViewApp(BaseApp):
 
     def setupGame(self):
         """Create a new game."""
-        gen = SeedGenerator(self.size)
-        self.game = GameOfLife('RandomGame', gen.random(0.10))
+        self.gen = SeedGenerator(self.size)
+        self.game = GameOfLife('RandomGame', self.gen.random(self.density))
         self.log.info(self.game)
-        self.log.info(self.game.state)
+        #self.log.info(self.game.state)
+        self.grid.render(self.game.state)
+
+    def onReset(self):
+        """Reset the game seed."""
+        self.game.setSeed(self.gen.random(self.density))
         self.grid.render(self.game.state)
 
     def onRunGame(self):
-        """Run the game."""
+        """Run or stop the game."""
         if self.isRunning:
-            self.log.info(f'Stopping {self.game}')
+            self.log.info(f'Stopping {self.game} after {self.tick} ticks')
             self.isRunning = False
         else:
             self.log.info(f'Running {self.game}')
@@ -97,14 +105,14 @@ class LifeViewApp(BaseApp):
     def tickDisplay(self):
         """Display the next tick."""
         self.tick += 1
-        if self.tick > 20:
+        if self.tick > self.maxTicks:
             self.isRunning = False
 
         if self.isRunning:
-            self.log.info(f'Rendering tick {self.tick}')
+            #self.log.info(f'Rendering tick {self.tick}')
             self.game.evolve()
             self.grid.render(self.game.state)
-            self.window.after(1000, self.tickDisplay)
+            self.window.after(self.interval, self.tickDisplay)
 
             if self.game.state.countAlive() == 0:
                 self.isRunning = False
@@ -117,7 +125,8 @@ class LifeViewApp(BaseApp):
         self.grid = LifeGrig(self.frmMain, self.size)
         self.grid.createWidgets()
 
-        self.addButton('Run', self.onRunGame)
+        self.btnRun = self.addButton('Run', self.onRunGame)
+        self.btnReset = self.addButton('Reset', self.onReset)
 
     def __str__(self):
         return 'LifeViewApp'
