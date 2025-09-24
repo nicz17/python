@@ -30,6 +30,12 @@ class ModalDialog(object):
         self.root.transient(parent)
         self.parent = parent
 
+        self.loadData()
+
+    def loadData(self):
+        """Load user data."""
+        pass
+
     def setLoadingIcon(self, isLoading=True):
         """Set the window icon to waiting, or reset it to normal."""
         if isLoading:
