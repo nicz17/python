@@ -224,7 +224,7 @@ class SimpleUMLClassPython(SimpleUMLClass):
             else:
                 file.write(definition, 1)
                 file.addDoc(f'{TextTools.upperCaseFirst(TextTools.splitCamelCase(method.name))}.', 2)
-                file.addComment('TODO: implement', 2)
+                file.addComment(f'TODO: implement {method.name}', 2)
                 file.write('pass', 2)
             file.newline()
 
@@ -266,9 +266,10 @@ class SimpleUMLClassPython(SimpleUMLClass):
             for param in constr.params:
                 values.append(self.getDefaultValue(param.type, param.name))
             svalues = ', '.join(values)
-            file.write(f'obj = {self.name}({svalues})', 1)
-            file.write('obj.log.info(obj)', 1)
-            file.write('obj.log.info(obj.toJson())', 1)
+            objName = TextTools.lowerCaseFirst(self.name)[:4]
+            file.write(f'{objName} = {self.name}({svalues})', 1)
+            file.write(f'{objName}.log.info({objName})', 1)
+            file.write(f'{objName}.log.info({objName}.toJson())', 1)
         file.newline()
 
     def generateDefaultMain(self, file: CodeFilePython):
