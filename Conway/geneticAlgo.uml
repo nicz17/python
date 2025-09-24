@@ -5,7 +5,7 @@ Chromosome
 -seed: State
 -score: float
 --------------------------
-+Chromosome(id, seed)
++Chromosome(id: str, seed: State)
 +setScore(score)
 +getScore()
 --------------------------
@@ -17,12 +17,13 @@ Population
 -name: str
 -size: int
 -chromosomes: list
--game: GameOfLife
+-seedGen: SeedGenerator
 --------------------------
-+Population(name, size)
++Population(name: str, size: int)
 +populate()
 +evolve()
--getFitnessScore(cs: Chromosome): float
++save()
+-computeFitnessScore(cs: Chromosome): float
 -crossover(cs1: Chromosome, cs2: Chromosome): Chromosome
 -mutate(cs: Chromosome): Chromosome
 --------------------------
