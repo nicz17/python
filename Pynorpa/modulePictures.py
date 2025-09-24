@@ -31,6 +31,7 @@ class ModulePictures(TabModule):
         self.factory = PictureFactory(self.onAddPicture, parent)
         self.imageWidget = imageWidget.ImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
         super().__init__(parent, 'Photos')
+        self.picture = None
 
     def loadData(self):
         """Load data from cache and populate table."""
@@ -43,6 +44,8 @@ class ModulePictures(TabModule):
         self.log.info(f'Selected {picture}')
         self.editor.loadData(picture)
         self.imageWidget.loadThumb(picture)
+        self.picture = picture
+        self.enableWidgets()
 
     def onSavePicture(self, picture: Picture):
         """Save changes to edited object."""
@@ -56,6 +59,11 @@ class ModulePictures(TabModule):
             self.table.addObject(picture)
             self.onSelectPicture(picture)
 
+    def onReclassify(self):
+        """Reclassify the selected picture."""
+        # TODO implement reclassification dialog
+        self.oParent.showErrorMsg('Not implemented yet!')
+
     def createWidgets(self):
         """Create user widgets."""
         self.createLeftRightFrames()
@@ -64,6 +72,16 @@ class ModulePictures(TabModule):
         self.editor.createWidgets(self.frmRight)
         self.imageWidget.createWidgets(self.frmRight)
         self.editor.loadData(None)
+
+        # Reclassify button
+        self.btnReclass = BaseWidgets.Button(self.frmLeft, 'Reclasser', self.onReclassify, 'edit')
+        self.btnReclass.pack(0)
+        self.enableWidgets()
+
+    def enableWidgets(self):
+        """Enable or disable the buttons."""
+        hasSelection = (self.picture is not None)
+        self.btnReclass.enableWidget(hasSelection)
 
     def __str__(self):
         return 'ModulePictures'
