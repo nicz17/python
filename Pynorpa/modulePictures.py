@@ -15,8 +15,11 @@ import DateTools
 import imageWidget
 from LocationCache import LocationCache
 from picture import Picture, PictureCache
+from taxon import Taxon, TaxonCache
 from pynorpaManager import PynorpaManager, PynorpaException
 from uploader import Uploader
+from ModalDialog import *
+from moduleTaxon import TaxonTree
 
 
 class ModulePictures(TabModule):
@@ -61,8 +64,8 @@ class ModulePictures(TabModule):
 
     def onReclassify(self):
         """Reclassify the selected picture."""
-        # TODO implement reclassification dialog
-        self.oParent.showErrorMsg('Not implemented yet!')
+        dlg = DialogReclassify(self.window, self.picture)
+        self.window.wait_window(dlg.root)
 
     def createWidgets(self):
         """Create user widgets."""
@@ -216,5 +219,65 @@ class PictureEditor(BaseWidgets.BaseEditor):
 
     def __str__(self):
         return 'PictureEditor'
+
+
+class DialogReclassify(ModalDialog):
+    log = logging.getLogger('DialogReclassify')
+
+    def __init__(self, parent: tk.Tk, picture: Picture):
+        """Constructor."""
+        self.picture = picture
+        self.newName = None
+        super().__init__(parent, f'Reclasser {picture.getFilename()}')
+        self.root.geometry('1020x600+300+150')
+
+    def onSave(self):
+        """Rename the selected photo."""
+        pass
+
+    def onSelectTaxon(self, id: str):
+        """Callback for selection of taxon with specified id."""
+        taxon = None
+        if id is not None:
+            taxon = self.cache.findById(int(id))
+        self.log.info('Selected %s', taxon)
+        # TODO generate new name
+        self.enableWidgets()
+
+    def loadData(self):
+        self.cache = TaxonCache()
+        self.tree.loadData()
+        self.tree.setSelection(self.picture.getTaxon())
+        self.enableWidgets()
+
+    def createWidgets(self):
+        # Left and right frames
+        self.frmLeft  = ttk.Frame(self.root)
+        self.frmRight = ttk.Frame(self.root)
+        self.frmLeft.pack( fill=tk.Y, side=tk.LEFT, pady=0)
+        self.frmRight.pack(fill=tk.Y, side=tk.LEFT, pady=0, padx=0)
+
+        # Taxon tree
+        self.tree = TaxonTree(self.onSelectTaxon)
+        self.tree.createWidgets(self.frmLeft)
+
+        # New name frame
+        frmNewname = ttk.LabelFrame(self.frmRight, text='Reclasser sous')
+        frmNewname.pack(fill=tk.X)
+        self.lblNewName = ttk.Label(frmNewname, text='Choisir un nouveau taxon')
+        self.lblNewName.pack(fill=tk.X)
+
+        # TODO table/list of existing pictures for taxon
+
+        # Buttons
+        self.frmButtons = ttk.Frame(self.frmRight)
+        self.frmButtons.pack(fill=tk.X, pady=10)
+        self.btnSave = BaseWidgets.Button(self.frmButtons, 'Reclasser', self.onSave, 'edit')
+        self.btnExit = BaseWidgets.Button(self.frmButtons, 'Annuler',   self.exit, 'cancel')
+        self.btnSave.pack()
+        self.btnExit.pack()
+
+    def enableWidgets(self):
+        self.btnSave.enableWidget(self.newName is not None)
 
 
