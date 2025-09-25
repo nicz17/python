@@ -283,6 +283,9 @@ class SimpleUMLClassPython(SimpleUMLClass):
             objName = TextTools.lowerCaseFirst(self.name)[:4]
             file.write(f'{objName} = {self.name}({svalues})', 1)
             file.write(f'{objName}.log.info({objName})', 1)
+            for method in self.methods:
+                if len(method.params) == 0:
+                    file.write(f'{objName}.{method.name}()', 1)
             file.write(f'{objName}.log.info({objName}.toJson())', 1)
         file.newline()
 
