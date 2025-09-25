@@ -132,6 +132,19 @@ class SimpleUMLClass():
         """Return the default constructor method for this class, or None."""
         return self.getMethod(self.name)
 
+    def findConstructorArgTypes(self):
+        """Complete constructor param types."""
+        constr = self.getConstructor()
+        if not constr:
+            return
+        self.log.info(f'Completing {self.name} constructor param types')
+        for param in constr.params:
+            if param.type is None:
+                member = self.getMember(param.name)
+                if member:
+                    param.type = member.type
+                self.log.info(f'  missing type for {param}')
+
     def generate(self):
         """Generate the code."""
         pass
@@ -174,6 +187,7 @@ class SimpleUMLClassPython(SimpleUMLClass):
         file.newline()
 
         # Methods
+        self.findConstructorArgTypes()
         method: SimpleUMLMethod
         for method in self.methods:
             params = 'self'
