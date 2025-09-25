@@ -279,6 +279,28 @@ class PynorpaManager():
             mb.showinfo('Succès', msg)
         return taxon
     
+    def getNextPictureName(self, taxon: Taxon) -> str:
+        """Get the next available picture name for the taxon."""
+        self.log.info(f'Request for next picture name for {taxon}')
+
+        # Existing pics in taxon
+        self.log.info(f'Taxon has {len(taxon.getPictures())} pics:')
+        for pic in taxon.getPictures():
+            self.log.info(f'  {pic.getFilename()}')
+
+        # Base filename for taxon
+        basename = TextTools.lowerCaseFirst(taxon.getName()).replace(' ', '-')
+        if taxon.getRank() == TaxonRank.GENUS:
+            basename += '-sp'
+
+        # Filename sequence
+        for seq in range(1, 1000):
+            filename = f'{basename}{seq:03d}.jpg'
+            if not os.path.exists(f'{config.dirPictures}{filename}'):
+                self.log.info(f'Next name is {filename}')
+                return filename
+        return None
+    
     def backupDatabase(self):
         """Create a database dump as backup."""
         backupName = f'{config.dirBackup}{config.dbName}-pynorpa-bkp.sql'

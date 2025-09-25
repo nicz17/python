@@ -172,6 +172,7 @@ class TaxonSelector():
         """Build a new filename from the specified taxon or user input."""
         basename = input.replace(' ', '-').lower()
         if taxon:
+            # TODO move to manager
             basename = TextTools.lowerCaseFirst(taxon.getName()).replace(' ', '-')
             if taxon.getRank() == TaxonRank.GENUS:
                 basename += '-sp'

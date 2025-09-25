@@ -230,6 +230,7 @@ class DialogReclassify(ModalDialog):
         self.newName = None
         super().__init__(parent, f'Reclasser {picture.getFilename()}')
         self.root.geometry('1020x600+300+150')
+        self.manager = PynorpaManager()
 
     def onSave(self):
         """Rename the selected photo."""
@@ -242,15 +243,16 @@ class DialogReclassify(ModalDialog):
             taxon = self.cache.findById(int(id))
         self.log.info('Selected %s', taxon)
 
-        # TODO generate new name
-
-
         # Display existing pics in list
         self.listExisting.delete(0, tk.END)
         for idx, pic in enumerate(taxon.getPictures()):
             text = f'{pic.getFilename()} ({pic.getLocationName()})'
             self.listExisting.insert(idx, text)
 
+        # Generate new name
+        self.newName = self.manager.getNextPictureName(taxon)
+        if self.newName:
+            self.lblNewName.configure(text=self.newName)
         self.enableWidgets()
 
     def loadData(self):
