@@ -474,7 +474,7 @@ class SimpleUMLClassCpp(SimpleUMLClass):
                     lines.append(line)
                 docfile.close()
             else:
-                self.log.warn('No external doc file %s', filename)
+                self.log.warning('No external doc file %s', filename)
 
         file.addMultiLineDoc(lines)
         file.newline(2)
@@ -503,6 +503,22 @@ class SimpleUMLPythonModule():
         """Add the specified class to this module."""
         self.classes.append(clss)
 
+    def findExternalImports(self):
+        """Find classes to import from other packages."""
+        self.log.info('Looking for external imports')
+        ourClasses = []
+        allClasses = []
+        for clss in self.classes:
+            ourClasses.append(clss.name)
+            for member in clss.members:
+                mtype = member.type
+                if mtype and TextTools.upperCaseFirst(mtype) == mtype:
+                    allClasses.append(mtype)
+        for name in allClasses:
+            if not name in ourClasses:
+                self.log.info(f'Found external dependency {name}')
+                self.addImport(name)
+
     def addImport(self, name: str):
         """Import the specified module."""
         self.imports.append(name)
@@ -527,6 +543,7 @@ class SimpleUMLPythonModule():
         file.newline()
 
         # Imports
+        self.findExternalImports()
         for moduleName in self.imports:
             if moduleName.startswith('from '):
                 file.write(moduleName)
