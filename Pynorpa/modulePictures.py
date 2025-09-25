@@ -241,7 +241,16 @@ class DialogReclassify(ModalDialog):
         if id is not None:
             taxon = self.cache.findById(int(id))
         self.log.info('Selected %s', taxon)
+
         # TODO generate new name
+
+
+        # Display existing pics in list
+        self.listExisting.delete(0, tk.END)
+        for idx, pic in enumerate(taxon.getPictures()):
+            text = f'{pic.getFilename()} ({pic.getLocationName()})'
+            self.listExisting.insert(idx, text)
+
         self.enableWidgets()
 
     def loadData(self):
@@ -251,27 +260,35 @@ class DialogReclassify(ModalDialog):
         self.enableWidgets()
 
     def createWidgets(self):
+        # Main frame
+        frmMain = ttk.Frame(self.root)
+        frmMain.pack(fill=tk.BOTH, side=tk.LEFT, pady=0, padx=0)
+
         # Left and right frames
-        self.frmLeft  = ttk.Frame(self.root)
-        self.frmRight = ttk.Frame(self.root)
-        self.frmLeft.pack( fill=tk.Y, side=tk.LEFT, pady=0)
-        self.frmRight.pack(fill=tk.Y, side=tk.LEFT, pady=0, padx=0)
+        self.frmLeft  = ttk.Frame(frmMain)
+        self.frmRight = ttk.Frame(frmMain)
+        self.frmLeft.pack( fill=tk.Y, side=tk.LEFT, pady=4, padx=4)
+        self.frmRight.pack(fill=tk.Y, side=tk.LEFT, pady=4, padx=4)
 
         # Taxon tree
         self.tree = TaxonTree(self.onSelectTaxon)
         self.tree.createWidgets(self.frmLeft)
 
-        # New name frame
-        frmNewname = ttk.LabelFrame(self.frmRight, text='Reclasser sous')
-        frmNewname.pack(fill=tk.X)
-        self.lblNewName = ttk.Label(frmNewname, text='Choisir un nouveau taxon')
-        self.lblNewName.pack(fill=tk.X)
+        # List of existing pictures for taxon
+        frmExisting = ttk.LabelFrame(self.frmRight, text='Photos existantes')
+        frmExisting.pack(fill=tk.X)
+        self.listExisting = tk.Listbox(frmExisting, height=18, width=54)
+        self.listExisting.pack(fill=tk.X, expand=True, pady=5)
 
-        # TODO table/list of existing pictures for taxon
+        # New name frame
+        frmNewName = ttk.LabelFrame(self.frmRight, text='Reclasser sous')
+        frmNewName.pack(fill=tk.X, pady=5)
+        self.lblNewName = ttk.Label(frmNewName, text='Choisir un nouveau taxon')
+        self.lblNewName.pack(fill=tk.X)
 
         # Buttons
         self.frmButtons = ttk.Frame(self.frmRight)
-        self.frmButtons.pack(fill=tk.X, pady=10)
+        self.frmButtons.pack(fill=tk.X, pady=6)
         self.btnSave = BaseWidgets.Button(self.frmButtons, 'Reclasser', self.onSave, 'edit')
         self.btnExit = BaseWidgets.Button(self.frmButtons, 'Annuler',   self.exit, 'cancel')
         self.btnSave.pack()
