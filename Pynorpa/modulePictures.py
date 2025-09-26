@@ -227,20 +227,28 @@ class DialogReclassify(ModalDialog):
     def __init__(self, parent: tk.Tk, picture: Picture):
         """Constructor."""
         self.picture = picture
-        self.newName = None
+        self.newName  = None
+        self.newTaxon = None
         super().__init__(parent, f'Reclasser {picture.getFilename()}')
         self.root.geometry('1020x600+300+150')
         self.manager = PynorpaManager()
 
     def onSave(self):
         """Rename the selected photo."""
-        pass
+        try:
+            self.manager.reclassifyPicture(self.picture, self.newName, self.newTaxon, True)
+        except PynorpaException as exc:
+            self.log.error(exc)
+            self.lblNewName.configure(text=exc)
+        self.newName = None
+        self.enableWidgets()
 
     def onSelectTaxon(self, id: str):
         """Callback for selection of taxon with specified id."""
         taxon = None
         if id is not None:
             taxon = self.cache.findById(int(id))
+            self.newTaxon = taxon
         self.log.info('Selected %s', taxon)
 
         # Display existing pics in list

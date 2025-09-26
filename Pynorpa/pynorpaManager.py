@@ -294,12 +294,30 @@ class PynorpaManager():
             basename += '-sp'
 
         # Filename sequence
+        # FIXME get last sequence number, not first
         for seq in range(1, 1000):
             filename = f'{basename}{seq:03d}.jpg'
             if not os.path.exists(f'{config.dirPictures}{filename}'):
                 self.log.info(f'Next name is {filename}')
                 return filename
         return None
+    
+    def reclassifyPicture(self, picture: Picture, newName: str, newTaxon: Taxon, dryrun=True):
+        """Change the picture's name and taxon in database."""
+        self.log.info(f'Reclassify {picture} as {newName}, dry-run {dryrun}')
+
+        # TODO rename picture files
+        oldName = picture.getFilename()
+        self.runSystemCommand(f'mv {config.dirPictures}{oldName} {config.dirPictures}{newName}', dryrun)
+        self.runSystemCommand(f'mv {config.dirPicsBase}medium/{oldName} {config.dirPicsBase}medium/{newName}', dryrun)
+        self.runSystemCommand(f'mv {config.dirPicsBase}thumbs/{oldName} {config.dirPicsBase}thumbs/{newName}', dryrun)
+        raise PynorpaException(f'Pas encore implémenté !')
+
+        # TODO update picture name and taxon in DB
+
+        # TODO update old and new taxon pictures in cache
+
+
     
     def backupDatabase(self):
         """Create a database dump as backup."""
