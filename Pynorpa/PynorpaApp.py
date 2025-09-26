@@ -47,5 +47,6 @@ class PynorpaApp(TabsApp):
         modPublish   = modulePublish.ModulePublish(self)
         # TODO add calendar module
         # TODO add backups module
+        # TODO add module for Book design
 
         self.setStatus('Welcome to Pynorpa')
