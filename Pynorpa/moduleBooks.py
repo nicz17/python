@@ -1,5 +1,5 @@
 """
-Pynorpa module to help create phto albums or calendars 
+Pynorpa module to help create photo albums or calendars 
 with iFolor or smartphoto.ch
 """
 
