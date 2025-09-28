@@ -17,6 +17,7 @@ import modulePictures
 import moduleTaxon
 import moduleExpeditions
 import modulePublish
+import moduleBooks
 from ttkthemes import ThemedStyle
 
 class PynorpaApp(TabsApp):
@@ -47,6 +48,6 @@ class PynorpaApp(TabsApp):
         modPublish   = modulePublish.ModulePublish(self)
         # TODO add calendar module
         # TODO add backups module
-        # TODO add module for Book design  moduleBooks.ModuleBooks(self)
+        moduleBooks.ModuleBooks(self)  # Book design  
 
         self.setStatus('Welcome to Pynorpa')

@@ -39,6 +39,7 @@ Pynorpa/config.py
 Pynorpa/resources/*
 Pynorpa/export/*
 Pynorpa/last-upload
+Pynorpa/uml/*
 
 LogBook/*.json
 
