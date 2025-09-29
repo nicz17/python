@@ -6,7 +6,7 @@ with iFolor or smartphoto.ch
 # TODO add Books module 
 # - Book has name, description, status, list of pictures
 # - status: Project, Ongoing, Ordered, Done
-# - select Pictures by filtering on Location or Taxon
+# - select Pictures by filtering on Location, Taxon and quality
 # - find original file on disk or backups by matching timestamp
 # - add original image file to Book directory orig/ for edition
 # - save Book contents in json file
@@ -29,11 +29,13 @@ class ModuleBooks(TabModule):
     def __init__(self, parent: TabsApp):
         """Constructor."""
         self.window = parent.window
-        super().__init__(parent, 'Livres')
         self.book = None
+        super().__init__(parent, 'Livres')
 
     def loadData(self):
+        self.picFilter = BookPicFilter()
         self.book = Book('Test01', 'Livre test 1')
+        self.filterEditor.loadData(self.picFilter)
         self.onSelectBook(self.book)
 
     def onSelectBook(self, book: Book):
@@ -45,20 +47,26 @@ class ModuleBooks(TabModule):
     def onSaveBook(book: Book):
         pass
 
+    def onFilterPics():
+        """Reload pictures table using the filter."""
+        pass
+
     def createWidgets(self):
         """Create user widgets."""
         self.createLeftRightFrames()
 
         # Filter on location, taxon, quality
-        frmFilter = ttk.LabelFrame(self.frmLeft, text='Filtres')
-        frmFilter.pack(fill=tk.X)
-        self.lblFilter = ttk.Label(frmFilter, text='Filtrer par lieu, taxon et qualité')
-        self.lblFilter.pack(fill=tk.X)
+        self.filterEditor = FilterEditor(self.onFilterPics)
+        self.filterEditor.createWidgets(self.frmLeft)
 
         # Table of filtered photos
 
 
         # Book selector
+        frmFilter = ttk.LabelFrame(self.frmRight, text='Livres')
+        frmFilter.pack(fill=tk.X)
+        self.lblFilter = ttk.Label(frmFilter, text='Choix de livre')
+        self.lblFilter.pack(fill=tk.X)
 
 
         # Book editor
@@ -69,6 +77,37 @@ class ModuleBooks(TabModule):
 
 
         # Buttons
+
+
+class FilterEditor(BaseWidgets.BaseEditor):
+    """Class FilterEditor"""
+    log = logging.getLogger("FilterEditor")
+
+    def __init__(self, cbkSave):
+        """Constructor."""
+        super().__init__(cbkSave, '#62564f')
+        self.filter = None
+
+    def loadData(self, filter: BookPicFilter):
+        """Display the specified filter in this editor."""
+        self.filter = filter
+        self.setValue(filter)
+
+    def createWidgets(self, parent: tk.Frame):
+        """Add the editor widgets to the parent widget."""
+        super().createWidgets(parent, 'Filtrer les photos')
+        self.widLoc     = self.addText('Lieu', BookPicFilter.getLocation)
+        self.widTaxon   = self.addText('Taxon', BookPicFilter.getTaxon)
+        self.widQuality = self.addSpinBox('Qualité min', BookPicFilter.getQuality, 1, 5)
+        self.createButtons(True, False, False)
+        self.btnSave.btn.configure(text='Recharger')
+
+    def enableWidgets(self, evt=None):
+        """Enable our internal widgets."""
+        editing  = self.filter is not None
+        modified = self.hasChanges(self.filter)
+        super().enableWidgets(editing)
+        self.enableButtons(modified, False, False)
 
 
 class BookEditor(BaseWidgets.BaseEditor):
