@@ -4,15 +4,18 @@ __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
-import logging
 import config
+import logging
 import random
-import Database
 from datetime import datetime
+
+import Database
+import DateTools
+import TextTools
 from taxon import TaxonCache
 from LocationCache import *
 from PhotoInfo import PhotoInfo
-import TextTools
+
 
 class Picture():
     """Class Picture"""
@@ -95,7 +98,14 @@ class Picture():
         return result
     
     def getTaxon(self):
+        """Set the taxon object."""
         return self.taxon
+    
+    def setTaxon(self, taxon):
+        """Set the taxon object. Also sets idxTaxon."""
+        if taxon:
+            self.taxon = taxon
+            self.idxTaxon = taxon.getIdx()
 
     def getUpdatedAt(self) -> datetime:
         """Getter for updatedAt"""
@@ -260,6 +270,22 @@ class PictureCache():
             self.pictures.append(obj)
         else:
             self.log.error('No idx after insertion!')
+
+    def reclassify(self, pic: Picture):
+        """Update the Picture taxon and filename in database."""
+        self.log.info('Reclassify %s', pic)
+        pic.setUpdatedAt(DateTools.nowDatetime())
+        query = Database.Query('Reclassify Picture')
+        query.add('Update Picture set')
+        query.add(f"picFilename = '{pic.getFilename()}',")
+        query.add(f'picTaxon = {pic.getIdxTaxon()},')
+        query.add(f"picUpdatedAt = ").addDate(pic.getUpdatedAt())
+        query.add(f'where idxPicture = {pic.getIdx()}')
+        #self.log.info(f'dryrun: {query.getSQL()}')
+        self.db.connect(config.dbUser, config.dbPass)
+        self.db.execute(query.getSQL())
+        self.db.disconnect()
+        query.close()
 
     def getLatest(self, limit=10) -> list[Picture]:
         """Get the latest pictures."""

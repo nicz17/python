@@ -236,7 +236,8 @@ class DialogReclassify(ModalDialog):
     def onSave(self):
         """Rename the selected photo."""
         try:
-            self.manager.reclassifyPicture(self.picture, self.newName, self.newTaxon, True)
+            self.manager.reclassifyPicture(self.picture, self.newName, self.newTaxon, False)
+            self.lblNewName.configure(text=f'Reclassé sous {self.newName}')
         except PynorpaException as exc:
             self.log.error(exc)
             self.lblNewName.configure(text=exc)
@@ -300,7 +301,7 @@ class DialogReclassify(ModalDialog):
         self.frmButtons = ttk.Frame(self.frmRight)
         self.frmButtons.pack(fill=tk.X, pady=6)
         self.btnSave = BaseWidgets.Button(self.frmButtons, 'Reclasser', self.onSave, 'edit')
-        self.btnExit = BaseWidgets.Button(self.frmButtons, 'Annuler',   self.exit, 'cancel')
+        self.btnExit = BaseWidgets.Button(self.frmButtons, 'Quitter',   self.exit, 'cancel')
         self.btnSave.pack()
         self.btnExit.pack()
 

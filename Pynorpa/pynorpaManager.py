@@ -306,17 +306,20 @@ class PynorpaManager():
         """Change the picture's name and taxon in database."""
         self.log.info(f'Reclassify {picture} as {newName}, dry-run {dryrun}')
 
-        # TODO rename picture files
+        # Rename picture files
         oldName = picture.getFilename()
         self.runSystemCommand(f'mv {config.dirPictures}{oldName} {config.dirPictures}{newName}', dryrun)
         self.runSystemCommand(f'mv {config.dirPicsBase}medium/{oldName} {config.dirPicsBase}medium/{newName}', dryrun)
         self.runSystemCommand(f'mv {config.dirPicsBase}thumbs/{oldName} {config.dirPicsBase}thumbs/{newName}', dryrun)
-        raise PynorpaException(f'Pas encore implémenté !')
 
-        # TODO update picture name and taxon in DB
-
-        # TODO update old and new taxon pictures in cache
-
+        # Update old and new taxon pictures in cache
+        picture.taxon.pictures.remove(picture)
+        newTaxon.pictures.append(picture)
+    
+        # Update picture name and taxon in DB
+        picture.setFilename(newName)
+        picture.setTaxon(newTaxon)
+        self.pictureCache.reclassify(picture)
 
     
     def backupDatabase(self):
