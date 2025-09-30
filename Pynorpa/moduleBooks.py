@@ -17,9 +17,12 @@ import logging
 
 import BaseWidgets
 import tkinter as tk
+import imageWidget
 from tkinter import ttk
 from TabsApp import TabModule, TabsApp
+from picture import Picture, PictureCache
 from bookManager import Book, BookPicFilter
+from modulePictures import PictureTable
 
 
 class ModuleBooks(TabModule):
@@ -37,6 +40,15 @@ class ModuleBooks(TabModule):
         self.book = Book('Test01', 'Livre test 1')
         self.filterEditor.loadData(self.picFilter)
         self.onSelectBook(self.book)
+        self.loadPictures()
+
+    def loadPictures(self):
+        """Load pictures table."""
+        self.pictureCache = PictureCache()
+        where = self.picFilter.getFilterClause().getSQL()
+        ids = self.pictureCache.fetchFromWhere(where)
+        pics = [self.pictureCache.findById(id) for id in ids]
+        self.tablePics.loadData(pics)
 
     def onSelectBook(self, book: Book):
         """Display selected book in editor."""
@@ -47,9 +59,13 @@ class ModuleBooks(TabModule):
     def onSaveBook(book: Book):
         pass
 
-    def onFilterPics():
+    def onFilterPics(self):
         """Reload pictures table using the filter."""
-        pass
+        self.log.info(f'Filter SQL: {self.picFilter.getFilterClause().getSQL()}')
+        self.loadPictures()
+
+    def onSelectPicture(self, picture: Picture):
+        self.imageWidget.loadThumb(picture)
 
     def createWidgets(self):
         """Create user widgets."""
@@ -60,7 +76,8 @@ class ModuleBooks(TabModule):
         self.filterEditor.createWidgets(self.frmLeft)
 
         # Table of filtered photos
-
+        self.tablePics = PictureTable(self.onSelectPicture)
+        self.tablePics.createWidgets(self.frmLeft)
 
         # Book selector
         frmFilter = ttk.LabelFrame(self.frmRight, text='Livres')
@@ -68,13 +85,16 @@ class ModuleBooks(TabModule):
         self.lblFilter = ttk.Label(frmFilter, text='Choix de livre')
         self.lblFilter.pack(fill=tk.X)
 
-
         # Book editor
         self.bookEditor = BookEditor(self.onSaveBook)
         self.bookEditor.createWidgets(self.frmRight)
 
         # Table of pics in selected Book
 
+
+        # Image preview
+        self.imageWidget = imageWidget.ImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
+        self.imageWidget.createWidgets(self.frmRight)
 
         # Buttons
 
@@ -93,10 +113,15 @@ class FilterEditor(BaseWidgets.BaseEditor):
         self.filter = filter
         self.setValue(filter)
 
+    def onSave(self, evt=None):
+        """Save changes to the edited object."""
+        self.filter.setQuality(self.widQuality.getValue())
+        self.cbkSave()
+
     def createWidgets(self, parent: tk.Frame):
         """Add the editor widgets to the parent widget."""
         super().createWidgets(parent, 'Filtrer les photos')
-        self.widLoc     = self.addText('Lieu', BookPicFilter.getLocation)
+        self.widLoc     = self.addText('Lieu', BookPicFilter.getLocationName)
         self.widTaxon   = self.addText('Taxon', BookPicFilter.getTaxon)
         self.widQuality = self.addSpinBox('Qualité min', BookPicFilter.getQuality, 1, 5)
         self.createButtons(True, False, False)

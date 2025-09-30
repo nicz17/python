@@ -7,8 +7,9 @@ __version__ = "1.0.0"
 import logging
 
 from taxon import Taxon
-from LocationCache import Location
+from LocationCache import Location, LocationCache
 from picture import Picture
+from Database import Query
 
 
 class Book():
@@ -115,9 +116,21 @@ class BookPicFilter():
 
     def __init__(self):
         """Constructor."""
+        self.locCache = LocationCache()
         self.taxon = None
-        self.location = None
+        self.location = self.locCache.getDefaultLocation()
         self.quality = 4
+
+    def getFilterClause(self) -> Query:
+        """Build the filtering SQL."""
+        query = Query('BookPicFilter')
+        query.add('1=1')
+        if self.quality > 1:
+            query.add(f'and picRating >= {self.quality}')
+        if self.location:
+            query.add(f'and picIdxLocation = {self.location.getIdx()}')
+        query.add('order by picFilename asc')
+        return query
 
     def getTaxon(self) -> Taxon:
         """Getter for taxon"""
@@ -130,6 +143,12 @@ class BookPicFilter():
     def getLocation(self) -> Location:
         """Getter for location"""
         return self.location
+
+    def getLocationName(self) -> str:
+        """Getter for location name"""
+        if self.location:
+            return self.location.getName()
+        return 'Tous'
 
     def setLocation(self, location: Location):
         """Setter for location"""
