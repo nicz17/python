@@ -112,7 +112,7 @@ class TableWithColumns(BaseTable):
         """Get all columns of this table."""
         return self.columns
         
-    def createWidgets(self, parent: tk.Frame):
+    def createWidgets(self, parent: tk.Frame, height=40):
         """Create user widgets."""
 
         # Scrolling frame
@@ -120,7 +120,7 @@ class TableWithColumns(BaseTable):
         frmScroll.pack(pady=5, anchor=tk.W)
 
         # Treeview
-        self.tree = ttk.Treeview(frmScroll, height=40)
+        self.tree = ttk.Treeview(frmScroll, height=height)
         self.tree['columns'] = [col.label for col in self.getColumns()]
         self.tree.bind('<<TreeviewSelect>>', self.onRowSelection)
         

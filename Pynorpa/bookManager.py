@@ -4,7 +4,10 @@ __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2025 N. Zwahlen"
 __version__ = "1.0.0"
 
+import config
+import json
 import logging
+import os
 
 from taxon import Taxon
 from LocationCache import Location, LocationCache
@@ -39,22 +42,27 @@ class Book():
         """Add picture."""
         self.pictures.append(pic)
 
-    def getPictures(self) -> list:
+    def getPictures(self) -> list[Picture]:
         """Getter for pictures"""
         return self.pictures
-
-    def save(self):
-        """Save."""
-        # TODO: implement save
-        pass
+    
+    def getPicCount(self) -> int:
+        """Count the pictures in this book."""
+        return len(self.pictures)
 
     def toJson(self):
         """Create a dict of this Book for json export."""
+        pics = []
+        for pic in self.getPictures():
+            pics.append({
+                'id': pic.getIdx(),
+                'filename': pic.getFilename()
+            })
         data = {
             'name': self.name,
             'desc': self.desc,
             'status': self.status,
-            'pictures': self.pictures
+            'pictures': pics
         }
         return data
 
@@ -81,11 +89,24 @@ class BookManager():
         """Load books."""
         # TODO: implement loadBooks
         pass
+        
+    def saveBook(self, book: Book):
+        """Save the book to json."""
+        self.log.info(f'Saving {book}')
 
-    def saveBooks(self):
-        """Save books."""
-        # TODO: implement saveBooks
-        pass
+        # Create dir if needed
+        dir = f'{config.dirBooks}{book.getName()}'
+        if not os.path.exists(dir):
+            self.log.info(f'Creating dir {dir}')
+            os.mkdir(dir)
+            os.mkdir(f'{dir}/photos')
+            os.mkdir(f'{dir}/medium')
+
+        # Save book as json
+        filename = f'{dir}/book.json'
+        self.log.info(f'Writing {filename}')
+        with open(filename, 'w') as file:
+            file.write(json.dumps(book.toJson(), indent=2))
 
     def toHtml(self, book: Book):
         """Export a book as html preview."""
@@ -187,21 +208,21 @@ def testBookManager():
     BookManager.log.info("Testing BookManager")
     mgr = BookManager()
     mgr.loadBooks()
+    book = Book('Test01', 'Test Book 1')
+    mgr.saveBook(book)
 
 def testBookPicFilter():
     """Unit test for BookPicFilter"""
     BookPicFilter.log.info("Testing BookPicFilter")
     book = BookPicFilter()
     book.log.info(book)
-    book.BookPicFilter()
     book.getTaxon()
     book.getLocation()
     book.getQuality()
-    book.log.info(book.toJson())
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",
         level=logging.INFO, handlers=[logging.StreamHandler()])
-    testBook()
+    #testBook()
     testBookManager()
-    testBookPicFilter()
+    #testBookPicFilter()
