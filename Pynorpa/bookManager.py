@@ -138,18 +138,8 @@ class BookManager():
                 self.log.info(f'Path does not exist: {dir}')
         self.log.info(f'Could not find original of {pic}')
 
-
-    def toJson(self):
-        """Create a dict of this BookManager for json export."""
-        data = {
-            'books': self.books,
-        }
-        return data
-
     def __str__(self):
-        str = "BookManager"
-        str += f' books: {self.books}'
-        return str
+        return 'BookManager'
 
 
 class BookPicFilter():

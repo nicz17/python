@@ -21,6 +21,7 @@ import imageWidget
 from tkinter import ttk
 from TabsApp import TabModule, TabsApp
 from picture import Picture, PictureCache
+from LocationCache import Location, LocationCache
 from bookManager import Book, BookPicFilter, BookManager
 from modulePictures import PictureTable
 
@@ -129,6 +130,7 @@ class FilterEditor(BaseWidgets.BaseEditor):
         """Constructor."""
         super().__init__(cbkSave, '#62564f')
         self.filter = None
+        self.locCache = LocationCache()
 
     def loadData(self, filter: BookPicFilter):
         """Display the specified filter in this editor."""
@@ -137,13 +139,16 @@ class FilterEditor(BaseWidgets.BaseEditor):
 
     def onSave(self, evt=None):
         """Save changes to the edited object."""
+        location = self.locCache.getByName(self.widLoc.getValue())
+        self.filter.setLocation(location)
         self.filter.setQuality(self.widQuality.getValue())
         self.cbkSave()
 
     def createWidgets(self, parent: tk.Frame):
         """Add the editor widgets to the parent widget."""
         super().createWidgets(parent, 'Filtrer les photos')
-        self.widLoc     = self.addText('Lieu', BookPicFilter.getLocationName)
+        locNames = [loc.name for loc in self.locCache.getLocations()]
+        self.widLoc     = self.addComboBoxRefl('Lieu', BookPicFilter.getLocationName, locNames)
         self.widTaxon   = self.addText('Taxon', BookPicFilter.getTaxon)
         self.widQuality = self.addSpinBox('Qualité min', BookPicFilter.getQuality, 1, 5)
         self.createButtons(True, False, False)
