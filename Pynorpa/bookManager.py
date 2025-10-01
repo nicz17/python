@@ -5,14 +5,17 @@ __copyright__ = "Copyright 2025 N. Zwahlen"
 __version__ = "1.0.0"
 
 import config
+import glob
 import json
 import logging
 import os
 
+import DateTools
 from taxon import Taxon
 from LocationCache import Location, LocationCache
 from picture import Picture
 from Database import Query
+from PhotoInfo import PhotoInfo
 
 
 class Book():
@@ -113,10 +116,28 @@ class BookManager():
         # TODO: implement toHtml
         pass
 
-    def findOriginal(self, pic: Picture):
-        """Find original picture."""
-        # TODO: implement findOriginal
-        pass
+    def findOriginal(self, pic: Picture) -> PhotoInfo:
+        """Find original picture. Look in disk in backups."""
+        self.log.info(f'Looking for original of {pic}')
+        paths = [config.dirPhotosBase, config.dirElements + 'Pictures/']
+        yearMonth = DateTools.datetimeToString(pic.getShotAt(), '%Y-%m')
+        picShotAt = pic.getShotAt().timestamp()
+        for path in paths:
+            dir = f'{path}Nature-{yearMonth}/orig/'
+            self.log.info(f'Looking in {dir}')
+            if os.path.exists(dir):
+                files = sorted(glob.glob(f'{dir}*.JPG'))
+                self.log.info(f'Scanning {len(files)} files...')
+                for file in files:
+                    info = PhotoInfo(file)
+                    info.identify()
+                    if info.getShotAt() == picShotAt:
+                        self.log.info(f'Found original: {info}')
+                        return info
+            else:
+                self.log.info(f'Path does not exist: {dir}')
+        self.log.info(f'Could not find original of {pic}')
+
 
     def toJson(self):
         """Create a dict of this BookManager for json export."""
