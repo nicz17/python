@@ -403,6 +403,46 @@ class ComboBox():
     def __str__(self) -> str:
         return 'ComboBox'
     
+class ComboBoxRefl(BaseWidget):
+    """A multiple-choice widget based on ttk.Combobox."""
+    log = logging.getLogger('ComboBoxRefl')
+
+    def __init__(self, cbkModified, mtdGetter):
+        """Constructor with modification callback."""
+        super().__init__(cbkModified, mtdGetter)
+
+    def setValues(self, values):
+        """Set the possible values."""
+        self.oCombo['values'] = values
+
+    def setValue(self, object):
+        """Set the string value."""
+        value = self.getObjectValue(object)
+        if value is not None:
+            self.oCombo.set(value)
+
+    def getValue(self) -> str:
+        """Get the current string value."""
+        return self.oCombo.get()
+    
+    def getSelectionIndex(self) -> int:
+        """Get the current selection index, 0-based."""
+        return self.oCombo.current()
+        
+    def createWidgets(self, parent: tk.Frame, row: int, col: int):
+        """Create widget in parent frame with grid layout."""
+        self.oCombo = ttk.Combobox(parent, state='readonly', values=[])
+        self.oCombo.grid(row=row, column=col, padx=5, sticky='we')
+        if self.cbkModified:
+            self.oCombo.bind("<<ComboboxSelected>>", self.cbkModified)
+
+    def enableWidget(self, enabled: bool):
+        """Enable or disable this widget."""
+        enableWidget(self.oCombo, enabled)
+    
+    def __str__(self) -> str:
+        return 'ComboBoxRefl'
+    
 class CheckBox(BaseWidget):
     """A boolean check-box based on ttk.Checkbutton."""
     log = logging.getLogger('CheckBox')
@@ -559,6 +599,15 @@ class BaseEditor():
         oCombo.createWidgets(self.frmEdit, self.row, 1)
         oCombo.setValues(values)
         self.row += 1
+        return oCombo
+    
+    def addComboBoxRefl(self, label: str, mtdGetter, values) -> ComboBoxRefl:
+        """Add a combo box."""
+        oLabel = self.addLabel(label)
+        oCombo = ComboBoxRefl(self.onModified, mtdGetter)
+        oCombo.createWidgets(self.frmEdit, self.row, 1)
+        oCombo.setValues(values)
+        self.addWidget(oCombo, oLabel)
         return oCombo
     
     def addCheckBox(self, label: str, mtdGetter, text = '') -> CheckBox:
