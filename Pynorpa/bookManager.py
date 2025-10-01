@@ -90,8 +90,25 @@ class BookManager():
 
     def loadBooks(self):
         """Load books."""
-        # TODO: implement loadBooks
-        pass
+        self.log.info('Loading books')
+        dirs = glob.glob(config.dirBooks + '*')
+        for dir in dirs:
+            if os.path.isdir(dir):
+                filename = f'{dir}/book.json'
+                if os.path.exists(filename):
+                    book = self.loadBook(filename)
+                    self.books.append(book)
+                    self.log.info(book)
+        self.log.info(f'Loaded {len(self.books)} books')
+
+    def loadBook(self, filename: str) -> Book:
+        """Load a book from its json file."""
+        book = None
+        with open(filename, 'r') as file:
+            data = json.load(file)
+            book = Book(data['name'], data['desc'])
+            book.status = data['status']
+        return book
         
     def saveBook(self, book: Book):
         """Save the book to json."""
@@ -220,7 +237,7 @@ def testBookManager():
     mgr = BookManager()
     mgr.loadBooks()
     book = Book('Test01', 'Test Book 1')
-    mgr.saveBook(book)
+    #mgr.saveBook(book)
 
 def testBookPicFilter():
     """Unit test for BookPicFilter"""
