@@ -79,6 +79,36 @@ class ImageWidget():
         self.setDefaultImage()
 
 
+class CaptionImageWidget(ImageWidget):
+    """Subclass of ImageWidget with an additional caption label."""
+    log = logging.getLogger('CaptionImageWidget')
+
+    def loadThumb(self, picture: Picture):
+        super().loadThumb(picture)
+
+        # Build caption
+        if isinstance(picture, Picture):
+            caption = f'{picture.getTaxonName()}, {picture.getLocationName()}, {picture.getShotAtFmtDMY()}'
+        elif isinstance(picture, PhotoInfo):
+            caption = picture.getNameShort()
+        else:
+            caption = str(picture)
+
+        self.lblCaption.configure(text=caption)
+
+    def setDefaultImage(self):
+        super().setDefaultImage()
+        self.lblCaption.configure(text='')
+        
+    def createWidgets(self, parent: ttk.Frame):
+        """Create user widgets."""
+        self.lblImage = ttk.Label(master=parent, anchor=tk.CENTER, text='Choisir une photo')
+        self.lblImage.pack(side=tk.TOP, fill=tk.X)
+        self.lblCaption = ttk.Label(master=parent, anchor=tk.CENTER, text='Caption')
+        self.lblCaption.pack(side=tk.TOP, fill=tk.X)
+        self.setDefaultImage()
+
+
 class MultiImageWidget(ImageWidget):
     """A widget displaying multiple images."""
     log = logging.getLogger('MultiImageWidget')

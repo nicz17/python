@@ -121,7 +121,7 @@ class ModuleBooks(TabModule):
 
 
         # Image preview
-        self.imageWidget = imageWidget.ImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
+        self.imageWidget = imageWidget.CaptionImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
         self.imageWidget.createWidgets(self.frmRight)
 
         # Buttons
@@ -129,6 +129,7 @@ class ModuleBooks(TabModule):
         self.btnAddPic.pack(0)
         # TODO button to create new book
         # TODO button to export book
+        # TODO button to preview book in popup
 
         self.enableWidgets()
 
