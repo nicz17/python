@@ -201,10 +201,10 @@ class TextInput(BaseWidget):
     """A single-line text input widget based on ttk.Entry."""
     log = logging.getLogger('TextInput')
 
-    def __init__(self, cbkModified, mtdGetter):
+    def __init__(self, cbkModified, mtdGetter, nChars=64):
         """Constructor with modification callback."""
         super().__init__(cbkModified, mtdGetter)
-        self.nChars = 64
+        self.nChars = nChars
 
     def setValue(self, object):
         """Set the string value."""
@@ -560,10 +560,10 @@ class BaseEditor():
         self.colButton += 1
         return btn
 
-    def addText(self, label: str, mtdGetter) -> TextInput:
+    def addText(self, label: str, mtdGetter, nChars=64) -> TextInput:
         """Add a single-line text input."""
         oLabel = self.addLabel(label)
-        oInput = TextInput(self.onModified, mtdGetter)
+        oInput = TextInput(self.onModified, mtdGetter, nChars)
         oInput.createWidgets(self.frmEdit, self.row, 1)
         self.addWidget(oInput, oLabel)
         return oInput

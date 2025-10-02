@@ -97,9 +97,7 @@ class ModuleBooks(TabModule):
 
     def createWidgets(self):
         """Create user widgets."""
-
-        # TODO use 3 frames
-        self.createLeftRightFrames()
+        self.createLeftCenterRightFrames()
 
         # Filter on location, taxon, quality
         self.filterEditor = FilterEditor(self.onFilterPics)
@@ -110,14 +108,14 @@ class ModuleBooks(TabModule):
         self.tablePics.createWidgets(self.frmLeft, 32)
 
         # Book selector
-        frmBooks = ttk.LabelFrame(self.frmRight, text='Choix de livre')
+        frmBooks = ttk.LabelFrame(self.frmCenter, text='Choix de livre')
         frmBooks.pack(fill=tk.X)
         self.cboBooks = BaseWidgets.ComboBox(self.onComboBookSel)
         self.cboBooks.createWidgets(frmBooks, 0, 0)
 
         # Book editor
         self.bookEditor = BookEditor(self.onSaveBook)
-        self.bookEditor.createWidgets(self.frmRight)
+        self.bookEditor.createWidgets(self.frmCenter)
 
         # Table of pics in selected Book
 
@@ -167,7 +165,7 @@ class FilterEditor(BaseWidgets.BaseEditor):
         super().createWidgets(parent, 'Filtrer les photos')
         locNames = [loc.name for loc in self.locCache.getLocations()]
         self.widLoc     = self.addComboBoxRefl('Lieu', BookPicFilter.getLocationName, locNames)
-        self.widTaxon   = self.addText('Taxon', BookPicFilter.getTaxon)
+        self.widTaxon   = self.addText('Taxon', BookPicFilter.getTaxon, 42)
         self.widQuality = self.addSpinBox('Qualité min', BookPicFilter.getQuality, 1, 5)
         self.createButtons(True, False, False)
         self.btnSave.btn.configure(text='Recharger')
@@ -189,7 +187,7 @@ class BookPictureTable(PictureTable):
         self.addColumn(TableColumn('Taxon',   Picture.getTaxonName,    200))
         self.addColumn(TableColumn('Date',    Picture.getShotAtFmtDMY,  90))
         self.addColumn(TableColumn('Lieu',    Picture.getLocationName, 100))
-        self.addColumn(TableColumn('Qual.',   Picture.getRating,        36))
+        self.addColumn(TableColumn('Qual',    Picture.getRating,        38))
         
 
 class BookEditor(BaseWidgets.BaseEditor):
@@ -217,9 +215,9 @@ class BookEditor(BaseWidgets.BaseEditor):
         """Add the editor widgets to the parent widget."""
         super().createWidgets(parent, 'Propriétés du livre')
         
-        self.widName   = self.addText('Nom', Book.getName)
-        self.widDesc   = self.addText('Description', Book.getDesc)
-        self.widStatus = self.addText('Status', Book.getStatus)
+        self.widName   = self.addText('Nom', Book.getName, 42)
+        self.widDesc   = self.addText('Description', Book.getDesc, 42)
+        self.widStatus = self.addText('Status', Book.getStatus, 42)
         self.widPicCnt = self.addIntInput('Photos', Book.getPicCount)
         
         self.createButtons(True, True, False)

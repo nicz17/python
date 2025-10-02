@@ -27,7 +27,7 @@ class PynorpaApp(TabsApp):
     def __init__(self) -> None:
         """Constructor."""
         self.iHeight = 1000
-        self.iWidth  = 1500
+        self.iWidth  = 1600
         sGeometry = f'{self.iWidth}x{self.iHeight}'
         super().__init__('Pynorpa App', sGeometry, config.appIcon)
 

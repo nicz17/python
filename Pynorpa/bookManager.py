@@ -18,6 +18,47 @@ from Database import Query
 from PhotoInfo import PhotoInfo
 
 
+# TODO add class PictureInBook subclass of Picture
+class PictureInBook():
+    """Class PictureInBook"""
+    log = logging.getLogger("PictureInBook")
+
+    def __init__(self, id: int, filename: str, caption: str, order: int):
+        """Constructor."""
+        self.caption = caption
+        self.order = order
+
+    def getCaption(self) -> str:
+        """Getter for caption"""
+        return self.caption
+
+    def setCaption(self, caption: str):
+        """Setter for caption"""
+        self.caption = caption
+
+    def getOrder(self) -> int:
+        """Getter for order"""
+        return self.order
+
+    def setOrder(self, order: int):
+        """Setter for order"""
+        self.order = order
+
+    def toJson(self):
+        """Create a dict of this PictureInBook for json export."""
+        data = {
+            'caption': self.caption,
+            'order': self.order,
+        }
+        return data
+
+    def __str__(self):
+        str = "PictureInBook"
+        str += f' caption: {self.caption}'
+        str += f' order: {self.order}'
+        return str
+    
+
 class Book():
     """A printed picture book."""
     log = logging.getLogger("Book")
@@ -87,18 +128,22 @@ class BookManager():
     log = logging.getLogger("BookManager")
 
     def __init__(self):
+        """Constructor."""
         self.books = []
 
-    def addBook(self):
-        """Add book."""
-        # TODO: implement addBook
-        pass
+    def addBook(self) -> Book:
+        """Add a new book and return it."""
+        name = f'Livre{len(self.books)+1}'
+        book = Book(name, 'Nouveau livre')
+        self.books.append(book)
+        return book
 
     def getBooks(self) -> list[Book]:
+        """Get all loaded books."""
         return self.books
 
     def loadBooks(self):
-        """Load books."""
+        """Load books from disk."""
         self.log.info('Loading books')
         dirs = glob.glob(config.dirBooks + '*')
         for dir in dirs:

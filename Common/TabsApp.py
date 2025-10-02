@@ -82,8 +82,9 @@ class TabModule:
         self.oParent = oParent
         self.isLoaded = False
         self.oFrame = oParent.addTab(self)
-        self.frmLeft  = None
-        self.frmRight = None
+        self.frmLeft    = None
+        self.frmCenter  = None
+        self.frmRight   = None
 
     def getTitle(self) -> str:
         return self.sTitle
@@ -117,8 +118,17 @@ class TabModule:
         """Create frmLeft and frmRight in this tab."""
         self.frmLeft  = ttk.Frame(master=self.oFrame)
         self.frmRight = ttk.Frame(master=self.oFrame)
-        self.frmLeft.pack(fill=tk.Y, side=tk.LEFT, pady=0)
+        self.frmLeft.pack( fill=tk.Y, side=tk.LEFT, pady=0, padx=6)
         self.frmRight.pack(fill=tk.Y, side=tk.LEFT, pady=6, padx=6)
+
+    def createLeftCenterRightFrames(self):
+        """Create frmLeft, frmCenter and frmRight in this tab."""
+        self.frmLeft   = ttk.Frame(master=self.oFrame)
+        self.frmCenter = ttk.Frame(master=self.oFrame)
+        self.frmRight  = ttk.Frame(master=self.oFrame)
+        self.frmLeft.pack(  fill=tk.Y, side=tk.LEFT, pady=0, padx=6)
+        self.frmCenter.pack(fill=tk.Y, side=tk.LEFT, pady=5, padx=6)
+        self.frmRight.pack( fill=tk.Y, side=tk.LEFT, pady=8, padx=6)
 
     def enableWidget(self, oWidget, enabled: bool):
         """Enable or disable the widget."""
