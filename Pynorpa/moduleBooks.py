@@ -39,8 +39,13 @@ class ModuleBooks(TabModule):
         super().__init__(parent, 'Livres')
 
     def loadData(self):
+        self.manager.loadBooks()
+        bookNames = [book.getName() for book in self.manager.getBooks()]
+        self.cboBooks.setValues(bookNames)
+        self.cboBooks.setValue(bookNames[0])
+        self.book = self.manager.getBooks()[0]
         self.picFilter = BookPicFilter()
-        self.book = Book('Test01', 'Livre test 1')
+        #self.book = Book('Test01', 'Livre test 1')
         self.filterEditor.loadData(self.picFilter)
         self.onSelectBook(self.book)
         self.loadPictures()
@@ -59,6 +64,14 @@ class ModuleBooks(TabModule):
         self.log.info(f'Selected {book}')
         self.book = book
         self.bookEditor.loadData(book)
+
+    def onComboBookSel(self, evt=None):
+        """Book combo selection callback."""
+        name = self.cboBooks.getValue()
+        self.log.info(f'Book selection change: {name}')
+        for book in self.manager.getBooks():
+            if book.getName() == name:
+                self.onSelectBook(book)
 
     def onSaveBook(self, book: Book):
         """Save the selected book."""
@@ -95,10 +108,10 @@ class ModuleBooks(TabModule):
         self.tablePics.createWidgets(self.frmLeft, 32)
 
         # Book selector
-        frmFilter = ttk.LabelFrame(self.frmRight, text='Livres')
-        frmFilter.pack(fill=tk.X)
-        self.lblFilter = ttk.Label(frmFilter, text='Choix de livre')
-        self.lblFilter.pack(fill=tk.X)
+        frmBooks = ttk.LabelFrame(self.frmRight, text='Choix de livre')
+        frmBooks.pack(fill=tk.X)
+        self.cboBooks = BaseWidgets.ComboBox(self.onComboBookSel)
+        self.cboBooks.createWidgets(frmBooks, 0, 0)
 
         # Book editor
         self.bookEditor = BookEditor(self.onSaveBook)
@@ -179,6 +192,8 @@ class BookEditor(BaseWidgets.BaseEditor):
     def onSave(self, evt=None):
         """Save changes to the edited object."""
         # TODO add setters and auto-update book
+        self.book.setName(self.widName.getValue())
+        self.book.setDesc(self.widDesc.getValue())
         self.cbkSave(self.book)
 
     def createWidgets(self, parent: tk.Frame):

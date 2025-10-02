@@ -32,14 +32,23 @@ class Book():
     def getName(self) -> str:
         """Getter for name"""
         return self.name
-
+    
+    def setName(self, name: str):
+        self.name = name
+    
     def getDesc(self) -> str:
         """Getter for desc"""
         return self.desc
+    
+    def setDesc(self, desc: str):
+        self.desc = desc
 
     def getStatus(self) -> str:
         """Getter for status"""
         return self.status
+    
+    def setStatus(self, status: str):
+        self.status = status
 
     def addPicture(self, pic: Picture):
         """Add picture."""
@@ -70,7 +79,7 @@ class Book():
         return data
 
     def __str__(self):
-        return f'Book {self.name} {self.status}'
+        return f'Book {self.name} [{self.status}] {self.desc}'
 
 
 class BookManager():
