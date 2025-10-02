@@ -20,6 +20,7 @@ import tkinter as tk
 import imageWidget
 from tkinter import ttk
 from TabsApp import TabModule, TabsApp
+from BaseTable import TableColumn
 from picture import Picture, PictureCache
 from LocationCache import Location, LocationCache
 from bookManager import Book, BookPicFilter, BookManager
@@ -45,7 +46,6 @@ class ModuleBooks(TabModule):
         self.cboBooks.setValue(bookNames[0])
         self.book = self.manager.getBooks()[0]
         self.picFilter = BookPicFilter()
-        #self.book = Book('Test01', 'Livre test 1')
         self.filterEditor.loadData(self.picFilter)
         self.onSelectBook(self.book)
         self.loadPictures()
@@ -97,6 +97,8 @@ class ModuleBooks(TabModule):
 
     def createWidgets(self):
         """Create user widgets."""
+
+        # TODO use 3 frames
         self.createLeftRightFrames()
 
         # Filter on location, taxon, quality
@@ -104,7 +106,7 @@ class ModuleBooks(TabModule):
         self.filterEditor.createWidgets(self.frmLeft)
 
         # Table of filtered photos
-        self.tablePics = PictureTable(self.onSelectPicture)
+        self.tablePics = BookPictureTable(self.onSelectPicture)
         self.tablePics.createWidgets(self.frmLeft, 32)
 
         # Book selector
@@ -127,6 +129,9 @@ class ModuleBooks(TabModule):
         # Buttons
         self.btnAddPic = BaseWidgets.Button(self.frmLeft, 'Ajouter', self.onAddPicture, 'add')
         self.btnAddPic.pack(0)
+        # TODO button to create new book
+        # TODO button to export book
+
         self.enableWidgets()
 
     def enableWidgets(self):
@@ -174,6 +179,18 @@ class FilterEditor(BaseWidgets.BaseEditor):
         super().enableWidgets(editing)
         self.enableButtons(modified, False, False)
 
+
+class BookPictureTable(PictureTable):
+    """Picture table specialized for books."""
+    log = logging.getLogger("BookPictureTable")
+
+    def addColumns(self):
+        """Define the table columns."""
+        self.addColumn(TableColumn('Taxon',   Picture.getTaxonName,    200))
+        self.addColumn(TableColumn('Date',    Picture.getShotAtFmtDMY,  90))
+        self.addColumn(TableColumn('Lieu',    Picture.getLocationName, 100))
+        self.addColumn(TableColumn('Qual.',   Picture.getRating,        36))
+        
 
 class BookEditor(BaseWidgets.BaseEditor):
     """Class BookEditor"""

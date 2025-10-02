@@ -56,6 +56,10 @@ class Picture():
         """Setter for shotAt"""
         self.shotAt = shotAt
 
+    def getShotAtFmtDMY(self) -> str:
+        """Get shot-at date formatted as d.m.y"""
+        return DateTools.datetimeToString(self.shotAt, '%d.%m.%Y')
+
     def getLocationName(self) -> str:
         """Get location name"""
         if self.location:

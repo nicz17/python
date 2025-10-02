@@ -147,6 +147,10 @@ class PictureTable(TableWithColumns):
     def __init__(self, cbkSelect):
         """Constructor."""
         super().__init__(cbkSelect, "photos")
+        self.addColumns()
+
+    def addColumns(self):
+        """Define the table columns."""
         self.addColumn(TableColumn('Taxon',   Picture.getTaxonName,    200))
         self.addColumn(TableColumn('Date',    Picture.getShotAt,       160))
         self.addColumn(TableColumn('Lieu',    Picture.getLocationName, 200))
