@@ -150,6 +150,10 @@ class Picture():
             return f'{self.getLocationName()} (à {TextTools.distanceToString(dist)})'
         else:
             return f'{self.getLocationName()} (sans données GPS)'
+        
+    def getCaption(self) -> str:
+        """Default caption for image viewer."""
+        return f'{self.getTaxonName()}, {self.getLocationName()}, {self.getShotAtFmtDMY()}'
 
     def toJson(self):
         """Create a dict of this Picture for json export."""

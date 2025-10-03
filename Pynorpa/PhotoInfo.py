@@ -128,6 +128,10 @@ class PhotoInfo:
             else:
                 self.log.info('Skipping tag %s', tag)
         file.close()
+
+    def getCaption(self) -> str:
+        """Default caption for image viewer."""
+        return f'{self.getNameShort()} [{self.getSizeString}] {self.getShotAtString()}'
                     
     def __str__(self):
         str  = f'PhotoInfo {self.filename} [{self.width}x{self.height}] '

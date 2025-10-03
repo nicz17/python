@@ -86,14 +86,12 @@ class CaptionImageWidget(ImageWidget):
     def loadThumb(self, picture: Picture):
         super().loadThumb(picture)
 
-        # Build caption
-        if isinstance(picture, Picture):
-            caption = f'{picture.getTaxonName()}, {picture.getLocationName()}, {picture.getShotAtFmtDMY()}'
-        elif isinstance(picture, PhotoInfo):
-            caption = picture.getNameShort()
+        # Display caption
+        mtdCaption = getattr(picture, 'getCaption', None)
+        if callable(mtdCaption):
+            caption = mtdCaption()
         else:
             caption = str(picture)
-
         self.lblCaption.configure(text=caption)
 
     def setDefaultImage(self):
