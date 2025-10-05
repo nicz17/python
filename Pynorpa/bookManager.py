@@ -13,18 +13,19 @@ import os
 import DateTools
 from taxon import Taxon
 from LocationCache import Location, LocationCache
-from picture import Picture
+from picture import Picture, PictureCache
 from Database import Query
 from PhotoInfo import PhotoInfo
 
 
-# TODO add class PictureInBook subclass of Picture
-class PictureInBook():
-    """Class PictureInBook"""
+class PictureInBook(Picture):
+    """Subclass of Picture for books."""
     log = logging.getLogger("PictureInBook")
 
-    def __init__(self, id: int, filename: str, caption: str, order: int):
+    def __init__(self, pic: Picture, caption: str, order: int):
         """Constructor."""
+        super().__init__(pic.idx, pic.filename, pic.shotAt, pic.remarks, pic.idxTaxon,
+                         pic.updatedAt, pic.idxLocation, pic.rating)
         self.caption = caption
         self.order = order
 
@@ -47,16 +48,15 @@ class PictureInBook():
     def toJson(self):
         """Create a dict of this PictureInBook for json export."""
         data = {
+            'idx': self.idx,
+            'filename': self.filename,
             'caption': self.caption,
-            'order': self.order,
+            'order': self.order
         }
         return data
 
     def __str__(self):
-        str = "PictureInBook"
-        str += f' caption: {self.caption}'
-        str += f' order: {self.order}'
-        return str
+        return f'PictureInBook {self.filename}'
     
 
 class Book():
@@ -91,11 +91,11 @@ class Book():
     def setStatus(self, status: str):
         self.status = status
 
-    def addPicture(self, pic: Picture):
+    def addPicture(self, pic: PictureInBook):
         """Add picture."""
         self.pictures.append(pic)
 
-    def getPictures(self) -> list[Picture]:
+    def getPictures(self) -> list[PictureInBook]:
         """Getter for pictures"""
         return self.pictures
     
@@ -107,10 +107,7 @@ class Book():
         """Create a dict of this Book for json export."""
         pics = []
         for pic in self.getPictures():
-            pics.append({
-                'id': pic.getIdx(),
-                'filename': pic.getFilename()
-            })
+            pics.append(pic.toJson())
         data = {
             'name': self.name,
             'desc': self.desc,
@@ -130,6 +127,7 @@ class BookManager():
     def __init__(self):
         """Constructor."""
         self.books = []
+        self.picCache = PictureCache()
 
     def addBook(self) -> Book:
         """Add a new book and return it."""
@@ -162,6 +160,10 @@ class BookManager():
             data = json.load(file)
             book = Book(data['name'], data['desc'])
             book.status = data['status']
+            self.log.info(data['pictures'])
+            for pib in data['pictures']:
+                pic = self.picCache.findById(pib['idx'])
+                book.addPicture(PictureInBook(pic, pib['caption'], pib['order']))
         return book
         
     def saveBook(self, book: Book):

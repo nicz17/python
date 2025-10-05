@@ -23,7 +23,7 @@ from TabsApp import TabModule, TabsApp
 from BaseTable import TableColumn
 from picture import Picture, PictureCache
 from LocationCache import Location, LocationCache
-from bookManager import Book, BookPicFilter, BookManager
+from bookManager import Book, BookPicFilter, BookManager, PictureInBook
 from modulePictures import PictureTable
 
 
@@ -91,8 +91,10 @@ class ModuleBooks(TabModule):
     def onAddPicture(self):
         """Add the selected picture to the selected book."""
         if self.picture and self.book:
-            self.log.info(f'Adding {self.picture} to {self.book}')
-            self.book.addPicture(self.picture)
+            pib = PictureInBook(self.picture, self.picture.getCaption(), self.book.getPicCount()+1)
+            self.log.info(f'Adding {pib} to {self.book}')
+            self.book.addPicture(pib)
+            self.manager.saveBook(self.book)
             self.manager.findOriginal(self.picture)
 
     def createWidgets(self):
