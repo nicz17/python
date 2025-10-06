@@ -45,10 +45,7 @@ class ModuleBooks(TabModule):
         self.cboBooks.setValues(bookNames)
         self.cboBooks.setValue(bookNames[0])
         self.book = self.manager.getBooks()[0]
-        self.picFilter = BookPicFilter()
-        self.filterEditor.loadData(self.picFilter)
         self.onSelectBook(self.book)
-        self.loadPictures()
         self.enableWidgets()
 
     def loadPictures(self):
@@ -64,6 +61,9 @@ class ModuleBooks(TabModule):
         self.log.info(f'Selected {book}')
         self.book = book
         self.bookEditor.loadData(book)
+        self.picFilter = book.getFilter()
+        self.filterEditor.loadData(self.picFilter)
+        self.loadPictures()
 
     def onComboBookSel(self, evt=None):
         """Book combo selection callback."""
@@ -75,6 +75,7 @@ class ModuleBooks(TabModule):
 
     def onSaveBook(self, book: Book):
         """Save the selected book."""
+        book.setFilter(self.picFilter)
         self.manager.saveBook(book)
 
     def onFilterPics(self):
