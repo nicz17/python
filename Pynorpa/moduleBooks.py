@@ -64,6 +64,7 @@ class ModuleBooks(TabModule):
         self.picFilter = book.getFilter()
         self.filterEditor.loadData(self.picFilter)
         self.loadPictures()
+        self.tableBookPics.loadData(book.getPictures())
 
     def onComboBookSel(self, evt=None):
         """Book combo selection callback."""
@@ -78,6 +79,9 @@ class ModuleBooks(TabModule):
         book.setFilter(self.picFilter)
         self.manager.saveBook(book)
 
+    def onSaveBookPic(self, pic: PictureInBook):
+        pass
+
     def onFilterPics(self):
         """Reload pictures table using the filter."""
         self.log.info(f'Filter SQL: {self.picFilter.getFilterClause().getSQL()}')
@@ -89,9 +93,18 @@ class ModuleBooks(TabModule):
         self.imageWidget.loadThumb(picture)
         self.enableWidgets()
 
+    def onSelectBookPicture(self, bookPic: PictureInBook):
+        """Book picture table selection callback."""
+        self.bookPic = bookPic
+        self.log.info(f'Selected {bookPic}')
+        self.imageWidget.loadThumb(bookPic)
+        self.bookPicEditor.loadData(bookPic)
+        self.enableWidgets()
+
     def onAddPicture(self):
         """Add the selected picture to the selected book."""
         if self.picture and self.book:
+            # TODO generate caption according to filter
             pib = PictureInBook(self.picture, self.picture.getCaption(), self.book.getPicCount()+1)
             self.log.info(f'Adding {pib} to {self.book}')
             self.book.addPicture(pib)
@@ -107,7 +120,7 @@ class ModuleBooks(TabModule):
         self.filterEditor.createWidgets(self.frmLeft)
 
         # Table of filtered photos
-        self.tablePics = BookPictureTable(self.onSelectPicture)
+        self.tablePics = PictureSelectionTable(self.onSelectPicture)
         self.tablePics.createWidgets(self.frmLeft, 32)
 
         # Book selector
@@ -121,7 +134,12 @@ class ModuleBooks(TabModule):
         self.bookEditor.createWidgets(self.frmCenter)
 
         # Table of pics in selected Book
+        self.tableBookPics = BookPictureTable(self.onSelectBookPicture)
+        self.tableBookPics.createWidgets(self.frmCenter, 20)
 
+        # Book picture editor
+        self.bookPicEditor = BookPictureEditor(self.onSaveBookPic)
+        self.bookPicEditor.createWidgets(self.frmCenter)
 
         # Image preview
         self.imageWidget = imageWidget.CaptionImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
@@ -182,9 +200,12 @@ class FilterEditor(BaseWidgets.BaseEditor):
         self.enableButtons(modified, False, False)
 
 
-class BookPictureTable(PictureTable):
-    """Picture table specialized for books."""
-    log = logging.getLogger("BookPictureTable")
+class PictureSelectionTable(PictureTable):
+    """
+    Table to select pictures to add to books.
+    Filters on location, taxon, quality etc.
+    """
+    log = logging.getLogger("PictureSelectionTable")
 
     def addColumns(self):
         """Define the table columns."""
@@ -192,6 +213,17 @@ class BookPictureTable(PictureTable):
         self.addColumn(TableColumn('Date',    Picture.getShotAtFmtDMY,  90))
         self.addColumn(TableColumn('Lieu',    Picture.getLocationName, 100))
         self.addColumn(TableColumn('Qual',    Picture.getRating,        38))
+
+
+class BookPictureTable(PictureTable):
+    """Table of pictures in book."""
+    log = logging.getLogger("BookPictureTable")
+
+    def addColumns(self):
+        """Define the table columns."""
+        self.addColumn(TableColumn('Ordre',  PictureInBook.getOrder,     60))
+        self.addColumn(TableColumn('Photo',  PictureInBook.getFilename, 370))
+        # TODO add pic size column
         
 
 class BookEditor(BaseWidgets.BaseEditor):
@@ -213,6 +245,7 @@ class BookEditor(BaseWidgets.BaseEditor):
         # TODO add setters and auto-update book
         self.book.setName(self.widName.getValue())
         self.book.setDesc(self.widDesc.getValue())
+        self.book.setStatus(self.widStatus.getValue())
         self.cbkSave(self.book)
 
     def createWidgets(self, parent: tk.Frame):
@@ -225,7 +258,6 @@ class BookEditor(BaseWidgets.BaseEditor):
         self.widPicCnt = self.addIntInput('Photos', Book.getPicCount)
         
         self.createButtons(True, True, False)
-        #self.btnUpload = self.addButton('Publier', self.onUpload, 'go-up')
         self.enableWidgets()
 
     def enableWidgets(self, evt=None):
@@ -236,4 +268,39 @@ class BookEditor(BaseWidgets.BaseEditor):
         self.enableButtons(modified, modified, False)
 
     def __str__(self):
-        return 'BookEditor'
+        return f'BookEditor editing {self.book}'
+        
+
+class BookPictureEditor(BaseWidgets.BaseEditor):
+    """Class BookPictureEditor"""
+    log = logging.getLogger("BookPictureEditor")
+
+    def __init__(self, cbkSave):
+        """Constructor."""
+        super().__init__(cbkSave, '#62564f')
+        self.bookPic = None
+
+    def loadData(self, bookPic: PictureInBook):
+        """Display the specified pic in this editor."""
+        self.bookPic = bookPic
+        self.setValue(bookPic)
+
+    def createWidgets(self, parent: tk.Frame):
+        """Add the editor widgets to the parent widget."""
+        super().createWidgets(parent, 'Photo du livre')
+        self.widOrder   = self.addIntInput('Ordre',   PictureInBook.getOrder)
+        self.widCaption = self.addTextArea('Légende', PictureInBook.getCaption, 6, 42)
+        # TODO add photo size
+        self.createButtons(True, True, False)
+        # TODO add Gimp button
+        self.enableWidgets()
+
+    def enableWidgets(self, evt=None):
+        """Enable our internal widgets."""
+        editing  = self.bookPic is not None
+        modified = self.hasChanges(self.bookPic)
+        super().enableWidgets(editing)
+        self.enableButtons(modified, modified, False)
+
+    def __str__(self):
+        return f'BookPictureEditor editing {self.bookPic}'

@@ -125,7 +125,7 @@ class PictureInBook(Picture):
         return data
 
     def __str__(self):
-        return f'PictureInBook {self.filename}'
+        return f'PictureInBook {self.filename} order {self.order}'
     
 
 class Book():
