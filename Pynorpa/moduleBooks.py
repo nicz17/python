@@ -104,12 +104,11 @@ class ModuleBooks(TabModule):
     def onAddPicture(self):
         """Add the selected picture to the selected book."""
         if self.picture and self.book:
-            # TODO generate caption according to filter
-            pib = PictureInBook(self.picture, self.picture.getCaption(), self.book.getPicCount()+1)
-            self.log.info(f'Adding {pib} to {self.book}')
-            self.book.addPicture(pib)
-            self.manager.saveBook(self.book)
-            self.manager.findOriginal(self.picture)
+            self.setLoadingIcon()
+            self.manager.addPictureInBook(self.picture, self.book)
+            self.setLoadingIcon(True)
+            self.onSelectBook(self.book)
+            self.onSelectPicture(self.picture)
 
     def createWidgets(self):
         """Create user widgets."""

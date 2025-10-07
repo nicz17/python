@@ -97,6 +97,7 @@ class PictureInBook(Picture):
                          pic.updatedAt, pic.idxLocation, pic.rating)
         self.caption = caption
         self.order = order
+        self.orig = None
 
     def getCaption(self) -> str:
         """Getter for caption"""
@@ -120,7 +121,8 @@ class PictureInBook(Picture):
             'idx': self.idx,
             'filename': self.filename,
             'caption': self.caption,
-            'order': self.order
+            'order': self.order,
+            'orig': self.orig
         }
         return data
 
@@ -240,16 +242,27 @@ class BookManager():
             book = Book(data['name'], data['desc'])
             book.status = data['status']
             self.log.info(data['pictures'])
-            for pib in data['pictures']:
-                pic = self.picCache.findById(pib['idx'])
-                book.addPicture(PictureInBook(pic, pib['caption'], pib['order']))
+            for pibData in data['pictures']:
+                book.addPicture(self.loadPicture(pibData))
             filterData = data['filter']
-            filter = BookPicFilter()
-            filter.setLocation(None if filterData['idxLocation'] is None else self.locCache.getById(filterData['idxLocation']))
-            filter.setTaxon(None if filterData['idxTaxon'] is None else self.taxCache.findById(filterData['idxTaxon']))
-            filter.setQuality(filterData['quality'])
-            book.setFilter(filter)
+            book.setFilter(self.loadFilter(filterData['idxLocation'], filterData['idxTaxon'], filterData['quality']))
         return book
+    
+    def loadPicture(self, data) -> PictureInBook:
+        """Create a PictureInBook from json data."""
+        pic = self.picCache.findById(data['idx'])
+        pib = PictureInBook(pic, data['caption'], data['order'])
+        if 'orig' in data:
+            pib.orig = data['orig']
+        return pib
+    
+    def loadFilter(self, idxLocation: int, idxTaxon: int, quality: int) -> BookPicFilter:
+        """Create a filter from json data."""
+        filter = BookPicFilter()
+        filter.setLocation(None if idxLocation is None else self.locCache.getById(idxLocation))
+        filter.setTaxon(None if idxTaxon is None else self.taxCache.findById(idxTaxon))
+        filter.setQuality(quality)
+        return filter
         
     def saveBook(self, book: Book):
         """Save the book to json."""
@@ -269,6 +282,20 @@ class BookManager():
         self.log.info(f'Writing {filename}')
         with open(filename, 'w') as file:
             file.write(json.dumps(book.toJson(), indent=2))
+
+    def addPictureInBook(self, pic: Picture, book: Book):
+        """Add a picture to a book."""
+        # TODO generate caption according to filter
+        sShotAt = DateTools.datetimeToPrettyStringFr(pic.getShotAt())
+        caption = f'{pic.getTaxonNames()}, {pic.getLocationName()}, {sShotAt}'
+        pib = PictureInBook(pic, caption, book.getPicCount()+1)
+        self.log.info(f'Adding {pib} to {book}')
+        book.addPicture(pib)
+        orig = self.findOriginal(pic)
+        if orig:
+            pib.orig = orig.getNameFull()
+            # TODO copy orig to book dir
+        self.saveBook(book)
 
     def toHtml(self, book: Book):
         """Export a book as html preview."""
@@ -301,38 +328,14 @@ class BookManager():
         return 'BookManager'
 
 
-def testBook():
-    """Unit test for Book"""
-    Book.log.info("Testing Book")
-    book = Book("nameExample", "descExample")
-    book.log.info(book)
-    book.getName()
-    book.getDesc()
-    book.getStatus()
-    book.getPictures()
-    book.save()
-    book.log.info(book.toJson())
-
 def testBookManager():
     """Unit test for BookManager"""
     BookManager.log.info("Testing BookManager")
     mgr = BookManager()
     mgr.loadBooks()
     book = Book('Test01', 'Test Book 1')
-    #mgr.saveBook(book)
-
-def testBookPicFilter():
-    """Unit test for BookPicFilter"""
-    BookPicFilter.log.info("Testing BookPicFilter")
-    book = BookPicFilter()
-    book.log.info(book)
-    book.getTaxon()
-    book.getLocation()
-    book.getQuality()
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",
         level=logging.INFO, handlers=[logging.StreamHandler()])
-    #testBook()
     testBookManager()
-    #testBookPicFilter()
