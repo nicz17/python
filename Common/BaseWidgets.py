@@ -46,7 +46,7 @@ class Button():
     def grid(self, row: int, col: int):
         self.btn.grid(row=row, column=col, padx=3, sticky='w')
 
-    def getIcon(self, iconName: str):
+    def getIcon(self, iconName: str) -> tk.PhotoImage:
         if iconName:
             file = f'{self.dirIcons}/{iconName}.png'
             if os.path.exists(file):
@@ -54,6 +54,15 @@ class Button():
             else:
                 self.log.error('Could not find icon image %s', file)
         return None
+    
+    def setLabel(self, label: str):
+        """Change the button label."""
+        self.btn.configure(text=label)
+    
+    def setIcon(self, iconName: str):
+        """Change the button icon."""
+        self.icon = self.getIcon(iconName)
+        self.btn.configure(image=self.icon)
     
     def enableWidget(self, enabled: bool):
         self.btn['state'] = tk.NORMAL if enabled else tk.DISABLED

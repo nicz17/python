@@ -3,15 +3,6 @@ Pynorpa module to help create photo albums or calendars
 with iFolor or smartphoto.ch
 """
 
-# TODO add Books module 
-# - Book has name, description, status, list of pictures
-# - status: Project, Ongoing, Ordered, Done
-# - select Pictures by filtering on Location, Taxon and quality
-# - find original file on disk or backups by matching timestamp
-# - add original image file to Book directory orig/ for edition
-# - save Book contents in json file
-# - generate Book preview html file with medium images and comments 
-
 import config
 import logging
 
@@ -74,13 +65,21 @@ class ModuleBooks(TabModule):
             if book.getName() == name:
                 self.onSelectBook(book)
 
+    def onAddBook(self):
+        """Add a new book."""
+        # TODO add new book
+
+    def onPreviewBook(self):
+        """Preview a book."""
+        # TODO preview book
+
     def onSaveBook(self, book: Book):
         """Save the selected book."""
         book.setFilter(self.picFilter)
         self.manager.saveBook(book)
 
     def onSaveBookPic(self, pic: PictureInBook):
-        pass
+        self.manager.saveBook(self.book)
 
     def onFilterPics(self):
         """Reload pictures table using the filter."""
@@ -138,18 +137,21 @@ class ModuleBooks(TabModule):
 
         # Book picture editor
         self.bookPicEditor = BookPictureEditor(self.onSaveBookPic)
-        self.bookPicEditor.createWidgets(self.frmCenter)
+        self.bookPicEditor.createWidgets(self.frmRight)
 
         # Image preview
         self.imageWidget = imageWidget.CaptionImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
-        self.imageWidget.createWidgets(self.frmRight)
+        self.imageWidget.createWidgets(self.frmRight, 4)
 
         # Buttons
         self.btnAddPic = BaseWidgets.Button(self.frmLeft, 'Ajouter', self.onAddPicture, 'add')
         self.btnAddPic.pack(0)
-        # TODO button to create new book
-        # TODO button to export book
-        # TODO button to preview book in popup
+        frmButtons = ttk.Frame(self.frmCenter)
+        frmButtons.pack(fill=tk.X)
+        self.btnAddBook = BaseWidgets.Button(frmButtons, 'Nouveau livre', self.onAddBook, 'new')
+        self.btnAddBook.pack(0)
+        self.btnPreview = BaseWidgets.Button(frmButtons, 'Aperçu', self.onPreviewBook, 'zoom')
+        self.btnPreview.pack(0)
 
         self.enableWidgets()
 
@@ -180,6 +182,7 @@ class FilterEditor(BaseWidgets.BaseEditor):
         self.filter.setLocation(location)
         self.filter.setQuality(self.widQuality.getValue())
         self.cbkSave()
+        self.enableWidgets()
 
     def createWidgets(self, parent: tk.Frame):
         """Add the editor widgets to the parent widget."""
@@ -189,7 +192,9 @@ class FilterEditor(BaseWidgets.BaseEditor):
         self.widTaxon   = self.addText('Taxon', BookPicFilter.getTaxon, 42)
         self.widQuality = self.addSpinBox('Qualité min', BookPicFilter.getQuality, 1, 5)
         self.createButtons(True, False, False)
-        self.btnSave.btn.configure(text='Recharger')
+        self.btnSave.setLabel('Recharger')
+        self.btnSave.setIcon('refresh')
+        self.enableWidgets()
 
     def enableWidgets(self, evt=None):
         """Enable our internal widgets."""

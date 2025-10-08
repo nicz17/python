@@ -128,7 +128,7 @@ class TabModule:
         self.frmRight  = ttk.Frame(master=self.oFrame)
         self.frmLeft.pack(  fill=tk.Y, side=tk.LEFT, pady=0, padx=6)
         self.frmCenter.pack(fill=tk.Y, side=tk.LEFT, pady=5, padx=6)
-        self.frmRight.pack( fill=tk.Y, side=tk.LEFT, pady=8, padx=6)
+        self.frmRight.pack( fill=tk.Y, side=tk.LEFT, pady=5, padx=6)
 
     def enableWidget(self, oWidget, enabled: bool):
         """Enable or disable the widget."""

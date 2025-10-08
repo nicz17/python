@@ -92,16 +92,18 @@ class CaptionImageWidget(ImageWidget):
             caption = mtdCaption()
         else:
             caption = str(picture)
+        if caption is None:
+            caption = ''
         self.lblCaption.configure(text=caption)
 
     def setDefaultImage(self):
         super().setDefaultImage()
         self.lblCaption.configure(text='')
         
-    def createWidgets(self, parent: ttk.Frame):
+    def createWidgets(self, parent: ttk.Frame, pady=6):
         """Create user widgets."""
         self.lblImage = ttk.Label(master=parent, anchor=tk.CENTER, text='Choisir une photo')
-        self.lblImage.pack(side=tk.TOP, fill=tk.X)
+        self.lblImage.pack(side=tk.TOP, fill=tk.X, pady=pady)
         self.lblCaption = ttk.Label(master=parent, anchor=tk.CENTER, text='Caption')
         self.lblCaption.pack(side=tk.TOP, fill=tk.X)
         self.setDefaultImage()
