@@ -241,11 +241,10 @@ class BookManager():
             data = json.load(file)
             book = Book(data['name'], data['desc'])
             book.status = data['status']
-            self.log.info(data['pictures'])
             for pibData in data['pictures']:
                 book.addPicture(self.loadPicture(pibData))
-            filterData = data['filter']
-            book.setFilter(self.loadFilter(filterData['idxLocation'], filterData['idxTaxon'], filterData['quality']))
+            filter = data['filter']
+            book.setFilter(self.loadFilter(filter['idxLocation'], filter['idxTaxon'], filter['quality']))
         return book
     
     def loadPicture(self, data) -> PictureInBook:
@@ -268,14 +267,15 @@ class BookManager():
         """Save the book to json."""
         self.log.info(f'Saving {book}')
 
-        # Create dir if needed
-        dir = f'{config.dirBooks}{book.getName()}'
+        # Create directories if needed
+        dir = self.getBookDir(book)
         if not os.path.exists(dir):
             self.log.info(f'Creating dir {dir}')
             os.mkdir(dir)
             os.mkdir(f'{dir}/orig')
             os.mkdir(f'{dir}/photos')
             os.mkdir(f'{dir}/medium')
+            os.mkdir(f'{dir}/html')
 
         # Save book as json
         filename = f'{dir}/book.json'
@@ -285,17 +285,31 @@ class BookManager():
 
     def addPictureInBook(self, pic: Picture, book: Book):
         """Add a picture to a book."""
-        # TODO generate caption according to filter
-        sShotAt = DateTools.datetimeToPrettyStringFr(pic.getShotAt())
-        caption = f'{pic.getTaxonNames()}, {pic.getLocationName()}, {sShotAt}'
-        pib = PictureInBook(pic, caption, book.getPicCount()+1)
+        pib = PictureInBook(pic, self.buildCaption(pic, book), book.getPicCount()+1)
         self.log.info(f'Adding {pib} to {book}')
         book.addPicture(pib)
         orig = self.findOriginal(pic)
         if orig:
             pib.orig = orig.getNameFull()
-            # TODO copy orig to book dir
         self.saveBook(book)
+
+        # Copy photos to book dir
+        dir = self.getBookDir(book)
+        self.runSystemCommand(f'cp {config.dirPictures}{pic.filename} {dir}/photos/{pic.filename}')
+        if orig:
+            self.runSystemCommand(f'cp {orig.filename} {dir}/orig/{pic.filename}')
+
+    def buildCaption(self, pic: Picture, book: Book) -> str:
+        """Get the caption for the picture."""
+        sLoc = '' if book.getFilter().getLocation() else f', {pic.getLocationName()}'
+        sShotAt = DateTools.datetimeToPrettyStringFr(pic.getShotAt())
+        sRemarks = f'. {pic.getRemarks}' if pic.getRemarks() else ''
+        caption = f'{pic.getTaxonNames()}{sLoc}, {sShotAt}{sRemarks}'
+        return caption
+    
+    def getBookDir(self, book: Book) -> str:
+        """Get the book directory."""
+        return f'{config.dirBooks}{book.getName()}'
 
     def toHtml(self, book: Book):
         """Export a book as html preview."""
@@ -323,6 +337,13 @@ class BookManager():
             else:
                 self.log.info(f'Path does not exist: {dir}')
         self.log.info(f'Could not find original of {pic}')
+    
+    def runSystemCommand(self, cmd: str, dryrun=False):
+        """Run a system command."""
+        if dryrun:
+            self.log.info('dryrun: %s', cmd)
+        else:
+            os.system(cmd)
 
     def __str__(self):
         return 'BookManager'
