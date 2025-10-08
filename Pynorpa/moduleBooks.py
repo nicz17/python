@@ -71,7 +71,7 @@ class ModuleBooks(TabModule):
 
     def onPreviewBook(self):
         """Preview a book."""
-        # TODO preview book
+        self.manager.toHtml(self.book)
 
     def onSaveBook(self, book: Book):
         """Save the selected book."""

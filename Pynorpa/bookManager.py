@@ -16,6 +16,7 @@ from LocationCache import Location, LocationCache
 from picture import Picture, PictureCache
 from Database import Query
 from PhotoInfo import PhotoInfo
+from pynorpaHtml import PynorpaHtmlPage
 
 
 class BookPicFilter():
@@ -313,8 +314,15 @@ class BookManager():
 
     def toHtml(self, book: Book):
         """Export a book as html preview."""
-        # TODO: implement toHtml
-        pass
+        self.log.info(f'exporting {book} to html')
+
+        page = PynorpaHtmlPage(book.getName())
+        page.addHeading(1, book.getName())
+        page.addHeading(2, book.getDesc())
+        lst = page.addList([])
+        for pib in book.getPictures():
+            lst.addItem(pib.getCaption())
+        page.save(f'{self.getBookDir(book)}/html/book.html')
 
     def findOriginal(self, pic: Picture) -> PhotoInfo:
         """Find original picture. Look in disk in backups."""
