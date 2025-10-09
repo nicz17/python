@@ -17,7 +17,7 @@ from picture import Picture, PictureCache
 from Database import Query
 from PhotoInfo import PhotoInfo
 from pynorpaHtml import PynorpaHtmlPage
-
+from HtmlPage import *
 
 class BookPicFilter():
     """Class BookPicFilter"""
@@ -302,26 +302,37 @@ class BookManager():
 
     def buildCaption(self, pic: Picture, book: Book) -> str:
         """Get the caption for the picture."""
+        sTaxon = pic.getTaxonName()
+        if pic.taxon.getNameFr() != pic.getTaxonName():
+            sTaxon = f'{pic.taxon.getNameFr()} ({pic.getTaxonName()})'
         sLoc = '' if book.getFilter().getLocation() else f', {pic.getLocationName()}'
         sShotAt = DateTools.datetimeToPrettyStringFr(pic.getShotAt())
-        sRemarks = f'. {pic.getRemarks}' if pic.getRemarks() else ''
-        caption = f'{pic.getTaxonNames()}{sLoc}, {sShotAt}{sRemarks}'
+        sRemarks = f'. {pic.getRemarks()}' if pic.getRemarks() else ''
+        caption = f'{sTaxon}{sLoc}, {sShotAt}{sRemarks}'
         return caption
     
     def getBookDir(self, book: Book) -> str:
         """Get the book directory."""
         return f'{config.dirBooks}{book.getName()}'
+    
+    def createMediumImages(self, book: Book):
+        """Convert book photos to medium size."""
+        dir = self.getBookDir(book)
+        for pib in book.getPictures():
+            self.runSystemCommand(f'convert {dir}/photos/{pib.filename} -resize 500x500 {dir}/medium/{pib.filename}')
 
     def toHtml(self, book: Book):
         """Export a book as html preview."""
-        self.log.info(f'exporting {book} to html')
+        self.log.info(f'Exporting {book} to html')
+        self.createMediumImages(book)
 
         page = PynorpaHtmlPage(book.getName())
         page.addHeading(1, book.getName())
         page.addHeading(2, book.getDesc())
-        lst = page.addList([])
         for pib in book.getPictures():
-            lst.addItem(pib.getCaption())
+            page.addHeading(3, f'Photo {pib.getOrder()}')
+            page.addTag(ImageHtmlTag(f'../medium/{pib.filename}', pib.getCaption()))
+            page.addTag(HtmlTag('p', pib.getCaption()))
         page.save(f'{self.getBookDir(book)}/html/book.html')
 
     def findOriginal(self, pic: Picture) -> PhotoInfo:
