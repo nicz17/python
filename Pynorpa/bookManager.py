@@ -284,8 +284,8 @@ class BookManager():
         with open(filename, 'w') as file:
             file.write(json.dumps(book.toJson(), indent=2))
 
-    def addPictureInBook(self, pic: Picture, book: Book):
-        """Add a picture to a book."""
+    def addPictureInBook(self, pic: Picture, book: Book) -> PictureInBook:
+        """Add a picture to a book and return it."""
         pib = PictureInBook(pic, self.buildCaption(pic, book), book.getPicCount()+1)
         self.log.info(f'Adding {pib} to {book}')
         book.addPicture(pib)
@@ -299,6 +299,7 @@ class BookManager():
         self.runSystemCommand(f'cp {config.dirPictures}{pic.filename} {dir}/photos/{pic.filename}')
         if orig:
             self.runSystemCommand(f'cp {orig.filename} {dir}/orig/{pic.filename}')
+        return pib
 
     def buildCaption(self, pic: Picture, book: Book) -> str:
         """Get the caption for the picture."""

@@ -104,7 +104,7 @@ class CaptionImageWidget(ImageWidget):
         """Create user widgets."""
         self.lblImage = ttk.Label(master=parent, anchor=tk.CENTER, text='Choisir une photo')
         self.lblImage.pack(side=tk.TOP, fill=tk.X, pady=pady)
-        self.lblCaption = ttk.Label(master=parent, anchor=tk.CENTER, text='Caption')
+        self.lblCaption = ttk.Label(master=parent, anchor=tk.CENTER, text='Caption', wraplength=500)
         self.lblCaption.pack(side=tk.TOP, fill=tk.X)
         self.setDefaultImage()
 

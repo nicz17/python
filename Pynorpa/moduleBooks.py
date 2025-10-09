@@ -104,10 +104,11 @@ class ModuleBooks(TabModule):
         """Add the selected picture to the selected book."""
         if self.picture and self.book:
             self.setLoadingIcon()
-            self.manager.addPictureInBook(self.picture, self.book)
+            self.bookPic = self.manager.addPictureInBook(self.picture, self.book)
             self.setLoadingIcon(True)
             self.onSelectBook(self.book)
-            self.onSelectPicture(self.picture)
+            self.window.update()
+            self.onSelectBookPicture(self.bookPic)
 
     def createWidgets(self):
         """Create user widgets."""
@@ -289,6 +290,12 @@ class BookPictureEditor(BaseWidgets.BaseEditor):
         self.bookPic = bookPic
         self.setValue(bookPic)
 
+    def onSave(self, evt=None):
+        """Save changes to the edited object."""
+        self.bookPic.setCaption(self.widCaption.getValue())
+        self.bookPic.setOrder(self.widOrder.getValue())
+        self.cbkSave(self.bookPic)
+
     def createWidgets(self, parent: tk.Frame):
         """Add the editor widgets to the parent widget."""
         super().createWidgets(parent, 'Photo du livre')
@@ -305,6 +312,7 @@ class BookPictureEditor(BaseWidgets.BaseEditor):
         modified = self.hasChanges(self.bookPic)
         super().enableWidgets(editing)
         self.enableButtons(modified, modified, False)
+        self.widCaption.resetModified()
 
     def __str__(self):
         return f'BookPictureEditor editing {self.bookPic}'
