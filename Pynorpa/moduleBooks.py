@@ -67,7 +67,13 @@ class ModuleBooks(TabModule):
 
     def onAddBook(self):
         """Add a new book."""
-        # TODO add new book
+        newBook = self.manager.addBook()
+        bookNames = [book.getName() for book in self.manager.getBooks()]
+        self.cboBooks.setValues(bookNames)
+        self.cboBooks.setValue(newBook.getName())
+        self.book = newBook
+        self.onSelectBook(self.book)
+        self.enableWidgets()
 
     def onPreviewBook(self):
         """Preview a book."""

@@ -215,6 +215,7 @@ class BookManager():
         """Add a new book and return it."""
         name = f'Livre{len(self.books)+1}'
         book = Book(name, 'Nouveau livre')
+        book.setFilter(BookPicFilter())
         self.books.append(book)
         return book
 
@@ -225,7 +226,7 @@ class BookManager():
     def loadBooks(self):
         """Load books from disk."""
         self.log.info('Loading books')
-        dirs = glob.glob(config.dirBooks + '*')
+        dirs = sorted(glob.glob(config.dirBooks + '*'))
         for dir in dirs:
             if os.path.isdir(dir):
                 filename = f'{dir}/book.json'
@@ -327,14 +328,18 @@ class BookManager():
         self.log.info(f'Exporting {book} to html')
         self.createMediumImages(book)
 
-        page = PynorpaHtmlPage(book.getName())
-        page.addHeading(1, book.getName())
-        page.addHeading(2, book.getDesc())
+        # Create html page
+        page = PynorpaHtmlPage(book.getDesc())
+        page.addHeading(1, book.getDesc())
         for pib in book.getPictures():
             page.addHeading(3, f'Photo {pib.getOrder()}')
             page.addTag(ImageHtmlTag(f'../medium/{pib.filename}', pib.getCaption()))
             page.addTag(HtmlTag('p', pib.getCaption()))
-        page.save(f'{self.getBookDir(book)}/html/book.html')
+
+        # Save page and open in browser
+        filename = f'{self.getBookDir(book)}/html/book.html'
+        page.save(filename)
+        self.runSystemCommand(f'firefox {filename}')
 
     def findOriginal(self, pic: Picture) -> PhotoInfo:
         """Find original picture. Look in disk in backups."""
