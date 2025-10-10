@@ -81,7 +81,7 @@ class BaseTable():
         """Clears the tree contents."""
         self.tree.delete(*self.tree.get_children())
         self.nRows = 0
-        self.lblStatus.configure(text=f'No {self.objectlabel}')
+        self.setStatus(f'No {self.objectlabel}')
 
     def __str__(self) -> str:
         return f'BaseTable for {self.objectlabel}'
@@ -171,3 +171,65 @@ class TableWithColumns(BaseTable):
         self.tree.item(iid, values=rowdata)
 
         
+class AdvTable(TableWithColumns):
+    """Tests for table with title and toolbar, search etc."""
+    log = logging.getLogger('AdvTable')
+
+    def __init__(self, cbkSelectRow, objectLabel='rows', pady=0):
+        self.pady = pady
+        super().__init__(cbkSelectRow, objectLabel)
+        self.addColumns()
+
+    def addColumns(self):
+        """Define the table columns."""
+        pass
+
+    def loadData(self, rows):
+        """Display the specified rows in this table."""
+        self.clear()
+        self.data = rows
+        self.addRows(rows)
+        
+    def setStatus(self, text: str):
+        """Set the title bar text."""
+        self.lblTitle.configure(text=f'{self.objectlabel} ({self.nRows})')
+
+    def createWidgets(self, parent: tk.Frame, height=40):
+        """Create user widgets."""
+
+        # Title bar
+        self.lblTitle = ttk.Label(master=parent, text=f'Table for {self.objectlabel}', 
+                                  #background='#ece8e4', 
+                                  borderwidth=1, relief="groove")
+        self.lblTitle.pack(fill=tk.X, side=tk.TOP, pady=(self.pady, 0))
+
+        # Scrolling frame
+        frmScroll = ttk.Frame(parent)
+        frmScroll.pack(pady=0, anchor=tk.W)
+
+        # Treeview
+        self.tree = ttk.Treeview(frmScroll, height=height)
+        self.tree['columns'] = [col.label for col in self.getColumns()]
+        self.tree.bind('<<TreeviewSelect>>', self.onRowSelection)
+        
+        # Scroll bar
+        self.scrollbar = ttk.Scrollbar(frmScroll, orient=tk.VERTICAL, command=self.tree.yview)
+        self.tree.configure(yscrollcommand = self.scrollbar.set)
+
+        # Define columns
+        self.tree.column('#0', width=0, stretch=tk.NO)
+        for col in self.getColumns():
+            self.tree.column(col.label, width=col.width, anchor=tk.W)
+
+        # Define headings
+        self.tree.heading('#0', text='', anchor=tk.W)
+        for col in self.getColumns():
+            self.tree.heading(col.label, text=col.label, anchor=tk.W)
+
+        # Pack
+        self.tree.pack(side=tk.LEFT)
+        self.scrollbar.pack(side=tk.LEFT, fill=tk.Y)
+
+        # Toolbar frame
+        self.frmToolBar = ttk.Frame(parent)
+        self.frmToolBar.pack(fill=tk.X, anchor=tk.W)

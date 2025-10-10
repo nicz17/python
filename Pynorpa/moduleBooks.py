@@ -12,7 +12,7 @@ import tkinter as tk
 import imageWidget
 from tkinter import ttk
 from TabsApp import TabModule, TabsApp
-from BaseTable import TableColumn
+from BaseTable import TableColumn, AdvTable
 from picture import Picture, PictureCache
 from LocationCache import Location, LocationCache
 from bookManager import Book, BookPicFilter, BookManager, PictureInBook
@@ -213,12 +213,15 @@ class FilterEditor(BaseWidgets.BaseEditor):
         self.enableButtons(modified, False, False)
 
 
-class PictureSelectionTable(PictureTable):
+class PictureSelectionTable(AdvTable):
     """
     Table to select pictures to add to books.
     Filters on location, taxon, quality etc.
     """
     log = logging.getLogger("PictureSelectionTable")
+
+    def __init__(self, cbkSelectRow):
+        super().__init__(cbkSelectRow, 'Photos en galerie', 12)
 
     def addColumns(self):
         """Define the table columns."""
@@ -228,9 +231,12 @@ class PictureSelectionTable(PictureTable):
         self.addColumn(TableColumn('Qual',    Picture.getRating,        38))
 
 
-class BookPictureTable(PictureTable):
+class BookPictureTable(AdvTable):
     """Table of pictures in book."""
-    log = logging.getLogger("BookPictureTable")
+    log = logging.getLogger('BookPictureTable')
+
+    def __init__(self, cbkSelectRow):
+        super().__init__(cbkSelectRow, 'Photos du livre', 12)
 
     def addColumns(self):
         """Define the table columns."""
