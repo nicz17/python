@@ -92,10 +92,11 @@ class PictureInBook(Picture):
     """Subclass of Picture for books."""
     log = logging.getLogger("PictureInBook")
 
-    def __init__(self, pic: Picture, caption: str, order: int):
+    def __init__(self, pic: Picture, book: 'Book', caption: str, order: int):
         """Constructor."""
         super().__init__(pic.idx, pic.filename, pic.shotAt, pic.remarks, pic.idxTaxon,
                          pic.updatedAt, pic.idxLocation, pic.rating)
+        self.book = book
         self.caption = caption
         self.order = order
         self.orig = None
@@ -115,6 +116,14 @@ class PictureInBook(Picture):
     def setOrder(self, order: int):
         """Setter for order"""
         self.order = order
+
+    def getOrigSize(self) -> str:
+        """Get size of original image, or - if no original."""
+        if self.orig:
+            info = PhotoInfo(f'{self.book.getBookDir()}/orig/{self.filename}')
+            info.identify()
+            return info.getSizeString()
+        return '-'
 
     def toJson(self):
         """Create a dict of this PictureInBook for json export."""
@@ -181,6 +190,10 @@ class Book():
     def getPicCount(self) -> int:
         """Count the pictures in this book."""
         return len(self.pictures)
+    
+    def getBookDir(self) -> str:
+        """Get the book directory."""
+        return f'{config.dirBooks}{self.getName()}'
 
     def toJson(self):
         """Create a dict of this Book for json export."""
@@ -244,15 +257,15 @@ class BookManager():
             book = Book(data['name'], data['desc'])
             book.status = data['status']
             for pibData in data['pictures']:
-                book.addPicture(self.loadPicture(pibData))
+                book.addPicture(self.loadPicture(pibData, book))
             filter = data['filter']
             book.setFilter(self.loadFilter(filter['idxLocation'], filter['idxTaxon'], filter['quality']))
         return book
     
-    def loadPicture(self, data) -> PictureInBook:
+    def loadPicture(self, data, book: Book) -> PictureInBook:
         """Create a PictureInBook from json data."""
         pic = self.picCache.findById(data['idx'])
-        pib = PictureInBook(pic, data['caption'], data['order'])
+        pib = PictureInBook(pic, book, data['caption'], data['order'])
         if 'orig' in data:
             pib.orig = data['orig']
         return pib
@@ -287,7 +300,7 @@ class BookManager():
 
     def addPictureInBook(self, pic: Picture, book: Book) -> PictureInBook:
         """Add a picture to a book and return it."""
-        pib = PictureInBook(pic, self.buildCaption(pic, book), book.getPicCount()+1)
+        pib = PictureInBook(pic, book, self.buildCaption(pic, book), book.getPicCount()+1)
         self.log.info(f'Adding {pib} to {book}')
         book.addPicture(pib)
         orig = self.findOriginal(pic)
@@ -315,7 +328,7 @@ class BookManager():
     
     def getBookDir(self, book: Book) -> str:
         """Get the book directory."""
-        return f'{config.dirBooks}{book.getName()}'
+        return book.getBookDir()
     
     def createMediumImages(self, book: Book):
         """Convert book photos to medium size."""

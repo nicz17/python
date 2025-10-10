@@ -305,9 +305,9 @@ class BookPictureEditor(BaseWidgets.BaseEditor):
     def createWidgets(self, parent: tk.Frame):
         """Add the editor widgets to the parent widget."""
         super().createWidgets(parent, 'Photo du livre')
-        self.widOrder   = self.addIntInput('Ordre',   PictureInBook.getOrder)
-        self.widCaption = self.addTextArea('Légende', PictureInBook.getCaption, 6, 42)
-        # TODO add photo size
+        self.widOrder    = self.addIntInput('Ordre',   PictureInBook.getOrder)
+        self.widCaption  = self.addTextArea('Légende', PictureInBook.getCaption, 6, 46)
+        self.widOrigSize = self.addTextReadOnly('Original', PictureInBook.getOrigSize)
         self.createButtons(True, True, False)
         # TODO add Gimp button
         self.enableWidgets()
