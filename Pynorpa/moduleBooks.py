@@ -5,6 +5,7 @@ with iFolor or smartphoto.ch
 
 import config
 import logging
+import os
 
 import BaseWidgets
 import tkinter as tk
@@ -234,7 +235,6 @@ class BookPictureTable(PictureTable):
         """Define the table columns."""
         self.addColumn(TableColumn('Ordre',  PictureInBook.getOrder,     60))
         self.addColumn(TableColumn('Photo',  PictureInBook.getFilename, 370))
-        # TODO add pic size column
         
 
 class BookEditor(BaseWidgets.BaseEditor):
@@ -295,12 +295,20 @@ class BookPictureEditor(BaseWidgets.BaseEditor):
         """Display the specified pic in this editor."""
         self.bookPic = bookPic
         self.setValue(bookPic)
+        self.enableWidgets()
 
     def onSave(self, evt=None):
         """Save changes to the edited object."""
         self.bookPic.setCaption(self.widCaption.getValue())
         self.bookPic.setOrder(self.widOrder.getValue())
         self.cbkSave(self.bookPic)
+        self.enableWidgets()
+
+    def onOpenGimp(self):
+        """Open with Gimp button command."""
+        if self.bookPic and self.bookPic.hasOriginal():
+            cmd = f'gimp {self.bookPic.getOrigFilename()} &'
+            os.system(cmd)
 
     def createWidgets(self, parent: tk.Frame):
         """Add the editor widgets to the parent widget."""
@@ -309,7 +317,7 @@ class BookPictureEditor(BaseWidgets.BaseEditor):
         self.widCaption  = self.addTextArea('Légende', PictureInBook.getCaption, 6, 46)
         self.widOrigSize = self.addTextReadOnly('Original', PictureInBook.getOrigSize)
         self.createButtons(True, True, False)
-        # TODO add Gimp button
+        self.btnGimp     = self.addButton('Retoucher', self.onOpenGimp, 'gimp')
         self.enableWidgets()
 
     def enableWidgets(self, evt=None):
@@ -318,6 +326,7 @@ class BookPictureEditor(BaseWidgets.BaseEditor):
         modified = self.hasChanges(self.bookPic)
         super().enableWidgets(editing)
         self.enableButtons(modified, modified, False)
+        self.btnGimp.enableWidget(editing and self.bookPic.hasOriginal())
         self.widCaption.resetModified()
 
     def __str__(self):

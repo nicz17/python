@@ -117,13 +117,21 @@ class PictureInBook(Picture):
         """Setter for order"""
         self.order = order
 
+    def hasOriginal(self) -> bool:
+        """Checks if the original photo exists in book dir."""
+        return os.path.exists(self.getOrigFilename())
+
     def getOrigSize(self) -> str:
         """Get size of original image, or - if no original."""
-        if self.orig:
-            info = PhotoInfo(f'{self.book.getBookDir()}/orig/{self.filename}')
+        if self.hasOriginal():
+            info = PhotoInfo(self.getOrigFilename())
             info.identify()
             return info.getSizeString()
         return '-'
+    
+    def getOrigFilename(self) -> str:
+        """Get original photo filename in book dir."""
+        return f'{self.book.getBookDir()}/orig/{self.filename}'
 
     def toJson(self):
         """Create a dict of this PictureInBook for json export."""
