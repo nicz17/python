@@ -218,6 +218,7 @@ class PictureEditor(BaseWidgets.BaseEditor):
         modified = self.hasChanges(self.picture)
         super().enableWidgets(editing)
         self.enableButtons(modified, modified, False)
+        # TODO enable delete picture button
         self.btnUpload.enableWidget(editing)
         self.widRemarks.resetModified()
 

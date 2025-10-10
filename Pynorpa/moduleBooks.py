@@ -154,6 +154,7 @@ class ModuleBooks(TabModule):
         # Buttons
         self.btnAddPic = BaseWidgets.Button(self.frmLeft, 'Ajouter', self.onAddPicture, 'add')
         self.btnAddPic.pack(0)
+        # TODO add external image to book
         frmButtons = ttk.Frame(self.frmCenter)
         frmButtons.pack(fill=tk.X)
         self.btnAddBook = BaseWidgets.Button(frmButtons, 'Nouveau livre', self.onAddBook, 'new')

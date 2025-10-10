@@ -34,6 +34,8 @@ class QualityChecker():
         """Check that each taxon has observations."""
         pass
 
+    # TODO check for species with many pictures, some of which are bad quality
+
 
 def testQuality():
     """Unit test for QualityChecker."""

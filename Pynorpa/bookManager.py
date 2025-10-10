@@ -38,6 +38,7 @@ class BookPicFilter():
             query.add(f'and picRating >= {self.quality}')
         if self.location:
             query.add(f'and picIdxLocation = {self.location.getIdx()}')
+        # TODO handle taxon clause
         query.add('order by picFilename asc')
         return query
 
