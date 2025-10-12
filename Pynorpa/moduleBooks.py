@@ -16,7 +16,6 @@ from BaseTable import TableColumn, AdvTable
 from picture import Picture, PictureCache
 from LocationCache import Location, LocationCache
 from bookManager import Book, BookPicFilter, BookManager, PictureInBook
-from modulePictures import PictureTable
 
 
 class ModuleBooks(TabModule):
