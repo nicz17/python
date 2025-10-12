@@ -67,6 +67,47 @@ class Button():
     def enableWidget(self, enabled: bool):
         self.btn['state'] = tk.NORMAL if enabled else tk.DISABLED
 
+
+class IconButton():
+    """A button only displaying an icon."""
+    log = logging.getLogger("IconButton")
+    dirIcons = f'{Path.home()}/prog/icons'
+
+    def __init__(self, parent, icon: str, tooltip: str, cmd):
+        """Constructor."""
+        self.iconName = icon
+        self.iconImg = None
+        self.tooltip = tooltip
+        self.enabled = True
+        self.cmd = cmd
+        self.setIcon(icon)
+        self.lbl = ttk.Label(parent, image=self.iconImg)
+        self.lbl.pack()
+        self.lbl.bind("<Button-1>", self.onClick)
+        if tooltip:
+            self.tt = ToolTip(self.lbl, tooltip)
+    
+    def setIcon(self, iconName: str):
+        """Change the button icon."""
+        file = f'{self.dirIcons}/{iconName}.png'
+        if os.path.exists(file):
+            self.iconImg = tk.PhotoImage(file=file)
+        else:
+            self.log.error('Could not find icon image %s', file)
+
+    def setEnabled(self, enabled: bool):
+        """Setter for enabled"""
+        self.enabled = enabled
+
+    def onClick(self, event=None):
+        """On click."""
+        if self.enabled and self.cmd:
+            self.cmd()
+
+    def __str__(self):
+        str = f'IconButton {self.iconName}'
+
+
 class BaseWidget():
     """Base superclass for custom input widgets."""
     log = logging.getLogger('BaseWidget')
@@ -680,9 +721,8 @@ class BaseEditor():
         return 'BaseEditor'
 
 class ToolTip():
-    """
-    create a tooltip for a given widget
-    """
+    """Create a tooltip for a given widget."""
+
     def __init__(self, widget, text='widget info'):
         self.waittime = 500     #milliseconds
         self.wraplength = 180   #pixels
