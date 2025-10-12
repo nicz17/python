@@ -14,6 +14,9 @@ from pathlib import Path
 import datetime
 import DateTools
 
+
+# TODO add SearchBox
+
         
 def enableWidget(widget: tk.Widget, enabled: bool):
     """Enable the specified tk widget if enabled is true."""
@@ -73,7 +76,7 @@ class IconButton():
     log = logging.getLogger("IconButton")
     dirIcons = f'{Path.home()}/prog/icons'
 
-    def __init__(self, parent, icon: str, tooltip: str, cmd):
+    def __init__(self, parent, icon: str, tooltip: str, cmd, pady=0):
         """Constructor."""
         self.iconName = icon
         self.iconImg = None
@@ -82,7 +85,7 @@ class IconButton():
         self.cmd = cmd
         self.setIcon(icon)
         self.lbl = ttk.Label(parent, image=self.iconImg)
-        self.lbl.pack()
+        self.lbl.pack(side=tk.LEFT, pady=pady)
         self.lbl.bind("<Button-1>", self.onClick)
         if tooltip:
             self.tt = ToolTip(self.lbl, tooltip)
@@ -723,7 +726,7 @@ class BaseEditor():
 class ToolTip():
     """Create a tooltip for a given widget."""
 
-    def __init__(self, widget, text='widget info'):
+    def __init__(self, widget: tk.Widget, text='widget info'):
         self.waittime = 500     #milliseconds
         self.wraplength = 180   #pixels
         self.widget = widget
@@ -763,7 +766,7 @@ class ToolTip():
         self.tw.wm_geometry("+%d+%d" % (x, y))
         label = tk.Label(self.tw, text=self.text, justify='left',
                        background="#ffffd0", relief='solid', borderwidth=1,
-                       wraplength = self.wraplength)
+                       wraplength = self.wraplength, foreground='#303030')
         label.pack(ipadx=1)
 
     def hidetip(self):
