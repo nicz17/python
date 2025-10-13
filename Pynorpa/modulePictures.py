@@ -1,4 +1,4 @@
-"""Module modulePictures"""
+"""Module for Pictures in gallery"""
 
 __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2024 N. Zwahlen"
@@ -8,10 +8,11 @@ import config
 import logging
 from tkinter import filedialog as fd
 
-from BaseTable import *
-from TabsApp import *
 import BaseWidgets
 import DateTools
+
+from BaseTable import *
+from TabsApp import *
 import imageWidget
 from LocationCache import LocationCache
 from picture import Picture, PictureCache
@@ -70,15 +71,15 @@ class ModulePictures(TabModule):
     def createWidgets(self):
         """Create user widgets."""
         self.createLeftRightFrames()
-        self.table.createWidgets(self.frmLeft)
+        self.table.createWidgets(self.frmLeft, 36)
+        self.btnReclass = BaseWidgets.Button(self.table.frmToolBar, 'Reclasser', self.onReclassify, 'edit')
+        self.btnReclass.pack(0)
+        self.searchBar = BaseWidgets.SearchBar(self.table.frmToolBar, 36, self.table.onSearch)
+        self.btnReload = BaseWidgets.IconButton(self.table.frmToolBar, 'refresh', 'Recharger', self.loadData, 6)
         self.factory.createWidgets(self.frmLeft)
         self.editor.createWidgets(self.frmRight)
         self.imageWidget.createWidgets(self.frmRight)
         self.editor.loadData(None)
-
-        # Reclassify button
-        self.btnReclass = BaseWidgets.Button(self.frmLeft, 'Reclasser', self.onReclassify, 'edit')
-        self.btnReclass.pack(0)
         self.enableWidgets()
 
     def enableWidgets(self):
@@ -140,27 +141,38 @@ class PictureFactory():
         self.btnAdd.grid(0, 1)
 
 
-class PictureTable(TableWithColumns):
+class PictureTable(AdvTable):
     """Class PictureTable"""
     log = logging.getLogger("PictureTable")
 
     def __init__(self, cbkSelect):
         """Constructor."""
-        super().__init__(cbkSelect, "photos")
-        self.addColumns()
+        super().__init__(cbkSelect, "Photos", 6)
 
     def addColumns(self):
         """Define the table columns."""
         self.addColumn(TableColumn('Taxon',   Picture.getTaxonName,    200))
-        self.addColumn(TableColumn('Date',    Picture.getShotAt,       160))
+        self.addColumn(TableColumn('Observé', Picture.getShotAt,       160))
         self.addColumn(TableColumn('Lieu',    Picture.getLocationName, 200))
         self.addColumn(TableColumn('Qualité', Picture.getRating,        55))
 
-    def loadData(self, pictures):
+    def loadData(self, pictures: list[Picture]):
         """Display the specified objects in this table."""
         self.clear()
         self.data = pictures
         self.addRows(pictures)
+
+    def onSearch(self, search: str):
+        """Search for a picture matching the specified text."""
+        self.log.info(f'Searching for {search}')
+        for idxRow, pic in enumerate(self.data):
+            if search.lower() in pic.filename.lower():
+                self.log.debug(f'  Found {pic} at {idxRow}')
+                self.tree.see(idxRow)
+                self.tree.focus(idxRow)
+                self.tree.selection_set(idxRow)
+                break
+        self.log.info(f'No match for {search}')
 
     def __str__(self):
         return 'PictureTable'
@@ -200,13 +212,13 @@ class PictureEditor(BaseWidgets.BaseEditor):
         """Add the editor widgets to the parent widget."""
         super().createWidgets(parent, 'Propriétés de la photo')
         
-        self.widFilename = self.addTextReadOnly('Nom', Picture.getFilename)
-        self.widShotAt = self.addDateTimeReadOnly('Date', Picture.getShotAt)
-        self.widLocation = self.addTextReadOnly('Lieu', Picture.getCloseTo)
-        self.widRemarks = self.addTextArea('Remarques', Picture.getRemarks)
-        self.widTaxon = self.addTextReadOnly('Taxon', Picture.getTaxonNames)
+        self.widFilename  = self.addTextReadOnly('Nom', Picture.getFilename)
+        self.widShotAt    = self.addDateTimeReadOnly('Observé', Picture.getShotAt)
+        self.widLocation  = self.addTextReadOnly('Lieu', Picture.getCloseTo)
+        self.widRemarks   = self.addTextArea('Remarques', Picture.getRemarks)
+        self.widTaxon     = self.addTextReadOnly('Taxon', Picture.getTaxonNames)
         self.widUpdatedAt = self.addDateTimeReadOnly('Modifié', Picture.getUpdatedAt)
-        self.widRating = self.addSpinBox('Qualité', Picture.getRating, 1, 5)
+        self.widRating    = self.addSpinBox('Qualité', Picture.getRating, 1, 5)
         
         self.createButtons(True, True, False)
         self.btnUpload = self.addButton('Publier', self.onUpload, 'go-up')
