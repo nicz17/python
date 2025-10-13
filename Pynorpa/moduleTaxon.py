@@ -110,6 +110,7 @@ class ModuleTaxon(TabModule):
         self.btnAdd.pack(0)
         self.searchBar = BaseWidgets.SearchBar(frmToolbar, 32, self.onSearch)
         self.btnReload = BaseWidgets.IconButton(frmToolbar, 'refresh', 'Recharger les taxons', self.tree.loadData, 6)
+        self.btnCollapse = BaseWidgets.IconButton(frmToolbar, 'undo', 'Tout fermer', self.tree.closeAll, 6)
         frmToolbar.pack(fill=tk.X)
         frmToolbar2 = ttk.Frame(self.frmLeft)
         self.btnAddINat = BaseWidgets.Button(frmToolbar2, 'iNat', self.onAddTaxonINatDialog, 'add')
@@ -176,6 +177,11 @@ class TaxonTree(BaseTree):
             self.tree.see(iid)
             self.tree.focus(iid)
             self.tree.selection_set(iid)
+
+    def closeAll(self):
+        """Close all tree nodes."""
+        for node in self.tree.get_children():
+            self.tree.item(node, open=False)
 
 class TaxonEditor(BaseWidgets.BaseEditor):
     """A widget for editing Pynorpa taxa."""
