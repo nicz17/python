@@ -14,9 +14,6 @@ from pathlib import Path
 import datetime
 import DateTools
 
-
-# TODO add SearchBox
-
         
 def enableWidget(widget: tk.Widget, enabled: bool):
     """Enable the specified tk widget if enabled is true."""
@@ -722,6 +719,40 @@ class BaseEditor():
 
     def __str__(self) -> str:
         return 'BaseEditor'
+
+
+class SearchBar():
+    """An iterative search bar widget."""
+    log = logging.getLogger("SearchBar")
+
+    def __init__(self, parent: tk.Frame, width: int, cbkSearch):
+        """Constructor."""
+        self.cbkSearch = cbkSearch
+        self.txtInput = ttk.Entry(parent, width=width)
+        self.txtInput.pack(side=tk.LEFT, padx=3, fill=tk.X)
+        self.txtInput.bind('<Return>', self.onSearch)
+        self.btnClear  = IconButton(parent, 'clear-bar', 'Effacer', self.onClear, 6)
+        self.btnSearch = IconButton(parent, 'find', 'Chercher', self.onSearch, 6)
+
+    def onClear(self, event=None):
+        self.txtInput.delete(0, tk.END)
+        self.txtInput.focus_set()
+
+    def onSearch(self, event=None):
+        """Search button callback."""
+        input = self.txtInput.get()
+        if input and len(input) > 2:
+            self.cbkSearch(input)
+
+    def enableWidget(self, enabled: bool):
+        """Enable widget."""
+        enableWidget(self.txtInput, enabled)
+        self.btnSearch.setEnabled(enabled)
+        self.btnClear.setEnabled(enabled)
+
+    def __str__(self) -> str:
+        return 'SearchBar'
+
 
 class ToolTip():
     """Create a tooltip for a given widget."""

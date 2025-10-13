@@ -86,11 +86,10 @@ class ModuleTaxon(TabModule):
         if self.taxon:
             self.uploader.uploadSingleTaxon(self.taxon)
 
-    def onSearch(self, evt=None):
-        """Search taxon and select it in tree."""
-        input = self.txtSearch.get()
-        if input and len(input) > 2:
-            where = f"taxName like '%{input.replace(' ', '% %')}%'"
+    def onSearch(self, search: str):
+        """Search bar callback. Search taxon and select it in tree."""
+        if search and len(search) > 2:
+            where = f"taxName like '%{search.replace(' ', '% %')}%'"
             ids = self.cache.fetchFromWhere(where)
             if ids and len(ids) > 0:
                 taxon = self.cache.findById(ids[0])
@@ -109,18 +108,15 @@ class ModuleTaxon(TabModule):
         frmToolbar = ttk.Frame(self.frmLeft)
         self.btnAdd = BaseWidgets.Button(frmToolbar, 'Enfant', self.onAddTaxon, 'add')
         self.btnAdd.pack(0)
-        self.txtSearch = ttk.Entry(frmToolbar, width=32)
-        self.txtSearch.pack(side=tk.LEFT, padx=3, fill=tk.X)
-        self.txtSearch.bind('<Return>', self.onSearch)
-        self.btnSearch = BaseWidgets.IconButton(frmToolbar, 'find', 'Chercher', self.onSearch, 6)
+        self.searchBar = BaseWidgets.SearchBar(frmToolbar, 32, self.onSearch)
         self.btnReload = BaseWidgets.IconButton(frmToolbar, 'refresh', 'Recharger les taxons', self.tree.loadData, 6)
         frmToolbar.pack(fill=tk.X)
-        self.btnAddINat = BaseWidgets.Button(self.frmLeft, 'iNat', self.onAddTaxonINatDialog, 'add')
+        frmToolbar2 = ttk.Frame(self.frmLeft)
+        self.btnAddINat = BaseWidgets.Button(frmToolbar2, 'iNat', self.onAddTaxonINatDialog, 'add')
         self.btnAddINat.pack(0)
-        self.btnUpload = BaseWidgets.Button(self.frmLeft, 'Publier', self.onUpload, 'go-up')
+        self.btnUpload = BaseWidgets.Button(frmToolbar2, 'Publier', self.onUpload, 'go-up')
         self.btnUpload.pack(0)
-        # self.btnAddINatDlg = BaseWidgets.Button(self.frmLeft, 'iNat dlg', self.onAddTaxonINatDialog, 'add')
-        # self.btnAddINatDlg.pack(0)
+        frmToolbar2.pack(fill=tk.X)
 
         # Editor and image
         self.editor.createWidgets(self.frmRight)
