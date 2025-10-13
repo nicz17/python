@@ -11,11 +11,13 @@ import logging
 from tkinter import filedialog as fd
 
 import BaseWidgets
+import TextTools
+
 from BaseTable import *
 from LocationCache import *
 from MapWidget import *
 from pynorpaManager import PynorpaManager, PynorpaException
-from TabsApp import *
+from TabsApp import TabModule, TabsApp
 
 
 class ModuleLocations(TabModule):
@@ -73,29 +75,42 @@ class ModuleLocations(TabModule):
         self.table.createWidgets(self.frmLeft)
         self.btnAdd = BaseWidgets.Button(self.table.frmToolBar, 'Ajouter', self.onAddLocation, 'add')
         self.btnAdd.pack(0)
+        self.searchBar = BaseWidgets.SearchBar(self.table.frmToolBar, 28, self.table.onSearch)
         self.mapWidget.createWidgets(self.frmRight)
         self.editor.createWidgets(self.frmRight)
         self.table.setStatus('Chargement...')
 
 
-class TableLocations(TableWithColumns):
+class TableLocations(AdvTable):
     """Table widget for Pynorpa Locations."""
     log = logging.getLogger("TableLocations")
 
     def __init__(self, cbkSelect):
         """Constructor with selection callback."""
         self.log.info('Constructor')
-        super().__init__(cbkSelect, 'lieux')
+        super().__init__(cbkSelect, 'Lieux', 6)
         self.addColumn(TableColumn('Nom',      Location.getName,     200))
         self.addColumn(TableColumn('Région',   Location.getRegion,   150))
         self.addColumn(TableColumn('Altitude', Location.getAltitude,  80))
 
-    def loadData(self, locations):
+    def loadData(self, locations: list[Location]):
         """Display the specified locations in this table."""
         self.log.info('Loading %d locations', len(locations))
         self.clear()
         self.data = locations
         self.addRows(locations)
+
+    def onSearch(self, search: str):
+        """Search for a location containing the specified text."""
+        self.log.info(f'Searching for {search}')
+        for idxRow, loc in enumerate(self.data):
+            if search.lower() in TextTools.replaceAccents(loc.name).lower():
+                self.log.debug(f'  Found {loc} at {idxRow}')
+                self.tree.see(idxRow)
+                self.tree.focus(idxRow)
+                self.tree.selection_set(idxRow)
+                break
+        self.log.info(f'No match for {search}')
 
     def createWidgets(self, parent: tk.Frame):
         """Create user widgets."""
