@@ -38,13 +38,28 @@ class BookPicFilter():
             query.add(f'and picRating >= {self.quality}')
         if self.location:
             query.add(f'and picIdxLocation = {self.location.getIdx()}')
-        # TODO handle taxon clause
+        if self.taxon:
+            taxIds = []
+            self.getChildIds(self.taxon, taxIds)
+            query.add(f'and picTaxon in ({", ".join(taxIds)})')
         query.add('order by picFilename asc')
         return query
+    
+    def getChildIds(self, taxon: Taxon, taxIds: list[str]):
+        """Recursively list child taxon ids"""
+        for child in taxon.getChildren():
+            taxIds.append(str(child.idx))
+            self.getChildIds(child, taxIds)
 
     def getTaxon(self) -> Taxon:
         """Getter for taxon"""
         return self.taxon
+
+    def getTaxonName(self) -> str:
+        """Getter for taxon name"""
+        if self.taxon:
+            return self.taxon.getName()
+        return '(Tous)'
 
     def setTaxon(self, taxon: Taxon):
         """Setter for taxon"""
@@ -58,7 +73,7 @@ class BookPicFilter():
         """Getter for location name"""
         if self.location:
             return self.location.getName()
-        return 'Tous'
+        return '(Tous)'
 
     def setLocation(self, location: Location):
         """Setter for location"""

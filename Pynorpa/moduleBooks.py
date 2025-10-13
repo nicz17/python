@@ -8,6 +8,7 @@ import logging
 import os
 
 import BaseWidgets
+import TextTools
 import tkinter as tk
 import imageWidget
 from tkinter import ttk
@@ -15,6 +16,7 @@ from TabsApp import TabModule, TabsApp
 from BaseTable import TableColumn, AdvTable
 from picture import Picture, PictureCache
 from LocationCache import Location, LocationCache
+from taxon import Taxon, TaxonCache
 from bookManager import Book, BookPicFilter, BookManager, PictureInBook
 
 
@@ -89,6 +91,7 @@ class ModuleBooks(TabModule):
 
     def onFilterPics(self):
         """Reload pictures table using the filter."""
+        self.log.info(f'Loading pictures with {self.picFilter}')
         self.log.info(f'Filter SQL: {self.picFilter.getFilterClause().getSQL()}')
         self.loadPictures()
 
@@ -178,6 +181,7 @@ class FilterEditor(BaseWidgets.BaseEditor):
         super().__init__(cbkSave, '#62564f')
         self.filter = None
         self.locCache = LocationCache()
+        self.taxCache = TaxonCache()
 
     def loadData(self, filter: BookPicFilter):
         """Display the specified filter in this editor."""
@@ -188,6 +192,9 @@ class FilterEditor(BaseWidgets.BaseEditor):
         """Save changes to the edited object."""
         location = self.locCache.getByName(self.widLoc.getValue())
         self.filter.setLocation(location)
+        taxonName = self.widTaxon.getValue()
+        taxon = self.taxCache.findByName(TextTools.upperCaseFirst(taxonName))
+        self.filter.setTaxon(taxon)
         self.filter.setQuality(self.widQuality.getValue())
         self.cbkSave()
         self.enableWidgets()
@@ -196,8 +203,9 @@ class FilterEditor(BaseWidgets.BaseEditor):
         """Add the editor widgets to the parent widget."""
         super().createWidgets(parent, 'Filtrer les photos')
         locNames = [loc.name for loc in self.locCache.getLocations()]
+        locNames.insert(0, '(Tous)')
         self.widLoc     = self.addComboBoxRefl('Lieu', BookPicFilter.getLocationName, locNames)
-        self.widTaxon   = self.addText('Taxon', BookPicFilter.getTaxon, 42)
+        self.widTaxon   = self.addText('Taxon', BookPicFilter.getTaxonName, 42)
         self.widQuality = self.addSpinBox('Qualité min', BookPicFilter.getQuality, 1, 5)
         self.createButtons(True, False, False)
         self.btnSave.setLabel('Recharger')
