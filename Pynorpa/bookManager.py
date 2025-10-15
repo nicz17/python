@@ -376,7 +376,7 @@ class BookManager():
         # Save page and open in browser
         filename = f'{self.getBookDir(book)}/html/book.html'
         page.save(filename)
-        self.runSystemCommand(f'firefox {filename}')
+        self.runSystemCommand(f'firefox {filename} &')
 
     def findOriginal(self, pic: Picture) -> PhotoInfo:
         """Find original picture. Look in disk in backups."""
