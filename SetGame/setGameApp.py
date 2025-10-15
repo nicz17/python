@@ -38,6 +38,7 @@ class SetGameApp(BaseApp):
         self.playmat = Playmat(self.iWidth, self.iHeight, 
                 self.onCardSelection, self.onPlayerSelection)
         sGeometry = f'{self.iWidth + 120}x{self.iHeight + 30}'
+        # TODO ajouter icone
         super().__init__('Set', sGeometry)
         self.window.resizable(width=False, height=False)
 
@@ -93,6 +94,7 @@ class SetGameApp(BaseApp):
         if player is None:
             return
         self.activePlayer = player
+        # TODO unselect player
         self.log.info(f'Active player: {player}')
 
     def onHint(self):
