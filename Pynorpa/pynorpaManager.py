@@ -321,7 +321,18 @@ class PynorpaManager():
         picture.setTaxon(newTaxon)
         self.pictureCache.reclassify(picture)
 
-    
+    def canDeletePic(self, pic: Picture) -> bool:
+        """Check if the picture can be deleted."""
+        if pic is None:
+            return False
+        if pic.getRating() > 2:
+            return False
+        taxon: Taxon
+        taxon = pic.getTaxon()
+        if len(taxon.getPictures()) == 1:
+            return False
+        return True
+
     def backupDatabase(self):
         """Create a database dump as backup."""
         backupName = f'{config.dirBackup}{config.dbName}-pynorpa-bkp.sql'

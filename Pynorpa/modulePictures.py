@@ -187,6 +187,7 @@ class PictureEditor(BaseWidgets.BaseEditor):
         super().__init__(cbkSave, '#62564f')
         self.picture = None
         self.uploader = Uploader()
+        self.manager = PynorpaManager()
 
     def loadData(self, picture: Picture):
         """Display the specified object in this editor."""
@@ -202,6 +203,11 @@ class PictureEditor(BaseWidgets.BaseEditor):
     def onCancel(self):
         """Cancel changes to the edited object."""
         self.loadData(self.picture)
+
+    def onDelete(self):
+        """Delete the edited object."""
+        # TODO implement delete pic
+        raise NotImplementedError
 
     def onUpload(self):
         """Upload the edited picture."""
@@ -220,17 +226,17 @@ class PictureEditor(BaseWidgets.BaseEditor):
         self.widUpdatedAt = self.addDateTimeReadOnly('Modifié', Picture.getUpdatedAt)
         self.widRating    = self.addSpinBox('Qualité', Picture.getRating, 1, 5)
         
-        self.createButtons(True, True, False)
+        self.createButtons(True, True, True)
         self.btnUpload = self.addButton('Publier', self.onUpload, 'go-up')
         self.enableWidgets()
 
     def enableWidgets(self, evt=None):
         """Enable our internal widgets."""
-        editing  = self.picture is not None
-        modified = self.hasChanges(self.picture)
+        editing   = self.picture is not None
+        modified  = self.hasChanges(self.picture)
+        deletable = self.manager.canDeletePic(self.picture)
         super().enableWidgets(editing)
-        self.enableButtons(modified, modified, False)
-        # TODO enable delete picture button
+        self.enableButtons(modified, modified, deletable)
         self.btnUpload.enableWidget(editing)
         self.widRemarks.resetModified()
 
