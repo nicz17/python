@@ -9,8 +9,10 @@ import glob
 import json
 import logging
 import os
+from enum import Enum
 
 import DateTools
+import TextTools
 from taxon import Taxon, TaxonCache
 from LocationCache import Location, LocationCache
 from picture import Picture, PictureCache
@@ -164,6 +166,12 @@ class PictureInBook(Picture):
         return f'PictureInBook {self.filename} order {self.order}'
     
 
+class BookKind(Enum):
+    """Enumeration of book kinds."""
+    Livre = 0,
+    Calendrier = 1
+
+
 class Book():
     """A printed picture book."""
     log = logging.getLogger("Book")
@@ -173,6 +181,7 @@ class Book():
         self.name = name
         self.desc = desc
         self.status = 'Projet'
+        self.kind = BookKind.Livre
         self.filter = None
         self.pictures = []
 
@@ -218,6 +227,15 @@ class Book():
     def getBookDir(self) -> str:
         """Get the book directory."""
         return f'{config.dirBooks}{self.getName()}'
+    
+    def getKind(self) -> BookKind:
+        return self.kind
+    
+    def getKindName(self) -> str:
+        return self.kind.name
+    
+    def setKind(self, kind: BookKind):
+        self.kind = kind
 
     def toJson(self):
         """Create a dict of this Book for json export."""
@@ -227,6 +245,7 @@ class Book():
         data = {
             'name': self.name,
             'desc': self.desc,
+            'kind': self.kind.name,
             'status': self.status,
             'filter': self.filter.toJson(),
             'pictures': pics
@@ -280,6 +299,10 @@ class BookManager():
             data = json.load(file)
             book = Book(data['name'], data['desc'])
             book.status = data['status']
+            kind = BookKind.Livre
+            if 'kind' in data:
+                kind = BookKind[data['kind']]
+            book.setKind(kind)
             for pibData in data['pictures']:
                 book.addPicture(self.loadPicture(pibData, book))
             filter = data['filter']
@@ -368,10 +391,18 @@ class BookManager():
         # Create html page
         page = PynorpaHtmlPage(book.getDesc())
         page.addHeading(1, book.getDesc())
+        page.addHeading(2, book.getKindName())
+        aItems = []
         for pib in book.getPictures():
-            page.addHeading(3, f'Photo {pib.getOrder()}')
-            page.addTag(ImageHtmlTag(f'../medium/{pib.filename}', pib.getCaption()))
-            page.addTag(HtmlTag('p', pib.getCaption()))
+            heading = f'Photo {pib.getOrder()}'
+            if book.getKind() == BookKind.Calendrier:
+                heading = TextTools.upperCaseFirst(DateTools.aMonthFr[pib.getOrder()-1])
+            div = DivHtmlTag()
+            div.addTag(HtmlTag('h3', heading))
+            div.addTag(ImageHtmlTag(f'../medium/{pib.filename}', pib.getCaption()))
+            div.addTag(HtmlTag('p', pib.getCaption()))
+            aItems.append(div)
+        page.addTable(aItems, 2, True).addAttr('width', '1000px').addAttr('cellpadding', '20px')
 
         # Save page and open in browser
         filename = f'{self.getBookDir(book)}/html/book.html'

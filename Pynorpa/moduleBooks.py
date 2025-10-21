@@ -15,9 +15,9 @@ from tkinter import ttk
 from TabsApp import TabModule, TabsApp
 from BaseTable import TableColumn, AdvTable
 from picture import Picture, PictureCache
-from LocationCache import Location, LocationCache
-from taxon import Taxon, TaxonCache
-from bookManager import Book, BookPicFilter, BookManager, PictureInBook
+from LocationCache import LocationCache
+from taxon import TaxonCache
+from bookManager import Book, BookKind, BookPicFilter, BookManager, PictureInBook
 
 
 class ModuleBooks(TabModule):
@@ -271,6 +271,7 @@ class BookEditor(BaseWidgets.BaseEditor):
         self.book.setName(self.widName.getValue())
         self.book.setDesc(self.widDesc.getValue())
         self.book.setStatus(self.widStatus.getValue())
+        self.book.setKind(BookKind[self.widKind.getValue()])
         self.cbkSave(self.book)
 
     def createWidgets(self, parent: tk.Frame):
@@ -279,6 +280,7 @@ class BookEditor(BaseWidgets.BaseEditor):
         
         self.widName   = self.addText('Nom', Book.getName, 42)
         self.widDesc   = self.addText('Description', Book.getDesc, 42)
+        self.widKind   = self.addComboBoxRefl('Type', Book.getKindName, [kind.name for kind in BookKind])
         self.widStatus = self.addText('Status', Book.getStatus, 42)
         self.widPicCnt = self.addIntInput('Photos', Book.getPicCount)
         
