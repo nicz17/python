@@ -11,10 +11,11 @@ import tkinter as tk
 from tkinter import ttk
 
 import DateTools
-from appParam import AppParam, AppParamCache
+from appParam import AppParamCache
 from BaseWidgets import Button
 from pynorpaManager import PynorpaManager, PynorpaException
 from TabsApp import TabsApp, TabModule
+from PynorpaTask import PynorpaTask, CheckDiskSpace
 
 
 class ModuleBackups(TabModule):
@@ -38,15 +39,24 @@ class ModuleBackups(TabModule):
             sLastAt = f'Dernier backup : {DateTools.datetimeToString(apLastBackup.getDateVal())}'
             self.lblStatus.configure(text=sLastAt)
         self.loadTasks()
+        self.renderTasks()
 
     def loadTasks(self):
         """Load the tasks to perform."""
-        # TODO check free disk space
-        # TODO local database dump
+        self.tasks.append(CheckDiskSpace())
+        self.tasks.append(LocalDbBackup())
         # TODO check if external disk is mounted
         # TODO copy DB dump to external
         # TODO copy or sync pic directories since last backup
-        #self.tasks.append(CheckDiskSpace())
+
+    def getTasks(self) -> list[PynorpaTask]:
+        return self.tasks
+
+    def renderTasks(self):
+        for task in self.getTasks():
+            task.prepare()
+            wid = TaskWidget(task)
+            wid.createWidgets(self.frmLeft)
 
     def runBackups(self):
         """Run the backup tasks."""
@@ -73,3 +83,40 @@ class ModuleBackups(TabModule):
         btn = Button(self.frmButtons, label, cmd, icon)
         btn.pack(9)
         return btn
+    
+
+class LocalDbBackup(PynorpaTask):
+    """Create a local database dump."""
+    log = logging.getLogger('LocalDbBackup')
+
+    def __init__(self, cbkUpdate=None):
+        super().__init__('Base de donnée', 'Sauvegarde locale de la DB', 1)
+        self.cbkUpdate = cbkUpdate
+
+    def prepare(self):
+        pass
+
+    def run(self):
+        super().run()
+        PynorpaManager().backupDatabase()
+        self.setDesc('Sauvegarde DB effectuée')
+        self.cbkUpdate()
+
+
+class TaskWidget:
+    """Widget displaying the details and progress of a task."""
+    log = logging.getLogger('TaskWidget')
+
+    def __init__(self, task: PynorpaTask):
+        self.task = task
+
+    def createWidgets(self, parent: ttk.Frame):
+        """Create user widgets."""
+        lblFrame = ttk.LabelFrame(parent, text=self.task.title)
+        lblFrame.pack(pady=6, fill=tk.X)
+        lblStatus = ttk.Label(lblFrame, text=self.task.desc)
+        lblStatus.pack()
+
+    def __str__(self):
+        return f'TaskWidget for {self.task.title}'
+    
