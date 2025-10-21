@@ -54,6 +54,7 @@ class ModulePublish(TabModule):
         """Upload HTML pages."""
         self.setLoadingIcon()
         fDuration = self.uploader.uploadModified()
+        # TODO add progress bar
         self.setLoadingIcon(True)
         self.isExported = False
         status = f'Publié en {TextTools.durationToString(fDuration)}'

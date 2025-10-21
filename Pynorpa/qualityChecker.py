@@ -35,6 +35,7 @@ class QualityChecker():
         pass
 
     # TODO check for species with many pictures, some of which are bad quality
+    # TODO find Locations with too short descriptions
 
 
 def testQuality():
