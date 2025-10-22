@@ -12,9 +12,21 @@ import shutil
 import time
 import TextTools
 
-from Task import *
+from enum import Enum
+from Task import Task
 from CopyFromCamera import *
 from GeoTracker import *
+
+
+class TaskStatus(Enum):
+    """Enumeration of task statuses."""
+    Idle = 0
+    Running = 1
+    Done = 2
+    Error = 3
+
+    def __str__(self):
+        return f'TaskStatus {self.name}'
 
 
 class PynorpaTask(Task):
@@ -22,6 +34,7 @@ class PynorpaTask(Task):
 
     def __init__(self, title: str, desc: str, nStepsTotal: int):
         super().__init__(title, desc, nStepsTotal)
+        self.statusCode = TaskStatus.Idle
         self.tStart = None
         self.tEnd   = None
 
@@ -32,11 +45,13 @@ class PynorpaTask(Task):
     def run(self):
         """Run this task."""
         self.tStart = time.time()
+        self.statusCode = TaskStatus.Running
         self.log.info('Running')
 
     def onDone(self):
         if not self.tEnd:
             self.tEnd = time.time()
+        self.statusCode = TaskStatus.Done
 
     def getStatus(self) -> str:
         sLeft = self.getRemainingTime()

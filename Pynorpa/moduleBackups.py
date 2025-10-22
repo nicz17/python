@@ -6,7 +6,9 @@ __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2025 N. Zwahlen"
 __version__ = "1.0.0"
 
+import config
 import logging
+import os
 import tkinter as tk
 from tkinter import ttk
 
@@ -15,7 +17,7 @@ from appParam import AppParamCache
 from BaseWidgets import Button
 from pynorpaManager import PynorpaManager, PynorpaException
 from TabsApp import TabsApp, TabModule
-from PynorpaTask import PynorpaTask, CheckDiskSpace
+from PynorpaTask import TaskStatus, PynorpaTask, CheckDiskSpace
 
 
 class ModuleBackups(TabModule):
@@ -45,7 +47,7 @@ class ModuleBackups(TabModule):
         """Load the tasks to perform."""
         self.tasks.append(CheckDiskSpace())
         self.tasks.append(LocalDbBackup())
-        # TODO check if external disk is mounted
+        self.tasks.append(MountBackupDrive())
         # TODO copy DB dump to external
         # TODO copy or sync pic directories since last backup
 
@@ -102,6 +104,28 @@ class LocalDbBackup(PynorpaTask):
         self.setDesc('Sauvegarde DB effectuée')
         self.cbkUpdate()
 
+class MountBackupDrive(PynorpaTask):
+    """Just check that the backup drive is mounted."""
+    log = logging.getLogger('MountBackupDrive')
+
+    def __init__(self, cbkUpdate=None):
+        super().__init__('Disque externe', 'Monter le disque externe', 1)
+        self.cbkUpdate = cbkUpdate
+        self.dir = config.dirElements
+
+    def prepare(self):
+        self.log.info('Prepare')
+        if os.path.exists(self.dir):
+            self.setDesc(f'Disque externe montée sous {self.dir}')
+        else:
+            self.setStatus('Error')
+            self.statusCode = TaskStatus.Error
+
+    def run(self):
+        super().run()
+        if self.cbkUpdate:
+            self.cbkUpdate()
+
 
 class TaskWidget:
     """Widget displaying the details and progress of a task."""
@@ -112,10 +136,12 @@ class TaskWidget:
 
     def createWidgets(self, parent: ttk.Frame):
         """Create user widgets."""
-        lblFrame = ttk.LabelFrame(parent, text=self.task.title)
-        lblFrame.pack(pady=6, fill=tk.X)
-        lblStatus = ttk.Label(lblFrame, text=self.task.desc)
-        lblStatus.pack()
+        lblFrame = ttk.LabelFrame(parent, text=self.task.title, width=40)
+        lblFrame.pack(pady=6, fill=tk.X, expand=False)
+        lblDesc = ttk.Label(lblFrame, text=self.task.desc)
+        lblDesc.pack(fill=tk.X)
+        lblStatus = ttk.Label(lblFrame, text=f'{self.task.getStatus()} {self.task.statusCode}')
+        lblStatus.pack(fill=tk.X, side=tk.LEFT)
 
     def __str__(self):
         return f'TaskWidget for {self.task.title}'
