@@ -14,10 +14,10 @@ from card import Card, CardColor, CardFill, CardShape
 
 class InvalidSetReason(Enum):
     """Enumeration of reasons why a set is not valid."""
-    InvalidCardCount = 0,
-    InvalidNumbers = 1,
-    InvalidColors = 2,
-    InvalidShapes = 3,
+    InvalidCardCount = 0
+    InvalidNumbers = 1
+    InvalidColors = 2
+    InvalidShapes = 3
     InvalidFills = 4
 
 class CardSet():

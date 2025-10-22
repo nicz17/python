@@ -168,7 +168,7 @@ class PictureInBook(Picture):
 
 class BookKind(Enum):
     """Enumeration of book kinds."""
-    Livre = 0,
+    Livre = 0
     Calendrier = 1
 
 
