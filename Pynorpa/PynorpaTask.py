@@ -25,6 +25,28 @@ class TaskStatus(Enum):
     Done = 2
     Error = 3
 
+    def getDisplayName(self) -> str:
+        """Get GUI display text."""
+        if self == TaskStatus.Idle:
+            return 'En attente'
+        if self == TaskStatus.Running:
+            return 'En cours'
+        if self == TaskStatus.Done:
+            return 'Terminé'
+        if self == TaskStatus.Error:
+            return 'Erreur'
+
+    def getIcon(self) -> str:
+        """Get GUI display text."""
+        if self == TaskStatus.Idle:
+            return 'pause'
+        if self == TaskStatus.Running:
+            return 'run'
+        if self == TaskStatus.Done:
+            return 'ok'
+        if self == TaskStatus.Error:
+            return 'cancel'
+
     def __str__(self):
         return f'TaskStatus {self.name}'
 

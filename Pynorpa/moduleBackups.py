@@ -9,8 +9,10 @@ __version__ = "1.0.0"
 import config
 import logging
 import os
+
 import tkinter as tk
 from tkinter import ttk
+from pathlib import Path
 
 import DateTools
 from appParam import AppParamCache
@@ -55,30 +57,37 @@ class ModuleBackups(TabModule):
         return self.tasks
 
     def renderTasks(self):
+        self.taskWidgets = []
         for task in self.getTasks():
             task.prepare()
             wid = TaskWidget(task)
             wid.createWidgets(self.frmLeft)
+            wid.loadData()
+            self.taskWidgets.append(wid)
 
     def runBackups(self):
         """Run the backup tasks."""
         self.log.info('Running backup tasks')
         self.manager.backupDatabase()
 
+    def reloadTasks(self):
+        pass
+
     def createWidgets(self):
         """Create user widgets."""
         self.createLeftRightFrames()
 
+        # Status label
+        self.lblStatus = ttk.Label(self.frmRight)
+        self.lblStatus.pack(side=tk.TOP)
+
         # Buttons frame
-        self.frmButtons = ttk.Frame(self.frmLeft, padding=5)
+        self.frmButtons = ttk.Frame(self.frmRight, padding=5)
         self.frmButtons.pack(anchor=tk.W)
 
         # Buttons
         self.btnRun = self.addButton('Backup', 'run',  self.runBackups)
-
-        # Status label
-        self.lblStatus = ttk.Label(self.frmRight)
-        self.lblStatus.pack(side=tk.TOP)
+        self.btnRefresh = self.addButton('Recharger', 'refresh',  self.reloadTasks)
 
     def addButton(self, label: str, icon: str, cmd) -> Button:
         """Add a Tk Button to this module's frmButtons."""
@@ -116,7 +125,7 @@ class MountBackupDrive(PynorpaTask):
     def prepare(self):
         self.log.info('Prepare')
         if os.path.exists(self.dir):
-            self.setDesc(f'Disque externe montée sous {self.dir}')
+            self.setDesc(f'Disque externe monté sous {self.dir}')
         else:
             self.setStatus('Error')
             self.statusCode = TaskStatus.Error
@@ -130,18 +139,50 @@ class MountBackupDrive(PynorpaTask):
 class TaskWidget:
     """Widget displaying the details and progress of a task."""
     log = logging.getLogger('TaskWidget')
+    dirIcons = f'{Path.home()}/prog/icons'
 
     def __init__(self, task: PynorpaTask):
         self.task = task
+        self.iconImg = None
+
+    def loadData(self):
+        """Update widget contents."""
+
+        # Task icon
+        iconName = self.task.statusCode.getIcon()
+        file = f'{self.dirIcons}/{iconName}.png'
+        if os.path.exists(file):
+            self.iconImg = tk.PhotoImage(file=file)
+        else:
+            self.log.error('Could not find icon image %s', file)
+        self.lblIcon.configure(image=self.iconImg)
+
+        # Task description and status
+        self.lblDesc.configure(text=self.task.desc)
+        self.lblStatus.configure(text=self.task.statusCode.getDisplayName())
 
     def createWidgets(self, parent: ttk.Frame):
         """Create user widgets."""
         lblFrame = ttk.LabelFrame(parent, text=self.task.title, width=40)
         lblFrame.pack(pady=6, fill=tk.X, expand=False)
-        lblDesc = ttk.Label(lblFrame, text=self.task.desc)
-        lblDesc.pack(fill=tk.X)
-        lblStatus = ttk.Label(lblFrame, text=f'{self.task.getStatus()} {self.task.statusCode}')
-        lblStatus.pack(fill=tk.X, side=tk.LEFT)
+        frmLeft  = ttk.Frame(lblFrame)
+        frmRight = ttk.Frame(lblFrame)
+        frmLeft.pack( fill=tk.Y, side=tk.LEFT, pady=6, padx=6)
+        frmRight.pack(fill=tk.Y, side=tk.LEFT, pady=6, padx=6)
+
+        # Task icon
+        file = f'{self.dirIcons}/pause.png'
+        if os.path.exists(file):
+            self.iconImg = tk.PhotoImage(file=file)
+        else:
+            self.log.error('Could not find icon image %s', file)
+        self.lblIcon = ttk.Label(frmLeft, image=self.iconImg)
+        self.lblIcon.pack(side=tk.LEFT)
+
+        self.lblDesc = ttk.Label(frmRight, text='Description')
+        self.lblDesc.pack(fill=tk.X)
+        self.lblStatus = ttk.Label(frmRight, text='Status')
+        self.lblStatus.pack(fill=tk.X, side=tk.LEFT)
 
     def __str__(self):
         return f'TaskWidget for {self.task.title}'
