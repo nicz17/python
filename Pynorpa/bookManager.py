@@ -240,6 +240,7 @@ class Book():
     def toJson(self):
         """Create a dict of this Book for json export."""
         pics = []
+        self.pictures = sorted(self.getPictures(), key=lambda pic: pic.order)
         for pic in self.getPictures():
             pics.append(pic.toJson())
         data = {
@@ -383,31 +384,48 @@ class BookManager():
         for pib in book.getPictures():
             self.runSystemCommand(f'convert {dir}/photos/{pib.filename} -resize 500x500 {dir}/medium/{pib.filename}')
 
+    def createExportImages(self, book: Book):
+        """Link the book images to an export dir, prefixed by order."""
+        dir = self.getBookDir(book)
+        photoDir  = f'{dir}/photos'
+        exportDir = f'{dir}/export'
+        if not os.path.exists(exportDir):
+            os.mkdir(exportDir)
+        for pib in book.getPictures():
+            self.runSystemCommand(f'ln -s {photoDir}/{pib.filename} {exportDir}/{pib.order:02d}-{pib.filename}')
+
     def toHtml(self, book: Book):
         """Export a book as html preview."""
         self.log.info(f'Exporting {book} to html')
         self.createMediumImages(book)
+        self.createExportImages(book)
 
         # Create html page
         page = PynorpaHtmlPage(book.getDesc())
         page.addHeading(1, book.getDesc())
-        page.addHeading(2, book.getKindName())
+        page.addHeading(2, f'{book.getKindName()} avec {book.getPicCount()} photos')
         aItems = []
         for pib in book.getPictures():
             heading = f'Photo {pib.getOrder()}'
             if book.getKind() == BookKind.Calendrier:
                 heading = TextTools.upperCaseFirst(DateTools.aMonthFr[pib.getOrder()-1])
+                if pib.getOrder() == 0:
+                    heading = 'Couverture'
             div = DivHtmlTag()
             div.addTag(HtmlTag('h3', heading))
             div.addTag(ImageHtmlTag(f'../medium/{pib.filename}', pib.getCaption()))
             div.addTag(HtmlTag('p', pib.getCaption()))
             aItems.append(div)
-        page.addTable(aItems, 2, True).addAttr('width', '1000px').addAttr('cellpadding', '20px')
+            if book.getKind() == BookKind.Calendrier and pib.getOrder() == 0:
+                aItems.append(DivHtmlTag())
+        page.addTable(aItems, 2, True).addAttr('width', '1040px').addAttr('class', 'table-medium')
 
         # Save page and open in browser
         filename = f'{self.getBookDir(book)}/html/book.html'
         page.save(filename)
         self.runSystemCommand(f'firefox {filename} &')
+
+    # TODO export book to PDF file
 
     def findOriginal(self, pic: Picture) -> PhotoInfo:
         """Find original picture. Look in disk in backups."""

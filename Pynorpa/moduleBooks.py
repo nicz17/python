@@ -58,6 +58,8 @@ class ModuleBooks(TabModule):
         self.filterEditor.loadData(self.picFilter)
         self.loadPictures()
         self.tableBookPics.loadData(book.getPictures())
+        if book.getPicCount() > 0:
+            self.onSelectBookPicture(book.getPictures()[0])
 
     def onComboBookSel(self, evt=None):
         """Book combo selection callback."""
@@ -87,6 +89,7 @@ class ModuleBooks(TabModule):
         self.manager.saveBook(book)
 
     def onSaveBookPic(self, pic: PictureInBook):
+        """Save the selected book after picture edition."""
         self.manager.saveBook(self.book)
 
     def onFilterPics(self):
@@ -118,6 +121,10 @@ class ModuleBooks(TabModule):
             self.onSelectBook(self.book)
             self.window.update()
             self.onSelectBookPicture(self.bookPic)
+
+    def onRefresh(self):
+        """Refresh the selected book."""
+        self.onSelectBook(self.book)
 
     def createWidgets(self):
         """Create user widgets."""
@@ -163,6 +170,7 @@ class ModuleBooks(TabModule):
         self.btnAddBook.pack(0)
         self.btnPreview = BaseWidgets.Button(frmButtons, 'Aperçu', self.onPreviewBook, 'zoom')
         self.btnPreview.pack(0)
+        self.btnRefresh = BaseWidgets.IconButton(frmButtons, 'refresh', 'Recharger le livre', self.onRefresh, 6)
 
         self.enableWidgets()
 
@@ -282,7 +290,7 @@ class BookEditor(BaseWidgets.BaseEditor):
         self.widDesc   = self.addText('Description', Book.getDesc, 42)
         self.widKind   = self.addComboBoxRefl('Type', Book.getKindName, [kind.name for kind in BookKind])
         self.widStatus = self.addText('Status', Book.getStatus, 42)
-        self.widPicCnt = self.addIntInput('Photos', Book.getPicCount)
+        self.widPicCnt = self.addTextReadOnly('Photos', Book.getPicCount)
         
         self.createButtons(True, True, False)
         self.enableWidgets()
