@@ -35,6 +35,8 @@ class QualityIssue():
     def getDesc(self) -> str:
         """Getter for desc"""
         return self.desc
+    
+    # TODO add getDetails(), shorten description
 
     def getPic(self) -> Picture:
         """Getter for pic"""

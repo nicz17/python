@@ -8,8 +8,11 @@ __version__ = "1.0.0"
 
 import config
 import logging
+from ttkthemes import ThemedStyle
+
 from TabsApp import *
 from ModuleCamera import *
+
 import moduleLocations
 import moduleSelection
 import moduleReselection
@@ -20,7 +23,7 @@ import modulePublish
 import moduleBooks
 import moduleBackups
 import moduleCalendar
-from ttkthemes import ThemedStyle
+import moduleQuality
 
 class PynorpaApp(TabsApp):
     """Pynorpa App window."""
@@ -49,7 +52,8 @@ class PynorpaApp(TabsApp):
         modCalendar  = moduleCalendar.ModuleCalendar(self)
         modExcursion = moduleExpeditions.ModuleExpeditions(self)
         modPublish   = modulePublish.ModulePublish(self)
-        modBooks     = moduleBooks.ModuleBooks(self)  # Book design  
+        modBooks     = moduleBooks.ModuleBooks(self)
         modBackups   = moduleBackups.ModuleBackups(self)
+        modQuality   = moduleQuality.ModuleQuality(self)
 
         self.setStatus('Welcome to Pynorpa')
