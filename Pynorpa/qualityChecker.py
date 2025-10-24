@@ -8,7 +8,8 @@ import config
 import logging
 import os
 
-from picture import Picture, PictureCache
+from picture import PictureCache
+from LocationCache import LocationCache
 
 
 class QualityChecker():
@@ -18,6 +19,7 @@ class QualityChecker():
     def __init__(self):
         """Constructor."""
         self.picCache = PictureCache()
+        self.locCache = LocationCache()
 
     def checkPictureFiles(self):
         """Check picture files exist."""
@@ -35,7 +37,13 @@ class QualityChecker():
         pass
 
     # TODO check for species with many pictures, some of which are bad quality
-    # TODO find Locations with too short descriptions
+
+    def checkLocations(self):
+        """Find Locations with too short descriptions."""
+        minDescLen = 20
+        for loc in self.locCache.getLocations():
+            if len(loc.getDesc()) < minDescLen:
+                self.log.error(f'Location has short description: {loc}: {loc.getDesc()}')
 
 
 def testQuality():
@@ -43,6 +51,7 @@ def testQuality():
     checker = QualityChecker()
     checker.checkPictureFiles()
     checker.checkEmptyTaxa()
+    checker.checkLocations()
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",
