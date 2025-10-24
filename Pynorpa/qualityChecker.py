@@ -8,8 +8,9 @@ import config
 import logging
 import os
 
-from picture import PictureCache
 from LocationCache import LocationCache
+from picture import PictureCache
+from taxon import TaxonCache, TaxonRank
 
 
 class QualityChecker():
@@ -18,8 +19,9 @@ class QualityChecker():
 
     def __init__(self):
         """Constructor."""
-        self.picCache = PictureCache()
         self.locCache = LocationCache()
+        self.picCache = PictureCache()
+        self.taxCache = TaxonCache()
 
     def checkPictureFiles(self):
         """Check picture files exist."""
@@ -34,13 +36,15 @@ class QualityChecker():
 
     def checkEmptyTaxa(self):
         """Check that each taxon has observations."""
-        pass
+        for taxon in self.taxCache.getForRank(TaxonRank.SPECIES):
+            if taxon.countAllPictures() == 0:
+                self.log.error(f'Taxon has no pictures: {taxon}')
 
     # TODO check for species with many pictures, some of which are bad quality
 
     def checkLocations(self):
         """Find Locations with too short descriptions."""
-        minDescLen = 20
+        minDescLen = 25
         for loc in self.locCache.getLocations():
             if len(loc.getDesc()) < minDescLen:
                 self.log.error(f'Location has short description: {loc}: {loc.getDesc()}')
