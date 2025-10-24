@@ -101,11 +101,12 @@ class IconButton():
 
     def onClick(self, event=None):
         """On click."""
+        self.log.debug(f'Clicked {self}')
         if self.enabled and self.cmd:
             self.cmd()
 
     def __str__(self):
-        str = f'IconButton {self.iconName}'
+        return f'IconButton {self.iconName} enabled:{self.enabled}'
 
 
 class BaseWidget():

@@ -9,6 +9,7 @@ __version__ = "1.0.0"
 import logging
 import tkinter as tk
 from tkinter import ttk
+from BaseWidgets import IconButton
 
 
 class BaseTable():
@@ -183,6 +184,10 @@ class AdvTable(TableWithColumns):
     def addColumns(self):
         """Define the table columns."""
         pass
+
+    def addRefreshButton(self, cbkRefresh):
+        """Add an icon button to refresh table contents."""
+        self.btnRefresh = IconButton(self.frmToolBar, 'refresh', 'Recharger la table', cbkRefresh, 6)
 
     def loadData(self, rows):
         """Display the specified rows in this table."""

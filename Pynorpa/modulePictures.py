@@ -75,7 +75,7 @@ class ModulePictures(TabModule):
         self.btnReclass = BaseWidgets.Button(self.table.frmToolBar, 'Reclasser', self.onReclassify, 'edit')
         self.btnReclass.pack(0)
         self.searchBar = BaseWidgets.SearchBar(self.table.frmToolBar, 36, self.table.onSearch)
-        self.btnReload = BaseWidgets.IconButton(self.table.frmToolBar, 'refresh', 'Recharger', self.loadData, 6)
+        self.table.addRefreshButton(self.loadData)
         self.factory.createWidgets(self.frmLeft)
         self.editor.createWidgets(self.frmRight)
         self.imageWidget.createWidgets(self.frmRight)

@@ -76,9 +76,11 @@ class ModuleLocations(TabModule):
         self.btnAdd = BaseWidgets.Button(self.table.frmToolBar, 'Ajouter', self.onAddLocation, 'add')
         self.btnAdd.pack(0)
         self.searchBar = BaseWidgets.SearchBar(self.table.frmToolBar, 28, self.table.onSearch)
+        self.table.addRefreshButton(self.loadData)
+        self.table.setStatus('Chargement...')
+        
         self.mapWidget.createWidgets(self.frmRight)
         self.editor.createWidgets(self.frmRight)
-        self.table.setStatus('Chargement...')
 
 
 class TableLocations(AdvTable):
@@ -89,7 +91,7 @@ class TableLocations(AdvTable):
         """Constructor with selection callback."""
         self.log.info('Constructor')
         super().__init__(cbkSelect, 'Lieux', 6)
-        self.addColumn(TableColumn('Nom',      Location.getName,     200))
+        self.addColumn(TableColumn('Nom',      Location.getName,     220))
         self.addColumn(TableColumn('Région',   Location.getRegion,   150))
         self.addColumn(TableColumn('Altitude', Location.getAltitude,  80))
 
@@ -109,7 +111,7 @@ class TableLocations(AdvTable):
                 self.tree.see(idxRow)
                 self.tree.focus(idxRow)
                 self.tree.selection_set(idxRow)
-                break
+                return
         self.log.info(f'No match for {search}')
 
     def createWidgets(self, parent: tk.Frame):
