@@ -44,7 +44,12 @@ class TabsApp(BaseApp):
         self.dictTabs[oTab.getTitle()] = oTab
         return tab
     
-    def onTabSelection(self, event):
+    def navigate(self, idxTab: int):
+        """Select tab with the specified index."""
+        self.log.info(f'Navigating to tab {idxTab}')
+        self.tabControl.select(idxTab)
+    
+    def onTabSelection(self, event: tk.Event):
         """Notebook widget tab selection event."""
         selectedTab = event.widget.select()
         tabText = event.widget.tab(selectedTab, "text")

@@ -57,3 +57,11 @@ class PynorpaApp(TabsApp):
         modQuality   = moduleQuality.ModuleQuality(self)
 
         self.setStatus('Welcome to Pynorpa')
+
+        self.addButton('Nav', self.testNavigation)
+
+    def testNavigation(self):
+        # TODO navigate to module handling specified object
+        self.log.info('Navigation test')
+        self.log.info(type(self).__name__)
+        self.navigate(4)
