@@ -6,8 +6,10 @@ __version__ = "1.0.0"
 
 import config
 import logging
+import tkinter as tk
 
 from BaseTable import AdvTable, TableColumn
+from BaseWidgets import BaseEditor
 from imageWidget import CaptionImageWidget
 from TabsApp import TabModule, TabsApp
 from qualityChecker import QualityChecker, QualityIssue
@@ -22,6 +24,7 @@ class ModuleQuality(TabModule):
         self.window = parent.window
         self.checker = None
         self.table   = QualityTable(self.onSelectIssue)
+        self.editor  = QualityIssueEditor()
         self.imageWidget = CaptionImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
         super().__init__(parent, 'Qualité')
 
@@ -32,6 +35,7 @@ class ModuleQuality(TabModule):
         self.table.loadData(self.checker.getIssues())
 
     def onSelectIssue(self, issue: QualityIssue):
+        self.editor.loadData(issue)
         if issue:
             self.imageWidget.loadThumb(issue.getPic())
         else:
@@ -42,6 +46,7 @@ class ModuleQuality(TabModule):
         self.createLeftRightFrames()
         self.table.createWidgets(self.frmLeft, 36)
         self.table.addRefreshButton(self.loadData)
+        self.editor.createWidgets(self.frmRight)
         self.imageWidget.createWidgets(self.frmRight)
 
     def __str__(self):
@@ -68,7 +73,27 @@ class QualityTable(AdvTable):
 
     def __str__(self):
         return 'QualityTable'
-    
 
-# TODO add class QualityIssueEditor
+
+class QualityIssueEditor(BaseEditor):
+    """Editor for quality issue details. Read-only."""
+    log = logging.getLogger('QualityIssueEditor')
+
+    def __init__(self):
+        """Constructor."""
+        super().__init__(None, '#62564f')
+
+    def loadData(self, issue: QualityIssue):
+        """Display the specified object in this editor."""
+        self.setValue(issue)
+
+    def createWidgets(self, parent: tk.Frame):
+        """Add the editor widgets to the parent widget."""
+        super().createWidgets(parent, 'Propriétés du problème')
+        self.widDesc = self.addTextArea('Descr.',  QualityIssue.getDesc)
+        self.widDesc = self.addTextArea('Détails', QualityIssue.getDetails)
+        self.enableWidgets(True)
+
+    def __str__(self):
+        return 'QualityIssueEditor'
 
