@@ -32,11 +32,15 @@ class ModuleLocations(TabModule):
         self.mapWidget = MapWidget()
         self.manager = PynorpaManager()
         self.editor = LocationEditor(self.onSaveLocation, self.mapWidget)
-        super().__init__(parent, 'Lieux')
+        super().__init__(parent, 'Lieux', 'Location')
 
     def loadData(self):
         self.locationCache = LocationCache()
         self.table.loadData(self.locationCache.getLocations())
+
+    def navigateToObject(self, obj):
+        """Select the specified object in this module."""
+        self.table.onSearch(obj.getName())
 
     def onSelectLocation(self, location: Location):
         self.log.info(f'Selected {location}')

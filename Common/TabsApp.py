@@ -82,10 +82,11 @@ class TabModule:
     """ A module for the TabsApp. """
     log = logging.getLogger('TabModule')
     
-    def __init__(self, oParent: TabsApp, sTitle: str):
+    def __init__(self, oParent: TabsApp, sTitle: str, sClass=None):
         self.sTitle = sTitle
         self.oParent = oParent
         self.isLoaded = False
+        self.sClass = sClass
         self.oFrame = oParent.addTab(self)
         self.frmLeft    = None
         self.frmCenter  = None
@@ -96,6 +97,14 @@ class TabModule:
     
     def loadData(self):
         pass
+
+    def navigateToObject(self, obj):
+        """Select the specified object in this module."""
+        pass
+
+    def getDataClass(self) -> str:
+        """Returns the class of data handled by this module."""
+        return self.sClass
     
     def loadTab(self):
         """Load this tab only if needed. Creates the user widgets."""

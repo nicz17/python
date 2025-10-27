@@ -34,7 +34,7 @@ class ModulePictures(TabModule):
         self.editor  = PictureEditor(self.onSavePicture)
         self.factory = PictureFactory(self.onAddPicture, parent)
         self.imageWidget = imageWidget.ImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
-        super().__init__(parent, 'Photos')
+        super().__init__(parent, 'Photos', 'Picture')
         self.picture = None
 
     def loadData(self):

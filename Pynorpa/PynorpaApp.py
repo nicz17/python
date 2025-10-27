@@ -58,10 +58,16 @@ class PynorpaApp(TabsApp):
 
         self.setStatus('Welcome to Pynorpa')
 
-        self.addButton('Nav', self.testNavigation)
-
-    def testNavigation(self):
-        # TODO navigate to module handling specified object
-        self.log.info('Navigation test')
-        self.log.info(type(self).__name__)
-        self.navigate(4)
+    def testNavigation(self, obj=None):
+        """Navigate to module handling specified object"""
+        self.log.info(f'Navigation test to {obj}')
+        if not obj:
+            return
+        
+        for iTab, module in enumerate(self.dictTabs.values()):
+            module: TabModule
+            if module.getDataClass() == type(obj).__name__:
+                self.log.info(f'Module {module} handles {type(obj).__name__}')
+                self.navigate(iTab)
+                # TODO wait for module loading
+                module.navigateToObject(obj)

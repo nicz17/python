@@ -93,14 +93,14 @@ class QualityChecker():
             if not os.path.exists(filename):
                 self.log.error(f'Missing picture file {pic.getFilename()} on {pic.getShotAt()} in {pic.getLocationName()}')
                 details = f'{pic.getShotAt()} à {pic.getLocationName()}'
-                self.addIssue(f"La photo {pic.getFilename()} n'existe pas.", details, pic)
+                self.addIssue(f"La photo {pic.getFilename()} n'existe pas.", details, pic, pic)
 
     def checkEmptyTaxa(self):
         """Check that each taxon has observations."""
         for taxon in self.taxCache.getForRank(TaxonRank.SPECIES):
             if taxon.countAllPictures() == 0:
                 self.log.error(f'Taxon has no pictures: {taxon}')
-                self.addIssue(f"Le taxon {taxon.getName()} n'a pas d'observations", taxon, None)
+                self.addIssue(f"Le taxon {taxon.getName()} n'a pas d'observations", taxon, None, taxon)
 
     # TODO check for species with many pictures, some of which are bad quality
 
@@ -111,7 +111,7 @@ class QualityChecker():
             desc = loc.getDesc()
             if len(desc) < minDescLen:
                 self.log.error(f'Location has short description: {loc}: {desc}')
-                self.addIssue(f"Le lieu {loc.getName()} a une description très courte", desc, None)
+                self.addIssue(f"Le lieu {loc.getName()} a une description très courte", desc, None, loc)
 
 
 def testQuality():
