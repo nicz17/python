@@ -428,7 +428,7 @@ class BookManager():
     # TODO export book to PDF file
 
     def findOriginal(self, pic: Picture) -> PhotoInfo:
-        """Find original picture. Look in disk in backups."""
+        """Find original picture. Look in disk and backups."""
         self.log.info(f'Looking for original of {pic}')
         paths = [config.dirPhotosBase, config.dirElements + 'Pictures/']
         yearMonth = DateTools.datetimeToString(pic.getShotAt(), '%Y-%m')
@@ -448,6 +448,15 @@ class BookManager():
             else:
                 self.log.info(f'Path does not exist: {dir}')
         self.log.info(f'Could not find original of {pic}')
+
+    def findMissingOriginals(self, book: Book):
+        """Look for originals of book pictures."""
+        for pib in book.getPictures():
+            if not pib.hasOriginal():
+                orig = self.findOriginal(pib)
+                if orig:
+                    pib.orig = orig.getNameFull()
+        self.saveBook(book)
     
     def runSystemCommand(self, cmd: str, dryrun=False):
         """Run a system command."""
