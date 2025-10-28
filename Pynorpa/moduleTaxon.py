@@ -27,7 +27,7 @@ class ModuleTaxon(TabModule):
         """Constructor."""
         self.window = parent.window
         self.parent = parent
-        super().__init__(parent, 'Taxons')
+        super().__init__(parent, 'Taxons', Taxon.__name__)
         self.cache  = None
         self.taxon  = None
         self.manager = PynorpaManager()
@@ -40,6 +40,9 @@ class ModuleTaxon(TabModule):
         self.cache = TaxonCache()
         self.tree.loadData()
         self.enableWidgets()
+
+    def navigateToObject(self, taxon: Taxon):
+        self.tree.setSelection(taxon)
 
     def onSelectTaxon(self, id: str):
         """Callback for selection of taxon with specified id."""

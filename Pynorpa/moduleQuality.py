@@ -26,7 +26,7 @@ class ModuleQuality(TabModule):
         self.table   = QualityTable(self.onSelectIssue)
         self.editor  = QualityIssueEditor(parent)
         self.imageWidget = CaptionImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
-        super().__init__(parent, 'Qualité')
+        super().__init__(parent, 'Qualité', QualityIssue.__name__)
 
     def loadData(self):
         """Load data from cache and populate table."""
@@ -92,7 +92,7 @@ class QualityIssueEditor(BaseEditor):
 
     def navigate(self):
         self.log.info(f'Navigating to {self.issue.getLink()}')
-        self.app.testNavigation(self.issue.getLink())
+        self.app.navigateToObject(self.issue.getLink())
 
     def createWidgets(self, parent: tk.Frame):
         """Add the editor widgets to the parent widget."""
@@ -100,7 +100,7 @@ class QualityIssueEditor(BaseEditor):
         self.widDesc = self.addTextArea('Descr.',  QualityIssue.getDesc)
         self.widDesc = self.addTextArea('Détails', QualityIssue.getDetails)
         self.createButtons(False, False, False)
-        self.addButton('Nav', self.navigate)
+        self.btnResolve = self.addButton('Résoudre', self.navigate, 'go-next')
         self.enableWidgets(True)
 
     def __str__(self):

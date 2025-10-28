@@ -44,10 +44,31 @@ class TabsApp(BaseApp):
         self.dictTabs[oTab.getTitle()] = oTab
         return tab
     
+    def getTabs(self) -> list['TabModule']:
+        """Gets the list of TabModules in this app."""
+        return self.dictTabs.values()
+    
     def navigate(self, idxTab: int):
         """Select tab with the specified index."""
         self.log.info(f'Navigating to tab {idxTab}')
         self.tabControl.select(idxTab)
+
+    def navigateToObject(self, obj):
+        """Navigate to module handling specified object."""
+        self.log.info(f'Navigating to {obj}')
+        if not obj:
+            return
+        
+        objClass = type(obj).__name__
+        for iTab, module in enumerate(self.getTabs()):
+            if module.getDataClass() == objClass:
+                self.log.info(f'Module {module} handles {objClass}')
+                self.navigate(iTab)
+                self.window.update()
+                module.navigateToObject(obj)
+                return
+            
+        self.log.error(f'Could not find module handling {objClass}')
     
     def onTabSelection(self, event: tk.Event):
         """Notebook widget tab selection event."""

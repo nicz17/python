@@ -32,7 +32,7 @@ class ModuleLocations(TabModule):
         self.mapWidget = MapWidget()
         self.manager = PynorpaManager()
         self.editor = LocationEditor(self.onSaveLocation, self.mapWidget)
-        super().__init__(parent, 'Lieux', 'Location')
+        super().__init__(parent, 'Lieux', Location.__name__)
 
     def loadData(self):
         self.locationCache = LocationCache()

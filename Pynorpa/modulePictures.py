@@ -34,7 +34,7 @@ class ModulePictures(TabModule):
         self.editor  = PictureEditor(self.onSavePicture)
         self.factory = PictureFactory(self.onAddPicture, parent)
         self.imageWidget = imageWidget.ImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
-        super().__init__(parent, 'Photos', 'Picture')
+        super().__init__(parent, 'Photos', Picture.__name__)
         self.picture = None
 
     def loadData(self):
@@ -67,6 +67,11 @@ class ModulePictures(TabModule):
         """Reclassify the selected picture."""
         dlg = DialogReclassify(self.window, self.picture)
         self.window.wait_window(dlg.root)
+
+    def navigateToObject(self, pic: Picture):
+        """Select the specified object in this module."""
+        self.table.onSearch(pic.getFilename())
+        self.imageWidget.loadThumb(pic)
 
     def createWidgets(self):
         """Create user widgets."""
