@@ -69,6 +69,7 @@ class QualityChecker():
         self.checkPictureFiles()
         self.checkEmptyTaxa()
         self.checkLocations()
+        self.checkLowQualityPics()
         self.log.info(f'Found {self.countIssues()} quality issues.')
 
     def addIssue(self, desc: str, details: str, pic: Picture, link=None):
@@ -93,7 +94,7 @@ class QualityChecker():
             if not os.path.exists(filename):
                 self.log.error(f'Missing picture file {pic.getFilename()} on {pic.getShotAt()} in {pic.getLocationName()}')
                 details = f'{pic.getShotAt()} à {pic.getLocationName()}'
-                self.addIssue(f"La photo {pic.getFilename()} n'existe pas.", details, pic, pic)
+                self.addIssue(f"La photo {pic.getFilename()} n'existe pas", details, pic, pic)
 
     def checkEmptyTaxa(self):
         """Check that each taxon has observations."""
@@ -102,7 +103,17 @@ class QualityChecker():
                 self.log.error(f'Taxon has no pictures: {taxon}')
                 self.addIssue(f"Le taxon {taxon.getName()} n'a pas d'observations", taxon, None, taxon)
 
-    # TODO check for species with many pictures, some of which are bad quality
+    def checkLowQualityPics(self):
+        """Check for species with many pictures, some of which are bad quality."""
+        minPics = 5
+        for taxon in self.taxCache.getForRank(TaxonRank.SPECIES):
+            if taxon.countAllPictures() >= minPics:
+                pic: Picture
+                for pic in taxon.getPictures():
+                    if pic.getRating() < 3:
+                        self.log.warning(f'Taxon {taxon.getName()} has a low-quality pic {pic}')
+                        details = f"Photo de qualité {pic.getRating()} avec {taxon.countAllPictures()} photos"
+                        self.addIssue(f"La photo {pic.getFilename()} pourrait être effacée", details, pic, pic)
 
     def checkLocations(self):
         """Find Locations with too short descriptions."""
