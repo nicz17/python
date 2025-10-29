@@ -63,7 +63,8 @@ class QualityTable(AdvTable):
 
     def addColumns(self):
         """Define the table columns."""
-        self.addColumn(TableColumn('Description', QualityIssue.getDesc, 700))
+        self.addColumn(TableColumn('Type', QualityIssue.getKind, 60))
+        self.addColumn(TableColumn('Description', QualityIssue.getDesc, 600))
 
     def loadData(self, issues: list[QualityIssue]):
         """Display the specified objects in this table."""
@@ -97,8 +98,9 @@ class QualityIssueEditor(BaseEditor):
     def createWidgets(self, parent: tk.Frame):
         """Add the editor widgets to the parent widget."""
         super().createWidgets(parent, 'Propriétés du problème')
-        self.widDesc = self.addTextArea('Descr.',  QualityIssue.getDesc)
-        self.widDesc = self.addTextArea('Détails', QualityIssue.getDetails)
+        self.widKind = self.addTextReadOnly('Type', QualityIssue.getKind)
+        self.widDesc = self.addTextArea('Descr.',   QualityIssue.getDesc)
+        self.widDesc = self.addTextArea('Détails',  QualityIssue.getDetails)
         self.createButtons(False, False, False)
         self.btnResolve = self.addButton('Résoudre', self.navigate, 'go-next')
         self.enableWidgets(True)

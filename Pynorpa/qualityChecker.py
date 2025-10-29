@@ -32,6 +32,19 @@ class QualityIssue():
     def getIdx(self) -> int:
         """Getter for idx"""
         return self.idx
+    
+    def getKind(self) -> str:
+        """Get kind of object causing this issue."""
+        if self.cbkLink is None:
+            return 'Autre'
+        objClass = type(self.cbkLink).__name__
+        if objClass == 'Picture':
+            return 'Photo'
+        if objClass == 'Location':
+            return 'Lieu'
+        if objClass == 'Taxon':
+            return 'Taxon'
+        return objClass
 
     def getDesc(self) -> str:
         """Getter for desc"""
