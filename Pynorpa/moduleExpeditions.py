@@ -2,20 +2,20 @@
 
 __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2024 N. Zwahlen"
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 
 import config
 import logging
 from tkinter import filedialog as fd
 
-from BaseTable import *
-from TabsApp import *
 import BaseWidgets
 import DateTools
+from TabsApp import *
+from BaseTable import AdvTable, TableColumn
 from imageWidget import MultiImageWidget
 from expedition import Expedition, ExpeditionCache
-from LocationCache import Location, LocationCache
+from LocationCache import LocationCache
 from picture import Picture, PictureCache
 from moduleReselection import DialogLocate
 from pynorpaManager import PynorpaManager, PynorpaException
@@ -33,7 +33,7 @@ class ModuleExpeditions(TabModule):
         self.photos = MultiImageWidget()
         self.factory = ExcursionFactory(self.onNewExcursion, parent)
         self.manager = PynorpaManager()
-        super().__init__(parent, 'Excursions')
+        super().__init__(parent, 'Excursions', Expedition.__name__)
         self.excursion = None
 
     def loadData(self):
@@ -76,12 +76,13 @@ class ModuleExpeditions(TabModule):
     def createWidgets(self):
         """Create user widgets."""
         self.createLeftRightFrames()
-        self.table.createWidgets(self.frmLeft)
+        self.table.createWidgets(self.frmLeft, 36)
+        self.btnUpload = BaseWidgets.Button(self.table.frmToolBar, 'Publier', self.onUpload, 'go-up')
+        self.btnUpload.pack(0)
+        self.table.addRefreshButton(self.loadData)
         self.factory.createWidgets(self.frmLeft)
         self.editor.createWidgets(self.frmRight)
         self.photos.createWidgets(self.frmRight)
-        self.btnUpload = BaseWidgets.Button(self.frmLeft, 'Publier', self.onUpload, 'go-up')
-        self.btnUpload.pack(0)
         self.enableWidgets()
 
     def enableWidgets(self):
@@ -93,13 +94,13 @@ class ModuleExpeditions(TabModule):
         return "ModuleExpeditions"
 
 
-class ExpeditionTable(TableWithColumns):
+class ExpeditionTable(AdvTable):
     """Class ExpeditionTable"""
     log = logging.getLogger("ExpeditionTable")
 
     def __init__(self, cbkSelect):
         """Constructor."""
-        super().__init__(cbkSelect, "excursions")
+        super().__init__(cbkSelect, "Excursions", 6)
         self.addColumn(TableColumn('Titre', Expedition.getName, 256))
         self.addColumn(TableColumn('Lieu',  Expedition.getLocationName, 256))
         self.addColumn(TableColumn('Date',  Expedition.getFrom, 160))
@@ -213,7 +214,7 @@ class ExpeditionEditor(BaseWidgets.BaseEditor):
 
     def createWidgets(self, parent: tk.Frame):
         """Add the editor widgets to the parent widget."""
-        super().createWidgets(parent, 'Excursion Editor')
+        super().createWidgets(parent, "Editeur d'excursion")
         
         self.widName = self.addText('Titre', Expedition.getName)
         self.widDesc = self.addTextArea('Description', Expedition.getDesc)
