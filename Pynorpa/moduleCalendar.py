@@ -14,7 +14,7 @@ import calendar
 import datetime
 import DateTools
 import TextTools
-from BaseWidgets import Button
+from BaseWidgets import MonthYearSelector
 from TabsApp import TabsApp, TabModule
 
 
@@ -25,17 +25,18 @@ class ModuleCalendar(TabModule):
     def __init__(self, parent: TabsApp) -> None:
         """Constructor."""
         self.window = parent.window
+        self.monthYearSel = MonthYearSelector(self.loadData)
         self.calWidget = CalendarWidget(None)
         super().__init__(parent, 'Calendrier')
 
     def loadData(self):
         """Load calendar data."""
-        dateNow = DateTools.nowDatetime()
-        self.calWidget.loadData(dateNow.year, dateNow.month)
+        self.calWidget.loadData(self.monthYearSel.getYear(), self.monthYearSel.getMonth())
 
     def createWidgets(self):
         """Create user widgets."""
         self.createLeftRightFrames()
+        self.monthYearSel.createWidgets(self.frmLeft)
         self.calWidget.createWidgets(self.frmLeft)
 
     def __str__(self):

@@ -753,6 +753,49 @@ class SearchBar():
 
     def __str__(self) -> str:
         return 'SearchBar'
+    
+
+class MonthYearSelector:
+    """Selector for month and year."""
+    log = logging.getLogger('MonthYearSelector')
+
+    def __init__(self, cbkModified):
+        """Constructor."""
+        self.cbkModified = cbkModified
+        dtNow = DateTools.nowDatetime()
+        self.month = dtNow.month
+        self.year  = dtNow.year
+
+    def setValue(self, month: int, year: int):
+        self.month = month
+        self.year  = year
+        self.cboMonth.setValue(DateTools.aMonthFr[self.month-1])
+        self.spiYear.setValue(self)
+    
+    def getMonth(self):
+        return self.month
+    
+    def getYear(self, obj=None):
+        return self.year
+    
+    def onModified(self, event=None):
+        self.year  = self.spiYear.getValue()
+        self.month = self.cboMonth.getSelectionIndex()+1
+        self.cbkModified()
+
+    def createWidgets(self, parent: ttk.Frame):
+        """Create our widgets in the parent frame."""
+        self.frmMain = ttk.Frame(parent)
+        self.frmMain.pack(side=tk.TOP, anchor=tk.N, fill=tk.X, expand=False, pady=5)
+
+        self.cboMonth = ComboBox(self.onModified)
+        self.cboMonth.createWidgets(self.frmMain, 0, 0)
+        self.cboMonth.setValues(DateTools.aMonthFr)
+        self.cboMonth.setValue(DateTools.aMonthFr[self.month-1])
+
+        self.spiYear = SpinBox(self.onModified, self.getYear, 2010, self.year)
+        self.spiYear.createWidgets(self.frmMain, 0, 1)
+        self.spiYear.setValue(self)
 
 
 class ToolTip():
