@@ -115,6 +115,7 @@ class QualityChecker():
             if taxon.countAllPictures() == 0:
                 self.log.error(f'Taxon has no pictures: {taxon}')
                 self.addIssue(f"Le taxon {taxon.getName()} n'a pas d'observations", taxon, None, taxon)
+        # TODO check that Order taxa have children taxa (eg Boraginales)
 
     def checkLowQualityPics(self):
         """Check for species with many pictures, some of which are bad quality."""
