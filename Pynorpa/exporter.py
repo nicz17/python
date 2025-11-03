@@ -673,6 +673,9 @@ class Exporter():
         if taxon.getNameFr() != taxon.getName():
             title += f' &mdash; {taxon.getNameFr()}'
         page.addHeading(1, title)
+        
+        # TODO add og:image meta tag
+        # https://stackoverflow.com/questions/19778620/provide-an-image-for-whatsapp-link-sharing
 
         # Pictures table
         tablePics = TableHtmlTag([], 2)
