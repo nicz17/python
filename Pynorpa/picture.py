@@ -12,8 +12,8 @@ from datetime import datetime
 import Database
 import DateTools
 import TextTools
-from taxon import TaxonCache
-from LocationCache import *
+from taxon import TaxonCache, Taxon
+from LocationCache import LocationCache, Location
 from PhotoInfo import PhotoInfo
 
 
@@ -101,8 +101,8 @@ class Picture():
                 result += f' ({self.taxon.getNameFr()})'
         return result
     
-    def getTaxon(self):
-        """Set the taxon object."""
+    def getTaxon(self) -> 'Taxon':
+        """Get the taxon object."""
         return self.taxon
     
     def setTaxon(self, taxon):
@@ -278,6 +278,20 @@ class PictureCache():
             self.pictures.append(obj)
         else:
             self.log.error('No idx after insertion!')
+
+    def delete(self, pic: Picture, dryrun=True):
+        """Delete the specified Picture from database."""
+        self.log.info('Deleting %s', pic)
+        query = Database.Query('Delete Picture')
+        query.add(f'Delete from Picture where idxPicture = {pic.getIdx()}')
+        if dryrun:
+            self.log.info(f'Dryrun SQL: {query.getSQL()}')
+        else:
+            self.db.connect(config.dbUser, config.dbPass)
+            self.db.execute(query.getSQL())
+            self.db.disconnect()
+            self.pictures.remove(pic)
+        query.close()
 
     def reclassify(self, pic: Picture):
         """Update the Picture taxon and filename in database."""

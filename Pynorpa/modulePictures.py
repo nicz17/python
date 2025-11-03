@@ -211,8 +211,7 @@ class PictureEditor(BaseWidgets.BaseEditor):
 
     def onDelete(self):
         """Delete the edited object."""
-        # TODO implement delete pic
-        raise NotImplementedError
+        self.manager.deletePicture(self.picture, False)
 
     def onUpload(self):
         """Upload the edited picture."""

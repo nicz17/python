@@ -313,7 +313,7 @@ class PynorpaManager():
         self.runSystemCommand(f'mv {config.dirPicsBase}thumbs/{oldName} {config.dirPicsBase}thumbs/{newName}', dryrun)
 
         # Update old and new taxon pictures in cache
-        picture.taxon.pictures.remove(picture)
+        picture.getTaxon().getPictures().remove(picture)
         newTaxon.pictures.append(picture)
     
         # Update picture name and taxon in DB
@@ -321,13 +321,25 @@ class PynorpaManager():
         picture.setTaxon(newTaxon)
         self.pictureCache.reclassify(picture)
 
+    def deletePicture(self, pic: Picture, dryrun=True):
+        """Delete the specified picture."""
+        if not self.canDeletePic(pic):
+            raise PynorpaException("Cette photo ne peut pas être effacée.")
+        
+        self.log.info(f'Deleting {pic}')
+        self.runSystemCommand(f'rm {config.dirPictures}{pic.getFilename()}', dryrun)
+        self.runSystemCommand(f'rm {config.dirPicsBase}medium/{pic.getFilename()}', dryrun)
+        self.runSystemCommand(f'rm {config.dirPicsBase}thumbs/{pic.getFilename()}', dryrun)      
+        pic.getTaxon().getPictures().remove(pic)
+        pic.getLocation().getPictures().remove(pic)
+        self.pictureCache.delete(pic, dryrun)
+
     def canDeletePic(self, pic: Picture) -> bool:
         """Check if the picture can be deleted."""
         if pic is None:
             return False
         if pic.getRating() > 2:
             return False
-        taxon: Taxon
         taxon = pic.getTaxon()
         if len(taxon.getPictures()) == 1:
             return False
