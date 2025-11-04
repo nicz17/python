@@ -212,6 +212,7 @@ class PictureEditor(BaseWidgets.BaseEditor):
     def onDelete(self):
         """Delete the edited object."""
         self.manager.deletePicture(self.picture, False)
+        self.loadData(None)
 
     def onUpload(self):
         """Upload the edited picture."""

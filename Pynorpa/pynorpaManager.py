@@ -345,6 +345,23 @@ class PynorpaManager():
             return False
         return True
 
+    def deleteTaxon(self, taxon: Taxon, dryrun=True):
+        """Delete the specified taxon."""
+        if not self.canDeleteTaxon(taxon):
+            raise PynorpaException("Ce taxon ne peut pas être effacée.")
+        raise NotImplementedError
+        # TODO implement delete taxon
+
+    def canDeleteTaxon(self, taxon: Taxon) -> bool:
+        """Check if the taxon can be deleted."""
+        if taxon is None:
+            return False
+        if len(taxon.getChildren()) > 0:
+            return False
+        if len(taxon.getPictures()) > 0:
+            return False
+        return True
+
     def backupDatabase(self):
         """Create a database dump as backup."""
         backupName = f'{config.dirBackup}{config.dbName}-pynorpa-bkp.sql'

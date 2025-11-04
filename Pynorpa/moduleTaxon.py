@@ -193,6 +193,7 @@ class TaxonEditor(BaseWidgets.BaseEditor):
     def __init__(self, cbkSave):
         """Constructor with save callback."""
         super().__init__(cbkSave, '#62564f')
+        self.manager = PynorpaManager()
         self.taxon = None
 
     def loadData(self, taxon: Taxon):
@@ -217,6 +218,10 @@ class TaxonEditor(BaseWidgets.BaseEditor):
         """Cancel changes to the edited object."""
         self.loadData(self.taxon)
 
+    def onDelete(self):
+        """Delete the edited object."""
+        self.manager.deleteTaxon(self.taxon, False)
+
     def createWidgets(self, parent: tk.Frame):
         """Add the editor widgets to the parent widget."""
         super().createWidgets(parent, 'Taxon Editor')
@@ -230,15 +235,16 @@ class TaxonEditor(BaseWidgets.BaseEditor):
         self.chkTypical  = self.addCheckBox('Taxon type', Taxon.getTypical, 'Taxon type du parent')
 
         # Buttons: save, cancel, delete
-        self.createButtons(True, True, False)
+        self.createButtons(True, True, True)
         self.enableWidgets()
 
     def enableWidgets(self, evt=None):
         """Enable our internal widgets."""
-        editing  = self.taxon is not None
-        modified = self.hasChanges(self.taxon)
+        editing   = self.taxon is not None
+        modified  = self.hasChanges(self.taxon)
+        deletable = self.manager.canDeleteTaxon(self.taxon)
         super().enableWidgets(editing)
-        self.enableButtons(modified, modified, False)
+        self.enableButtons(modified, modified, deletable)
 
     def __str__(self) -> str:
-        return 'TaxonEditor'
+        return f'TaxonEditor for {self.taxon}'
