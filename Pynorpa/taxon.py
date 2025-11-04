@@ -124,7 +124,7 @@ class Taxon():
         typicalChild = self.getTypicalChild()
         if typicalChild:
             return typicalChild.getTypicalPicture()
-        return None
+        return self.getAnyPicture()
     
     def countAllPictures(self) -> int:
         """Count all pictures of this taxon and its children."""
@@ -348,6 +348,20 @@ class TaxonCache():
                 self.log.warning(f'No parent for {obj}')
         else:
             self.log.error('No idx after insertion!')
+
+    def delete(self, taxon: Taxon, dryrun=True):
+        """Delete the specified Taxon from database."""
+        self.log.info('Deleting %s', taxon)
+        query = Database.Query('Delete Taxon')
+        query.add(f'Delete from Taxon where idxTaxon = {taxon.getIdx()}')
+        if dryrun:
+            self.log.info(f'Dryrun SQL: {query.getSQL()}')
+        else:
+            self.db.connect(config.dbUser, config.dbPass)
+            self.db.execute(query.getSQL())
+            self.db.disconnect()
+            self.dictById.pop(taxon.getIdx())
+        query.close()
 
     def fetchFromWhere(self, where: str) -> list[int]:
         """Fetch Taxon records from a SQL where-clause. Return a list of ids."""

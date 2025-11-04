@@ -221,6 +221,7 @@ class TaxonEditor(BaseWidgets.BaseEditor):
     def onDelete(self):
         """Delete the edited object."""
         self.manager.deleteTaxon(self.taxon, False)
+        self.loadData(None)
 
     def createWidgets(self, parent: tk.Frame):
         """Add the editor widgets to the parent widget."""

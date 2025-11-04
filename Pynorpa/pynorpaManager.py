@@ -325,6 +325,8 @@ class PynorpaManager():
         """Delete the specified picture."""
         if not self.canDeletePic(pic):
             raise PynorpaException("Cette photo ne peut pas être effacée.")
+        if not isinstance(pic, Picture):
+            raise ValueError(f'Object to delete is not a Picture: {pic}')
         
         self.log.info(f'Deleting {pic}')
         self.runSystemCommand(f'rm {config.dirPictures}{pic.getFilename()}', dryrun)
@@ -349,8 +351,11 @@ class PynorpaManager():
         """Delete the specified taxon."""
         if not self.canDeleteTaxon(taxon):
             raise PynorpaException("Ce taxon ne peut pas être effacée.")
-        raise NotImplementedError
-        # TODO implement delete taxon
+        if not isinstance(taxon, Taxon):
+            raise ValueError(f'Object to delete is not a Taxon: {taxon}')
+        
+        self.log.info(f'Deleting {taxon}')
+        self.taxonCache.delete(taxon, dryrun)
 
     def canDeleteTaxon(self, taxon: Taxon) -> bool:
         """Check if the taxon can be deleted."""
@@ -358,7 +363,7 @@ class PynorpaManager():
             return False
         if len(taxon.getChildren()) > 0:
             return False
-        if len(taxon.getPictures()) > 0:
+        if taxon.countAllPictures() > 0:
             return False
         return True
 
