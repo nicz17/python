@@ -87,10 +87,11 @@ class CaptionImageWidget(ImageWidget):
         super().loadThumb(picture)
 
         # Display caption
+        caption = ''
         mtdCaption = getattr(picture, 'getCaption', None)
         if callable(mtdCaption):
             caption = mtdCaption()
-        else:
+        elif picture:
             caption = str(picture)
         if caption is None:
             caption = ''
