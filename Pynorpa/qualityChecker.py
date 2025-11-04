@@ -111,11 +111,17 @@ class QualityChecker():
 
     def checkEmptyTaxa(self):
         """Check that each taxon has observations."""
+        # Check that Species taxa have pictures
         for taxon in self.taxCache.getForRank(TaxonRank.SPECIES):
             if taxon.countAllPictures() == 0:
                 self.log.error(f'Taxon has no pictures: {taxon}')
                 self.addIssue(f"Le taxon {taxon.getName()} n'a pas d'observations", taxon, None, taxon)
-        # TODO check that Order taxa have children taxa (eg Boraginales)
+        # Check that Order taxa have children
+        for taxon in self.taxCache.getForRank(TaxonRank.ORDER):
+            if len(taxon.getChildren()) == 0:
+                self.log.error(f'Taxon has no children: {taxon}')
+                self.addIssue(f"Le taxon {taxon.getName()} n'a pas d'enfants", taxon, None, taxon)
+
 
     def checkLowQualityPics(self):
         """Check for species with many pictures, some of which are bad quality."""
