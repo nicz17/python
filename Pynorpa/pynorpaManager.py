@@ -5,6 +5,7 @@ __copyright__ = "Copyright 2025 N. Zwahlen"
 __version__ = "1.0.0"
 
 import config
+import glob
 import logging
 import os
 from tkinter import messagebox as mb
@@ -389,6 +390,25 @@ class PynorpaManager():
         cmd = f'cp {backupName} {config.dirElements}Documents/'
         self.runSystemCommand(cmd)
         self.log.info('DB backup copied to Elements.')
+
+    def getDirsToBackup(self) -> list[str]:
+        """Get the list of photo dirs that need backup."""
+        self.log.info('Getting list of photo dirs to backup')
+
+        if not os.path.exists(config.dirElements):
+            self.log.error('Elements is not mounted!')
+            return None
+
+        result = []
+        pathLocal = f'{config.dirPhotosBase}'
+        pathExtnl = f'{config.dirElements}Pictures/'
+        dirsLocal = sorted(glob.glob(f'{pathLocal}Nature-2*'))
+        for dir in dirsLocal:
+            dirExtnl = f'{pathExtnl}{os.path.basename(dir)}'
+            if not os.path.exists(dirExtnl):
+                self.log.info(f'Local dir {os.path.basename(dir)} needs backup')
+                result.append(dir)
+        return result
     
     def runSystemCommand(self, cmd: str, dryrun=False):
         """Run a system command."""
@@ -404,7 +424,8 @@ def testManager():
     #mgr.addLocation(config.dirSourceGeoTrack + 'Lauenensee250216.gpx')
     #mgr.addPicture('vanessa-cardui004.jpg', None)
     #mgr.addTaxonFromINat('Solorina saccata')
-    mgr.backupDatabase()
+    #mgr.backupDatabase()
+    mgr.getDirsToBackup()
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",
