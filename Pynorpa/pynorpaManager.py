@@ -366,14 +366,29 @@ class PynorpaManager():
         if taxon.countAllPictures() > 0:
             return False
         return True
+    
+    def getDbDumpName(self) -> str:
+        """get the database dump name."""
+        return f'{config.dirBackup}{config.dbName}-pynorpa-bkp.sql'
 
     def backupDatabase(self):
         """Create a database dump as backup."""
-        backupName = f'{config.dirBackup}{config.dbName}-pynorpa-bkp.sql'
+        backupName = self.getDbDumpName()
         self.log.info(f'Creating DB dump of {config.dbName} as {backupName}')
         cmd = f'mysqldump --no-tablespaces -u {config.dbUser} -p{config.dbPass} {config.dbName} > {backupName}'
         self.runSystemCommand(cmd)
         self.log.info('DB backup done.')
+
+    def copyDbDumpToExternalDisk(self):
+        """Copy database dump to external disk."""
+        backupName = self.getDbDumpName()
+        self.log.info(f'Copying DB dump {backupName} to {config.dirElements}')
+        if not os.path.exists(config.dirElements):
+            self.log.error('Elements is not mounted!')
+            return
+        cmd = f'cp {backupName} {config.dirElements}Documents/'
+        self.runSystemCommand(cmd)
+        self.log.info('DB backup copied to Elements.')
     
     def runSystemCommand(self, cmd: str, dryrun=False):
         """Run a system command."""

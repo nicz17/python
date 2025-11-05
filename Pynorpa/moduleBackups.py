@@ -47,10 +47,11 @@ class ModuleBackups(TabModule):
 
     def loadTasks(self):
         """Load the tasks to perform."""
+        self.tasks = []
         self.tasks.append(CheckDiskSpace())
         self.tasks.append(LocalDbBackup())
         self.tasks.append(MountBackupDrive())
-        # TODO copy DB dump to external
+        self.tasks.append(CopyDbBackup())
         # TODO copy or sync pic directories since last backup
 
     def getTasks(self) -> list[PynorpaTask]:
@@ -65,13 +66,31 @@ class ModuleBackups(TabModule):
             wid.loadData()
             self.taskWidgets.append(wid)
 
+    def updateTasks(self):
+        for wid in self.taskWidgets:
+            wid.loadData()
+
     def runBackups(self):
         """Run the backup tasks."""
         self.log.info('Running backup tasks')
-        self.manager.backupDatabase()
+        self.isRunning = True
+        self.enableWidgets()
+        self.setLoadingIcon()
+
+        for task in self.getTasks():
+            if not task.isOver():
+                task.run()
+                self.updateTasks()
+                if not task.isOver():
+                    break
+        self.updateTasks()
+        self.setLoadingIcon(True)
+        self.isRunning = False
+        self.enableWidgets()
+        
 
     def reloadTasks(self):
-        pass
+        self.loadTasks()
 
     def createWidgets(self):
         """Create user widgets."""
@@ -88,6 +107,10 @@ class ModuleBackups(TabModule):
         # Buttons
         self.btnRun = self.addButton('Backup', 'run',  self.runBackups)
         self.btnRefresh = self.addButton('Recharger', 'refresh',  self.reloadTasks)
+
+    def enableWidgets(self):
+        self.btnRun.enableWidget(not self.isRunning)
+        self.btnRefresh.enableWidget(not self.isRunning)
 
     def addButton(self, label: str, icon: str, cmd) -> Button:
         """Add a Tk Button to this module's frmButtons."""
@@ -110,8 +133,30 @@ class LocalDbBackup(PynorpaTask):
     def run(self):
         super().run()
         PynorpaManager().backupDatabase()
-        self.setDesc('Sauvegarde DB effectuée')
-        self.cbkUpdate()
+        self.setDesc('Sauvegarde DB locale effectuée')
+        self.inc()
+        if self.cbkUpdate:
+            self.cbkUpdate()
+
+class CopyDbBackup(PynorpaTask):
+    """Copy database dumpto external disk."""
+    log = logging.getLogger('CopyDbBackup')
+
+    def __init__(self, cbkUpdate=None):
+        super().__init__('Copier le dump', 'Sauvegarde externe de la DB', 1)
+        self.cbkUpdate = cbkUpdate
+
+    def prepare(self):
+        if not os.path.exists(config.dirElements):
+            self.statusCode = TaskStatus.Error
+
+    def run(self):
+        super().run()
+        PynorpaManager().copyDbDumpToExternalDisk()
+        self.setDesc('Sauvegarde DB externe effectuée')
+        self.inc()
+        if self.cbkUpdate:
+            self.cbkUpdate()
 
 class MountBackupDrive(PynorpaTask):
     """Just check that the backup drive is mounted."""
@@ -127,11 +172,16 @@ class MountBackupDrive(PynorpaTask):
         if os.path.exists(self.dir):
             self.setDesc(f'Disque externe monté sous {self.dir}')
         else:
-            self.setStatus('Error')
+            #self.setStatus('Error')
             self.statusCode = TaskStatus.Error
 
     def run(self):
         super().run()
+        if os.path.exists(self.dir):
+            self.inc()
+        else:
+            self.setDesc(f'Disque externe absent de {self.dir}')
+            self.statusCode = TaskStatus.Error
         if self.cbkUpdate:
             self.cbkUpdate()
 
