@@ -30,6 +30,7 @@ class ModuleBackups(TabModule):
         """Constructor."""
         self.window = parent.window
         self.tasks = []
+        self.taskWidgets = []
         self.isRunning = False
         self.apCache = AppParamCache()
         self.manager = PynorpaManager()
@@ -53,11 +54,11 @@ class ModuleBackups(TabModule):
         self.tasks.append(MountBackupDrive())
         self.tasks.append(CopyDbBackup())
 
-        # TODO copy or sync pic directories since last backup
+        # Copy or sync pic directories since last backup
         dirsToBackup = self.manager.getDirsToBackup()
         if dirsToBackup:
             for dir in dirsToBackup:
-                self.tasks.append(BackupPhotoDir(dir))
+                self.tasks.append(BackupPhotoDir(dir, self.updateTasks))
 
     def getTasks(self) -> list[PynorpaTask]:
         return self.tasks
@@ -72,6 +73,7 @@ class ModuleBackups(TabModule):
             self.taskWidgets.append(wid)
 
     def updateTasks(self):
+        """Update task widgets display."""
         for wid in self.taskWidgets:
             wid.loadData()
             self.window.update_idletasks()
@@ -93,7 +95,8 @@ class ModuleBackups(TabModule):
         self.setLoadingIcon(True)
         self.isRunning = False
         self.enableWidgets()
-        
+
+        # TODO if all tasks successful, set apLastBackup to now
 
     def reloadTasks(self):
         self.loadTasks()
@@ -205,8 +208,11 @@ class BackupPhotoDir(PynorpaTask):
 
     def run(self):
         super().run()
+        self.cbkUpdate()
         PynorpaManager().backupPhotoDir(self.dir)
         self.inc()
+        self.setDesc(f'Copié {self.dir} {self.getRemainingTime()}')
+
 
 class TaskWidget:
     """Widget displaying the details and progress of a task."""
