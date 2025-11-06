@@ -28,7 +28,7 @@ class TaskStatus(Enum):
     def getDisplayName(self) -> str:
         """Get GUI display text."""
         if self == TaskStatus.Idle:
-            return 'En attente'
+            return 'Prêt'
         if self == TaskStatus.Running:
             return 'En cours'
         if self == TaskStatus.Done:

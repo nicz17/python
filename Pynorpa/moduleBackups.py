@@ -52,7 +52,12 @@ class ModuleBackups(TabModule):
         self.tasks.append(LocalDbBackup())
         self.tasks.append(MountBackupDrive())
         self.tasks.append(CopyDbBackup())
+
         # TODO copy or sync pic directories since last backup
+        dirsToBackup = self.manager.getDirsToBackup()
+        if dirsToBackup:
+            for dir in dirsToBackup:
+                self.tasks.append(BackupPhotoDir(dir))
 
     def getTasks(self) -> list[PynorpaTask]:
         return self.tasks
@@ -69,6 +74,7 @@ class ModuleBackups(TabModule):
     def updateTasks(self):
         for wid in self.taskWidgets:
             wid.loadData()
+            self.window.update_idletasks()
 
     def runBackups(self):
         """Run the backup tasks."""
@@ -185,6 +191,22 @@ class MountBackupDrive(PynorpaTask):
         if self.cbkUpdate:
             self.cbkUpdate()
 
+class BackupPhotoDir(PynorpaTask):
+    """Backup a photo directory to external disk."""
+    log = logging.getLogger('BackupPhotoDir')
+
+    def __init__(self, dir: str, cbkUpdate=None):
+        self.dir = dir
+        super().__init__(f'Backup {dir}', f'Copier {dir} sur le disque externe', 1)
+        self.cbkUpdate = cbkUpdate
+
+    def prepare(self):
+        self.log.info('Prepare')
+
+    def run(self):
+        super().run()
+        PynorpaManager().backupPhotoDir(self.dir)
+        self.inc()
 
 class TaskWidget:
     """Widget displaying the details and progress of a task."""

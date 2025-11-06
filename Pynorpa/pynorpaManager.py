@@ -403,12 +403,20 @@ class PynorpaManager():
         pathLocal = f'{config.dirPhotosBase}'
         pathExtnl = f'{config.dirElements}Pictures/'
         dirsLocal = sorted(glob.glob(f'{pathLocal}Nature-2*'))
-        for dir in dirsLocal:
-            dirExtnl = f'{pathExtnl}{os.path.basename(dir)}'
+        for dir in dirsLocal[:len(dirsLocal)-1]:
+            dirBaseName = os.path.basename(dir)
+            dirExtnl = f'{pathExtnl}{dirBaseName}'
             if not os.path.exists(dirExtnl):
-                self.log.info(f'Local dir {os.path.basename(dir)} needs backup')
-                result.append(dir)
+                self.log.info(f'Local dir {dirBaseName} needs backup')
+                result.append(dirBaseName)
         return result
+    
+    def backupPhotoDir(self, dir: str):
+        """Copy a photo dir to external backup disk."""
+        self.log.info(f'Backing up {dir}, may take a while...')
+        cmd = f'cp -r {config.dirPhotosBase}{dir} {config.dirElements}Pictures/'
+        self.runSystemCommand(cmd)
+        self.log.info(f'Backup of  {dir} done')
     
     def runSystemCommand(self, cmd: str, dryrun=False):
         """Run a system command."""
