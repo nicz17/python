@@ -40,7 +40,7 @@ class ModuleLocations(TabModule):
 
     def navigateToObject(self, obj):
         """Select the specified object in this module."""
-        self.table.onSearch(obj.getName())
+        self.table.selectByIdx(obj.getIdx())
 
     def onSelectLocation(self, location: Location):
         self.log.info(f'Selected {location}')

@@ -70,7 +70,8 @@ class ModulePictures(TabModule):
 
     def navigateToObject(self, pic: Picture):
         """Select the specified object in this module."""
-        self.table.onSearch(pic.getFilename())
+        self.table.selectByIdx(pic.getIdx())
+        self.editor.loadData(pic)
         self.imageWidget.loadThumb(pic)
 
     def createWidgets(self):

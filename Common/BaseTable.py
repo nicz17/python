@@ -199,6 +199,16 @@ class AdvTable(TableWithColumns):
         """Set the title bar text."""
         self.lblTitle.configure(text=f'{self.objectlabel} ({self.nRows})')
 
+    def selectByIdx(self, idx):
+        """Set selection by object index (not row number)."""
+        self.log.info(f'Selecting object with idx {idx}')
+        for idxRow, obj in enumerate(self.data):
+            if obj.getIdx() == idx:
+                self.tree.see(idxRow)
+                self.tree.focus(idxRow)
+                self.tree.selection_set(idxRow)
+                return
+
     def createWidgets(self, parent: tk.Frame, height=40):
         """Create user widgets."""
 
