@@ -206,6 +206,13 @@ class AppParamCache():
         if apLastUpload:
             apLastUpload.dateVal = DateTools.nowDatetime()
             self.update(apLastUpload)
+    
+    def setLastBackup(self):
+        """Set last backup timestamp to now."""
+        apLastBackup = self.findByName('backupBook')
+        if apLastBackup:
+            apLastBackup.dateVal = DateTools.nowDatetime()
+            self.update(apLastBackup)
 
     def __str__(self):
         return 'AppParamCache'

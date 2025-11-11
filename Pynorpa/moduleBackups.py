@@ -17,7 +17,7 @@ from pathlib import Path
 import DateTools
 from appParam import AppParamCache
 from BaseWidgets import Button
-from pynorpaManager import PynorpaManager, PynorpaException
+from pynorpaManager import PynorpaManager
 from TabsApp import TabsApp, TabModule
 from PynorpaTask import TaskStatus, PynorpaTask, CheckDiskSpace
 
@@ -85,18 +85,24 @@ class ModuleBackups(TabModule):
         self.enableWidgets()
         self.setLoadingIcon()
 
+        # Run all tasks
+        bSuccess = True
         for task in self.getTasks():
             if not task.isOver():
                 task.run()
                 self.updateTasks()
                 if not task.isOver():
+                    bSuccess = False
                     break
         self.updateTasks()
         self.setLoadingIcon(True)
         self.isRunning = False
         self.enableWidgets()
 
-        # TODO if all tasks successful, set apLastBackup to now
+        # If all tasks successful, set apLastBackup to now
+        if bSuccess:
+            self.log.info('All backup tasks successful')
+            self.apCache.setLastBackup()
 
     def reloadTasks(self):
         self.loadTasks()
