@@ -190,7 +190,7 @@ class TaxonTree(BaseTree):
 
 class TaxonEditor(BaseWidgets.BaseEditor):
     """A widget for editing Pynorpa taxa."""
-    log = logging.getLogger(__name__)
+    log = logging.getLogger('TaxonEditor')
 
     def __init__(self, cbkSave, app: TabsApp):
         """Constructor with save callback."""
