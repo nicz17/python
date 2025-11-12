@@ -31,7 +31,7 @@ class ModulePictures(TabModule):
         """Constructor."""
         self.window = parent.window
         self.table   = PictureTable(self.onSelectPicture)
-        self.editor  = PictureEditor(self.onSavePicture)
+        self.editor  = PictureEditor(self.onSavePicture, parent)
         self.factory = PictureFactory(self.onAddPicture, parent)
         self.imageWidget = imageWidget.ImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
         super().__init__(parent, 'Photos', Picture.__name__)
@@ -188,9 +188,10 @@ class PictureEditor(BaseWidgets.BaseEditor):
     """Class PictureEditor"""
     log = logging.getLogger("PictureEditor")
 
-    def __init__(self, cbkSave):
+    def __init__(self, cbkSave, app: TabsApp):
         """Constructor."""
         super().__init__(cbkSave, '#62564f')
+        self.app = app
         self.picture = None
         self.uploader = Uploader()
         self.manager = PynorpaManager()
@@ -220,15 +221,25 @@ class PictureEditor(BaseWidgets.BaseEditor):
         if self.picture:
             self.uploader.uploadSinglePhoto(self.picture)
 
+    def onNavigateToLocation(self):
+        if self.picture:
+            self.log.info(f'Navigating to {self.picture.getLocation()}')
+            self.app.navigateToObject(self.picture.getLocation())
+
+    def onNavigateToTaxon(self):
+        if self.picture:
+            self.log.info(f'Navigating to {self.picture.getTaxon()}')
+            self.app.navigateToObject(self.picture.getTaxon())
+
     def createWidgets(self, parent: tk.Frame):
         """Add the editor widgets to the parent widget."""
         super().createWidgets(parent, 'Propriétés de la photo')
         
         self.widFilename  = self.addTextReadOnly('Nom', Picture.getFilename)
         self.widShotAt    = self.addDateTimeReadOnly('Observé', Picture.getShotAt)
-        self.widLocation  = self.addTextReadOnly('Lieu', Picture.getCloseTo)
+        self.widLocation  = self.addNavigationLabel('Lieu', Picture.getCloseTo, self.onNavigateToLocation)
         self.widRemarks   = self.addTextArea('Remarques', Picture.getRemarks)
-        self.widTaxon     = self.addTextReadOnly('Taxon', Picture.getTaxonNames)
+        self.widTaxon     = self.addNavigationLabel('Taxon', Picture.getTaxonNames, self.onNavigateToTaxon)
         self.widUpdatedAt = self.addDateTimeReadOnly('Modifié', Picture.getUpdatedAt)
         self.widRating    = self.addSpinBox('Qualité', Picture.getRating, 1, 5)
         

@@ -234,6 +234,7 @@ class TaxonEditor(BaseWidgets.BaseEditor):
         self.intOrder    = self.addIntInput('Ordre',      Taxon.getOrder)
         self.txtParent   = self.addTextReadOnly('Parent', Taxon.getParentName)
         self.chkTypical  = self.addCheckBox('Taxon type', Taxon.getTypical, 'Taxon type du parent')
+        # TODO add number of pictures with navigation
 
         # Buttons: save, cancel, delete
         self.createButtons(True, True, True)

@@ -524,6 +524,40 @@ class CheckBox(BaseWidget):
             variable = self.varValue)
         self.oWidget.grid(row=row, column=col, padx=5, sticky='we')
 
+class NavigationLabel(BaseWidget):
+    """A read-only clickable label with a navigation action."""
+    log = logging.getLogger('NavigationLabel')
+    colorLink = '#4200c0'
+
+    def __init__(self, mtdGetter, cbkNavigate):
+        super().__init__(None, mtdGetter)
+        self.cbkNavigate = cbkNavigate
+
+    def setValue(self, object):
+        """Set the string value."""
+        value = self.getObjectValue(object)
+        self.oWidget.configure(text = (value if value is not None else ''))
+
+    def getValue(self) -> str:
+        """Get the current string value."""
+        return self.oWidget.cget('text')
+    
+    def hasChanges(self, object) -> bool:
+        return False
+    
+    def onNavigate(self, evt=None):
+        if self.cbkNavigate:
+            self.cbkNavigate()
+        
+    def createWidgets(self, parent: tk.Frame, row: int, col: int):
+        """Create widget in parent frame with grid layout."""
+        self.oWidget = ttk.Label(parent, foreground=self.colorLink, cursor="hand1")
+        self.oWidget.grid(row=row, column=col, padx=5, sticky='w')
+        self.oWidget.bind("<Button-1>", self.onNavigate)
+    
+    def __str__(self) -> str:
+        return 'NavigationLabel'
+
 class BaseEditor():
     """Common superclass for edition widgets."""
     log = logging.getLogger('BaseEditor')
@@ -692,6 +726,14 @@ class BaseEditor():
         oInput.createWidgets(self.frmEdit, self.row, 1)
         self.addWidget(oInput, oLabel)
         return oInput
+    
+    def addNavigationLabel(self, label: str, mtdGetter, cbkNavigate) -> NavigationLabel:
+        """Add a navigation label."""
+        oLabel = self.addLabel(label)
+        oWidget = NavigationLabel(mtdGetter, cbkNavigate)
+        oWidget.createWidgets(self.frmEdit, self.row, 1)
+        self.addWidget(oWidget, oLabel)
+        return oWidget
 
     def addCustomWidget(self, label: str, oWidget: BaseWidget):
         """Add a custome edition widget."""
