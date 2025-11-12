@@ -8,13 +8,15 @@ __version__ = "1.0.0"
 
 import config
 import logging
-from TabsApp import *
-from BaseTree import *
+import tkinter as tk
+from tkinter import ttk
+
 import BaseWidgets
 import imageWidget
+from TabsApp import TabsApp, TabModule
+from BaseTree import BaseTree
 from taxon import Taxon, TaxonCache, TaxonRank
-from tkinter import simpledialog as dialog
-from pynorpaManager import PynorpaManager, PynorpaException
+from pynorpaManager import PynorpaManager
 from iNatTaxonDialog import INatTaxonDialog
 from uploader import Uploader
 
@@ -33,7 +35,7 @@ class ModuleTaxon(TabModule):
         self.manager = PynorpaManager()
         self.uploader = Uploader()
         self.tree   = TaxonTree(self.onSelectTaxon)
-        self.editor = TaxonEditor(self.onSaveTaxon)
+        self.editor = TaxonEditor(self.onSaveTaxon, parent)
         self.imageWidget = imageWidget.CaptionImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
 
     def loadData(self):
@@ -190,9 +192,10 @@ class TaxonEditor(BaseWidgets.BaseEditor):
     """A widget for editing Pynorpa taxa."""
     log = logging.getLogger(__name__)
 
-    def __init__(self, cbkSave):
+    def __init__(self, cbkSave, app: TabsApp):
         """Constructor with save callback."""
         super().__init__(cbkSave, '#62564f')
+        self.app = app
         self.manager = PynorpaManager()
         self.taxon = None
 
@@ -223,9 +226,15 @@ class TaxonEditor(BaseWidgets.BaseEditor):
         self.manager.deleteTaxon(self.taxon, False)
         self.loadData(None)
 
+    def onNavigateToPicture(self):
+        if self.taxon:
+            target = self.taxon.getTypicalPicture()
+            self.log.info(f'Navigating to {target}')
+            self.app.navigateToObject(target)
+
     def createWidgets(self, parent: tk.Frame):
         """Add the editor widgets to the parent widget."""
-        super().createWidgets(parent, 'Taxon Editor')
+        super().createWidgets(parent, 'Propriétés du taxon')
 
         # Taxon attributes
         self.txtName     = self.addText('Nom latin',      Taxon.getName)
@@ -234,7 +243,7 @@ class TaxonEditor(BaseWidgets.BaseEditor):
         self.intOrder    = self.addIntInput('Ordre',      Taxon.getOrder)
         self.txtParent   = self.addTextReadOnly('Parent', Taxon.getParentName)
         self.chkTypical  = self.addCheckBox('Taxon type', Taxon.getTypical, 'Taxon type du parent')
-        # TODO add number of pictures with navigation
+        self.navPictures = self.addNavigationLabel('Photos', Taxon.countAllPictures, self.onNavigateToPicture)
 
         # Buttons: save, cancel, delete
         self.createButtons(True, True, True)
