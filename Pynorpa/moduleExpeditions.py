@@ -7,11 +7,13 @@ __version__ = "1.0.1"
 
 import config
 import logging
+import tkinter as tk
+from tkinter import ttk
 from tkinter import filedialog as fd
 
 import BaseWidgets
 import DateTools
-from TabsApp import *
+from TabsApp import TabsApp, TabModule
 from BaseTable import AdvTable, TableColumn
 from imageWidget import MultiImageWidget
 from expedition import Expedition, ExpeditionCache
@@ -29,7 +31,7 @@ class ModuleExpeditions(TabModule):
         """Constructor."""
         self.window = parent.window
         self.table  = ExpeditionTable(self.onSelectExpedition)
-        self.editor = ExpeditionEditor(self.onSaveExpedition, parent.window)
+        self.editor = ExpeditionEditor(self.onSaveExpedition, parent)
         self.photos = MultiImageWidget()
         self.factory = ExcursionFactory(self.onNewExcursion, parent)
         self.manager = PynorpaManager()
@@ -186,11 +188,11 @@ class ExpeditionEditor(BaseWidgets.BaseEditor):
     """Class ExpeditionEditor"""
     log = logging.getLogger("ExpeditionEditor")
 
-    def __init__(self, cbkSave, window: tk.Tk):
+    def __init__(self, cbkSave, app: TabsApp):
         """Constructor."""
         super().__init__(cbkSave, '#62564f')
         self.expedition = None
-        self.window = window
+        self.app = app
 
     def loadData(self, expedition: Expedition):
         """Display the specified object in this editor."""
@@ -207,10 +209,15 @@ class ExpeditionEditor(BaseWidgets.BaseEditor):
         photoInfos = [pic.getPhotoInfo() for pic in self.expedition.getPictures()]
         for photo in photoInfos:
             photo.setCloseTo(self.expedition.getLocation())
-        dlgLocate = DialogLocate(self.window, photoInfos, self.expedition.getLocation())
+        dlgLocate = DialogLocate(self.app.window, photoInfos, self.expedition.getLocation())
         self.log.info('Opened locate dialog window, waiting')
-        self.window.wait_window(dlgLocate.root)
+        self.app.window.wait_window(dlgLocate.root)
         self.log.info(f'Dialog closed.')
+
+    def onNavigateToLocation(self):
+        if self.expedition:
+            self.log.info(f'Navigating to {self.expedition.getLocation()}')
+            self.app.navigateToObject(self.expedition.getLocation())
 
     def createWidgets(self, parent: tk.Frame):
         """Add the editor widgets to the parent widget."""
@@ -218,7 +225,7 @@ class ExpeditionEditor(BaseWidgets.BaseEditor):
         
         self.widName = self.addText('Titre', Expedition.getName)
         self.widDesc = self.addTextArea('Description', Expedition.getDesc)
-        self.widLocation = self.addTextReadOnly('Lieu', Expedition.getLocationName)
+        self.widLocation = self.addNavigationLabel('Lieu', Expedition.getLocationName, self.onNavigateToLocation)
         self.widFrom = self.addDateTime('Début', Expedition.getFrom)
         self.widTo = self.addDateTime('Fin', Expedition.getTo)
         self.widTrack = self.addText('GeoTrack', Expedition.getTrack)
