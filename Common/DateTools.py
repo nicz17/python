@@ -13,12 +13,13 @@ import pytz
 
 aMonthFr = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 
             'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre']
+formatDef = "%Y.%m.%d %H:%M:%S"
 
-def timestampToString(tAt: float, format = "%Y.%m.%d %H:%M:%S") -> str:
+def timestampToString(tAt: float, format=formatDef) -> str:
     """Convert a float timestamp to string like 2023.12.28 13:15:36."""
     return time.strftime(format, time.localtime(tAt))
 
-def datetimeToString(dtAt: datetime.datetime, format = "%Y.%m.%d %H:%M:%S") -> str:
+def datetimeToString(dtAt: datetime.datetime, format=formatDef) -> str:
     """Convert a datetime object to string like 2023.12.28 13:15:36."""
     #return dtAt.strftime(format)
     return timestampToString(dtAt.timestamp(), format)
@@ -37,15 +38,19 @@ def datetimeToLocal(dtAt: datetime.datetime) -> datetime.datetime:
     """Convert datetime to localtime offset-naive datetime."""
     return dtAt.astimezone(tz=None).replace(tzinfo=None)
 
-def stringToTimestamp(strExif: str, format = "%Y.%m.%d %H:%M:%S") -> float:
+def stringToTimestamp(strAt: str, format=formatDef) -> float:
     """Convert string like 2023.12.28 13:15:36 to float timestamp."""
-    return time.mktime(datetime.datetime.strptime(strExif, format).timetuple())
+    return time.mktime(datetime.datetime.strptime(strAt, format).timetuple())
 
-def exifToTimestamp(strExif: str) -> float:
+def stringToDatetime(strAt: str, format=formatDef) -> datetime.datetime:
+    """Convert string like 2023.12.28 13:15:36 to datetime."""
+    return datetime.datetime.strptime(strAt, format)
+
+def exifToTimestamp(strAt: str) -> float:
     """Convert EXIF string like 2023:12:28 13:15:36 to float timestamp."""
-    return stringToTimestamp(strExif, "%Y:%m:%d %H:%M:%S")
+    return stringToTimestamp(strAt, "%Y:%m:%d %H:%M:%S")
 
-def nowAsString(format = "%Y.%m.%d %H:%M:%S") -> str:
+def nowAsString(format=formatDef) -> str:
     """Formats the current local timestamp like 2023.12.28 13:15:36."""
     return timestampToString(time.time(), format)
 

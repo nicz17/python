@@ -203,6 +203,10 @@ class ExpeditionEditor(BaseWidgets.BaseEditor):
         """Save changes to the edited object."""
         self.expedition.setName(self.widName.getValue())
         self.expedition.setDesc(self.widDesc.getValue())
+        if self.widFrom.getValue() is not None:
+            self.expedition.setFrom(self.widFrom.getValue())
+        if self.widTo.getValue() is not None:
+            self.expedition.setTo(self.widTo.getValue())
         self.cbkSave(self.expedition)
 
     def onLocate(self):

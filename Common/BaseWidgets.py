@@ -298,6 +298,7 @@ class DateTime(TextInput):
         """Constructor with modification callback."""
         super().__init__(cbkModified, mtdGetter)
         self.nChars = 20
+        self.isFloat = True
 
     def setValue(self, object):
         """Set the string value."""
@@ -308,17 +309,28 @@ class DateTime(TextInput):
                 self.oWidget.insert(0, DateTools.timestampToString(fvalue))
             elif isinstance(fvalue, datetime.datetime):
                 self.oWidget.insert(0, DateTools.datetimeToString(fvalue))
+                self.isFloat = False
             else:
                 self.log.error('Unhandled date type %s', fvalue)
                 self.oWidget.insert(0, 'Error')
 
-    def getValue(self) -> str:
+    def getValue(self):
         """Get the current timestamp value."""
-        svalue = self.oWidget.get().strip()
-        return DateTools.stringToTimestamp(svalue)
+        sValue = self.oWidget.get().strip()
+        if not sValue:
+            return None
+        if len(sValue) != 19:
+            return None
+        if self.isFloat:
+            return DateTools.stringToTimestamp(sValue)
+        else:
+            return DateTools.stringToDatetime(sValue)
     
     def hasChanges(self, object) -> bool:
-        return False
+        widValue = self.getValue()
+        if widValue is None:
+            return False 
+        return super().hasChanges(object)
     
     def __str__(self) -> str:
         return 'DateTime'
