@@ -395,7 +395,7 @@ class BookManager():
             self.runSystemCommand(f'ln -s {photoDir}/{pib.filename} {exportDir}/{pib.order:02d}-{pib.filename}')
 
     def toHtml(self, book: Book):
-        """Export a book as html preview."""
+        """Export the book as html preview."""
         self.log.info(f'Exporting {book} to html')
         self.createMediumImages(book)
         self.createExportImages(book)
@@ -424,6 +424,21 @@ class BookManager():
         filename = f'{self.getBookDir(book)}/html/book.html'
         page.save(filename)
         self.runSystemCommand(f'firefox {filename} &')
+
+    def toTextSummary(self, book: Book):
+        """Export the book as a text summary."""
+        filename = f'{self.getBookDir(book)}/summary.txt'
+        self.log.info(f'Exporting {book} to text summary {filename}')
+        with open(filename, 'w') as file:
+            file.write(f'{book.getDesc()}\n')
+            file.write(f'{book.getKindName()} avec {book.getPicCount()} photos\n')
+            for pib in book.getPictures():
+                heading = f'Photo {pib.getOrder()}'
+                if book.getKind() == BookKind.Calendrier:
+                    heading = TextTools.upperCaseFirst(DateTools.aMonthFr[pib.getOrder()-1])
+                    if pib.getOrder() == 0:
+                        heading = 'Couverture'
+                file.write(f'{heading} : {pib.getCaption()}\n')
 
     # TODO export book to PDF file
 
