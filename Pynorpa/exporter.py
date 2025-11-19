@@ -359,13 +359,15 @@ class Exporter():
                 li.addTag(LinkHtmlTag(f'lieu{locClose.getIdx()}.html', locClose.getName()))
                 li.addTag(GrayFontHtmlTag(sDist))
 
-        # Add map links
-        # TODO display in a one-line table
-        parLinks = HtmlTag('p', 'Liens ').addAttr('style', 'padding-top: 10px;')
-        tdRight.addTag(parLinks)
-        parLinks.addTag(LinkHtmlTag(f'https://www.openstreetmap.org/#map=15/{loc.lat:.5f}/{loc.lon:.5f}', 'OpenStreetMap ', True))
-        parLinks.addTag(LinkHtmlTag(f'https://macrostrat.org/map/#x={loc.lon:.5f}&y={loc.lat:.5f}&z=15', 'MacroStrat  ', True))
-        parLinks.addTag(LinkHtmlTag(f'https://www.google.com/maps/@{loc.lat:.5f},{loc.lon:.5f},15z', 'Google Maps', True))
+        # Add map links one-line table
+        aMapLinks = [HtmlTag('span', 'Cartes').addAttr('style', 'color: #6040a0;'),
+            LinkHtmlTag(f'https://www.openstreetmap.org/#map=15/{loc.lat:.5f}/{loc.lon:.5f}', 'OpenStreetMap ', True),
+            LinkHtmlTag(f'https://macrostrat.org/map/#x={loc.lon:.5f}&y={loc.lat:.5f}&z=15', 'MacroStrat  ', True),
+            LinkHtmlTag(f'https://www.google.com/maps/@{loc.lat:.5f},{loc.lon:.5f},15z', 'Google Maps', True)
+        ]
+        tableMaps = TableHtmlTag(aMapLinks).addAttr("width", "504px").addAttr('style', 'border: 2px solid #eef;margin-top: 14px;')
+        #tableMaps.tags[0].addAttr('style', 'background: #eef; color: #6040a0;')
+        tdRight.addTag(tableMaps)
 
         # Location pictures
         page.addHeading(2, 'Photos')
@@ -855,7 +857,8 @@ def testExporter():
     exporter = Exporter()
     exporter.initCaches()
     #exporter.buildTest()
-    exporter.buildBasePages()
+    #exporter.buildBasePages()
+    exporter.buildLocations()
     #exporter.buildTaxaJson()
 
 if __name__ == '__main__':
