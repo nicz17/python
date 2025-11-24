@@ -20,6 +20,7 @@ from Database import Query
 from PhotoInfo import PhotoInfo
 from pynorpaHtml import PynorpaHtmlPage
 from HtmlPage import *
+from pdfDoc import PdfDoc
 
 class BookPicFilter():
     """Class BookPicFilter"""
@@ -394,6 +395,12 @@ class BookManager():
         for pib in book.getPictures():
             self.runSystemCommand(f'ln -s {photoDir}/{pib.filename} {exportDir}/{pib.order:02d}-{pib.filename}')
 
+    def export(self, book: Book):
+        """Export the book as text preview, HTML and PDF."""
+        self.toTextSummary(book)
+        #self.toHtml(book)
+        self.toPdf(book)
+
     def toHtml(self, book: Book):
         """Export the book as html preview."""
         self.log.info(f'Exporting {book} to html')
@@ -441,6 +448,26 @@ class BookManager():
                 file.write(f'{heading} : {pib.getCaption()}\n')
 
     # TODO export book to PDF file
+    def toPdf(self, book: Book):
+        """Export the book as a PDF document."""
+        dir = book.getBookDir()
+        filename = f'{dir}/book.pdf'
+        self.log.info(f'Exporting {book} to PDF {filename}')
+        pdf = PdfDoc()
+        pdf.addTitle(book.getDesc())
+        for pib in book.getPictures():
+            title = f'Photo {pib.getOrder()}'
+            if book.getKind() == BookKind.Calendrier:
+                title = TextTools.upperCaseFirst(DateTools.aMonthFr[pib.getOrder()-1])
+                if pib.getOrder() == 0:
+                    title = None
+                else:
+                    pdf.newPage()
+            if title:
+                pdf.addTitle(title)
+            pdf.addImage(f'{dir}/medium/{pib.filename}', pib.getCaption())
+        pdf.save(filename)
+        self.runSystemCommand(f'evince {filename} &')
 
     def findOriginal(self, pic: Picture) -> PhotoInfo:
         """Find original picture. Look in disk and backups."""
