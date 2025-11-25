@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+__author__ = "Nicolas Zwahlen"
+__copyright__ = "Copyright 2025 N. Zwahlen"
+__version__ = "1.0.0"
+
 import fpdf
 import logging
 import os
@@ -14,6 +18,7 @@ class PdfDoc:
     def __init__(self):
         """Constructor, creates an empty A4 PDF."""
         self.log.info('Welcome to PdfDoc')
+        self.linewidth = 180
         self.pdf = fpdf.FPDF(format='A4')
         self.newPage()
 
@@ -24,13 +29,13 @@ class PdfDoc:
     def addTitle(self, title: str):
         """Adds a centered title."""
         self.pdf.set_font("Arial", size=18) # font and textsize
-        self.pdf.cell(200, 10, txt=title, ln=1, align="C")
+        self.pdf.cell(self.linewidth, 16, txt=title, ln=1, align="C")
         self.pdf.set_font("Arial", size=12) # back to normal font
 
     def addText(self, text: str):
-        """Adds text."""
+        """Adds a line of text."""
         self.pdf.set_font("Arial", size=12) # font and textsize
-        self.pdf.cell(200, 10, txt=text, ln=1, align="C")
+        self.pdf.cell(self.linewidth, 7, txt=text, ln=1, align="C")
 
     def addImage(self, imgfile: str, legend: str):
         """Adds an image with an optional legend."""
@@ -40,7 +45,11 @@ class PdfDoc:
         
         self.pdf.image(imgfile, x=23, w=160)
         if legend:
-            self.pdf.cell(txt=legend, w=200, h=10, align="C")
+            self.pdf.cell(txt=legend, w=self.linewidth, h=10, ln=1, align="C")
+
+    def skip(self, height: int):
+        """Add a vertical skip."""
+        self.pdf.cell(self.linewidth, height, ln=1, align="C")
 
     def save(self, filename: str):
         """Saves the PDF to file."""

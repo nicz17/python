@@ -451,7 +451,7 @@ class BookManager():
     def toPdf(self, book: Book):
         """Export the book as a PDF document."""
         dir = book.getBookDir()
-        filename = f'{dir}/book.pdf'
+        filename = f'{dir}/{book.name}.pdf'
         self.log.info(f'Exporting {book} to PDF {filename}')
         pdf = PdfDoc()
         pdf.addTitle(book.getDesc())
@@ -465,7 +465,11 @@ class BookManager():
                     pdf.newPage()
             if title:
                 pdf.addTitle(title)
-            pdf.addImage(f'{dir}/medium/{pib.filename}', pib.getCaption())
+            pdf.skip(40)
+            pdf.addImage(f'{dir}/medium/{pib.filename}', None)
+            for line in pib.getCaption().split('.'):
+                self.log.info(f'caption line {line}')
+                pdf.addText(line)
         pdf.save(filename)
         self.runSystemCommand(f'evince {filename} &')
 
