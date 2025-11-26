@@ -75,4 +75,5 @@ class PynorpaApp(TabsApp):
             self.addNotification(f'Le dernier upload date de {daysUpload} jours', 'warning')
 
         # TODO notify if DST switch imminent
-        
+        # See https://www.pythontutorials.net/blog/how-to-determine-when-dst-starts-or-ends-in-a-specific-location-in-python/
+        # Timezone CET/CEST
