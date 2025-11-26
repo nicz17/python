@@ -6,12 +6,41 @@ __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2023"
 __version__ = "1.0.0"
 
-import tkinter as tk
-from tkinter import ttk, messagebox
 import logging
 import os
 import sys
 
+import tkinter as tk
+from tkinter import ttk, messagebox
+from pathlib import Path
+
+
+class NotificationBox:
+    log = logging.getLogger('NotificationBox')
+
+    def __init__(self, text: str, icon: str):
+        """Constructor with message and optional icon."""
+        self.text = text
+        self.icon = icon
+        self.iconImg = None
+
+    def render(self, parent: ttk.Frame):
+        frmNotif = ttk.Frame(parent, relief="groove", borderwidth=4)
+        self.getIcon()
+        if self.iconImg:
+            lblIcon = ttk.Label(frmNotif, image=self.iconImg)
+            lblIcon.pack()
+        lblNotif = ttk.Label(frmNotif, text=self.text, wraplength=110)
+        lblNotif.pack()
+        frmNotif.pack(fill=tk.X, padx=4, pady=6)
+        
+    def getIcon(self):
+        if not self.icon:
+            return
+        dirIcons = f'{Path.home()}/prog/icons'
+        file = f'{dirIcons}/{self.icon}.png'
+        if os.path.exists(file):
+            self.iconImg = tk.PhotoImage(file=file)
 
 class BaseApp:
     log = logging.getLogger('BaseApp')
@@ -22,6 +51,7 @@ class BaseApp:
         self.window = tk.Tk(className=sTitle)
         self.window.title(sTitle)
         self.window.geometry(sGeometry)
+        self.notifications = []
 
         # Set the application icon if defined
         if sIconFile and os.path.exists(sIconFile):
@@ -68,6 +98,12 @@ class BaseApp:
         btn = ttk.Button(master=self.frmButtons, text=sLabel, command=fnCmd)
         btn.pack(fill=tk.X, padx=4, pady=2)
         return btn
+    
+    def addNotification(self, text: str, icon=None):
+        """Add a notification box on the left side, with optional icon."""
+        notif = NotificationBox(text, icon)
+        notif.render(self.frmButtons)
+        self.notifications.append(notif)
 
     def displayData(self):
         """Display user data in the widgets"""

@@ -12,7 +12,9 @@ from ttkthemes import ThemedStyle
 
 from TabsApp import *
 from ModuleCamera import *
+from appParam import AppParamCache
 
+import DateTools
 import moduleLocations
 import moduleSelection
 import moduleReselection
@@ -57,3 +59,20 @@ class PynorpaApp(TabsApp):
         modQuality   = moduleQuality.ModuleQuality(self)
 
         self.setStatus('Welcome to Pynorpa')
+        self.loadNotifications()
+
+    def loadNotifications(self):
+        """Load notifications about old backup or upload dates."""
+        cache = AppParamCache()
+
+        apLastBackup = cache.findByName('backupBook')
+        daysBackup = DateTools.getDaysSince(apLastBackup.getDateVal())
+        if daysBackup > 35:
+            self.addNotification(f'Le dernier backup date de {daysBackup} jours', 'warning')
+        
+        daysUpload = DateTools.getDaysSince(cache.getLastUploadAt())
+        if daysUpload > 15:
+            self.addNotification(f'Le dernier upload date de {daysUpload} jours', 'warning')
+
+        # TODO notify if DST switch imminent
+        

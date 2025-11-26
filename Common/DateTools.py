@@ -66,6 +66,12 @@ def addDays(tAt: float, nDays: int) -> float:
     """Adds the specified number of days to the float timestamp."""
     return tAt + 24*3600*nDays
 
+def getDaysSince(dtAt: datetime.datetime) -> int:
+    """Returns the number of days between dtAt and now."""
+    dtNow = nowDatetime()
+    diff = dtNow - dtAt
+    return diff.days
+
 def datetimeToMidnight(dt: datetime.datetime) -> datetime.datetime:
     """Truncate the specified datetime to midnight."""
     return dt.replace(hour=0, minute=0, second=0, microsecond=0)
