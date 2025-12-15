@@ -8,6 +8,7 @@ __version__ = "1.0.0"
 
 import config
 import logging
+import os
 import tkinter as tk
 from tkinter import ttk
 
@@ -144,6 +145,7 @@ class TaxonTree(BaseTree):
         super().__init__(self.onSelectEvent)
         self.cbkSelectItem = cbkSelectItem
         self.cache = None
+        self.taxonIcons = {}
 
     def addTaxon(self, taxon: Taxon):
         """Adds a taxon and its children to the tree."""
@@ -151,10 +153,15 @@ class TaxonTree(BaseTree):
         if taxon.getIdxParent() is not None:
             parentId = str(taxon.getIdxParent())
         tag = None #f'taxon-rank{taxon.getRank().value}'
+        iconFile = f'{config.dirPicsBase}resources/rank{taxon.getRank().value}.png'
+        icon = None
+        if os.path.exists(iconFile):
+            icon = tk.PhotoImage(file=iconFile)
+            self.taxonIcons[taxon.getIdx()] = icon
         text = taxon.getName()
         if len(taxon.getChildren()) > 0:
             text += f' ({len(taxon.getChildren())})'
-        self.addItem(str(taxon.getIdx()), text, parentId, tag)
+        self.addItem(str(taxon.getIdx()), text, parentId, tag, icon)
         for child in taxon.getChildren():
             self.addTaxon(child)
 
@@ -167,6 +174,7 @@ class TaxonTree(BaseTree):
         if not self.cache:
             self.cache = TaxonCache()
         self.clear()
+        self.taxonIcons = {}
         for tax in self.cache.getTopLevelTaxa():
             self.addTaxon(tax)
         self.log.info(f'Reloaded with {self.size()} taxa')
