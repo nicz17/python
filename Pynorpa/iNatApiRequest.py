@@ -81,6 +81,8 @@ class INatApiRequest():
         url = f'{self.baseUrl}/{id}'
         self.log.info('Sending request for id %s to %s', id, url)
         response = requests.get(url)
+        # TODO handle requests.exceptions.ConnectionError: ('Connection aborted.', 
+        #   RemoteDisconnected('Remote end closed connection without response'))
         data = response.json()
         #self.log.info(data)
         return data
