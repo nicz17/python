@@ -69,10 +69,14 @@ class INatApiRequest():
         # https://api.inaturalist.org/v1/taxa?q=Polyommatus%20bellargus
         url = f'{self.baseUrl}?q={name}'
         self.log.info('Sending request for name %s to %s', name, url)
-        response = requests.get(url)
-        data = response.json()
-        #self.log.info(data)
-        #self.readResponse(data)
+        data = None
+        try:
+            response = requests.get(url)
+            data = response.json()
+            #self.log.info(data)
+            #self.readResponse(data)
+        except Exception as exc:
+            self.log.error(f'Request by name failed: {exc}')
         return data
 
     def sendRequestById(self, id: int):
@@ -80,11 +84,15 @@ class INatApiRequest():
         # https://api.inaturalist.org/v1/taxa/231137
         url = f'{self.baseUrl}/{id}'
         self.log.info('Sending request for id %s to %s', id, url)
-        response = requests.get(url)
-        # TODO handle requests.exceptions.ConnectionError: ('Connection aborted.', 
-        #   RemoteDisconnected('Remote end closed connection without response'))
-        data = response.json()
-        #self.log.info(data)
+        data = None
+        try:
+            response = requests.get(url)
+            # handle requests.exceptions.ConnectionError: ('Connection aborted.', 
+            # RemoteDisconnected('Remote end closed connection without response'))
+            data = response.json()
+            #self.log.info(data)
+        except Exception as exc:
+            self.log.error(f'Request by id failed: {exc}')
         return data
 
     def findId(self, data, name: str):
@@ -103,6 +111,9 @@ class INatApiRequest():
 
     def readAncestors(self, data):
         """Extract selected ancestor taxa from data."""
+        if data is None:
+            self.log.error('Invalid ancestors data')
+            return None
         taxa = ['kingdom', 'phylum', 'class', 'order', 'family', 'genus']
         ancestors = []
         self.log.info('Total results: %d', data['total_results'])
