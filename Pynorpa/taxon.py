@@ -422,7 +422,7 @@ class TaxonCache():
         if name.endswith('-sp'):
             name = name.removesuffix('-sp')
         #name = name.replace('-sp', '')
-        name = name.replace('-', ' ')
+        name = name.replace('-', ' ', 1)
         return self.findByName(name)
     
     def createTaxonForFilename(self, filename: str, dryrun=False) -> Taxon:
