@@ -383,7 +383,9 @@ class BookManager():
         """Convert book photos to medium size."""
         dir = self.getBookDir(book)
         for pib in book.getPictures():
-            self.runSystemCommand(f'convert {dir}/photos/{pib.filename} -resize 500x500 {dir}/medium/{pib.filename}')
+            fileMedium = f'{dir}/medium/{pib.filename}'
+            if not os.path.isfile(fileMedium):
+                self.runSystemCommand(f'convert {dir}/photos/{pib.filename} -resize 500x500 {fileMedium}')
 
     def createExportImages(self, book: Book):
         """Link the book images to an export dir, prefixed by order."""
@@ -398,8 +400,8 @@ class BookManager():
     def export(self, book: Book):
         """Export the book as text preview, HTML and PDF."""
         self.toTextSummary(book)
-        #self.toHtml(book)
-        self.toPdf(book)
+        self.toHtml(book)
+        #self.toPdf(book)
 
     def toHtml(self, book: Book):
         """Export the book as html preview."""
@@ -447,7 +449,6 @@ class BookManager():
                         heading = 'Couverture'
                 file.write(f'{heading} : {pib.getCaption()}\n')
 
-    # TODO export book to PDF file
     def toPdf(self, book: Book):
         """Export the book as a PDF document."""
         dir = book.getBookDir()
@@ -465,6 +466,7 @@ class BookManager():
                     pdf.newPage()
             if title:
                 pdf.addTitle(title)
+            # TODO adapt for vertical images
             pdf.skip(40)
             pdf.addImage(f'{dir}/medium/{pib.filename}', None)
             for line in pib.getCaption().split('.'):
