@@ -155,7 +155,7 @@ class GeoTracker:
                 nAlreadyDone += 1
             else:
                 self.log.info('Adding GPS data to %s', photo)
-                gpxloc = self.getLocationAt(photo.tShotAt)  # +3600 if wrong DST settings on camera
+                gpxloc = self.getLocationAt(photo.tShotAt)  # +3600) # if wrong DST settings on camera in April
                 if self.callExifTool(file, gpxloc):
                     nUpdated += 1
                     photo.identify()
