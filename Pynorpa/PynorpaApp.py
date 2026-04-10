@@ -65,15 +65,18 @@ class PynorpaApp(TabsApp):
         """Load notifications about old backup or upload dates."""
         cache = AppParamCache()
 
+        # Last backup older than a month
         apLastBackup = cache.findByName('backupBook')
         daysBackup = DateTools.getDaysSince(apLastBackup.getDateVal())
         if daysBackup > 35:
             self.addNotification(f'Le dernier backup date de {daysBackup} jours', 'warning')
         
+        # Last upload more than 2 weeks ago
         daysUpload = DateTools.getDaysSince(cache.getLastUploadAt())
         if daysUpload > 15:
             self.addNotification(f'Le dernier upload date de {daysUpload} jours', 'warning')
 
-        # TODO notify if DST switch imminent
-        # See https://www.pythontutorials.net/blog/how-to-determine-when-dst-starts-or-ends-in-a-specific-location-in-python/
-        # Timezone CET/CEST
+        # Imminent DST switch
+        timeUntilSwitch = DateTools.timeUntilNextDSTSwitch()
+        if timeUntilSwitch and timeUntilSwitch < 10:
+            self.addNotification(f"Changement d'heure dans {timeUntilSwitch} jours!", 'warning')

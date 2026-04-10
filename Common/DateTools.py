@@ -76,6 +76,38 @@ def datetimeToMidnight(dt: datetime.datetime) -> datetime.datetime:
     """Truncate the specified datetime to midnight."""
     return dt.replace(hour=0, minute=0, second=0, microsecond=0)
 
+def timeUntilNextDSTSwitch():
+    """Returns the duration in days until the next DST switch in CH."""
+    tz = pytz.timezone('Europe/Zurich')
+    now = datetime.datetime.now(tz)
+
+    # Get the list of DST transition times for the current year and next year
+    transitions = []
+    year = now.year
+    for y in (year, year + 1):
+        # Get DST transition info for the year
+        for dt in (datetime.datetime(y, 1, 1), datetime.datetime(y, 12, 31)):
+            # Localize to timezone
+            localized_dt = tz.localize(dt, is_dst=None)
+            try:
+                # transitions are stored in _utc_transition_times in pytz
+                for trans_time in tz._utc_transition_times:
+                    if trans_time.year == y and trans_time > now.replace(tzinfo=None):
+                        transitions.append(tz.localize(trans_time))
+            except AttributeError:
+                # Some timezones may not have _utc_transition_times
+                pass
+
+    # Filter transitions that are in the future relative to now
+    future_transitions = [t for t in transitions if t > now]
+
+    if not future_transitions:
+        return None  # No upcoming DST transitions found
+
+    next_transition = min(future_transitions)
+    delta = next_transition - now
+    return delta.days
+
 def testDateTools():
     log = logging.getLogger('DateTools')
     tNow = now()
@@ -90,6 +122,12 @@ def testDateTools():
     log.info('Aug 1  in French is %s', datetimeToPrettyStringFr(dtFirst))
     log.info('May 4  in French is %s', datetimeToPrettyStringFr(dtMay4))
     log.info('Today midnight   is %s', datetimeToMidnight(dtNow))
+
+    timeUntilSwitch = timeUntilNextDSTSwitch()
+    if timeUntilSwitch:
+        log.info(f"Time until next DST change: {timeUntilSwitch} days")
+    else:
+        log.info("No upcoming DST change found.")
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(asctime)s %(levelname)s %(name)s: %(message)s", 
