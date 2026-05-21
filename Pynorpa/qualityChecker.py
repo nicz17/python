@@ -141,13 +141,21 @@ class QualityChecker():
                         self.addIssue(f"La photo {pic.getFilename()} pourrait être effacée", details, pic, pic)
 
     def checkLocations(self):
-        """Find Locations with too short descriptions."""
+        """Find Locations with too short descriptions or too few pictures."""
         minDescLen = 25
+        minPicsInLoc = 2
         for loc in self.locCache.getLocations():
             desc = loc.getDesc()
             if len(desc) < minDescLen:
                 self.log.error(f'Location has short description: {loc}: {desc}')
                 self.addIssue(f"Le lieu {loc.getName()} a une description très courte", desc, None, loc)
+            nPics = len(loc.getPictures())
+            if nPics < minPicsInLoc:
+                self.log.info(f'Location has few pictures: {loc}: {nPics} pictures')
+                details = ''
+                for pic in loc.getPictures():
+                    details += pic.getFilename() + ' '
+                self.addIssue(f"Le lieu {loc.getName()} n'a que {nPics} photos", details, None, loc)
 
 
 def testQuality():
