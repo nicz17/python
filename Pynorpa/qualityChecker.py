@@ -155,7 +155,14 @@ class QualityChecker():
                 details = ''
                 for pic in loc.getPictures():
                     details += pic.getFilename() + ' '
-                self.addIssue(f"Le lieu {loc.getName()} n'a que {nPics} photos", details, None, loc)
+                msg = f"Le lieu {loc.getName()} n'a que {nPics} photos"
+                pic = None
+                if nPics == 0:
+                    msg = f"Le lieu {loc.getName()} n'a pas de photos"
+                if nPics == 1:
+                    msg = f"Le lieu {loc.getName()} n'a qu'une photo"
+                    pic = loc.getPictures()[0]
+                self.addIssue(msg, details, pic, loc)
 
 
 def testQuality():
