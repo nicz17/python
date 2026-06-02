@@ -479,7 +479,7 @@ class TaxonCache():
     
     def createFromINatTaxon(self, inat: INatTaxon, idxParent: int) -> Taxon:
         """Create an unsaved taxon from an iNat taxon."""
-        nameFr = inat.name
+        nameFr = inat.commonName
         if nameFr.endswith('aceae'):
             nameFr = nameFr.replace('aceae', 'acées')
         if nameFr.endswith('idae'):

@@ -67,7 +67,7 @@ class INatApiRequest():
     def sendRequestByName(self, name: str):
         """Request taxon data from taxon name."""
         # https://api.inaturalist.org/v1/taxa?q=Polyommatus%20bellargus
-        url = f'{self.baseUrl}?q={name}'
+        url = f'{self.baseUrl}?q={name}&locale=fr'
         self.log.info('Sending request for name %s to %s', name, url)
         data = None
         try:
