@@ -11,7 +11,8 @@ import os
 import re
 
 import TextTools
-from taxon import TaxonCache, Taxon
+from pynorpaManager import PynorpaManager
+from taxon import TaxonCache
 
     
 class SelectionParser:
@@ -28,6 +29,7 @@ class SelectionParser:
         self.filename = filename
         self.dir = dir
         self.cache = None
+        self.manager = None
 
     def parse(self, dryrun=True):
         self.log.info(f'Parsing {self.filename}')
@@ -38,9 +40,11 @@ class SelectionParser:
             return None
         
         # Read file
+        self.manager = PynorpaManager()
         self.cache = TaxonCache()
         with open(self.filename, 'r') as file:
             for line in file:
+                # TODO find date from header
                 ids = re.findall(r'\d+', line.strip())
                 if ids and line.startswith(ids[0]):
                     tokens = line.strip().split(' ')
@@ -62,11 +66,11 @@ class SelectionParser:
     def getSelFilename(self, id: str, name: str):
         """Get the selected photo filename from the id and name."""
 
+        fname = name.replace(" ", "-")
         taxon = self.cache.findByName(TextTools.upperCaseFirst(name))
         if taxon:
-            # TODO get taxon name from latin (manager)
             self.log.info(f'Name matches {taxon}')
-            fname = name.replace(" ", "-")
+            fname = self.manager.getBaseFilename(taxon)
         else:
             # TODO get taxon name from french
             # TODO get taxon name from family name

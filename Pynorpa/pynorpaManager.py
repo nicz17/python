@@ -289,19 +289,22 @@ class PynorpaManager():
         for pic in taxon.getPictures():
             self.log.info(f'  {pic.getFilename()}')
 
-        # Base filename for taxon
-        basename = TextTools.lowerCaseFirst(taxon.getName()).replace(' ', '-')
-        if taxon.getRank() == TaxonRank.GENUS:
-            basename += '-sp'
-
         # Filename sequence
         # FIXME get last sequence number, not first
+        basename = self.getBaseFilename(taxon)
         for seq in range(1, 1000):
             filename = f'{basename}{seq:03d}.jpg'
             if not os.path.exists(f'{config.dirPictures}{filename}'):
                 self.log.info(f'Next name is {filename}')
                 return filename
         return None
+    
+    def getBaseFilename(self, taxon: Taxon) -> str:
+        """Base filename for taxon. Convert Cicindela hybrida to cicindela-hybrida."""
+        basename = TextTools.lowerCaseFirst(taxon.getName()).replace(' ', '-')
+        if taxon.getRank() == TaxonRank.GENUS:
+            basename += '-sp'
+        return basename
     
     def reclassifyPicture(self, picture: Picture, newName: str, newTaxon: Taxon, dryrun=True):
         """Change the picture's name and taxon in database."""
