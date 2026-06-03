@@ -413,6 +413,23 @@ class TaxonCache():
             if item.name == name:
                 return item
         return None
+    
+    def findByPartialName(self, name: str, commonName=False) -> Taxon:
+        """Fetch a taxon from an incomplete name."""
+        nameCol = 'taxNameFr' if commonName else 'taxName'
+        where = f"{nameCol} like '{name.replace(' ', '%')}%'"
+        self.db.connect(config.dbUser, config.dbPass)
+        query = Database.Query('partialName')
+        query.add(f'select idxTaxon from Taxon where {where}')
+        query.add('order by taxName asc')
+        result = self.db.fetch(query.getSQL())
+        query.close()
+        self.db.disconnect()
+        
+        self.log.debug(f'Fetched {len(result)} taxa from {name}')
+        if len(result) == 0:
+            return None
+        return self.findById(result[0][0])
 
     def findByFilename(self, filename: str) -> Taxon:
         """Find a Taxon from a file name."""

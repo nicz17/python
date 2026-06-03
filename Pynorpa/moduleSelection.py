@@ -15,15 +15,16 @@ import re
 import BaseWidgets
 import imageWidget
 import DateTools
-import TextTools
 from TabsApp import *
 from PhotoInfo import *
 from BaseTable import *
 import LocationCache
 from taxon import Taxon, TaxonRank, TaxonCache
 from picture import PictureCache
+from pynorpaManager import PynorpaManager
 from tkinter import filedialog as fd
 from Timer import Timer
+from selectionParser import SelectionParser
 
 
 class ModuleSelection(TabModule):
@@ -130,6 +131,19 @@ class ModuleSelection(TabModule):
             self.oParent.setStatus(f'Selected {self.dir}')
             self.loadData()
 
+    def importSelectionFile(self):
+        """Read a list of photos to select from a file."""
+        filename = fd.askopenfilename(
+            filetypes=[('Text files', '*.txt')],
+            initialdir=self.dir,
+            title='Fichier de sélection'
+        )
+        if filename is None or len(filename) == 0:
+            return
+        
+        parser = SelectionParser(filename, self.dir)
+        parser.parse()
+
     def createWidgets(self):
         """Create user widgets."""
         self.createLeftRightFrames()
@@ -148,6 +162,7 @@ class ModuleSelection(TabModule):
         # Buttons
         self.btnReload = self.addButton('Recharger', self.loadData, 'refresh')
         self.btnOpen   = self.addButton('Ouvrir', self.selectDir, 'open')
+        self.btnImport = self.addButton('Importer', self.importSelectionFile, 'go-down')
 
     def addButton(self, label: str, cmd, icon: str) -> BaseWidgets.Button:
         """Add a Tk Button to this module's frmButtons."""
@@ -167,15 +182,16 @@ class TaxonSelector():
         self.newName = None
         self.lastSelected = None
         self.dir = None  # For example Pictures/Nature-2024-10
+        self.manager = PynorpaManager()
 
     def buildNewName(self, taxon: Taxon, input: str):
         """Build a new filename from the specified taxon or user input."""
         basename = input.replace(' ', '-').lower()
         if taxon:
-            # TODO move to manager
-            basename = TextTools.lowerCaseFirst(taxon.getName()).replace(' ', '-')
-            if taxon.getRank() == TaxonRank.GENUS:
-                basename += '-sp'
+            basename = self.manager.getBaseFilename(taxon)
+            #basename = TextTools.lowerCaseFirst(taxon.getName()).replace(' ', '-')
+            #if taxon.getRank() == TaxonRank.GENUS:
+            #    basename += '-sp'
         seq = self.getSequenceNext(basename, taxon)
         if taxon and taxon.getRank().value < TaxonRank.GENUS.value:
             #seq = int(self.photo.getNameShort()[-8:-4])

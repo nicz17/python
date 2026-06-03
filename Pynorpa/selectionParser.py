@@ -42,6 +42,7 @@ class SelectionParser:
         # Read file
         self.manager = PynorpaManager()
         self.cache = TaxonCache()
+        nPhotos = 0
         with open(self.filename, 'r') as file:
             for line in file:
                 # TODO find date from header
@@ -56,6 +57,8 @@ class SelectionParser:
                     self.log.debug(f'{" ".join(ids)}: {name}')
                     for id in ids:
                         self.selectFile(id, name, dryrun)
+                        nPhotos += 1
+        self.log.info(f'Selecting {nPhotos} photos')
 
     def selectFile(self, id: str, name: str, dryrun: bool):
         """Select a photo."""
@@ -68,18 +71,23 @@ class SelectionParser:
 
         fname = name.replace(" ", "-")
         taxon = self.cache.findByName(TextTools.upperCaseFirst(name))
+        if not taxon:
+            # get taxon name from incomplete latin name
+            taxon = self.cache.findByPartialName(name)
+        if not taxon:
+            # get taxon name from french name
+            taxon = self.cache.findByPartialName(name, True)
+
         if taxon:
             self.log.info(f'Name matches {taxon}')
             fname = self.manager.getBaseFilename(taxon)
         else:
-            # TODO get taxon name from french
-            # TODO get taxon name from family name
             fname = self.replaceAbbr(name).replace(" ", "-")
-        return f'{self.dir}/photos/{fname}{id}.jpg'
+        return f'{self.dir.replace("/orig", "/photos")}/{fname}{id}.jpg'
 
     def getOrigFilename(self, id: str):
         """Get the original photo filename from the id number."""
-        return f'{self.dir}/orig/_NZW{id}.JPG'
+        return f'{self.dir}/_NZW{id}.JPG'
     
     def replaceAbbr(self, name: str):
         """Replace some common abbreviations."""
@@ -106,7 +114,7 @@ def testSelectionParser():
     """Unit test for SelectionParser class."""
     cache = TaxonCache()
     cache.load()
-    sp = SelectionParser('Nature-2024-01/Kandersteg.txt', 'Nature-2025-05')
+    sp = SelectionParser('Nature-2024-01/Kandersteg.txt', 'Nature-2025-05/orig')
     sp.parse()
 
 if __name__ == '__main__':
