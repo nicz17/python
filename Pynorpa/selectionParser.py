@@ -64,7 +64,15 @@ class SelectionParser:
         """Select a photo."""
         filenameOrig = self.getOrigFilename(id)
         filenameSel  = self.getSelFilename(id, name.strip())
-        self.log.info(f'cp {filenameOrig} {filenameSel}')
+
+        if not os.path.exists(filenameOrig):
+            self.log.error(f'Missing orig file {filenameOrig}')
+            return
+        if os.path.exists(filenameSel):
+            self.log.error(f'Selected file already exists: {filenameSel}')
+            return
+        
+        self.manager.runSystemCommand(f'cp {filenameOrig} {filenameSel}', dryrun)
 
     def getSelFilename(self, id: str, name: str):
         """Get the selected photo filename from the id and name."""
