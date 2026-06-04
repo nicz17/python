@@ -12,9 +12,36 @@ import re
 
 import TextTools
 from pynorpaManager import PynorpaManager
-from taxon import TaxonCache
+from taxon import TaxonCache, Taxon
 
+
+class SelectedPhoto:
+    """Container for a select orig photo."""
+    log = logging.getLogger('SelectedPhoto')
+
+    def __init__(self, id, orig: str, sel: str, taxon: Taxon, error=None):
+        self.id = id
+        self.orig = orig
+        self.sel = sel
+        self.taxon = taxon
+        self.error = error
+
+    def getOrigFilename(self) -> str:
+        return self.orig
     
+    def getSelFilename(self) -> str:
+        return self.sel
+    
+    def getTaxon(self) -> Taxon:
+        return self.taxon
+    
+    def getError(self) -> str:
+        return self.error
+
+    def __str__(self):
+        return f'SelectedPhoto {self.id} {self.sel if self.sel else self.error}'
+
+
 class SelectionParser:
     """Parse a Pynorpa photo selection file."""
     log = logging.getLogger('SelectionParser')
@@ -31,8 +58,9 @@ class SelectionParser:
         self.cache = None
         self.manager = None
 
-    def parse(self, dryrun=True):
+    def parse(self, dryrun=True) -> list[SelectedPhoto]:
         self.log.info(f'Parsing {self.filename}')
+        result = []
 
         # Check file exists
         if not os.path.exists(self.filename):
@@ -56,28 +84,30 @@ class SelectionParser:
                     ids = self.completeIds(ids)
                     self.log.debug(f'{" ".join(ids)}: {name}')
                     for id in ids:
-                        self.selectFile(id, name, dryrun)
+                        info = self.selectFile(id, name.strip(), dryrun)
+                        result.append(info)
                         nPhotos += 1
         self.log.info(f'Selecting {nPhotos} photos')
+        return result
 
-    def selectFile(self, id: str, name: str, dryrun: bool):
+    def selectFile(self, id: str, name: str, dryrun: bool) -> SelectedPhoto:
         """Select a photo."""
+        taxon = self.getSelTaxon(name)
         filenameOrig = self.getOrigFilename(id)
-        filenameSel  = self.getSelFilename(id, name.strip())
+        filenameSel  = self.getSelFilename(id, name, taxon)
 
         if not os.path.exists(filenameOrig):
             self.log.error(f'Missing orig file {filenameOrig}')
-            return
+            return SelectedPhoto(id, None, None, None, f'Missing orig file {filenameOrig}')
         if os.path.exists(filenameSel):
             self.log.error(f'Selected file already exists: {filenameSel}')
-            return
+            return SelectedPhoto(id, None, None, None, f'Selected file exists: {filenameSel}')
         
         self.manager.runSystemCommand(f'cp {filenameOrig} {filenameSel}', dryrun)
+        return SelectedPhoto(id, filenameOrig, filenameSel, taxon)
 
-    def getSelFilename(self, id: str, name: str):
-        """Get the selected photo filename from the id and name."""
-
-        fname = name.replace(" ", "-")
+    def getSelTaxon(self, name: str) -> Taxon:
+        """Get the selected taxon from the input name, or None."""
         taxon = self.cache.findByName(TextTools.upperCaseFirst(name))
         if not taxon:
             # get taxon name from incomplete latin name
@@ -85,7 +115,11 @@ class SelectionParser:
         if not taxon:
             # get taxon name from french name
             taxon = self.cache.findByPartialName(name, True)
+        return taxon
 
+    def getSelFilename(self, id: str, name: str, taxon: Taxon):
+        """Get the selected photo filename from the id and name."""
+        fname = name.replace(" ", "-")
         if taxon:
             self.log.info(f'Name matches {taxon}')
             fname = self.manager.getBaseFilename(taxon)
@@ -122,8 +156,10 @@ def testSelectionParser():
     """Unit test for SelectionParser class."""
     cache = TaxonCache()
     cache.load()
-    sp = SelectionParser('Nature-2024-01/Kandersteg.txt', 'Nature-2025-05/orig')
-    sp.parse()
+    sp = SelectionParser('Nature-2024-01/Kandersteg.txt', 'Nature-2026-05/orig')
+    result = sp.parse()
+    for item in result:
+        sp.log.info(item)
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s", 

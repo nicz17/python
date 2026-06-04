@@ -142,7 +142,10 @@ class ModuleSelection(TabModule):
             return
         
         parser = SelectionParser(filename, self.dir)
-        parser.parse()
+        result = parser.parse()
+        for item in result:
+            self.log.info(item)
+        # TODO dialog with table of results
 
     def createWidgets(self):
         """Create user widgets."""
