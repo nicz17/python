@@ -49,7 +49,8 @@ class SelectionParser:
         'coleo': 'coleoptera',
         'het': 'heteroptera',
         'hym': 'hymenoptera',
-        'lepi': 'lepidoptera'
+        'lepi': 'lepidoptera',
+        'geom': 'geometridae'
     }
 
     def __init__(self, filename: str, dir: str):
@@ -108,6 +109,7 @@ class SelectionParser:
 
     def getSelTaxon(self, name: str) -> Taxon:
         """Get the selected taxon from the input name, or None."""
+        name = self.replaceAbbr(name)
         taxon = self.cache.findByName(TextTools.upperCaseFirst(name))
         if not taxon:
             # get taxon name from incomplete latin name
@@ -125,6 +127,7 @@ class SelectionParser:
             fname = self.manager.getBaseFilename(taxon)
         else:
             fname = self.replaceAbbr(name).replace(" ", "-")
+            #fname = name.replace(" ", "-")
         return f'{self.dir.replace("/orig", "/photos")}/{fname}{id}.jpg'
 
     def getOrigFilename(self, id: str):
@@ -133,7 +136,8 @@ class SelectionParser:
     
     def replaceAbbr(self, name: str):
         """Replace some common abbreviations."""
-        for key in self.dictAbbr:
+        key = name.strip()
+        if key in self.dictAbbr:
             name = name.replace(key, self.dictAbbr[key])
         return name
 
