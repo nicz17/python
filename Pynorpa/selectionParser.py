@@ -39,7 +39,8 @@ class SelectedPhoto:
         return self.error
 
     def __str__(self):
-        return f'SelectedPhoto {self.id} {self.sel if self.sel else self.error}'
+        sTaxonFr = '' if self.taxon is None else f' ({self.taxon.getNameFr()})'
+        return f'SelectedPhoto {self.id} {self.sel + sTaxonFr if self.sel else self.error}'
 
 
 class SelectionParser:
