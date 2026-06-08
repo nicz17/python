@@ -25,6 +25,7 @@ from pynorpaManager import PynorpaManager
 from tkinter import filedialog as fd
 from Timer import Timer
 from selectionParser import SelectionParser
+from selectionParsingDialog import SelectionParsingDialog
 
 
 class ModuleSelection(TabModule):
@@ -146,6 +147,9 @@ class ModuleSelection(TabModule):
         for item in result:
             self.log.info(item)
         # TODO dialog with table of results
+        dlg = SelectionParsingDialog(self.window, filename)
+        self.window.wait_window(dlg.root)
+        self.log.info(f'Dialog closed with data: {dlg.data}')
 
     def createWidgets(self):
         """Create user widgets."""
