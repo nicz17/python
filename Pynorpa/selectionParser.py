@@ -26,6 +26,9 @@ class SelectedPhoto:
         self.taxon = taxon
         self.error = error
 
+    def getId(self) -> str:
+        return self.id
+
     def getOrigFilename(self) -> str:
         return self.orig
     
@@ -35,8 +38,18 @@ class SelectedPhoto:
     def getTaxon(self) -> Taxon:
         return self.taxon
     
+    def getTaxonName(self) -> str:
+        if self.taxon:
+            return self.taxon.getNameFr()
+        return ''
+    
     def getError(self) -> str:
         return self.error
+    
+    def getSummary(self) -> str:
+        if self.error:
+            return self.error
+        return os.path.basename(self.getSelFilename())
 
     def __str__(self):
         sTaxonFr = '' if self.taxon is None else f' ({self.taxon.getNameFr()})'
@@ -100,10 +113,10 @@ class SelectionParser:
 
         if not os.path.exists(filenameOrig):
             self.log.error(f'Missing orig file {filenameOrig}')
-            return SelectedPhoto(id, None, None, None, f'Missing orig file {filenameOrig}')
+            return SelectedPhoto(id, None, None, taxon, f'Original manquant : {os.path.basename(filenameOrig)}')
         if os.path.exists(filenameSel):
             self.log.error(f'Selected file already exists: {filenameSel}')
-            return SelectedPhoto(id, None, None, None, f'Selected file exists: {filenameSel}')
+            return SelectedPhoto(id, None, None, taxon, f'La photo existe: {os.path.basename(filenameSel)}')
         
         self.manager.runSystemCommand(f'cp {filenameOrig} {filenameSel}', dryrun)
         return SelectedPhoto(id, filenameOrig, filenameSel, taxon)
