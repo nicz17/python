@@ -144,12 +144,13 @@ class ModuleSelection(TabModule):
         
         parser = SelectionParser(filename, self.dir)
         result = parser.parse(True)
-        for item in result:
-            self.log.info(item)
-        # TODO dialog with table of results
         dlg = SelectionParsingDialog(self.window, filename, result)
         self.window.wait_window(dlg.root)
         self.log.info(f'Dialog closed with data: {dlg.data}')
+        if dlg.data is True:
+            self.log.info('Applying selections:')
+            for item in result:
+                self.log.info(item)
 
     def createWidgets(self):
         """Create user widgets."""

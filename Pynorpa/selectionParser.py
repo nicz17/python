@@ -19,8 +19,9 @@ class SelectedPhoto:
     """Container for a select orig photo."""
     log = logging.getLogger('SelectedPhoto')
 
-    def __init__(self, id, orig: str, sel: str, taxon: Taxon, error=None):
+    def __init__(self, id, input: str, orig: str, sel: str, taxon: Taxon, error=None):
         self.id = id
+        self.input = input
         self.orig = orig
         self.sel = sel
         self.taxon = taxon
@@ -28,6 +29,9 @@ class SelectedPhoto:
 
     def getId(self) -> str:
         return self.id
+    
+    def getInput(self) -> str:
+        return self.input
 
     def getOrigFilename(self) -> str:
         return self.orig
@@ -45,6 +49,9 @@ class SelectedPhoto:
     
     def getError(self) -> str:
         return self.error
+    
+    def hasError(self) -> bool:
+        return self.error is not None
     
     def getSummary(self) -> str:
         if self.error:
@@ -113,13 +120,13 @@ class SelectionParser:
 
         if not os.path.exists(filenameOrig):
             self.log.error(f'Missing orig file {filenameOrig}')
-            return SelectedPhoto(id, None, None, taxon, f'Original manquant : {os.path.basename(filenameOrig)}')
+            return SelectedPhoto(id, name, None, None, taxon, f'Original manquant : {os.path.basename(filenameOrig)}')
         if os.path.exists(filenameSel):
             self.log.error(f'Selected file already exists: {filenameSel}')
-            return SelectedPhoto(id, None, None, taxon, f'La photo existe: {os.path.basename(filenameSel)}')
+            return SelectedPhoto(id, name, None, None, taxon, f'La photo existe: {os.path.basename(filenameSel)}')
         
-        self.manager.runSystemCommand(f'cp {filenameOrig} {filenameSel}', dryrun)
-        return SelectedPhoto(id, filenameOrig, filenameSel, taxon)
+        #self.manager.runSystemCommand(f'cp {filenameOrig} {filenameSel}', dryrun)
+        return SelectedPhoto(id, name, filenameOrig, filenameSel, taxon)
 
     def getSelTaxon(self, name: str) -> Taxon:
         """Get the selected taxon from the input name, or None."""

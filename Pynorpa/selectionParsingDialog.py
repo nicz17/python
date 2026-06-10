@@ -23,7 +23,7 @@ class SelectionParsingDialog(ModalDialog):
         self.filename = filename
         self.selections = selections
         super().__init__(parent, 'Confirmation de sélection')
-        self.root.geometry('1020x640+300+150')
+        self.root.geometry('900x640+300+150')
         self.data = False
 
     def loadData(self):
@@ -37,7 +37,8 @@ class SelectionParsingDialog(ModalDialog):
 
     def onSave(self):
         """Copy the selected photos."""
-        pass
+        self.data = True
+        self.exit()
 
     def setStatus(self, msg: str):
         """Set our status message."""
@@ -58,16 +59,9 @@ class SelectionParsingDialog(ModalDialog):
         self.frmButtons = ttk.Frame(self.frmMain)
         self.frmButtons.pack(fill=tk.X, padx=3, pady=10)
         self.btnSave  = Button(self.frmButtons, 'Enregistrer', self.onSave, 'filesave')
-        self.btnExit  = Button(self.frmButtons, 'Quitter', self.exit, 'cancel')
+        self.btnExit  = Button(self.frmButtons, 'Quitter',     self.exit,   'cancel')
         self.btnSave.pack()
         self.btnExit.pack()
-
-    def hasChanges(self):
-        """Check if we have photos to select."""
-        return False
-
-    def enableWidgets(self):
-        self.btnSave.enableWidget(self.hasChanges())
 
 
 class TableSelectedPhoto(AdvTable):
@@ -76,18 +70,24 @@ class TableSelectedPhoto(AdvTable):
 
     def __init__(self, cbkSelect):
         """Constructor with selection callback."""
-        self.log.info('Constructor')
         super().__init__(cbkSelect, 'Sélections', 6)
-        self.addColumn(TableColumn('Id',      SelectedPhoto.getId,         50))
-        self.addColumn(TableColumn('Status',  SelectedPhoto.getSummary,   400))
-        self.addColumn(TableColumn('Taxon',   SelectedPhoto.getTaxonName, 200))
+        self.addColumn(TableColumn('No',                SelectedPhoto.getId,         50))
+        self.addColumn(TableColumn('Saisie',            SelectedPhoto.getInput,     150))
+        self.addColumn(TableColumn('Sélectionné sous',  SelectedPhoto.getSummary,   400))
+        self.addColumn(TableColumn('Taxon',             SelectedPhoto.getTaxonName, 200))
 
     def loadData(self, data: list[SelectedPhoto]):
         """Display the specified selections in this table."""
-        self.log.info('Loading %d selections', len(data))
+        self.log.info(f'Loading {len(data)} SelectedPhotos')
         self.clear()
         self.data = data
         self.addRows(data)
+
+        # Set error style on rows
+        self.tree.tag_configure('error-row', foreground='#e00000')
+        for idx, sel in enumerate(data):
+            if sel.hasError():
+                self.tree.item(idx, tags='error-row')
 
     def createWidgets(self, parent: tk.Frame):
         """Create user widgets."""
