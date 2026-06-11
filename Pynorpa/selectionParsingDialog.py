@@ -32,7 +32,7 @@ class SelectionParsingDialog(ModalDialog):
         for sel in self.selections:
             if sel.getError():
                 errors +=1
-        self.setStatus(f'Lu {total} photos, {errors} erreurs')
+        self.setStatus(f'Lu {total} photos, {errors} erreurs de {self.filename}')
         self.tblSel.loadData(self.selections)
 
     def onSave(self):

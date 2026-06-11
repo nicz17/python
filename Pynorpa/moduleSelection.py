@@ -42,6 +42,7 @@ class ModuleSelection(TabModule):
         self.editor = PhotoEditor()
         self.selector = TaxonSelector()
         self.locationCache = LocationCache.LocationCache()
+        self.manager = PynorpaManager()
         super().__init__(parent, 'Sélection')
         self.photos = []
         self.dir = None
@@ -144,13 +145,21 @@ class ModuleSelection(TabModule):
         
         parser = SelectionParser(filename, self.dir)
         result = parser.parse(True)
-        dlg = SelectionParsingDialog(self.window, filename, result)
+        dlg = SelectionParsingDialog(self.window, os.path.basename(filename), result)
         self.window.wait_window(dlg.root)
         self.log.info(f'Dialog closed with data: {dlg.data}')
         if dlg.data is True:
             self.log.info('Applying selections:')
             for item in result:
-                self.log.info(item)
+                if item.hasError():
+                    self.log.error(item.getError())
+                else:
+                    cmd = f'cp {item.getOrigFilename()} {item.getSelFilename()}'
+                    self.log.info(cmd)
+                    self.manager.runSystemCommand(cmd, False)
+                    if self.selector.lastSelected is None:
+                        self.selector.lastSelected = item.getSelFilename()
+            self.selector.enableWidgets()
 
     def createWidgets(self):
         """Create user widgets."""

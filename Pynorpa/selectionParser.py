@@ -16,7 +16,7 @@ from taxon import TaxonCache, Taxon
 
 
 class SelectedPhoto:
-    """Container for a select orig photo."""
+    """Container for a selected orig photo."""
     log = logging.getLogger('SelectedPhoto')
 
     def __init__(self, id, input: str, orig: str, sel: str, taxon: Taxon, error=None):
@@ -124,8 +124,6 @@ class SelectionParser:
         if os.path.exists(filenameSel):
             self.log.error(f'Selected file already exists: {filenameSel}')
             return SelectedPhoto(id, name, None, None, taxon, f'La photo existe: {os.path.basename(filenameSel)}')
-        
-        #self.manager.runSystemCommand(f'cp {filenameOrig} {filenameSel}', dryrun)
         return SelectedPhoto(id, name, filenameOrig, filenameSel, taxon)
 
     def getSelTaxon(self, name: str) -> Taxon:
