@@ -163,6 +163,8 @@ class SelectionParser:
     def completeIds(self, ids: list[str]):
         """Complete 9510, 11 into 9510, 9511."""
         id0 = ids[0]
+        if len(id0) == 3:
+            id0 = '0' + id0
         result = [id0]
         for id in ids[1:]:
             if len(id) < len(id0):
