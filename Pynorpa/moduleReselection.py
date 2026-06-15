@@ -243,16 +243,11 @@ class TaxonReselector(TaxonSelector):
         self.log.info(f'Renaming {self.photo.filename} to {self.newName}')
         target = f'{self.dir}/photos/{self.newName}'
         cmd = f'mv {self.photo.filename} {target}'
-        self.runSystemCommand(cmd)
-        self.runSystemCommand(cmd.replace('photos/', 'thumbs/'))
+        self.manager.runSystemCommand(cmd)
+        self.manager.runSystemCommand(cmd.replace('photos/', 'thumbs/'))
         self.enableWidgets()
         self.photo.filename = target
         self.cbkReselection(self.photo)
-
-    def runSystemCommand(self, cmd: str):
-        """Runs the specified system command."""
-        self.log.info(cmd)
-        os.system(cmd)
 
 class DialogLocate(ModalDialog):
     log = logging.getLogger('DialogLocate')

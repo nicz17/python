@@ -206,12 +206,10 @@ class TaxonSelector():
         basename = input.replace(' ', '-').lower()
         if taxon:
             basename = self.manager.getBaseFilename(taxon)
-            #basename = TextTools.lowerCaseFirst(taxon.getName()).replace(' ', '-')
-            #if taxon.getRank() == TaxonRank.GENUS:
-            #    basename += '-sp'
         seq = self.getSequenceNext(basename, taxon)
+
+        # For Family and higher, keep original number
         if taxon and taxon.getRank().value < TaxonRank.GENUS.value:
-            #seq = int(self.photo.getNameShort()[-8:-4])
             seq = self.extractNumber(self.photo.getNameShort())
         self.newName = f'{basename}{seq:03d}.jpg'
 
@@ -223,14 +221,15 @@ class TaxonSelector():
             self.log.info(f'Found {len(picsDb)} pictures for {taxon}:')
             for pic in picsDb:
                 self.log.info(f'  {pic}')
-                #seq = int(pic.getFilename()[-7:-4])
                 seq = self.extractNumber(pic.getFilename())
                 imax = max(seq, imax)
         picsLocal = glob.glob(f'{self.dir}/photos/{basename}*.jpg')
         self.log.info(f'Found {len(picsLocal)} local files for {basename}:')
         for file in picsLocal:
+            # Except currently selected photo
+            if file == self.photo.filename:
+                continue
             self.log.info(f'  {file}')
-            #seq = int(file[-7:-4])
             seq = self.extractNumber(file)
             imax = max(seq, imax)
         return imax+1
