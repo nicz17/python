@@ -43,6 +43,7 @@ class LogBookApp(BaseApp):
         self.taskEditor = logbookWidgets.TaskEditor(self.onTaskSave)
         self.stepEditor = logbookWidgets.StepEditor(self.onStepSave)
         self.bookSelector = BookSelector(self.onBookSelection)
+        self.moveSelector = BookSelectorMove(self.onTaskMove)
         self.taskProgress = logbookWidgets.TaskProgress()
         geometry = f'{self.iWidth}x{self.iHeight}'
         super().__init__('LogBook', geometry, LogBook.dir + 'LogBook.png')
@@ -56,6 +57,7 @@ class LogBookApp(BaseApp):
         self.book = LogBook('TodoList')
         self.setStatus(f'Opened {self.book.getFilename()}')
         self.bookSelector.loadData(self.book)
+        self.moveSelector.loadData(None)
 
     def renderBook(self):
         """Update rendering for the current book."""
@@ -235,6 +237,32 @@ class LogBookApp(BaseApp):
         self.onRefresh()
         self.setStatus(msg)
 
+    def onTaskMove(self, name: str):
+        """Move the selected task to another logbook."""
+        self.log.info(f'Moving {self.task} to {name}')
+
+        # Check arguments
+        if self.task is None:
+            self.showErrorMsg('No task selected!')
+            return
+        if name is None:
+            self.showErrorMsg('Cannot move to undefined logbook!')
+            return
+        if name == self.book.name:
+            self.showErrorMsg('Cannot move to same logbook!')
+            return
+        
+        # Move the task
+        target = LogBook(name)
+        target.addTask(self.task)
+        target.save()
+        self.book.removeTask(self.task)
+        self.book.save()
+        msg = f'Moved {self.task.title} to {target.name}'
+        self.task = None
+        self.onRefresh()
+        self.setStatus(msg)
+
     def onNotImplemented(self):
         """Show a Not implemented yet error message."""
         self.showErrorMsg('Not implemenented yet!')
@@ -291,6 +319,9 @@ class LogBookApp(BaseApp):
 
         # Book selector
         self.bookSelector.build(self.frmEdit)
+
+        # Move selector
+        self.moveSelector.createWidgets(self.frmEdit)
 
         # Task progress
         self.taskProgress.createWidgets(self.frmEdit)
