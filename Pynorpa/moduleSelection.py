@@ -145,7 +145,7 @@ class ModuleSelection(TabModule):
         
         parser = SelectionParser(filename, self.dir)
         result = parser.parse(True)
-        dlg = SelectionParsingDialog(self.window, os.path.basename(filename), result)
+        dlg = SelectionParsingDialog(self.window, filename, result)
         self.window.wait_window(dlg.root)
         self.log.info(f'Dialog closed with data: {dlg.data}')
         if dlg.data is True:

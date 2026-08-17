@@ -6,6 +6,7 @@ __version__ = "1.0.0"
 
 
 import logging
+import os
 import tkinter as tk
 from tkinter import ttk
 
@@ -32,12 +33,18 @@ class SelectionParsingDialog(ModalDialog):
         for sel in self.selections:
             if sel.getError():
                 errors +=1
-        self.setStatus(f'Lu {total} photos, {errors} erreurs de {self.filename}')
+        self.setStatus(f'Lu {total} photos, {errors} erreurs de {os.path.basename(self.filename)}')
         self.tblSel.loadData(self.selections)
 
     def onSave(self):
         """Copy the selected photos."""
         self.data = True
+        self.exit()
+
+    def onEdit(self):
+        """Open the selection file in editor and exit dialog."""
+        cmd = f'code {self.filename}'
+        os.system(cmd)
         self.exit()
 
     def setStatus(self, msg: str):
@@ -55,13 +62,15 @@ class SelectionParsingDialog(ModalDialog):
         self.tblSel = TableSelectedPhoto(None)
         self.tblSel.createWidgets(self.frmMain)
 
-        # Save/cancel buttons
+        # Save/cancel/edit buttons
         self.frmButtons = ttk.Frame(self.frmMain)
         self.frmButtons.pack(fill=tk.X, padx=3, pady=10)
         self.btnSave  = Button(self.frmButtons, 'Enregistrer', self.onSave, 'filesave')
         self.btnExit  = Button(self.frmButtons, 'Quitter',     self.exit,   'cancel')
+        self.btnEdit  = Button(self.frmButtons, 'Modifier',    self.onEdit, 'edit')
         self.btnSave.pack()
         self.btnExit.pack()
+        self.btnEdit.pack()
 
 
 class TableSelectedPhoto(AdvTable):
