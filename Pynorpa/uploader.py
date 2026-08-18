@@ -83,6 +83,9 @@ class Uploader:
             locFiles.append(filename)
         self.uploadMulti(locFiles, 'location')
 
+        # TODO Upload modified excursions
+
+
         # Upload index and other base html pages
         htmlFiles = []
         homePages = ['index', 'classification', 'latest', 'locations', 'noms-latins', 'noms-verna', 'expeditions', 'liens']
