@@ -121,8 +121,9 @@ class ModuleReselection(TabModule):
             taxon: Taxon
             taxon = pic.getTaxon()
             sTaxonDesc = f'{taxon.getRankFr()} {taxon.getNameFr()}'
-            msg = f'{pic.getFilename()}\n{sTaxonDesc}\nà {pic.getLocationName()}'
+            msg = f'{pic.getFilename()}\n{sTaxonDesc}\nPrès de {pic.getLocationName()}\nQualité {pic.getRating()}'
             mb.showinfo('Ajouté', 'Ajouté en galerie', detail=msg)
+            # TODO replace mb with dialog to edit remark and quality
         self.enableWidgets()
 
     def createWidgets(self):
