@@ -159,13 +159,16 @@ class GeoTracker:
                 if self.callExifTool(file, gpxloc):
                     nUpdated += 1
                     photo.identify()
-                    self.statusMsg = f'Added GPS data to {photo.filename}'
+                    #self.statusMsg = f'Added GPS data to {photo.filename}'
+                    self.statusMsg = f'Ajouté données GPS à {photo.getNameShort()}'
                 elif self.defLocation is not None:
                     nDefault += 1
                     self.setGPSFromDefLocation(file)
+                    self.statusMsg = f'Lieu par défaut pour {photo.getNameShort()} : {self.defLocation.getName()}'
                 else:
                     nUntracked += 1
-                    self.statusMsg = f'No GPS data for {photo.filename}'
+                    #self.statusMsg = f'No GPS data for {photo.filename}'
+                    self.statusMsg = f'Pas de données GPS pour {photo.getNameShort()}'
                 if cbkProgress:
                     cbkProgress()
             self.photos.append(photo)
