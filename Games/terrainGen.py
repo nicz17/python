@@ -7,6 +7,7 @@ See https://www.py4u.org/blog/python-random-map-generation-with-perlin-noise/
 """
 
 import logging
+import math
 import os
 import random
 
@@ -31,9 +32,11 @@ class TerrainGenerator():
     """Height map generator using Perlin noise."""
     log = logging.getLogger('TerrainGenerator')
 
-    def __init__(self):
+    def __init__(self, seed=None):
         """Constructor with seed."""
-        self.seed = random.randint(0, 42)
+        if seed is None:
+            seed = random.randint(0, 42)
+        self.seed = seed
         self.grid = None
 
     def perlinNoise(self, size=512, gradients=8, octaves=3):
@@ -41,6 +44,27 @@ class TerrainGenerator():
         shape = (gradients, gradients)
         self.log.info(f'Generating Perlin {shape} {size}px with {octaves} octaves')
         self.grid = perlin(shape, dens=int(size/gradients), seed=self.seed, octaves=octaves)
+
+    def normalize(self):
+        """Normalize terrain elevation to 0-1."""
+        self.log.info(f'Normalizing height map')
+        gmin = np.min(self.grid)
+        gmax = np.max(self.grid)
+        self.grid = (self.grid-gmin)/(gmax-gmin)
+
+    def shape(self):
+        """Apply a shaping function to the height map."""
+        self.log.info('Shaping terrain')
+        height = self.grid.shape[0]
+        width  = self.grid.shape[1]
+        
+        for y in range(height):
+            for x in range(width):
+                # Compute distance to center
+                dx = (x - width/2.0)/width
+                dy = (y - height/2.0)/height
+                d = math.sqrt(dx*dx + dy*dy)
+                self.grid[y][x] = self.grid[y][x] * (1.0 - 1.6*d)
 
     def setElevation(self, min=-200, max=1200):
         """Set the terrain elevation to the specified range."""
@@ -65,14 +89,16 @@ class TerrainRenderer():
         if not os.path.isdir(self.dir):
             os.mkdir(self.dir)
 
-    def plot(self, terrain: Terrain):
+    def savePyplot(self, terrain: Terrain):
         """Plot the terrain using pylab."""
         self.log.info('Plotting terrain map')
+        filename = f'{self.dir}/terrain.png'
         plt.figure(figsize=(8,8))
         img = plt.imshow(terrain.grid, cmap=plt.get_cmap('terrain'))
         plt.colorbar(img, shrink=0.8)
         plt.axis('off')
         plt.title('Terrain height map')
+        plt.savefig(filename, bbox_inches='tight')
         plt.show()
 
     def saveImageGrayscale(self, terrain: Terrain):
@@ -135,13 +161,15 @@ def configureLogging():
 
 def main():
     log.info('Welcome to terrainGen!')
-    gen = TerrainGenerator()
+    gen = TerrainGenerator(17)
     gen.perlinNoise(512, 4)
-    gen.setElevation(-200, 1200)
+    gen.normalize()
+    gen.shape()
+    gen.setElevation(-250, 1500)
     terrain = gen.getTerrain()
     ren = TerrainRenderer()
-    ren.plot(terrain)
-    ren.render(terrain)
+    ren.savePyplot(terrain)
+    #ren.render(terrain)
 
 configureLogging()
 log = logging.getLogger('terrainGen')
