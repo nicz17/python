@@ -6,6 +6,10 @@ See https://pypi.org/project/pythonperlin/
 See https://www.py4u.org/blog/python-random-map-generation-with-perlin-noise/
 """
 
+__author__ = "Nicolas Zwahlen"
+__copyright__ = "Copyright 2026 N. Zwahlen"
+__version__ = "1.0.0"
+
 import logging
 import math
 import os
@@ -42,7 +46,7 @@ class TerrainGenerator():
     def perlinNoise(self, size=512, gradients=8, octaves=3):
         """Generate Perlin noise."""
         shape = (gradients, gradients)
-        self.log.info(f'Generating Perlin {shape} {size}px with {octaves} octaves')
+        self.log.info(f'Generating Perlin {shape} {size}px with {octaves} octaves seed {self.seed}')
         self.grid = perlin(shape, dens=int(size/gradients), seed=self.seed, octaves=octaves)
 
     def normalize(self):
@@ -171,6 +175,7 @@ def main():
     ren.savePyplot(terrain)
     #ren.render(terrain)
 
-configureLogging()
-log = logging.getLogger('terrainGen')
-main()
+if __name__ == '__main__':
+    configureLogging()
+    log = logging.getLogger('terrainGen')
+    main()
