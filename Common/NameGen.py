@@ -4,14 +4,17 @@
 
 __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2023 N. Zwahlen"
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 import random
 
 class NameGen:
     """A simple random name generator."""
-    def __init__(self, seed = 42):
+
+    def __init__(self, seed=42):
+        """Constructor with optional seed."""
         self.seed = seed
+        random.seed(seed)
         self.vowels = ['a', 'e', 'i', 'o', 'u', 'y']
         self.consos = ['b', 'c', 'd', 'f', 'g', 'h', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'x', 'z']
 
@@ -44,7 +47,7 @@ def testNameGen():
     """Tests the name generator by printing several names to console."""
     nCols = 8
     nRows = 6
-    ng = NameGen()
+    ng = NameGen(random.randint(0, 42))
     for iCol in range(nCols):
         sRow = ''
         for iRow in range(nRows):
