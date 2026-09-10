@@ -17,6 +17,7 @@ import random
 
 import numpy as np
 import pylab as plt
+import matplotlib as mpl
 from pythonperlin import perlin
 from PIL import Image
 from Palette import HeatPalette
@@ -90,6 +91,7 @@ class TerrainRenderer():
     def __init__(self):
         """Constructor."""
         self.palette = HeatPalette()
+        self.colorCache = []
         if not os.path.isdir(self.dir):
             os.mkdir(self.dir)
 
@@ -154,6 +156,20 @@ class TerrainRenderer():
         # TODO try with pyplot colormaps terrain and ocean
         return self.palette.getColor(elevation/1000.0)
 
+    def buildColorCache(self):
+        """Build a discrete cache of colormap colors."""
+        self.log.info('Building color cache from terrain colormap')
+        cmap = mpl.colormaps['terrain']
+        for i in range(101):
+            rgb = cmap(i/100.0)
+            hexcolor = mpl.colors.rgb2hex(rgb)
+            self.colorCache.append(hexcolor)
+            self.log.debug(f'  color {i}: {hexcolor}')
+
+    def getCachedColor(self, index: int):
+        """Returns a hex color code from color cache for the specified index."""
+        return self.colorCache[max(0, index)]
+    
 
 def configureLogging():
     """Configures logging to have timestamped logs at INFO level on stdout."""

@@ -6,47 +6,67 @@ __copyright__ = "Copyright 2026 N. Zwahlen"
 __version__ = "1.0.0"
 
 import logging
+import random
 import tkinter as tk
-from tkinter import ttk
-import matplotlib as mpl
 
 from BaseApp import BaseApp
-from terrainGen import Terrain, TerrainGenerator, TerrainRenderer
-from Palette import HeatPalette
+from NameGen import NameGen
+from terrainGen import TerrainGenerator, TerrainRenderer
+from Timer import Timer
+
 
 class TerrainViewerApp(BaseApp):
+    """Simple Terrain preview GUI."""
     log = logging.getLogger('TerrainViewerApp')
 
     def __init__(self, title, geometry='1000x650') -> None:
         self.size = 600
         super().__init__(title, geometry)
         self.terrain = None
-        self.palette = HeatPalette()
+        self.renderer = TerrainRenderer()
+        self.renderer.buildColorCache()
 
     def generate(self):
+        """Generates a terrain height map and displays a 2D preview."""
+        self.setStatus('Création de terrain en cours ...')
         self.window.configure(cursor='watch')
         self.window.update()
-        # TODO give the terrain a random name
+        timer = Timer()
 
+        # Use the same seed for all generators
+        seed = random.randint(0, 42)
+
+        # Give the terrain a random name
+        nameGen = NameGen(seed)
+        name = nameGen.generate()
+        self.log.info(f'Generating terrain {name} size {self.size}')
+
+        # Generate the height map
         gen = TerrainGenerator()
         gen.perlinNoise(self.size)
         gen.normalize()
         gen.shape()
         self.terrain = gen.getTerrain()
 
+        # Render a 2D image of the terrain
         self.img = tk.PhotoImage(width=self.size, height=self.size)
         self.canTerrain.create_image(0, 0, anchor=tk.NW, image=self.img)
-        cmap = mpl.colormaps['terrain']
-        #TODO speed up by caching hexcolor for discrete values
         for x in range(self.size):
             for y in range(self.size):
                 #hexcolor = self.palette.getColorHex(self.terrain.grid[y][x])
-                rgb = cmap(self.terrain.grid[y][x])
-                hexcolor = mpl.colors.rgb2hex(rgb)
+                elevation = self.terrain.grid[y][x]
+                hexcolor = self.renderer.getCachedColor(int(elevation*100.0))
                 self.img.put(hexcolor, (x, y))
 
-        #TODO add timer
-        self.log.info('Generation done.')
+        # Save terrain image as PNG file
+        filename = f'images/{name}{seed}.png'
+        self.img.write(filename, 'PNG')
+        self.log.info(f'Saved terrain images as {filename}')
+
+        # Set done status
+        runtime = timer.getElapsed()
+        self.log.info(f'Generation done in {runtime}.')
+        self.setStatus(f'Créé le terrain {name} en {runtime}')
         self.window.configure(cursor='')
     
     def onCanvasClick(self, event):
