@@ -14,8 +14,10 @@ import calendar
 import datetime
 import DateTools
 import TextTools
+
 from BaseWidgets import MonthYearSelector
 from TabsApp import TabsApp, TabModule
+from journal import Journal
 
 
 class ModuleCalendar(TabModule):
@@ -54,20 +56,44 @@ class CalendarWidget:
         self.cal = calendar.TextCalendar()
 
     def loadData(self, year: int, month: int):
-        """Load calendar data."""
-        week0 = datetime.date(year, month, 1).isocalendar()[1]
+        """Load calendar data for the specified month."""
+        dStart = datetime.date(year, month, 1)
+        dEnd   = dStart + datetime.timedelta(days=31)
+        week0 = dStart.isocalendar()[1]
         self.log.info(f'Loading calendar data for {year}.{month}')
+        journal = Journal(dStart, dEnd)
+        journalItems = journal.getJournalItems()
+
+        # Clear the frame
+        for widget in self.frmMain.winfo_children():
+            widget.destroy()
+
+        # Frame title and table headers
+        sMonth = TextTools.upperCaseFirst(DateTools.aMonthFr[month-1])
+        self.frmMain.configure(text=f'{sMonth} {year}')
         for iDay, name in enumerate(self.dayNames):
             lblHeader = ttk.Label(self.frmMain, text=name)
             lblHeader.grid(column=iDay, row=0, padx=4, pady=8)
+
+        # Table cells
         for day in self.cal.itermonthdates(year, month):
-            week = day.isocalendar()[1]
-            lblDay = ttk.Label(self.frmMain, text=day.strftime('%d.%m'))
+            # TODO improve grid layout
+            content = day.strftime('%d.%m')
+
+            # Add JournalItems
+            dtDay = datetime.datetime.combine(day, datetime.datetime.min.time())
+            if dtDay in journalItems:
+                for idxLoc in journalItems[dtDay].keys():
+                    item = journalItems[dtDay][idxLoc]
+                    content += '\n' + item.getLabel()
+
+            # Cell content and style
+            lblDay = ttk.Label(self.frmMain, text=content)
             if day.month != month:
                 lblDay.configure(foreground='#c4c4c4')
+            week = day.isocalendar()[1]
             lblDay.grid(column=day.weekday(), row=week-week0+1, padx=4, pady=8)
-        sMonth = TextTools.upperCaseFirst(DateTools.aMonthFr[month-1])
-        self.frmMain.configure(text=f'{sMonth} {year}')
+
 
     def createWidgets(self, parent):
         """Create user widgets."""

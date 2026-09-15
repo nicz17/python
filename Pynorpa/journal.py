@@ -32,6 +32,10 @@ class JournalItem():
     def size(self) -> int:
         """Count the pictures in this journal item."""
         return len(self.pics)
+
+    def getLabel(self):
+        """Return a short label for GUI as location (npics)."""
+        return f'{self.location.getName()} ({self.size()})'
     
     def __str__(self):
         sAt = DateTools.datetimeToString(self.dtAt, '%Y.%m.%d')
@@ -71,6 +75,10 @@ class Journal():
             for idxLoc in self.dictItems[dtDay].keys():
                 item = self.dictItems[dtDay][idxLoc]
                 self.log.info(item)
+
+    def getJournalItems(self):
+        """Get the fetched journal items."""
+        return self.dictItems
 
 
 def testJournal():
