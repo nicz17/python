@@ -8,6 +8,7 @@ __version__ = "1.0.0"
 import logging
 import random
 import tkinter as tk
+from tkinter import ttk
 
 from BaseApp import BaseApp
 from NameGen import NameGen
@@ -40,6 +41,7 @@ class TerrainViewerApp(BaseApp):
         nameGen = NameGen(seed)
         name = nameGen.generate()
         self.log.info(f'Generating terrain {name} size {self.size}')
+        self.lblName.configure(text=f'Ile {name}')
 
         # Generate the height map
         gen = TerrainGenerator()
@@ -70,29 +72,45 @@ class TerrainViewerApp(BaseApp):
         self.window.configure(cursor='')
     
     def onCanvasClick(self, event):
-        """Zoom in on the point that was clicked."""
+        """Handle canvas click event"""
         self.log.info('Canvas clicked at %d:%d', event.x, event.y)
-        self.lblCoords.configure(text=f'{event.x}:{event.y}')
 
     def onCanvasMove(self, event):
-        self.lblCoords.configure(text=f'{event.x}:{event.y}')
+        """Handle canvas move event"""
+        x = event.x
+        y = event.y
+        self.lblCoords.configure(text=f'{x}:{y}')
+        if self.terrain:
+            elevation = self.terrain.grid[y][x]*2000.0
+            self.lblAltitude.configure(text=f'Altitude {elevation:.1f}m')
 
     def onCanvasLeave(self, event):
+        """Handle canvas leave event"""
         self.lblCoords.configure(text='')
+        self.lblAltitude.configure(text='')
 
     def createWidgets(self):
         """Create user widgets"""
         self.addButton('Générer', self.generate)
 
-        self.lblCoords = tk.Label(master=self.frmBottom, text='Ready')
-        self.lblCoords.pack(fill=tk.X, side=tk.RIGHT)
+        self.frmLeft = ttk.Frame(master=self.frmMain, width=600)
+        self.frmLeft.pack(fill=tk.Y, side=tk.LEFT)
+        self.frmRight = ttk.Frame(master=self.frmMain, width=200)
+        self.frmRight.pack(fill=tk.Y, side=tk.RIGHT, padx=6, pady=6)
 
-        self.canTerrain = tk.Canvas(master=self.frmMain, bg='#101010', bd=0, 
+        self.canTerrain = tk.Canvas(master=self.frmLeft, bg='#101010', bd=0, 
                                     height=self.size, width=self.size, highlightthickness=0)
         self.canTerrain.bind("<Button-1>", self.onCanvasClick)
         self.canTerrain.bind("<Motion>",   self.onCanvasMove)
         self.canTerrain.bind("<Leave>",    self.onCanvasLeave)
         self.canTerrain.pack(pady=6)
+
+        self.lblName = tk.Label(master=self.frmRight, text='Sans nom')
+        self.lblName.pack(fill=tk.X, side=tk.TOP)
+        self.lblCoords = tk.Label(master=self.frmRight, text='')
+        self.lblCoords.pack(fill=tk.X, side=tk.TOP)
+        self.lblAltitude = tk.Label(master=self.frmRight, text='')
+        self.lblAltitude.pack(fill=tk.X, side=tk.TOP)
         
 
 def configureLogging():
