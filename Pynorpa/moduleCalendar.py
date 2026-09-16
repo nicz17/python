@@ -72,27 +72,37 @@ class CalendarWidget:
         sMonth = TextTools.upperCaseFirst(DateTools.aMonthFr[month-1])
         self.frmMain.configure(text=f'{sMonth} {year}')
         for iDay, name in enumerate(self.dayNames):
-            lblHeader = ttk.Label(self.frmMain, text=name)
-            lblHeader.grid(column=iDay, row=0, padx=4, pady=8)
+            lblHeader = ttk.Label(self.frmMain, text=name, background='#c4c4c4', anchor="center")
+            lblHeader.grid(column=iDay, row=0, padx=4, pady=6, sticky='WE')
 
         # Table cells
         for day in self.cal.itermonthdates(year, month):
-            # TODO improve grid layout
-            content = day.strftime('%d.%m')
+            week = day.isocalendar()[1]
+            col = day.weekday()
+            row = week-week0+1
+
+            # Cell content and style
+            lblDay = ttk.Label(self.frmMain, text=day.strftime('%d.%m'))
+            if day.month != month:
+                lblDay.configure(foreground='#c4c4c4')
+            lblDay.grid(column=col, row=row, padx=4, pady=4, sticky='N')
 
             # Add JournalItems
             dtDay = datetime.datetime.combine(day, datetime.datetime.min.time())
             if dtDay in journalItems:
                 for idxLoc in journalItems[dtDay].keys():
                     item = journalItems[dtDay][idxLoc]
-                    content += '\n' + item.getLabel()
+                    # TODO add label click action with imageWidget
+                    lblItem = ttk.Label(self.frmMain, text=item.getLabel())
+                    lblItem.grid(column=col, row=row, padx=4, pady=8)
+                    # FIXME fails if more than 1 item on same day
 
-            # Cell content and style
-            lblDay = ttk.Label(self.frmMain, text=content)
-            if day.month != month:
-                lblDay.configure(foreground='#c4c4c4')
-            week = day.isocalendar()[1]
-            lblDay.grid(column=day.weekday(), row=week-week0+1, padx=4, pady=8)
+        # Set grid cell sizes
+        col_count, row_count = self.frmMain.grid_size()
+        for col in range(col_count):
+            self.frmMain.grid_columnconfigure(col, minsize=150)
+        for row in range(1, row_count):
+            self.frmMain.grid_rowconfigure(row, minsize=80)
 
 
     def createWidgets(self, parent):
