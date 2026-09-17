@@ -38,13 +38,13 @@ class TerrainViewerApp(BaseApp):
         seed = random.randint(0, 42)
 
         # Give the terrain a random name
-        nameGen = NameGen(seed)
+        nameGen = NameGen(seed, 3, 3, 0.01)
         name = nameGen.generate()
         self.log.info(f'Generating terrain {name} size {self.size}')
         self.lblName.configure(text=f'Ile {name}')
 
         # Generate the height map
-        gen = TerrainGenerator()
+        gen = TerrainGenerator(seed)
         gen.perlinNoise(self.size)
         gen.normalize()
         gen.shape()
