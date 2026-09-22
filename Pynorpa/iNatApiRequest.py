@@ -10,6 +10,14 @@ import logging
 import requests
 
 
+# iNat API docs
+# https://api.inaturalist.org/v1/docs/#!/Observations/get_observations_id
+
+# Example query
+# https://api.inaturalist.org/v1/observations?rank=species&user_id=nicz&year=2026&hrank=species&quality_grade=research&order=desc&order_by=created_at
+
+
+
 class INatTaxon():
     """Small container for iNat taxon info."""
     log = logging.getLogger('iNatTaxon')
