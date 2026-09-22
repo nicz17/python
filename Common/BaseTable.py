@@ -173,7 +173,7 @@ class TableWithColumns(BaseTable):
 
         
 class AdvTable(TableWithColumns):
-    """Tests for table with title and toolbar, search etc."""
+    """Table with title, scrollbar and toolbar."""
     log = logging.getLogger('AdvTable')
 
     def __init__(self, cbkSelectRow, objectLabel='rows', pady=0):
@@ -189,8 +189,27 @@ class AdvTable(TableWithColumns):
         """Add an icon button to refresh table contents."""
         self.btnRefresh = IconButton(self.frmToolBar, 'refresh', 'Recharger la table', cbkRefresh, 6)
 
+    def addContextMenu(self, window: tk.Tk):
+        """Add a contextual menu to this table."""
+        self.contextMenu = tk.Menu(window, tearoff=0)
+        self.tree.bind("<Button-3>", self.showContextMenu)
+
+    def addContextMenuAction(self, label: str, cmd):
+        """Add a contextual menu action to this table."""
+        if self.contextMenu:
+            self.contextMenu.add_command(label=label, command=cmd)
+        else:
+            self.log.error(f'No context menu for adding action {label}')
+
+    def showContextMenu(self, event):
+        """Shows the contextual menu if there is a selection."""
+        if self.getSelectedRow() is not None:
+            #self.contextMenu.post(event.x_root, event.y_root)
+            self.contextMenu.tk_popup(event.x_root, event.y_root)
+
     def loadData(self, rows):
         """Display the specified rows in this table."""
+        self.log.info(f'Loading {len(rows)} data rows')
         self.clear()
         self.data = rows
         self.addRows(rows)
@@ -211,6 +230,9 @@ class AdvTable(TableWithColumns):
 
     def createWidgets(self, parent: tk.Frame, height=40):
         """Create user widgets."""
+        if parent is None:
+            self.log.error(f'Cannot create widgets: no parent frame!')
+            return
 
         # Title bar
         self.lblTitle = ttk.Label(master=parent, text=f'Table for {self.objectlabel}', 
