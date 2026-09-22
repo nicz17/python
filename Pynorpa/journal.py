@@ -29,6 +29,10 @@ class JournalItem():
         """Adds a picture to this journal item."""
         self.pics.append(pic)
 
+    def getPictures(self) -> list[Picture]:
+        """Returns the pictures of this journal item."""
+        return self.pics
+
     def size(self) -> int:
         """Count the pictures in this journal item."""
         return len(self.pics)

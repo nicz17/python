@@ -16,8 +16,9 @@ import DateTools
 import TextTools
 
 from BaseWidgets import MonthYearSelector
+from imageWidget import MultiImageWidget
 from TabsApp import TabsApp, TabModule
-from journal import Journal
+from journal import Journal, JournalItem
 
 
 class ModuleCalendar(TabModule):
@@ -28,22 +29,52 @@ class ModuleCalendar(TabModule):
         """Constructor."""
         self.window = parent.window
         self.monthYearSel = MonthYearSelector(self.loadData)
-        self.calWidget = CalendarWidget(None)
+        self.calWidget = CalendarWidget(self.onSelectItem)
+        self.imgWidget = MultiImageWidget(None, None)
         super().__init__(parent, 'Calendrier')
 
     def loadData(self):
         """Load calendar data."""
+        self.onSelectItem(None)
         self.calWidget.loadData(self.monthYearSel.getYear(), self.monthYearSel.getMonth())
+
+    def onSelectItem(self, item: JournalItem):
+        """Display pics of selected JournalItem in image widget."""
+        if item:
+            self.imgWidget.loadImages(item.getPictures())
+        else:
+            self.imgWidget.loadImages([])
 
     def createWidgets(self):
         """Create user widgets."""
         self.createLeftRightFrames()
         self.monthYearSel.createWidgets(self.frmLeft)
         self.calWidget.createWidgets(self.frmLeft)
+        self.imgWidget.createWidgets(self.frmRight)
 
     def __str__(self):
         return 'ModuleCalendar'
 
+class JournalItemWidget:
+    """Widget displaying a clickable JournalItem in the calendar grid."""
+    log = logging.getLogger('JournalItemWidget')
+    colorLink = '#4200c0'
+
+    def __init__(self, item: JournalItem, cbkSelection):
+        self.item = item
+        self.cbkSelection = cbkSelection
+        self.lbl = None
+
+    def onSelection(self, event=None):
+        self.log.debug(f'Selected {self.item}')
+        self.cbkSelection(self.item)
+
+    def render(self, frame, col: int, row: int, pady=8):
+        self.lbl = ttk.Label(frame, foreground=self.colorLink, 
+                            cursor="hand1", text=self.item.getLabel())
+        self.lbl.bind("<Button-1>", self.onSelection)
+        self.lbl.grid(column=col, row=row, padx=3, pady=pady)
+        self.log.debug(f'render {self.item} with pady {pady}')
 
 class CalendarWidget:
     """Calendar grid widget."""
@@ -73,7 +104,7 @@ class CalendarWidget:
         self.frmMain.configure(text=f'{sMonth} {year}')
         for iDay, name in enumerate(self.dayNames):
             lblHeader = ttk.Label(self.frmMain, text=name, background='#c4c4c4', anchor="center")
-            lblHeader.grid(column=iDay, row=0, padx=4, pady=6, sticky='WE')
+            lblHeader.grid(column=iDay, row=0, padx=3, pady=6, sticky='WE')
 
         # Table cells
         for day in self.cal.itermonthdates(year, month):
@@ -81,21 +112,25 @@ class CalendarWidget:
             col = day.weekday()
             row = week-week0+1
 
+            # TODO add frame bg color
+            frmDay = ttk.Frame(self.frmMain)
+            frmDay.grid(column=col, row=row, padx=3, pady=3, sticky='N')
+
             # Cell content and style
-            lblDay = ttk.Label(self.frmMain, text=day.strftime('%d.%m'))
+            lblDay = ttk.Label(frmDay, text=day.strftime('%d.%m'))
             if day.month != month:
                 lblDay.configure(foreground='#c4c4c4')
-            lblDay.grid(column=col, row=row, padx=4, pady=4, sticky='N')
+            lblDay.grid(column=0, row=0, pady=6, sticky='N')
 
             # Add JournalItems
             dtDay = datetime.datetime.combine(day, datetime.datetime.min.time())
             if dtDay in journalItems:
+                itemRow = 1
                 for idxLoc in journalItems[dtDay].keys():
                     item = journalItems[dtDay][idxLoc]
-                    # TODO add label click action with imageWidget
-                    lblItem = ttk.Label(self.frmMain, text=item.getLabel())
-                    lblItem.grid(column=col, row=row, padx=4, pady=8)
-                    # FIXME fails if more than 1 item on same day
+                    widget = JournalItemWidget(item, self.cbkSelection)
+                    widget.render(frmDay, 0, itemRow, 2)
+                    itemRow += 1
 
         # Set grid cell sizes
         col_count, row_count = self.frmMain.grid_size()
