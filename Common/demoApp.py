@@ -10,13 +10,15 @@ import logging
 from TabsApp import TabsApp, TabModule
 from BaseTable import AdvTable, TableColumn
 from BaseTree import BaseTree
+from BaseWidgets import SearchBar
+from NameGen import NameGen
 
 
 class DataDemo:
-    def __init__(self, i: int):
-        self.idx = i
-        self.name = f'DemoData{i:02d}'
-        self.desc = f'Demo data {i}'
+    def __init__(self, idx: int, name: str, desc: str):
+        self.idx = idx
+        self.name = name
+        self.desc = desc
 
     def getName(self):
         return self.name
@@ -24,11 +26,24 @@ class DataDemo:
     def getDesc(self):
         return self.desc
 
+    def __str__(self):
+        return f'DataDemo {self.idx} {self.name} {self.desc}'
+
 class TableDemo(AdvTable):
     log = logging.getLogger('TableDemo')
 
-    def __init__(self):
-        super().__init__(None, 'Demo data')
+    def __init__(self, cbkSelection=None):
+        super().__init__(cbkSelection, 'Demo data')
+
+    def onSearch(self, search: str):
+        """Search for data matching the specified text."""
+        self.log.info(f'Searching for {search}')
+        for idxRow, obj in enumerate(self.data):
+            if search.lower() in obj.desc.lower():
+                self.log.debug(f'  Found {obj} at {idxRow}')
+                self.selectRow(idxRow)
+                return
+        self.log.info(f'No match for {search}')
 
     def addColumns(self):
         """Define the table columns."""
@@ -40,8 +55,12 @@ class ModuleTableDemo(TabModule):
     log = logging.getLogger('ModuleTableDemo')
 
     def __init__(self, oParent):
-        self.table = TableDemo()
+        self.table = TableDemo(self.onSelection)
+        self.nameGen = NameGen()
         super().__init__(oParent, 'AdvTable')
+
+    def onSelection(self, obj: DataDemo):
+        self.log.info(f'Selected {obj}')
 
     def onCtxtMenuAction(self):
         sel = self.table.getSelectedRow()
@@ -51,6 +70,8 @@ class ModuleTableDemo(TabModule):
         self.log.info('Create widgets')
         self.createLeftRightFrames()
         self.table.createWidgets(self.frmLeft, 24)
+        self.searchBar = SearchBar(self.table.frmToolBar, 36, self.table.onSearch)
+        self.table.addRefreshButton(self.loadData)
         self.table.addContextMenu(self.oParent.window)
         self.table.addContextMenuAction('Details', self.onCtxtMenuAction)
         self.table.addContextMenuAction('Preview', self.onCtxtMenuAction)
@@ -59,8 +80,9 @@ class ModuleTableDemo(TabModule):
         self.log.info('Load data')
         data = []
         for i in range(20):
-            data.append(DataDemo(i))
+            data.append(DataDemo(i, f'DemoData{i:02d}', self.nameGen.generate()))
         self.table.loadData(data)
+        #self.searchBar.enableWidget(True)
 
 class ModuleTreeDemo(TabModule):
     log = logging.getLogger('ModuleTreeDemo')

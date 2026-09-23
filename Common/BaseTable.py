@@ -218,14 +218,19 @@ class AdvTable(TableWithColumns):
         """Set the title bar text."""
         self.lblTitle.configure(text=f'{self.objectlabel} ({self.nRows})')
 
+    def selectRow(self, idxRow):
+        """Set the selection at the specified row."""
+        if idxRow:
+            self.tree.see(idxRow)
+            self.tree.focus(idxRow)
+            self.tree.selection_set(idxRow)
+
     def selectByIdx(self, idx):
         """Set selection by object index (not row number)."""
         self.log.info(f'Selecting object with idx {idx}')
         for idxRow, obj in enumerate(self.data):
             if obj.getIdx() == idx:
-                self.tree.see(idxRow)
-                self.tree.focus(idxRow)
-                self.tree.selection_set(idxRow)
+                self.selectRow(idxRow)
                 return
 
     def createWidgets(self, parent: tk.Frame, height=40):
