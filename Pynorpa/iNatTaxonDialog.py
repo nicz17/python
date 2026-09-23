@@ -13,7 +13,7 @@ import config
 import TextTools
 from ModalDialog import ModalDialog
 from BaseWidgets import Button
-from iNatApiRequest import INatApiRequest
+from iNatApiRequest import INatApiRequestTaxon
 from taxon import TaxonRank, Taxon, TaxonCache
 from pynorpaManager import PynorpaManager
 
@@ -27,7 +27,7 @@ class INatTaxonDialog(ModalDialog):
         self.root.geometry('1020x600+300+150')
         self.manager = PynorpaManager()
         self.cache = TaxonCache()
-        self.req = INatApiRequest()
+        self.req = INatApiRequestTaxon()
         self.taxa = []
 
     def queryINat(self, name: str):

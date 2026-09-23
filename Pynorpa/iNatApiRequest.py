@@ -30,8 +30,28 @@ class INatTaxon():
 
     def __str__(self):
         return f'INatTaxon {self.id} {self.rank} {self.name} ({self.commonName})'
+    
+class INatObs():
+    """Small container for iNat observation."""
+    log = logging.getLogger('iNatObs')
 
-class INatApiRequest():
+    def __init__(self, id: int, taxon: str, sAt: str):
+        self.id = id
+        self.taxon = taxon
+        self.sAt = sAt
+
+    def getTaxon(self) -> str:
+        """Returns the iNat taxon name for this observation."""
+        return self.taxon
+
+    def getObsUrl(self) -> str:
+        """Returns the iNat URL for this observation."""
+        return f'https://www.inaturalist.org/observations/{self.id}'
+
+    def __str__(self):
+        return f'INatObs {self.id} {self.sAt} {self.taxon}'
+
+class INatApiRequestTaxon():
     """Class to send taxon info requests to the iNaturalist API."""
     log = logging.getLogger('iNatApiRequest')
 
@@ -135,14 +155,58 @@ class INatApiRequest():
                     ancestors.append(ancestor)
         return ancestors
 
-def testRequest():
-    req = INatApiRequest()
-    name = 'Polyommatus bellargus'
-    name = 'Harpocera thoracica'
-    name = 'Blastit notfound'
-    name = 'Solorina saccata'
-    taxon = req.getTaxonFromName(name)
-    req.log.info(f'Found {taxon} for name {name}')
+class INatApiRequestObs():
+    """Class to send observation info requests to the iNaturalist API."""
+    log = logging.getLogger('iNatApiRequestObs')
+    baseUrl = 'https://api.inaturalist.org/v1/observations'
+
+    # Query examples:
+    # https://api.inaturalist.org/v1/observations?user_id={me_id}&quality_grade=needs_id&rank=genus
+    # https://api.inaturalist.org/v1/observations?rank=species&user_id=nicz&year=2026&hrank=species&quality_grade=research&per_page=1
+
+    def __init__(self):
+        pass
+
+    def sendRequest(self, year: int, month: int):
+        """Request observations for the specified year and month."""
+        url = f'{self.baseUrl}?rank=species&user_id=nicz&hrank=species&quality_grade=research'
+        url += f'&year={year}&month={month}&order_by=created_at'
+        url += f'&per_page=12'
+
+        self.log.info(f'Sending request for observations on {year}.{month}')
+        data = None
+        try:
+            response = requests.get(url)
+            # handle requests.exceptions.ConnectionError: ('Connection aborted.', 
+            # RemoteDisconnected('Remote end closed connection without response'))
+            data = response.json()
+            #self.log.info(data)
+        except Exception as exc:
+            self.log.error(f'Request for observations failed: {exc}')
+        return data
+
+    def readResponse(self, data):
+        """Dump results."""
+        observations = []
+        if not data:
+            self.log.error('No data returned')
+            return None
+        self.log.info(f'Fetched observations: {len(data["results"])}/{data["total_results"]}')
+        for jsObs in data['results']:
+            taxName = jsObs['taxon']['name']
+            sAt = jsObs['time_observed_at']
+            obs = INatObs(jsObs['id'], taxName, sAt)
+            observations.append(obs)
+            self.log.info(obs)
+        return observations
+
+def testRequestTaxon():
+    """Unit test for taxon request."""
+    req = INatApiRequestTaxon()
+    names = ['Polyommatus bellargus', 'Harpocera thoracica', 'Blastit notfound', 'Solorina saccata']
+    for name in names:
+        taxon = req.getTaxonFromName(name)
+        req.log.info(f'Found {taxon} for name {name}')
     # id = req.getIdFromName(name)
     # if id:
     #     ancestors = req.getAncestors(id)
@@ -150,7 +214,15 @@ def testRequest():
     #         for ancestor in ancestors:
     #             req.log.info(ancestor)
 
+def testRequestObs():
+    """Unit test for observations request."""
+    req = INatApiRequestObs()
+    data = req.sendRequest(2026, 8)
+    #req.log.info(data)
+    req.readResponse(data)
+
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s", 
         level=logging.INFO, handlers=[logging.StreamHandler()])
-    testRequest()
+    # testRequestTaxon()
+    testRequestObs()

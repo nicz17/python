@@ -19,7 +19,7 @@ from PhotoInfo import PhotoInfo
 from picture import Picture, PictureCache
 from taxon import TaxonCache, Taxon, TaxonRank
 from expedition import Expedition, ExpeditionCache
-from iNatApiRequest import INatApiRequest, INatTaxon
+from iNatApiRequest import INatApiRequestTaxon, INatTaxon
 from exporter import Exporter
 from uploader import Uploader
 
@@ -206,7 +206,7 @@ class PynorpaManager():
             raise PynorpaException(f'Nom de taxon invalide: {name}')
 
         # iNat API request
-        req = INatApiRequest()
+        req = INatApiRequestTaxon()
         inatTaxon = req.getTaxonFromName(name)
         if not inatTaxon:
             self.log.error(f'Failed to find iNat id for taxon name {name}')
