@@ -174,10 +174,8 @@ class PictureTable(AdvTable):
         for idxRow, pic in enumerate(self.data):
             if search.lower() in pic.filename.lower():
                 self.log.debug(f'  Found {pic} at {idxRow}')
-                self.tree.see(idxRow)
-                self.tree.focus(idxRow)
-                self.tree.selection_set(idxRow)
-                break
+                self.selectRow(idxRow)
+                return
         self.log.info(f'No match for {search}')
 
     def __str__(self):
