@@ -73,7 +73,7 @@ class IconButton():
     log = logging.getLogger("IconButton")
     dirIcons = f'{Path.home()}/prog/icons'
 
-    def __init__(self, parent, icon: str, tooltip: str, cmd, pady=0):
+    def __init__(self, parent, icon: str, tooltip: str, cmd, pady=0, pack=True):
         """Constructor."""
         self.iconName = icon
         self.iconImg = None
@@ -82,7 +82,8 @@ class IconButton():
         self.cmd = cmd
         self.setIcon(icon)
         self.lbl = ttk.Label(parent, image=self.iconImg)
-        self.lbl.pack(side=tk.LEFT, pady=pady)
+        if pack:
+            self.lbl.pack(side=tk.LEFT, pady=pady)
         self.lbl.bind("<Button-1>", self.onClick)
         if tooltip:
             self.tt = ToolTip(self.lbl, tooltip)

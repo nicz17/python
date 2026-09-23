@@ -14,7 +14,7 @@ from tkinter import ttk
 from PIL import ImageTk, Image
 from picture import Picture
 from PhotoInfo import PhotoInfo
-from BaseWidgets import Button
+from BaseWidgets import Button, IconButton
 
 
 class ImageWidget():
@@ -170,18 +170,16 @@ class MultiImageWidget(ImageWidget):
         self.frmImage.pack(side=tk.TOP, fill=None, expand=False, padx=padx, pady=6)
         self.lblImage = ttk.Label(self.frmImage, anchor=tk.CENTER, text='')
         self.lblImage.place(x=250, y=250, anchor=tk.CENTER)
-        self.btnPrev = Button(self.frmImage, None, self.onPrev, 'go-prev')
-        self.btnPrev.btn.configure(width=0)
-        self.btnPrev.btn.place(x=0, y=516, anchor=tk.SW)
+        self.btnPrev = IconButton(self.frmImage, 'go-prev', 'Précédant', self.onPrev, 0, False)
+        self.btnPrev.lbl.place(x=0, y=504, anchor=tk.SW)
         self.lblStatus = ttk.Label(self.frmImage, anchor=tk.CENTER, text='', width=46)
         self.lblStatus.place(x=250, y=500, anchor=tk.S)
-        self.btnNext = Button(self.frmImage, None, self.onNext, 'go-next')
-        self.btnNext.btn.configure(width=0)
-        self.btnNext.btn.place(x=500, y=516, anchor=tk.SE)
+        self.btnNext = IconButton(self.frmImage, 'go-next', 'Suivant', self.onNext, 0, False)
+        self.btnNext.lbl.place(x=500, y=504, anchor=tk.SE)
         self.setDefaultImage()
         self.enableWidgets()
 
     def enableWidgets(self):
         enabled = self.files is not None and len(self.files) > 1
-        self.btnPrev.enableWidget(enabled)
-        self.btnNext.enableWidget(enabled)
+        self.btnPrev.setEnabled(enabled)
+        self.btnNext.setEnabled(enabled)
