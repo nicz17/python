@@ -4,13 +4,12 @@
 
 __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2024 N. Zwahlen"
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 import logging
 import tkinter as tk
 from tkinter import ttk
 import BaseWidgets
-#from BaseTable import *
 from LogBookTask import *
 
 
@@ -64,26 +63,6 @@ class TaskEditor(BaseWidgets.BaseEditor):
         self.txtTitle.resetModified()
 
 
-# class StepsTable(TableWithColumns):
-#     """Table widget for Logbook steps."""
-#     log = logging.getLogger("StepsTable")
-
-#     def __init__(self, cbkSelect):
-#         """Constructor with selection callback."""
-#         self.log.info('Constructor')
-#         super().__init__(cbkSelect, 'steps', 32)
-#         self.addColumn(TableColumn('Status', LogBookStep.getStatusName,  60))
-#         self.addColumn(TableColumn('Text',   LogBookStep.getText,       440))
-#         #self.addColumn(TableColumn('Order',  LogBookStep.getOrder,       50))
-
-#     def loadData(self, steps: list[LogBookStep]):
-#         """Display the specified steps in this table."""
-#         self.log.info('Loading %d steps', len(steps))
-#         self.clear()
-#         self.data = steps
-#         self.addRows(steps)
-
-
 class StepEditor(BaseWidgets.BaseEditor):
     """A widget for editing LogBook steps."""
     log = logging.getLogger('TaskEditor')
@@ -97,6 +76,11 @@ class StepEditor(BaseWidgets.BaseEditor):
         """Display the specified object in this editor."""
         self.step = step
         self.setValue(step)
+        if step:
+            if self.step.status == Status.Todo:
+                self.btnDone.setLabel('Done')
+            elif self.step.status == Status.Done:
+                self.btnDone.setLabel('Todo')
 
     def onSave(self, evt=None):
         """Save changes to the edited object."""
@@ -109,8 +93,11 @@ class StepEditor(BaseWidgets.BaseEditor):
         self.loadData(self.step)
 
     def onDone(self):
-        """Set step status as Done."""
-        self.step.status = Status.Done
+        """Set step status as Done or Todo."""
+        if self.step.status == Status.Todo:
+            self.step.status = Status.Done
+        elif self.step.status == Status.Done:
+            self.step.status = Status.Todo
         self.onSave()
 
     def createWidgets(self, parent: tk.Frame):
@@ -133,7 +120,8 @@ class StepEditor(BaseWidgets.BaseEditor):
         """Enable our internal widgets."""
         modified = self.hasChanges(self.step)
         editing  = self.step is not None
-        enableDone = self.step and self.step.status is not Status.Done
+        #enableDone = self.step and self.step.status is not Status.Done
+        enableDone = self.step is not None
         super().enableWidgets(editing)
         self.enableButtons(modified, modified, False)
         self.btnDone.enableWidget(enableDone)
