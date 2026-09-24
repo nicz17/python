@@ -171,9 +171,10 @@ class INatApiRequestObs():
         """Request observations for the specified year and month."""
         url = f'{self.baseUrl}?rank=species&user_id=nicz&hrank=species&quality_grade=research'
         url += f'&year={year}&month={month}&order_by=created_at'
-        url += f'&per_page=12'
+        url += f'&per_page=20'
 
         self.log.info(f'Sending request for observations on {year}.{month}')
+        self.log.info(url)
         data = None
         try:
             response = requests.get(url)
@@ -185,7 +186,7 @@ class INatApiRequestObs():
             self.log.error(f'Request for observations failed: {exc}')
         return data
 
-    def readResponse(self, data):
+    def readResponse(self, data) -> list[INatObs]:
         """Dump results."""
         observations = []
         if not data:
@@ -195,6 +196,9 @@ class INatApiRequestObs():
         for jsObs in data['results']:
             taxName = jsObs['taxon']['name']
             sAt = jsObs['time_observed_at']
+            # TODO find if observation comes from Android app
+            # TODO use 'location': "46.5302777778,6.5683333333"
+            # TODO use 'place_guess': str
             obs = INatObs(jsObs['id'], taxName, sAt)
             observations.append(obs)
             self.log.info(obs)

@@ -11,6 +11,7 @@ import os
 from LocationCache import LocationCache
 from picture import PictureCache, Picture
 from taxon import TaxonCache, TaxonRank
+from iNatApiRequest import INatApiRequestObs, INatObs
 
 
 class QualityIssue():
@@ -164,13 +165,44 @@ class QualityChecker():
                     pic = loc.getPictures()[0]
                 self.addIssue(msg, details, pic, loc)
 
+class QualityCheckerINatObs():
+    """Check for iNat species-level observations missing on Pynorpa."""
+    log = logging.getLogger("QualityCheckerINatObs")
+
+    def __init__(self, year: int, month: int):
+        """Constructor."""
+        self.year = year
+        self.month = month
+        self.issues = []
+        self.taxCache = TaxonCache()
+
+    def run(self):
+        """Run the checks."""
+        req = INatApiRequestObs()
+        data = req.sendRequest(self.year, self.month)
+        lobs = req.readResponse(data)
+        for obs in lobs:
+            taxname = obs.getTaxon()
+            taxon = self.taxCache.findByName(taxname)
+            if not taxon:
+                # TODO find if taxon is in Panorpa as a synonym, for example Crocus vernus = Crocus albiflorus
+                # TODO store a list of these synonyms in a json file
+                # TODO also store bad quality Android obs to ignore
+                self.log.info(f'Taxon {taxname} observed on {obs.sAt} missing in Pynorpa - {obs.getObsUrl()}')
+
 
 def testQuality():
     """Unit test for QualityChecker."""
     checker = QualityChecker()
     checker.runAllChecks()
 
+def testQualityINatObs():
+    """Unit test for QualityCheckerINatObs."""
+    checker = QualityCheckerINatObs(2026, 4)
+    checker.run()
+
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",
         level=logging.INFO, handlers=[logging.StreamHandler()])
-    testQuality()
+    #testQuality()
+    testQualityINatObs()
