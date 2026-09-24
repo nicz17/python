@@ -11,6 +11,7 @@ __version__ = "1.0.0"
 import logging
 import tkinter as tk
 from tkinter import filedialog as fd
+from tkinter import simpledialog as sd
 from BaseApp import *
 from LogBook import *
 from LogBookTask import *
@@ -179,6 +180,19 @@ class LogBookApp(BaseApp):
             self.setStatus(f'Opened {self.book.getFilename()}')
         self.enableWidgets()
 
+    def onNewBook(self):
+        """Create a new book."""
+        name = sd.askstring('New book', 'Enter new book name:')
+        if name:
+            self.log.info(f'Create new LogBook {name}')
+            self.book = LogBook(name)
+            self.stepEditor.loadData(None)
+            self.stepsTable.loadData(None)
+            self.taskProgress.loadData(None)
+            self.renderBook()
+            self.setStatus(f'Created {self.book.getFilename()}')
+            self.enableWidgets()
+
     def onRefresh(self):
         """Refresh current display."""
         if self.book is not None:
@@ -269,6 +283,7 @@ class LogBookApp(BaseApp):
 
     def createWidgets(self):
         # Buttons
+        self.addButton('New',     self.onNewBook)
         self.addButton('Open',    self.onOpenFile)
         self.addButton('Refresh', self.onRefresh)
         self.addButton('Import',  self.onImportFile)
