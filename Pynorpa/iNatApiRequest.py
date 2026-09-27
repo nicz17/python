@@ -35,21 +35,26 @@ class INatObs():
     """Small container for iNat observation."""
     log = logging.getLogger('iNatObs')
 
-    def __init__(self, id: int, taxon: str, sAt: str):
+    def __init__(self, id: int, taxon: str, sAt: str, place: str):
         self.id = id
         self.taxon = taxon
         self.sAt = sAt
+        self.place = place
 
     def getTaxon(self) -> str:
         """Returns the iNat taxon name for this observation."""
         return self.taxon
+
+    def getPlace(self) -> str:
+        """Returns the iNat place name for this observation."""
+        return self.place
 
     def getObsUrl(self) -> str:
         """Returns the iNat URL for this observation."""
         return f'https://www.inaturalist.org/observations/{self.id}'
 
     def __str__(self):
-        return f'INatObs {self.id} {self.sAt} {self.taxon}'
+        return f'INatObs {self.id} {self.sAt} {self.taxon} - {self.place}'
 
 class INatApiRequestTaxon():
     """Class to send taxon info requests to the iNaturalist API."""
@@ -196,10 +201,10 @@ class INatApiRequestObs():
         for jsObs in data['results']:
             taxName = jsObs['taxon']['name']
             sAt = jsObs['time_observed_at']
+            place = jsObs['place_guess']
             # TODO find if observation comes from Android app
             # TODO use 'location': "46.5302777778,6.5683333333"
-            # TODO use 'place_guess': str
-            obs = INatObs(jsObs['id'], taxName, sAt)
+            obs = INatObs(jsObs['id'], taxName, sAt, place)
             observations.append(obs)
             self.log.info(obs)
         return observations
