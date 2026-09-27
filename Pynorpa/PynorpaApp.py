@@ -26,6 +26,7 @@ import moduleBooks
 import moduleBackups
 import moduleCalendar
 import moduleQuality
+from moduleTracking import ModuleTracking
 
 class PynorpaApp(TabsApp):
     """Pynorpa App window."""
@@ -57,6 +58,7 @@ class PynorpaApp(TabsApp):
         modBooks     = moduleBooks.ModuleBooks(self)
         modBackups   = moduleBackups.ModuleBackups(self)
         modQuality   = moduleQuality.ModuleQuality(self)
+        ModuleTracking(self)
 
         self.setStatus('Welcome to Pynorpa')
         self.loadNotifications()
