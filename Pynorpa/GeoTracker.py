@@ -9,7 +9,7 @@ __version__ = "1.0.0"
 import datetime
 import glob
 import gpxpy
-import gpxpy.gpx
+#import gpxpy.gpx
 import gpxpy.geo
 import config
 import logging
@@ -17,10 +17,10 @@ import os
 import DateTools
 import TextTools
 from HtmlPage import *
-from Timer import *
-from LocationCache import *
-from PhotoInfo import *
-from CopyFromCamera import *
+#from Timer import Timer
+from LocationCache import LocationCache, Location
+from PhotoInfo import PhotoInfo
+from CopyFromCamera import CopyFromCamera
 
 
 class GeoTracker:
@@ -245,6 +245,7 @@ class GeoTrack:
         self.tStart = None
         self.tEnd   = None
         self.center = None
+        self.bbox   = None
         self.photos = []
 
     def loadData(self):
@@ -292,6 +293,15 @@ class GeoTrack:
             self.center = gpxpy.geo.Location(meanLat, meanLon, int(meanAlt))
         self.bbox = (minLat, maxLat, minLon, maxLon)
         self.log.info('Track center point is %s', self.center)
+
+    def getPath(self) -> list:
+        """Get the list of points on this track."""
+        points = []
+        for track in self.gpx.tracks:
+            for segment in track.segments:
+                for point in segment.points:
+                    points.append((point.latitude, point.longitude))
+        return points
                 
     def getLocationAt(self, dtAt: datetime.datetime) -> gpxpy.geo.Location:
         """Get the GPS coordinates for the specified timestamp."""
@@ -321,8 +331,15 @@ class GeoTrack:
         return self.center
     
     def getBoundingBox(self):
-        """Retrun the track bounding box as (minLat, maxLat, minLon, maxLon)."""
+        """Return the track bounding box as (minLat, maxLat, minLon, maxLon)."""
         return self.bbox
+
+    def getName(self) -> str:
+        return self.name
+
+    def getNameNoExt(self) -> str:
+        """Get this track name, without extension."""
+        return self.name.removesuffix('.gpx')
         
     def contains(self, dtAt: datetime.datetime) -> bool:
         """Check if the specified datetime is contained in this track's daterange."""

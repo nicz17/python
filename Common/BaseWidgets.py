@@ -861,7 +861,7 @@ class MonthYearSelector:
         self.frmMain = ttk.Frame(parent)
         self.frmMain.pack(side=tk.TOP, anchor=tk.N, fill=tk.X, expand=False, pady=5)
 
-        self.btnPrev = IconButton(self.frmMain, 'prev', 'Previous', self.onPrev, 0, False)
+        self.btnPrev = IconButton(self.frmMain, 'prev', 'Précédant', self.onPrev, 0, False)
         self.btnPrev.lbl.grid(row=0, column=0)
 
         self.cboMonth = ComboBox(self.onModified)
@@ -873,7 +873,7 @@ class MonthYearSelector:
         self.spiYear.createWidgets(self.frmMain, 0, 2)
         self.spiYear.setValue(self)
 
-        self.btnNext = IconButton(self.frmMain, 'next', 'Next', self.onNext, 0, False)
+        self.btnNext = IconButton(self.frmMain, 'next', 'Suivant', self.onNext, 0, False)
         self.btnNext.lbl.grid(row=0, column=3)
 
 

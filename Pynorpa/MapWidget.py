@@ -63,11 +63,17 @@ class MapWidget():
         """Remove all markers."""
         self.mapView.delete_all_marker()
 
+    def addPath(self, points):
+        """Display a path on this map."""
+        self.mapView.delete_all_path()
+        return self.mapView.set_path(points, color='blue', width=2)
+
     def setDefaultLocation(self):
         """Display the default location on the map."""
         self.setLatLonZoom(self.locZero)
 
     def onRightClick(self, coords):
+        """Map right click callback."""
         self.mapView.set_position(coords[0], coords[1])
         
     def createWidgets(self, parent: tk.Frame, padx=0, pady=0):
