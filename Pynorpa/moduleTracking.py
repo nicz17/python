@@ -8,6 +8,9 @@ import config
 import glob
 import logging
 
+from tkinter import ttk
+
+import DateTools
 from GeoTracker import GeoTrack
 from BaseWidgets import MonthYearSelector
 from MapWidget import MapWidget
@@ -23,8 +26,9 @@ class ModuleTracking(TabModule):
         """Constructor."""
         self.window = parent.window
         self.monthYearSel = MonthYearSelector(self.loadData)
-        self.table   = TableGeoTracks(self.onSelectTrack)
+        self.table = TableGeoTracks(self.onSelectTrack)
         self.mapWidget = MapWidget()
+        self.finder = PositionFinder()
         super().__init__(parent, 'GeoTracks', GeoTrack.__name__)
         self.track = None
 
@@ -40,15 +44,18 @@ class ModuleTracking(TabModule):
         # Display path on map
         self.mapWidget.addPath(track.getPath())
 
+        # Display track info in position finder
+        self.finder.loadData(track)
 
     def loadData(self):
         """Load tracking data."""
         dir = self.getDirectory()
         self.log.info(f'Loading GeoTracks from {dir}')
+        # TODO sort by start date
         files = glob.glob(f'{dir}/*.gpx')
         tracks = []
         for file in files:
-            self.log.info(file)
+            self.log.debug(file)
             track = GeoTrack(file)
             tracks.append(track)
         self.table.loadData(tracks)
@@ -65,10 +72,39 @@ class ModuleTracking(TabModule):
         self.monthYearSel.createWidgets(self.frmLeft)
         self.table.createWidgets(self.frmLeft)
         self.mapWidget.createWidgets(self.frmRight)
+        self.finder.createWidgets(self.frmRight)
         # TODO datetime input widget showing location on map
 
     def __str__(self):
         return 'ModuleTracking'
+
+class PositionFinder:
+    """Helper to find the position on the track at a given time."""
+    log = logging.getLogger('PositionFinder')
+
+    def __init__(self):
+        """Constructor."""
+        self.track = None
+
+    def loadData(self, track: GeoTrack):
+        """Load data from the specified track."""
+        self.track = track
+        if track:
+            start = DateTools.datetimeToString(track.getStartAt())
+            end   = DateTools.datetimeToString(track.getEndAt())
+            self.lblDateRange.config(text=f'{start} - {end}')
+        else:
+            self.lblDateRange.config(text='-')
+
+    def createWidgets(self, parent: ttk.Frame):
+        """Create user widgets."""
+        self.frmMain = ttk.LabelFrame(parent, text='Positionnement')
+        self.frmMain.pack(fill='x', expand=False, pady=5)
+        self.lblDateRange = ttk.Label(self.frmMain, text='-')
+        self.lblDateRange.pack()
+        # TODO datetime input widget
+        # TODO search button
+        # TODO position label
     
 class TableGeoTracks(AdvTable):
     """Table widget for Pynorpa GeoTracks."""
@@ -76,9 +112,8 @@ class TableGeoTracks(AdvTable):
 
     def __init__(self, cbkSelect):
         """Constructor with selection callback."""
-        self.log.info('Constructor')
         super().__init__(cbkSelect, 'Tracks', 6)
-        self.addColumn(TableColumn('Nom', GeoTrack.getNameNoExt, 400))
+        self.addColumn(TableColumn('Nom', GeoTrack.getNameNoExt, 360))
 
     def loadData(self, tracks: list[GeoTrack]):
         """Display the specified tracks in this table."""

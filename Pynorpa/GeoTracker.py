@@ -340,6 +340,14 @@ class GeoTrack:
     def getNameNoExt(self) -> str:
         """Get this track name, without extension."""
         return self.name.removesuffix('.gpx')
+
+    def getStartAt(self) -> datetime.datetime:
+        """Get track start datetime."""
+        return self.tStart
+    
+    def getEndAt(self) -> datetime.datetime:
+        """Get track end datetime."""
+        return self.tEnd
         
     def contains(self, dtAt: datetime.datetime) -> bool:
         """Check if the specified datetime is contained in this track's daterange."""
