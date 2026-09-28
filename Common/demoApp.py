@@ -10,7 +10,7 @@ import logging
 from TabsApp import TabsApp, TabModule
 from BaseTable import AdvTable, TableColumn
 from BaseTree import BaseTree
-from BaseWidgets import SearchBar
+from BaseWidgets import SearchBar, MonthYearSelector
 from NameGen import NameGen
 
 
@@ -92,7 +92,6 @@ class ModuleTreeDemo(TabModule):
         super().__init__(oParent, 'BaseTree')
 
     def createWidgets(self):
-        self.log.info('Create widgets')
         self.createLeftRightFrames()
         self.tree.createWidgets(self.frmLeft)
 
@@ -107,11 +106,28 @@ class ModuleTreeDemo(TabModule):
         self.log.info('Load data')
         self.populate(1, None)
 
+class ModuleMonthYearDemo(TabModule):
+    log = logging.getLogger('ModuleMonthYearDemo')
+
+    def __init__(self, oParent):
+        self.selector = MonthYearSelector(self.onSelect)
+        super().__init__(oParent, 'MonthYearSelector')
+
+    def onSelect(self):
+        month = self.selector.getMonth()
+        year  = self.selector.getYear()
+        self.log.info(f'Selected {year}.{month:02d}')
+
+    def createWidgets(self):
+        self.createLeftRightFrames()
+        self.selector.createWidgets(self.frmLeft)
+
 class AppDemo(TabsApp):
     def __init__(self):
         super().__init__('Demo TabsApp')
-        self.tableDemo = ModuleTableDemo(self)
-        self.treeDemo  = ModuleTreeDemo(self)
+        ModuleTableDemo(self)
+        ModuleTreeDemo(self)
+        ModuleMonthYearDemo(self)
 
 
 def main():

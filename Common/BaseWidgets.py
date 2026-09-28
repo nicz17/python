@@ -838,19 +838,43 @@ class MonthYearSelector:
         self.month = self.cboMonth.getSelectionIndex()+1
         self.cbkModified()
 
+    def addMonth(self, amount: int):
+        self.month += amount
+        if self.month > 12:
+            self.month = 1
+            self.year += 1
+        if self.month < 1:
+            self.month = 12
+            self.year -= 1
+        self.cboMonth.setValue(DateTools.aMonthFr[self.month-1])
+        self.spiYear.setValue(self)
+        self.cbkModified()
+
+    def onPrev(self):
+        self.addMonth(-1)
+
+    def onNext(self):
+        self.addMonth(1)
+
     def createWidgets(self, parent: ttk.Frame):
         """Create our widgets in the parent frame."""
         self.frmMain = ttk.Frame(parent)
         self.frmMain.pack(side=tk.TOP, anchor=tk.N, fill=tk.X, expand=False, pady=5)
 
+        self.btnPrev = IconButton(self.frmMain, 'prev', 'Previous', self.onPrev, 0, False)
+        self.btnPrev.lbl.grid(row=0, column=0)
+
         self.cboMonth = ComboBox(self.onModified)
-        self.cboMonth.createWidgets(self.frmMain, 0, 0)
+        self.cboMonth.createWidgets(self.frmMain, 0, 1)
         self.cboMonth.setValues(DateTools.aMonthFr)
         self.cboMonth.setValue(DateTools.aMonthFr[self.month-1])
 
         self.spiYear = SpinBox(self.onModified, self.getYear, 2010, self.year)
-        self.spiYear.createWidgets(self.frmMain, 0, 1)
+        self.spiYear.createWidgets(self.frmMain, 0, 2)
         self.spiYear.setValue(self)
+
+        self.btnNext = IconButton(self.frmMain, 'next', 'Next', self.onNext, 0, False)
+        self.btnNext.lbl.grid(row=0, column=3)
 
 
 class ToolTip():
