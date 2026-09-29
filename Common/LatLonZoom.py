@@ -2,12 +2,12 @@
 
 __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2024 N. Zwahlen"
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 import logging
 
 
-class LatLonZoom():
+class LatLonZoom:
     """Simple container for geographical Lat/Lon/Zoom map coordinates."""
     log = logging.getLogger("LatLonZoom")
 
@@ -49,6 +49,44 @@ class LatLonZoom():
 
     def __str__(self):
         return f'LatLonZoom {self.lat}/{self.lon}/{self.zoom}'
+
+    
+class LatLon:
+    """Simple container for geographical Lat/Lon map coordinates."""
+    log = logging.getLogger("LatLon")
+
+    def __init__(self, lat: float, lon: float):
+        """Constructor."""
+        self.lat = lat
+        self.lon = lon
+
+    def getLat(self) -> float:
+        """Getter for latitude."""
+        return self.lat
+
+    def getLon(self) -> float:
+        """Getter for longitude."""
+        return self.lon
+
+    def toJson(self):
+        """Create a dict of this LatLon for json export."""
+        data = {
+            'lat':  self.lat,
+            'lon':  self.lon
+        }
+        return data
+    
+    def __eq__(self, other): 
+        if not isinstance(other, LatLonZoom):
+            return NotImplemented
+        return self.lat == other.lat and self.lon == other.lon
+
+    def toPrettyString(self):
+        """Return textual representation for GUI."""
+        return f'Latitude {self.lat:.4f}, longitude {self.lon:.4f}'
+
+    def __str__(self):
+        return f'LatLon {self.lat}/{self.lon}'
 
 
 def testLatLonZoom():

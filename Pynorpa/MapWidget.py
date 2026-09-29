@@ -15,7 +15,7 @@ import tkinter as tk
 import tkintermapview
 from PIL import ImageTk, Image
 from LocationCache import *
-from LatLonZoom import *
+from LatLonZoom import LatLon, LatLonZoom
 
 
 class MapWidget():
@@ -51,8 +51,10 @@ class MapWidget():
         """Set the map widget view to the bounding box."""
         self.mapView.fit_bounding_box((latMax, lonMin), (latMin, lonMax))
 
-    def addMarker(self, coords: LatLonZoom, iconname=config.mapMarkerGreen):
+    def addMarker(self, coords: LatLon, iconname=config.mapMarkerGreen):
         """Add a marker to the map."""
+        if coords is None:
+            return
         if iconname and os.path.exists(iconname):
             marker = ImageTk.PhotoImage(Image.open(iconname))
             self.mapView.set_marker(coords.lat, coords.lon, icon=marker, icon_anchor='s')

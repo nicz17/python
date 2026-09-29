@@ -12,7 +12,8 @@ from tkinter import ttk
 
 import DateTools
 from GeoTracker import GeoTrack
-from BaseWidgets import MonthYearSelector
+from LatLonZoom import LatLon
+from BaseWidgets import MonthYearSelector, DateTime, Button
 from MapWidget import MapWidget
 from TabsApp import TabModule, TabsApp
 from BaseTable import AdvTable, TableColumn
@@ -28,7 +29,7 @@ class ModuleTracking(TabModule):
         self.monthYearSel = MonthYearSelector(self.loadData)
         self.table = TableGeoTracks(self.onSelectTrack)
         self.mapWidget = MapWidget()
-        self.finder = PositionFinder()
+        self.finder = PositionFinder(self.onSelectPosition)
         super().__init__(parent, 'GeoTracks', GeoTrack.__name__)
         self.track = None
 
@@ -46,6 +47,11 @@ class ModuleTracking(TabModule):
 
         # Display track info in position finder
         self.finder.loadData(track)
+
+    def onSelectPosition(self, pos: LatLon):
+        """Display the specified position on the map."""
+        self.mapWidget.removeMarkers()
+        self.mapWidget.addMarker(pos)
 
     def loadData(self):
         """Load tracking data."""
@@ -73,7 +79,6 @@ class ModuleTracking(TabModule):
         self.table.createWidgets(self.frmLeft)
         self.mapWidget.createWidgets(self.frmRight)
         self.finder.createWidgets(self.frmRight)
-        # TODO datetime input widget showing location on map
 
     def __str__(self):
         return 'ModuleTracking'
@@ -82,29 +87,66 @@ class PositionFinder:
     """Helper to find the position on the track at a given time."""
     log = logging.getLogger('PositionFinder')
 
-    def __init__(self):
+    def __init__(self, cbkSetPosition):
         """Constructor."""
+        self.cbkSetPosition = cbkSetPosition
         self.track = None
+        self.tAt = None
+
+    def onFindPosition(self):
+        """Position search callback"""
+        self.tAt = self.widDatetime.getValue()
+        self.log.info(f'Find position at {DateTools.timestampToString(self.tAt)}')
+        if self.track and self.tAt:
+            loc = self.track.getLocationAt(DateTools.timestampToDatetimeUTC(self.tAt))
+            self.log.info(f'Found {loc}')
+            pos = None
+            if loc:
+                pos = LatLon(loc.latitude, loc.longitude)
+                self.lblPosition.config(text=pos.toPrettyString())
+            else:
+                self.lblPosition.config(text='Hors track')
+            self.cbkSetPosition(pos)
+
+    def getAt(self) -> float:
+        return self.tAt
 
     def loadData(self, track: GeoTrack):
         """Load data from the specified track."""
         self.track = track
+        self.tAt = track.getStartAt().timestamp()
         if track:
             start = DateTools.datetimeToString(track.getStartAt())
             end   = DateTools.datetimeToString(track.getEndAt())
             self.lblDateRange.config(text=f'{start} - {end}')
         else:
             self.lblDateRange.config(text='-')
+        self.widDatetime.setValue(self)
 
     def createWidgets(self, parent: ttk.Frame):
         """Create user widgets."""
-        self.frmMain = ttk.LabelFrame(parent, text='Positionnement')
+        self.frmMain = ttk.LabelFrame(parent, text='Recherche de position')
         self.frmMain.pack(fill='x', expand=False, pady=5)
+
+        # Track daterange
+        ttk.Label(self.frmMain, text='Durée').grid(row=0, column=0, padx=4, pady=4, sticky='e')
         self.lblDateRange = ttk.Label(self.frmMain, text='-')
-        self.lblDateRange.pack()
-        # TODO datetime input widget
-        # TODO search button
-        # TODO position label
+        self.lblDateRange.grid(row=0, column=1)
+
+        # Datetime input widget
+        # TODO validate timestamp
+        ttk.Label(self.frmMain, text='Recherche').grid(row=1, column=0, padx=4, pady=4, sticky='e')
+        self.widDatetime = DateTime(None, PositionFinder.getAt)
+        self.widDatetime.createWidgets(self.frmMain, 1, 1)
+
+        # Search button
+        self.btnSearch = Button(self.frmMain, 'Chercher', self.onFindPosition, 'find')
+        self.btnSearch.grid(row=2, col=1)
+
+        # Position label
+        ttk.Label(self.frmMain, text='Position').grid(row=3, column=0, padx=4, pady=4, sticky='e')
+        self.lblPosition = ttk.Label(self.frmMain, text='')
+        self.lblPosition.grid(row=3, column=1, sticky='w')
     
 class TableGeoTracks(AdvTable):
     """Table widget for Pynorpa GeoTracks."""
