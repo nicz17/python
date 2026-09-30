@@ -4,7 +4,7 @@
 
 __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2024"
-__version__ = "1.0.0"
+__version__ = "1.0.2"
 
 import config
 import logging
@@ -60,7 +60,7 @@ class PynorpaApp(TabsApp):
         modQuality   = moduleQuality.ModuleQuality(self)
         ModuleTracking(self)
 
-        self.setStatus('Welcome to Pynorpa')
+        self.setStatus('Bienvenue à Pynorpa !')
         self.loadNotifications()
 
     def loadNotifications(self):
@@ -82,3 +82,10 @@ class PynorpaApp(TabsApp):
         timeUntilSwitch = DateTools.timeUntilNextDSTSwitch()
         if timeUntilSwitch and timeUntilSwitch < 10:
             self.addNotification(f"Changement d'heure dans {timeUntilSwitch} jours!", 'warning')
+
+    def getCredits(self) -> str:
+        """App-specific credits to display in About dialog."""
+        return '\n\nTkinterMapView by Tom Schimansky'
+
+    def getVersion(self) -> str:
+        return __version__

@@ -125,9 +125,19 @@ class BaseApp:
 
     def showAboutMsg(self):
         """Display a tk info message about this app."""
-        sMsg  = f'{self.sTitle} v{__version__}'
-        sDetails = f'{__copyright__} by {__author__}\n\nPython {sys.version}\nTkinter {tk.TkVersion}'
-        messagebox.showinfo(title='About', message=sMsg, detail=sDetails)
+        msg  = f'{self.sTitle} v{self.getVersion()}'
+        details = f'{__copyright__} by {__author__}\n\nPython {sys.version}\n\nTkinter {tk.TkVersion}'
+        credits = self.getCredits()
+        if credits:
+            details += credits
+        messagebox.showinfo(title='About', message=msg, detail=details)
+
+    def getCredits(self) -> str:
+        """App-specific credits to display in About dialog."""
+        pass
+
+    def getVersion(self) -> str:
+        return __version__
 
     def showInfoMsg(self, msg: str):
         """Display a tk info message box."""
