@@ -11,6 +11,7 @@ import logging
 from tkinter import ttk
 
 import DateTools
+from Timer import Timer
 from GeoTracker import GeoTrack
 from LatLonZoom import LatLon
 from BaseWidgets import MonthYearSelector, DateTime, Button
@@ -36,6 +37,10 @@ class ModuleTracking(TabModule):
     def onSelectTrack(self, track: GeoTrack):
         """Track selection callback."""
         self.log.info(f'Selected {track}')
+        if not track:
+            return
+
+        # Set map bounding box
         bbox = track.getBoundingBox()
         if not bbox:
             track.loadData()
@@ -43,6 +48,7 @@ class ModuleTracking(TabModule):
         self.mapWidget.setBoundingBox(bbox[0], bbox[2], bbox[1], bbox[3])
 
         # Display path on map
+        self.mapWidget.removeMarkers()
         self.mapWidget.addPath(track.getPath())
 
         # Display track info in position finder
@@ -55,6 +61,7 @@ class ModuleTracking(TabModule):
 
     def loadData(self):
         """Load tracking data."""
+        timer = Timer()
         dir = self.getDirectory()
         self.log.info(f'Loading GeoTracks from {dir}')
         # TODO sort by start date
@@ -65,6 +72,7 @@ class ModuleTracking(TabModule):
             track = GeoTrack(file)
             tracks.append(track)
         self.table.loadData(tracks)
+        self.log.info(f'Table loaded in {timer.getElapsed()}')
     
     def getDirectory(self):
         """Get the geotracker dir for the selected year and month."""
@@ -95,6 +103,8 @@ class PositionFinder:
 
     def onFindPosition(self):
         """Position search callback"""
+        if not self.widDatetime.isValid():
+            return
         self.tAt = self.widDatetime.getValue()
         self.log.info(f'Find position at {DateTools.timestampToString(self.tAt)}')
         if self.track and self.tAt:
@@ -107,6 +117,11 @@ class PositionFinder:
             else:
                 self.lblPosition.config(text='Hors track')
             self.cbkSetPosition(pos)
+
+    def onInputChanged(self, event=None):
+        """User input modification callback."""
+        valid = self.widDatetime.isValid()
+        self.btnSearch.enableWidget(valid)
 
     def getAt(self) -> float:
         return self.tAt
@@ -134,9 +149,8 @@ class PositionFinder:
         self.lblDateRange.grid(row=0, column=1)
 
         # Datetime input widget
-        # TODO validate timestamp
         ttk.Label(self.frmMain, text='Recherche').grid(row=1, column=0, padx=4, pady=4, sticky='e')
-        self.widDatetime = DateTime(None, PositionFinder.getAt)
+        self.widDatetime = DateTime(self.onInputChanged, PositionFinder.getAt)
         self.widDatetime.createWidgets(self.frmMain, 1, 1)
 
         # Search button

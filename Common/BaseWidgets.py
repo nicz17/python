@@ -332,6 +332,13 @@ class DateTime(TextInput):
         if widValue is None:
             return False 
         return super().hasChanges(object)
+
+    def isValid(self) -> bool:
+        """Check if the current user input is a valid date."""
+        value = self.oWidget.get().strip()
+        if value:
+            return DateTools.validateDateString(value)
+        return False
     
     def __str__(self) -> str:
         return 'DateTime'
