@@ -78,6 +78,9 @@ def datetimeToMidnight(dt: datetime.datetime) -> datetime.datetime:
 
 def validateDateString(strAt: str, format=formatDef) -> bool:
     """Validate the input string against the date format."""
+    strNow = nowAsString(format)
+    if not len(strNow) == len(strAt):
+        return False
     try:
         datetime.datetime.strptime(strAt, format)
     except ValueError:
@@ -143,6 +146,7 @@ class TestDateTools:
         self.testDateValidation('2026.se.29 20:00:00')
         self.testDateValidation('2026.15.29 20:00:00')
         self.testDateValidation('2026.09.29 20:00   ')
+        self.testDateValidation('2026.09.13 14:27:5')
 
         # DST switch
         timeUntilSwitch = timeUntilNextDSTSwitch()
@@ -157,7 +161,10 @@ class TestDateTools:
 
     def testDateValidation(self, strAt: str):
         valid = validateDateString(strAt)
-        result = 'valid' if valid else 'invalid'
+        result = 'invalid'
+        if valid:
+            at = stringToDatetime(strAt)
+            result = f'valid ({at})'
         self.log.info(f'Validation: [{strAt}] is {result}')
 
 if __name__ == '__main__':
