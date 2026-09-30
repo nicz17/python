@@ -76,6 +76,14 @@ def datetimeToMidnight(dt: datetime.datetime) -> datetime.datetime:
     """Truncate the specified datetime to midnight."""
     return dt.replace(hour=0, minute=0, second=0, microsecond=0)
 
+def validateDateString(strAt: str, format=formatDef) -> bool:
+    """Validate the input string against the date format."""
+    try:
+        datetime.datetime.strptime(strAt, format)
+    except ValueError:
+        return False
+    return True
+
 def timeUntilNextDSTSwitch():
     """Returns the duration in days until the next DST switch in CH."""
     tz = pytz.timezone('Europe/Zurich')
@@ -108,30 +116,53 @@ def timeUntilNextDSTSwitch():
     delta = next_transition - now
     return delta.days
 
-def testDateTools():
-    log = logging.getLogger('DateTools')
-    tNow = now()
-    dtNow = datetime.datetime.now()
-    dtFirst = datetime.datetime(2024, 8, 1, 12, 00)
-    dtMay4  = datetime.datetime(2024, 5, 4, 12, 00)
-    log.info('Now as timestamp is %f', tNow)
-    log.info('Now as local str is %s', timestampToString(tNow))
-    log.info('Now as UTC date  is %s', timestampToDatetimeUTC(tNow))
-    log.info('Tomorrow addDays is %s', timestampToString(addDays(tNow, 1)))
-    log.info('Now dt in French is %s', datetimeToPrettyStringFr(dtNow))
-    log.info('Aug 1  in French is %s', datetimeToPrettyStringFr(dtFirst))
-    log.info('May 4  in French is %s', datetimeToPrettyStringFr(dtMay4))
-    log.info('Today midnight   is %s', datetimeToMidnight(dtNow))
 
-    timeUntilSwitch = timeUntilNextDSTSwitch()
-    if timeUntilSwitch:
-        log.info(f"Time until next DST change: {timeUntilSwitch} days")
-    else:
-        log.info("No upcoming DST change found.")
+class TestDateTools:
+    """Unit test class for DateTools."""
+    log = logging.getLogger('TestDateTools')
+
+    def run(self):
+        tStart  = now()
+        tNow    = now()
+        dtNow   = datetime.datetime.now()
+        dtFirst = datetime.datetime(2024, 8, 1, 12, 00)
+        dtMay4  = datetime.datetime(2024, 5, 4, 12, 00)
+
+        # Conversion and formatting
+        self.log.info('Now as timestamp is %f', tNow)
+        self.log.info('Now as local str is %s', timestampToString(tNow))
+        self.log.info('Now as UTC date  is %s', timestampToDatetimeUTC(tNow))
+        self.log.info('Tomorrow addDays is %s', timestampToString(addDays(tNow, 1)))
+        self.log.info('Now dt in French is %s', datetimeToPrettyStringFr(dtNow))
+        self.log.info('Aug 1  in French is %s', datetimeToPrettyStringFr(dtFirst))
+        self.log.info('May 4  in French is %s', datetimeToPrettyStringFr(dtMay4))
+        self.log.info('Today midnight   is %s', datetimeToMidnight(dtNow))
+
+        # Validation
+        self.testDateValidation('2026.09.29 20:00:00')
+        self.testDateValidation('2026.se.29 20:00:00')
+        self.testDateValidation('2026.15.29 20:00:00')
+        self.testDateValidation('2026.09.29 20:00   ')
+
+        # DST switch
+        timeUntilSwitch = timeUntilNextDSTSwitch()
+        if timeUntilSwitch:
+            self.log.info(f"Time until next DST change: {timeUntilSwitch} days")
+        else:
+            self.log.info("No upcoming DST change found.")
+
+        # Timing
+        elapsed = now() - tStart
+        self.log.info(f'Done in {elapsed:0.4f}s.')
+
+    def testDateValidation(self, strAt: str):
+        valid = validateDateString(strAt)
+        result = 'valid' if valid else 'invalid'
+        self.log.info(f'Validation: [{strAt}] is {result}')
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(asctime)s %(levelname)s %(name)s: %(message)s", 
         datefmt = '%Y.%m.%d %H:%M:%S',
         level=logging.INFO, 
         handlers=[logging.StreamHandler()])
-    testDateTools()
+    TestDateTools().run()
