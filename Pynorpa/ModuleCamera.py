@@ -120,7 +120,7 @@ class ModuleCamera(TabModule):
 
     def onAddCoords(self, lat: float, lon: float, iconname=None):
         """Callback after adding GPS data to a photo."""
-        self.mapWidget.addMarker(LatLonZoom(lat, lon, 0), iconname)
+        self.mapWidget.addMarker(LatLon(lat, lon), iconname)
 
     def addButton(self, label: str, icon: str, cmd) -> Button:
         """Add a Tk Button to this module's frmButtons."""
