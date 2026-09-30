@@ -241,6 +241,8 @@ class GeoTrack:
         self.log.info('Constructor from %s', filename)
         self.filename = filename
         self.name = os.path.basename(filename)
+        date = self.name.removesuffix('.gpx')[-6:]
+        self.namedate = f'20{date[:2]}.{date[2:4]}.{date[4:]}' 
         self.gpx = None
         self.tStart = None
         self.tEnd   = None
@@ -340,6 +342,10 @@ class GeoTrack:
     def getNameNoExt(self) -> str:
         """Get this track name, without extension."""
         return self.name.removesuffix('.gpx')
+
+    def getNameDate(self) -> str:
+        """Returns the date part of the filename, for example 260930."""
+        return self.namedate
 
     def getStartAt(self) -> datetime.datetime:
         """Get track start datetime."""

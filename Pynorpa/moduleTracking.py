@@ -64,13 +64,13 @@ class ModuleTracking(TabModule):
         timer = Timer()
         dir = self.getDirectory()
         self.log.info(f'Loading GeoTracks from {dir}')
-        # TODO sort by start date
         files = glob.glob(f'{dir}/*.gpx')
         tracks = []
         for file in files:
             self.log.debug(file)
             track = GeoTrack(file)
             tracks.append(track)
+        tracks = sorted(tracks, key=lambda track: track.getNameDate())
         self.table.loadData(tracks)
         self.log.info(f'Table loaded in {timer.getElapsed()}')
     
@@ -120,8 +120,7 @@ class PositionFinder:
 
     def onInputChanged(self, event=None):
         """User input modification callback."""
-        valid = self.widDatetime.isValid()
-        self.btnSearch.enableWidget(valid)
+        self.enableWidgets()
 
     def getAt(self) -> float:
         return self.tAt
@@ -129,14 +128,15 @@ class PositionFinder:
     def loadData(self, track: GeoTrack):
         """Load data from the specified track."""
         self.track = track
-        self.tAt = track.getStartAt().timestamp()
         if track:
+            self.tAt = track.getStartAt().timestamp()
             start = DateTools.datetimeToString(track.getStartAt())
             end   = DateTools.datetimeToString(track.getEndAt())
             self.lblDateRange.config(text=f'{start} - {end}')
         else:
-            self.lblDateRange.config(text='-')
+            self.lblDateRange.config(text='')
         self.widDatetime.setValue(self)
+        self.enableWidgets()
 
     def createWidgets(self, parent: ttk.Frame):
         """Create user widgets."""
@@ -145,7 +145,7 @@ class PositionFinder:
 
         # Track daterange
         ttk.Label(self.frmMain, text='Durée').grid(row=0, column=0, padx=4, pady=4, sticky='e')
-        self.lblDateRange = ttk.Label(self.frmMain, text='-')
+        self.lblDateRange = ttk.Label(self.frmMain, text='')
         self.lblDateRange.grid(row=0, column=1)
 
         # Datetime input widget
@@ -161,6 +161,13 @@ class PositionFinder:
         ttk.Label(self.frmMain, text='Position').grid(row=3, column=0, padx=4, pady=4, sticky='e')
         self.lblPosition = ttk.Label(self.frmMain, text='')
         self.lblPosition.grid(row=3, column=1, sticky='w')
+
+        self.enableWidgets()
+
+    def enableWidgets(self):
+        valid = self.widDatetime.isValid()
+        self.btnSearch.enableWidget(valid)
+
     
 class TableGeoTracks(AdvTable):
     """Table widget for Pynorpa GeoTracks."""
@@ -169,7 +176,8 @@ class TableGeoTracks(AdvTable):
     def __init__(self, cbkSelect):
         """Constructor with selection callback."""
         super().__init__(cbkSelect, 'Tracks', 6)
-        self.addColumn(TableColumn('Nom', GeoTrack.getNameNoExt, 360))
+        self.addColumn(TableColumn('Nom',  GeoTrack.getNameNoExt, 260))
+        self.addColumn(TableColumn('Date', GeoTrack.getNameDate,  100))
 
     def loadData(self, tracks: list[GeoTrack]):
         """Display the specified tracks in this table."""
