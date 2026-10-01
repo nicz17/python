@@ -41,8 +41,11 @@ class ModuleCalendar(TabModule):
     def onSelectItem(self, item: JournalItem):
         """Display pics of selected JournalItem in image widget."""
         if item:
+            day = item.dtAt.strftime('%d.%m.%Y')
+            self.lblTitle.config(text=f'Observations à {item.location.getName()} le {day}')
             self.imgWidget.loadImages(item.getPictures())
         else:
+            self.lblTitle.config(text='')
             self.imgWidget.loadImages([])
 
     def createWidgets(self):
@@ -50,6 +53,8 @@ class ModuleCalendar(TabModule):
         self.createLeftRightFrames()
         self.monthYearSel.createWidgets(self.frmLeft)
         self.calWidget.createWidgets(self.frmLeft)
+        self.lblTitle = ttk.Label(self.frmRight, text='')
+        self.lblTitle.pack()
         self.imgWidget.createWidgets(self.frmRight)
 
     def __str__(self):
@@ -112,14 +117,14 @@ class CalendarWidget:
             col = day.weekday()
             row = week-week0+1
 
-            # TODO add frame bg color
+            # TODO add grid lines
             frmDay = ttk.Frame(self.frmMain)
             frmDay.grid(column=col, row=row, padx=3, pady=3, sticky='N')
 
             # Cell content and style
-            lblDay = ttk.Label(frmDay, text=day.strftime('%d.%m'))
+            lblDay = ttk.Label(frmDay, text=day.strftime('%d'))
             if day.month != month:
-                lblDay.configure(foreground='#c4c4c4')
+                lblDay.configure(foreground='#c4c4c4', text=day.strftime('%d.%m'))
             lblDay.grid(column=0, row=0, pady=6, sticky='N')
 
             # Add JournalItems
