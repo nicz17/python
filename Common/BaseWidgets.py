@@ -863,10 +863,10 @@ class MonthYearSelector:
     def onNext(self):
         self.addMonth(1)
 
-    def createWidgets(self, parent: ttk.Frame):
+    def createWidgets(self, parent: ttk.Frame, side=tk.TOP):
         """Create our widgets in the parent frame."""
         self.frmMain = ttk.Frame(parent)
-        self.frmMain.pack(side=tk.TOP, anchor=tk.N, fill=tk.X, expand=False, pady=5)
+        self.frmMain.pack(side=side, anchor=tk.N, fill=tk.X, expand=False, pady=5)
 
         self.btnPrev = IconButton(self.frmMain, 'prev', 'Précédant', self.onPrev, 0, False)
         self.btnPrev.lbl.grid(row=0, column=0)

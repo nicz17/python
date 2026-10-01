@@ -14,7 +14,7 @@ import DateTools
 import LocationCache
 from TabsApp import *
 from BaseTable import TableColumn
-from BaseWidgets import BaseEditor, Button, ComboBox, SpinBox
+from BaseWidgets import BaseEditor, Button, MonthYearSelector
 from moduleSelection import TablePhotos, PhotoEditor, TaxonSelector
 from pynorpaManager import PynorpaManager, PynorpaException
 from PhotoInfo import *
@@ -132,10 +132,10 @@ class ModuleReselection(TabModule):
 
         # Widgets
         self.table.createWidgets(self.frmLeft)
+        self.dirSelector.createWidgets(self.frmLeft)
         self.imageWidget.createWidgets(self.frmRight)
         self.editor.createWidgets(self.frmRight)
         self.selector.createWidgets(self.frmRight)
-        self.dirSelector.createWidgets(self.frmRight)
         self.table.setStatus('Chargement...')
 
         # Buttons
@@ -174,8 +174,8 @@ class DirectorySelector:
         return f'{config.dirPhotosBase}Nature-{self.year}-{self.month:02d}/photos'
     
     def onModified(self, event=None):
-        self.year  = self.spiYear.getValue()
-        self.month = self.cboMonth.getSelectionIndex()+1
+        self.year  = self.monthYearSel.getYear()
+        self.month = self.monthYearSel.getMonth()
         self.enableWidgets()
 
     def onReload(self):
@@ -184,19 +184,13 @@ class DirectorySelector:
     def createWidgets(self, parent: ttk.Frame):
         """Create our widgets in the parent frame."""
         self.frmMain = ttk.LabelFrame(parent, text='Sélection de répertoire photos')
-        self.frmMain.pack(side=tk.TOP, anchor=tk.N, fill=tk.X, expand=False, pady=5)
+        self.frmMain.pack(side=tk.LEFT, anchor=tk.N, expand=False, pady=3)
 
-        self.cboMonth = ComboBox(self.onModified)
-        self.cboMonth.createWidgets(self.frmMain, 0, 0)
-        self.cboMonth.setValues(DateTools.aMonthFr)
-        self.cboMonth.setValue(DateTools.aMonthFr[self.month-1])
-
-        self.spiYear = SpinBox(self.onModified, self.getYear, 2010, self.year)
-        self.spiYear.createWidgets(self.frmMain, 0, 1)
-        self.spiYear.setValue(self)
+        self.monthYearSel = MonthYearSelector(self.onModified)
+        self.monthYearSel.createWidgets(self.frmMain, tk.LEFT)
 
         self.btnReload = Button(self.frmMain, 'Recharger', self.onReload, 'open')
-        self.btnReload.grid(0, 2)
+        self.btnReload.pack(side=tk.RIGHT, pady=0)
         self.enableWidgets()
 
     def enableWidgets(self):
