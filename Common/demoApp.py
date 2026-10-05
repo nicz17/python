@@ -11,11 +11,12 @@ import logging
 import os
 from pathlib import Path
 
-from TabsApp import TabsApp, TabModule
 from BaseTable import AdvTable, TableColumn
 from BaseTree import BaseTree
 from BaseWidgets import SearchBar, MonthYearSelector, IconButton, BaseEditor
+from calendarWidget import CalendarWidget
 from NameGen import NameGen
+from TabsApp import TabsApp, TabModule
 
 
 class DataDemo:
@@ -130,24 +131,34 @@ class ModuleTreeDemo(TabModule):
                 self.populate(depth+1, id)
 
     def loadData(self):
-        self.log.info('Load data')
         self.populate(1, None)
 
-class ModuleMonthYearDemo(TabModule):
-    log = logging.getLogger('ModuleMonthYearDemo')
+class ModuleCalendarDemo(TabModule):
+    log = logging.getLogger('ModuleCalendarDemo')
 
     def __init__(self, oParent):
         self.selector = MonthYearSelector(self.onSelect)
-        super().__init__(oParent, 'MonthYearSelector')
+        self.calendar = CalendarWidget(self.onItemSelection)
+        super().__init__(oParent, 'CalendarWidget')
 
     def onSelect(self):
         month = self.selector.getMonth()
         year  = self.selector.getYear()
         self.log.info(f'Selected {year}.{month:02d}')
+        self.calendar.loadData(year, month)
+
+    def onItemSelection(self):
+        pass
+
+    def loadData(self):
+        month = self.selector.getMonth()
+        year  = self.selector.getYear()
+        self.calendar.loadData(year, month)
 
     def createWidgets(self):
         self.createLeftRightFrames()
         self.selector.createWidgets(self.frmLeft)
+        self.calendar.createWidgets(self.frmLeft)
 
 class ModuleIconsDemo(TabModule):
     log = logging.getLogger('IconsDemo')
@@ -193,7 +204,7 @@ class AppDemo(TabsApp):
         super().__init__('Demo TabsApp')
         ModuleTableDemo(self)
         ModuleTreeDemo(self)
-        ModuleMonthYearDemo(self)
+        ModuleCalendarDemo(self)
         ModuleIconsDemo(self)
 
 
