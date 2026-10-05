@@ -117,7 +117,6 @@ class CalendarWidget:
             col = day.weekday()
             row = week-week0+1
 
-            # TODO add grid lines
             frmDay = ttk.Frame(self.frmMain)
             frmDay.grid(column=col, row=row, padx=3, pady=3, sticky='N')
 
@@ -125,7 +124,7 @@ class CalendarWidget:
             lblDay = ttk.Label(frmDay, text=day.strftime('%d'))
             if day.month != month:
                 lblDay.configure(foreground='#c4c4c4', text=day.strftime('%d.%m'))
-            lblDay.grid(column=0, row=0, pady=6, sticky='N')
+            lblDay.grid(column=0, row=0, pady=3, sticky='N')
 
             # Add JournalItems
             dtDay = datetime.datetime.combine(day, datetime.datetime.min.time())
@@ -143,6 +142,14 @@ class CalendarWidget:
             self.frmMain.grid_columnconfigure(col, minsize=150)
         for row in range(1, row_count):
             self.frmMain.grid_rowconfigure(row, minsize=80)
+
+        # Add grid line separators
+        for col in range(1, col_count):
+            sep = ttk.Separator(self.frmMain, orient=tk.VERTICAL)
+            sep.grid(column=col, row=0, rowspan=row_count, sticky='NSW', pady=6)
+        for row in range(1, row_count-1):
+            sep = ttk.Separator(self.frmMain, orient=tk.HORIZONTAL)
+            sep.grid(column=0, row=row, columnspan=col_count, sticky='SWE', padx=4)
 
 
     def createWidgets(self, parent):
