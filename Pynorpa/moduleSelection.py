@@ -231,7 +231,9 @@ class TaxonSelector():
                 continue
             self.log.info(f'  {file}')
             seq = self.extractNumber(file)
-            imax = max(seq, imax)
+            # Except other in-progress selections
+            if seq < 1000:
+                imax = max(seq, imax)
         return imax+1
     
     def extractNumber(self, filename: str) -> int:
