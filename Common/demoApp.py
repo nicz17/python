@@ -6,10 +6,12 @@ __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2026 N. Zwahlen"
 __version__ = "1.0.2"
 
+import datetime
 import glob
 import logging
 import os
 from pathlib import Path
+from tkinter import ttk
 
 from BaseTable import AdvTable, TableColumn
 from BaseTree import BaseTree
@@ -139,26 +141,32 @@ class ModuleCalendarDemo(TabModule):
     def __init__(self, oParent):
         self.selector = MonthYearSelector(self.onSelect)
         self.calendar = CalendarWidget(self.onItemSelection)
+        self.lblSelected = None
         super().__init__(oParent, 'CalendarWidget')
 
     def onSelect(self):
-        month = self.selector.getMonth()
-        year  = self.selector.getYear()
-        self.log.info(f'Selected {year}.{month:02d}')
-        self.calendar.loadData(year, month)
+        self.loadData()
 
-    def onItemSelection(self):
-        pass
+    def onItemSelection(self, event=None, item=None):
+        if item:
+            self.lblSelected.config(text=item)
+        else:
+            self.lblSelected.config(text='')
 
     def loadData(self):
         month = self.selector.getMonth()
         year  = self.selector.getYear()
         self.calendar.loadData(year, month)
+        self.calendar.addWidget(datetime.date(year, month,  1), 'Calendes')
+        self.calendar.addWidget(datetime.date(year, month,  8), 'Nones')
+        self.calendar.addWidget(datetime.date(year, month, 15), 'Ides')
 
     def createWidgets(self):
         self.createLeftRightFrames()
         self.selector.createWidgets(self.frmLeft)
         self.calendar.createWidgets(self.frmLeft)
+        self.lblSelected = ttk.Label(self.frmLeft, text='')
+        self.lblSelected.pack()
 
 class ModuleIconsDemo(TabModule):
     log = logging.getLogger('IconsDemo')

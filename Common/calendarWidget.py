@@ -25,6 +25,20 @@ class CalendarWidget:
         """Constructor."""
         self.cbkSelection = cbkSelection
         self.cal = calendar.TextCalendar()
+        self.dayFrames = {}
+
+    def addWidget(self, day: datetime.date, label: str):
+        """Adds a widget at the specified day."""
+        if not day or not label:
+            return
+        frame = self.dayFrames[day]
+        if frame:
+            lbl = ttk.Label(frame, text=label)
+            lbl.bind("<Button-1>", lambda event, label=label: self.cbkSelection(event, label))
+            lbl.pack(pady=2)
+            return lbl
+        else:
+            self.log.error(f'Could not find frame for {day}')
 
     def loadData(self, year: int, month: int):
         """Load calendar data for the specified month."""
@@ -36,6 +50,7 @@ class CalendarWidget:
         # Clear the frame
         for widget in self.frmMain.winfo_children():
             widget.destroy()
+        self.dayFrames = {}
 
         # Frame title and table headers
         sMonth = TextTools.upperCaseFirst(DateTools.aMonthFr[month-1])
@@ -52,12 +67,14 @@ class CalendarWidget:
 
             frmDay = ttk.Frame(self.frmMain)
             frmDay.grid(column=col, row=row, padx=1, pady=1, sticky='N')
+            self.dayFrames[day] = frmDay
 
             # Cell content and style
             lblDay = ttk.Label(frmDay, text=day.strftime('%d'))
             if day.month != month:
                 lblDay.configure(foreground='#c4c4c4', text=day.strftime('%d.%m'))
-            lblDay.grid(column=0, row=0, pady=4, sticky='N')
+            #lblDay.grid(column=0, row=0, pady=4, sticky='N')
+            lblDay.pack(pady=4, side=tk.TOP)
 
         # Set grid cell sizes
         col_count, row_count = self.frmMain.grid_size()
@@ -73,7 +90,6 @@ class CalendarWidget:
         for row in range(1, row_count-1):
             sep = ttk.Separator(self.frmMain, orient=tk.HORIZONTAL)
             sep.grid(column=0, row=row, columnspan=col_count, sticky='SWE', padx=4)
-
 
     def createWidgets(self, parent):
         """Create user widgets."""
