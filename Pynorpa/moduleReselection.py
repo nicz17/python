@@ -14,7 +14,7 @@ import DateTools
 import LocationCache
 from TabsApp import *
 from BaseTable import TableColumn
-from BaseWidgets import BaseEditor, Button, MonthYearSelector
+from BaseWidgets import BaseEditor, Button, ComboBox, MonthYearSelector
 from moduleSelection import TablePhotos, PhotoEditor, TaxonSelector
 from pynorpaManager import PynorpaManager, PynorpaException
 from PhotoInfo import *
