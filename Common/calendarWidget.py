@@ -16,6 +16,33 @@ import DateTools
 import TextTools
 
 
+class CalendarItem:
+    """Widget displaying a clickable item in the calendar grid."""
+    log = logging.getLogger('CalendarItem')
+    colorLink = '#4200c0'
+
+    def __init__(self, item, cbkSelection):
+        self.item = item
+        self.cbkSelection = cbkSelection
+        self.lbl = None
+
+    def onSelection(self, event=None):
+        self.log.debug(f'Selected {self.item}')
+        self.cbkSelection(self.item)
+
+    def getLabel(self):
+        """Gets the label to display on calendar."""
+        return self.item.getDesc()
+
+    def createWidgets(self, frame, pady=2):
+        self.lbl = ttk.Label(frame, foreground=self.colorLink, 
+                            cursor="hand1", text=self.getLabel())
+        self.lbl.bind("<Button-1>", self.onSelection)
+        self.lbl.pack(padx=3, pady=pady)
+
+    def __str__(self):
+        return f'CalendarItem {self.item}'
+
 class CalendarWidget:
     """Calendar grid widget."""
     log = logging.getLogger('CalendarWidget')
@@ -27,16 +54,13 @@ class CalendarWidget:
         self.cal = calendar.TextCalendar()
         self.dayFrames = {}
 
-    def addWidget(self, day: datetime.date, label: str):
-        """Adds a widget at the specified day."""
-        if not day or not label:
+    def addItem(self, day: datetime.date, item: CalendarItem):
+        """Adds a CalendarItem on the specified day."""
+        if not day or not item:
             return
         frame = self.dayFrames[day]
         if frame:
-            lbl = ttk.Label(frame, text=label)
-            lbl.bind("<Button-1>", lambda event, label=label: self.cbkSelection(event, label))
-            lbl.pack(pady=2)
-            return lbl
+            item.createWidgets(frame)
         else:
             self.log.error(f'Could not find frame for {day}')
 

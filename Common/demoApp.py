@@ -16,7 +16,7 @@ from tkinter import ttk
 from BaseTable import AdvTable, TableColumn
 from BaseTree import BaseTree
 from BaseWidgets import SearchBar, MonthYearSelector, IconButton, BaseEditor
-from calendarWidget import CalendarWidget
+from calendarWidget import CalendarWidget, CalendarItem
 from NameGen import NameGen
 from TabsApp import TabsApp, TabModule
 
@@ -147,7 +147,7 @@ class ModuleCalendarDemo(TabModule):
     def onSelect(self):
         self.loadData()
 
-    def onItemSelection(self, event=None, item=None):
+    def onItemSelection(self, item=None):
         if item:
             self.lblSelected.config(text=item)
         else:
@@ -157,9 +157,14 @@ class ModuleCalendarDemo(TabModule):
         month = self.selector.getMonth()
         year  = self.selector.getYear()
         self.calendar.loadData(year, month)
-        self.calendar.addWidget(datetime.date(year, month,  1), 'Calendes')
-        self.calendar.addWidget(datetime.date(year, month,  8), 'Nones')
-        self.calendar.addWidget(datetime.date(year, month, 15), 'Ides')
+        self.addCalendarItem(datetime.date(year, month,  1), 'Calendes')
+        self.addCalendarItem(datetime.date(year, month,  8), 'Nones')
+        self.addCalendarItem(datetime.date(year, month, 15), 'Ides')
+
+    def addCalendarItem(self, day: datetime.date, name: str):
+        obj = DataDemo(0, name, name)
+        item = CalendarItem(obj, self.onItemSelection)
+        self.calendar.addItem(day, item)
 
     def createWidgets(self):
         self.createLeftRightFrames()
