@@ -4,7 +4,7 @@ A list displaying LogBook tasks.
 
 __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2024 N. Zwahlen"
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 import logging
 import tkinter as tk
@@ -30,13 +30,23 @@ class TaskList():
             idx = 1
             task: LogBookTask
             for task in self.book.tasks:
-                nActive = task.countActiveSteps()
-                text = task.title
-                if nActive > 0:
-                    text += f' ({nActive})'
-                self.listTasks.insert(idx, text)
+                self.listTasks.insert(idx, self.getTaskText(task))
                 self.listTasks.itemconfig(tk.END, {'bg': task.status.getColor()})
                 idx += 1
+
+    def getTaskText(self, task: LogBookTask) -> str:
+        """Get the text to display in this list for the specified task."""
+        steps = task.countActiveSteps()
+        count = '' if steps == 0 else f' ({steps})'
+        return f'{task.title}{count}'
+
+    def updateTask(self, task: LogBookTask):
+        """Update the specified task in the list."""
+        idx = self.getIndex(task)
+        self.log.info(f'Updating {task} at row {idx}')
+        self.listTasks.delete(idx)
+        self.listTasks.insert(idx, self.getTaskText(task))
+        self.listTasks.itemconfig(idx, {'bg': task.status.getColor()})
         
     def onSelection(self, evt):
         """ListBox selection event."""
@@ -55,6 +65,12 @@ class TaskList():
             if task == self.book.tasks[i]:
                 self.listTasks.select_set(i)
                 break
+    
+    def getIndex(self, task: LogBookTask):
+        """Get the listbox index of the specified task."""
+        for i in range(len(self.book.tasks)):
+            if task == self.book.tasks[i]:
+                return i
 
     def build(self, parent: tk.Frame):
         """Add the widgets to the parent frame."""

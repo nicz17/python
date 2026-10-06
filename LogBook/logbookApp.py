@@ -6,7 +6,7 @@
 
 __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2024 N. Zwahlen"
-__version__ = "1.0.0"
+__version__ = "1.0.2"
 
 import logging
 import tkinter as tk
@@ -110,6 +110,7 @@ class LogBookApp(BaseApp):
             self.saveBook()
             self.stepInput.clear()
             self.stepsTable.loadData(self.task)
+            self.taskList.updateTask(self.task)
             self.taskProgress.loadData(self.task)
         else:
             self.log.info('Skipping empty input')
@@ -163,6 +164,7 @@ class LogBookApp(BaseApp):
             self.saveBook()
             self.onRefresh()
         self.stepsTable.loadData(self.task)
+        self.taskList.updateTask(self.task)
         self.taskProgress.loadData(self.task)
 
     def onOpenFile(self):
