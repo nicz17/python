@@ -116,7 +116,7 @@ class BaseWidget():
 
     def __init__(self, cbkModified, mtdGetter):
         """Constructor with modification callback and value getter method."""
-        self.log.info('Constructor')
+        self.log.debug('Constructor')
         self.cbkModified = cbkModified
         self.mtdGetter = mtdGetter
         self.oWidget = None  # the Tk/Ttk widget
@@ -387,7 +387,7 @@ class TextReadOnly(BaseWidget):
     def __init__(self, name: str, mtdGetter):
         """Constructor with attribute name."""
         super().__init__(None, mtdGetter)
-        self.log.info('Constructor for %s', name)
+        self.log.debug('Constructor for %s', name)
         self.name = name
 
     def setValue(self, object):
@@ -765,7 +765,7 @@ class BaseEditor():
     def addLabel(self, label: str, sticky='nw') -> ttk.Label:
         """Add an attribute label at the specified row."""
         oLabel = ttk.Label(self.frmEdit, text=label)
-        oLabel.grid(row=self.row, column=0, sticky=sticky)
+        oLabel.grid(row=self.row, column=0, sticky=sticky, padx=4)
         return oLabel
 
     def addWidget(self, oWidget: BaseWidget, oLabel: ttk.Label):

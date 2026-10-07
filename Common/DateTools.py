@@ -20,9 +20,12 @@ def timestampToString(tAt: float, format=formatDef) -> str:
     return time.strftime(format, time.localtime(tAt))
 
 def datetimeToString(dtAt: datetime.datetime, format=formatDef) -> str:
-    """Convert a datetime object to string like 2023.12.28 13:15:36."""
-    #return dtAt.strftime(format)
+    """Convert a datetime to localtime string like 2023.12.28 13:15:36."""
     return timestampToString(dtAt.timestamp(), format)
+
+def datetimeToStringUTC(dtAt: datetime.datetime, format=formatDef) -> str:
+    """Convert a datetime to UTC string like 2023.12.28 12:15:36."""
+    return dtAt.strftime(format)
 
 def datetimeToPrettyStringFr(dtAt: datetime.datetime) -> str:
     """Print the datetime as day month year in French."""

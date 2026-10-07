@@ -10,7 +10,9 @@ import datetime
 import glob
 import logging
 import os
+import DateTools
 from pathlib import Path
+import tkinter as tk
 from tkinter import ttk
 
 from BaseTable import AdvTable, TableColumn
@@ -174,7 +176,7 @@ class ModuleCalendarDemo(TabModule):
         self.lblSelected.pack()
 
 class ModuleIconsDemo(TabModule):
-    log = logging.getLogger('IconsDemo')
+    log = logging.getLogger('ModuleIconsDemo')
 
     def __init__(self, oParent):
         super().__init__(oParent, 'Icons')
@@ -200,8 +202,11 @@ class ModuleIconsDemo(TabModule):
             if col == self.maxCols:
                 col = 0
                 row += 1
-            btnIcon = IconButton(self.frmLeft, icon, file, lambda file=file: self.onIconClick(file), 0, False)
-            btnIcon.lbl.grid(row=row, column=col, pady=12)
+            frame = ttk.Frame(self.frmLeft)
+            frame.grid(row=row, column=col, pady=12)
+            btn = IconButton(frame, icon, file, lambda file=file: self.onIconClick(file), 0, False)
+            btn.lbl.grid(column=0, row=0)
+            ttk.Label(frame, text=icon).grid(column=0, row=1)
             col += 1
 
         # Set grid cell sizes
@@ -211,14 +216,94 @@ class ModuleIconsDemo(TabModule):
         for row in range(1, row_count):
             self.frmLeft.grid_rowconfigure(row, minsize=32)
 
+class DateToolsDemoData:
+    """Demo data for DateTools methods."""
+    log = logging.getLogger('ModuleDateToolsDemo')
+
+    def __init__(self):
+        self.start = DateTools.now()
+
+    def getNowStr(self) -> str:
+        return DateTools.nowAsString()
+
+    def getNowUtc(self) -> str:
+        dtNow = DateTools.timestampToDatetimeUTC(DateTools.now())
+        return DateTools.datetimeToStringUTC(dtNow)
+
+    def getMidnight(self) -> str:
+        midnight = DateTools.datetimeToMidnight(DateTools.nowDatetime())
+        return DateTools.datetimeToString(midnight)
+
+    def getTomorrow(self) -> str:
+        tmr = DateTools.addDays(DateTools.now(), 1)
+        return DateTools.timestampToString(tmr)
+
+    def getLocalised(self) -> str:
+        return DateTools.datetimeToPrettyStringFr(DateTools.nowDatetime())
+
+    def getDayOfYear(self) -> str:
+        year = DateTools.nowDatetime().year
+        dtYearStart = datetime.datetime(year, 1, 1)
+        return str(DateTools.getDaysSince(dtYearStart)+1)
+
+    def getNextDst(self) -> str:
+        daysToDst = DateTools.timeUntilNextDSTSwitch()
+        return f'In {daysToDst} days'
+
+    def getUptime(self) -> str:
+        elapsed = DateTools.now() - self.start
+        return f'{elapsed:0.4f}s'
+    
+class EditorDateTools(BaseEditor):
+    log = logging.getLogger('EditorDateTools')
+
+    def __init__(self, cbkSave=None, colorLabelDef='black'):
+        super().__init__(cbkSave, colorLabelDef)
+
+    def createWidgets(self, parent):
+        super().createWidgets(parent, 'DateTools methods')
+        self.addTextReadOnly('Now local',   DateToolsDemoData.getNowStr)
+        self.addTextReadOnly('Now UTC',     DateToolsDemoData.getNowUtc)
+        self.addTextReadOnly('Midnight',    DateToolsDemoData.getMidnight)
+        self.addTextReadOnly('Tomorrow',    DateToolsDemoData.getTomorrow)
+        self.addTextReadOnly('Localised',   DateToolsDemoData.getLocalised)
+        self.addTextReadOnly('Day of year', DateToolsDemoData.getDayOfYear)
+        self.addTextReadOnly('DST switch',  DateToolsDemoData.getNextDst)
+        self.addTextReadOnly('Uptime',      DateToolsDemoData.getUptime)
+
+class ModuleDateToolsDemo(TabModule):
+    log = logging.getLogger('ModuleDateToolsDemo')
+
+    def __init__(self, oParent):
+        self.data = DateToolsDemoData()
+        self.editor = EditorDateTools()
+        super().__init__(oParent, 'DateTools')
+        self.refreshLoop()
+
+    def refreshLoop(self):
+        self.loadData()
+        self.oParent.window.after(1000, self.refreshLoop)
+
+    def loadData(self):
+        self.editor.setValue(self.data)
+        self.editor.enableWidgets(True)
+
+    def createWidgets(self):
+        self.log.info('Create widgets')
+        self.createLeftRightFrames()
+        self.editor.createWidgets(self.frmLeft)
+        self.editor.enableWidgets(True)
+
 
 class AppDemo(TabsApp):
     def __init__(self):
-        super().__init__('Demo TabsApp')
+        appIcon = f'{Path.home()}/prog/icons/ok.png'
+        super().__init__('Demo TabsApp', '1200x800', appIcon)
         ModuleTableDemo(self)
         ModuleTreeDemo(self)
         ModuleCalendarDemo(self)
         ModuleIconsDemo(self)
+        ModuleDateToolsDemo(self)
 
 
 def main():
