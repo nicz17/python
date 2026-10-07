@@ -4,16 +4,11 @@
 
 __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2025 N. Zwahlen"
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
-import logging
-import tkinter as tk
-from tkinter import ttk
-
-import calendar
 import datetime
-import DateTools
-import TextTools
+import logging
+from tkinter import ttk
 
 from BaseWidgets import MonthYearSelector
 from calendarWidget import CalendarItem, CalendarWidget
