@@ -130,6 +130,7 @@ class MultiImageWidget(ImageWidget):
             self.iSelected = None
         self.loadImage()
         self.enableWidgets()
+        self.showArrowWidgets(self.files is not None and len(self.files) > 1)
 
     def loadImage(self):
         """Display the current image."""
@@ -170,12 +171,10 @@ class MultiImageWidget(ImageWidget):
         self.frmImage.pack(side=tk.TOP, fill=None, expand=False, padx=padx, pady=6)
         self.lblImage = ttk.Label(self.frmImage, anchor=tk.CENTER, text='')
         self.lblImage.place(x=250, y=250, anchor=tk.CENTER)
-        self.btnPrev = IconButton(self.frmImage, 'go-prev', 'Précédant', self.onPrev, 0, False)
-        self.btnPrev.lbl.place(x=0, y=504, anchor=tk.SW)
         self.lblStatus = ttk.Label(self.frmImage, anchor=tk.CENTER, text='', width=46)
         self.lblStatus.place(x=250, y=500, anchor=tk.S)
-        self.btnNext = IconButton(self.frmImage, 'go-next', 'Suivant', self.onNext, 0, False)
-        self.btnNext.lbl.place(x=500, y=504, anchor=tk.SE)
+        self.btnPrev = IconButton(self.frmImage, 'go-prev', 'Précédant', self.onPrev, 0, False)
+        self.btnNext = IconButton(self.frmImage, 'go-next', 'Suivant',   self.onNext, 0, False)
         self.setDefaultImage()
         self.enableWidgets()
 
@@ -183,3 +182,11 @@ class MultiImageWidget(ImageWidget):
         enabled = self.files is not None and len(self.files) > 1
         self.btnPrev.setEnabled(enabled)
         self.btnNext.setEnabled(enabled)
+
+    def showArrowWidgets(self, visible: bool):
+        if visible:
+            self.btnPrev.lbl.place(x=0,   y=504, anchor=tk.SW)
+            self.btnNext.lbl.place(x=500, y=504, anchor=tk.SE)
+        else:
+            self.btnPrev.lbl.place_forget()
+            self.btnNext.lbl.place_forget()
