@@ -47,6 +47,7 @@ class CalendarWidget:
     """Calendar grid widget."""
     log = logging.getLogger('CalendarWidget')
     dayNames = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
+    bgColor = '#c0c0c0'
 
     def __init__(self, cbkSelection):
         """Constructor."""
@@ -67,7 +68,6 @@ class CalendarWidget:
     def loadData(self, year: int, month: int):
         """Load calendar data for the specified month."""
         dStart = datetime.date(year, month, 1)
-        #dEnd   = dStart + datetime.timedelta(days=31)
         week0 = dStart.isocalendar()[1]
         self.log.info(f'Loading calendar data for {year}.{month}')
 
@@ -80,8 +80,8 @@ class CalendarWidget:
         sMonth = TextTools.upperCaseFirst(DateTools.aMonthFr[month-1])
         self.frmMain.configure(text=f'{sMonth} {year}')
         for iDay, name in enumerate(self.dayNames):
-            lblHeader = ttk.Label(self.frmMain, text=name, background='#c4c4c4', anchor="center")
-            lblHeader.grid(column=iDay, row=0, padx=3, pady=6, sticky='WE')
+            lblHeader = ttk.Label(self.frmMain, text=name, background=self.bgColor, anchor="center")
+            lblHeader.grid(column=iDay, row=0, padx=0, pady=6, sticky='WE')
 
         # Table cells
         for day in self.cal.itermonthdates(year, month):
@@ -96,8 +96,7 @@ class CalendarWidget:
             # Cell content and style
             lblDay = ttk.Label(frmDay, text=day.strftime('%d'))
             if day.month != month:
-                lblDay.configure(foreground='#c4c4c4', text=day.strftime('%d.%m'))
-            #lblDay.grid(column=0, row=0, pady=4, sticky='N')
+                lblDay.configure(foreground=self.bgColor, text=day.strftime('%d.%m'))
             lblDay.pack(pady=4, side=tk.TOP)
 
         # Set grid cell sizes
@@ -108,13 +107,11 @@ class CalendarWidget:
             self.frmMain.grid_rowconfigure(row, minsize=100)
 
         # Add grid line separators
-        style = ttk.Style()
-        style.configure('Line.TSeparator', background='#a0a0a0')
         for col in range(1, col_count):
-            sep = ttk.Separator(self.frmMain, style='Line.TSeparator', orient=tk.VERTICAL)
+            sep = tk.Frame(self.frmMain, bg=self.bgColor, width=1, bd=0)
             sep.grid(column=col, row=0, rowspan=row_count, sticky='NSW', pady=6)
         for row in range(1, row_count-1):
-            sep = ttk.Separator(self.frmMain, style='Line.TSeparator', orient=tk.HORIZONTAL)
+            sep = tk.Frame(self.frmMain, bg=self.bgColor, height=1, bd=0)
             sep.grid(column=0, row=row, columnspan=col_count, sticky='SWE', padx=4)
 
     def createWidgets(self, parent):
