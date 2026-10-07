@@ -170,6 +170,10 @@ class TabModule:
         if oWidget:
             oWidget['state'] = tk.NORMAL if enabled else tk.DISABLED
 
+    def schedule(self, delay: int, fct):
+        """Schedule the specified function after delay ms."""
+        self.oParent.window.after(delay, fct)
+
     def __str__(self) -> str:
         return f'TabModule {self.sTitle}'
 

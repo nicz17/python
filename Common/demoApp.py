@@ -281,21 +281,23 @@ class ModuleDateToolsDemo(TabModule):
         self.refreshLoop()
 
     def refreshLoop(self):
+        """Refresh the data every second."""
         self.loadData()
-        self.oParent.window.after(1000, self.refreshLoop)
+        self.schedule(1000, self.refreshLoop)
 
     def loadData(self):
         self.editor.setValue(self.data)
         self.editor.enableWidgets(True)
 
     def createWidgets(self):
-        self.log.info('Create widgets')
+        self.log.debug('Create widgets')
         self.createLeftRightFrames()
         self.editor.createWidgets(self.frmLeft)
         self.editor.enableWidgets(True)
 
 
 class AppDemo(TabsApp):
+    """Demo app for base widgets and other common classes."""
     def __init__(self):
         appIcon = f'{Path.home()}/prog/icons/ok.png'
         super().__init__('Demo TabsApp', '1200x800', appIcon)
