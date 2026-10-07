@@ -108,11 +108,13 @@ class CalendarWidget:
             self.frmMain.grid_rowconfigure(row, minsize=100)
 
         # Add grid line separators
+        style = ttk.Style()
+        style.configure('Line.TSeparator', background='#a0a0a0')
         for col in range(1, col_count):
-            sep = ttk.Separator(self.frmMain, orient=tk.VERTICAL)
+            sep = ttk.Separator(self.frmMain, style='Line.TSeparator', orient=tk.VERTICAL)
             sep.grid(column=col, row=0, rowspan=row_count, sticky='NSW', pady=6)
         for row in range(1, row_count-1):
-            sep = ttk.Separator(self.frmMain, orient=tk.HORIZONTAL)
+            sep = ttk.Separator(self.frmMain, style='Line.TSeparator', orient=tk.HORIZONTAL)
             sep.grid(column=0, row=row, columnspan=col_count, sticky='SWE', padx=4)
 
     def createWidgets(self, parent):
