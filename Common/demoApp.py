@@ -19,6 +19,7 @@ from BaseTable import AdvTable, TableColumn
 from BaseTree import BaseTree
 from BaseWidgets import SearchBar, MonthYearSelector, IconButton, BaseEditor
 from calendarWidget import CalendarWidget, CalendarItem
+from mapWidget import MapWidget
 from NameGen import NameGen
 from TabsApp import TabsApp, TabModule
 
@@ -295,6 +296,19 @@ class ModuleDateToolsDemo(TabModule):
         self.editor.createWidgets(self.frmLeft)
         self.editor.enableWidgets(True)
 
+class ModuleMapDemo(TabModule):
+    log = logging.getLogger('ModuleMapDemo')
+
+    def __init__(self, oParent):
+        self.map = MapWidget()
+        super().__init__(oParent, 'MapWidget')
+
+    def loadData(self):
+        self.map.loadData(None)
+
+    def createWidgets(self):
+        self.createLeftRightFrames()
+        self.map.createWidgets(self.frmLeft, 6, 6)
 
 class AppDemo(TabsApp):
     """Demo app for base widgets and other common classes."""
@@ -306,6 +320,7 @@ class AppDemo(TabsApp):
         ModuleCalendarDemo(self)
         ModuleIconsDemo(self)
         ModuleDateToolsDemo(self)
+        ModuleMapDemo(self)
 
 
 def main():
