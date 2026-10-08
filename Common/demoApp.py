@@ -20,6 +20,7 @@ from BaseTree import BaseTree
 from BaseWidgets import SearchBar, MonthYearSelector, IconButton, BaseEditor
 from calendarWidget import CalendarWidget, CalendarItem
 from mapWidget import MapWidget
+from LatLonZoom import LatLon
 from NameGen import NameGen
 from TabsApp import TabsApp, TabModule
 
@@ -300,8 +301,14 @@ class ModuleMapDemo(TabModule):
     log = logging.getLogger('ModuleMapDemo')
 
     def __init__(self, oParent):
-        self.map = MapWidget()
+        self.map = MapWidget(self.onMapClick)
+        self.lblPos = None
         super().__init__(oParent, 'MapWidget')
+
+    def onMapClick(self, pos: LatLon):
+        """Map widget left click callback."""
+        self.log.info(f'Map click {pos}')
+        self.lblPos.config(text=pos.toPrettyString())
 
     def loadData(self):
         self.map.loadData(None)
@@ -309,6 +316,8 @@ class ModuleMapDemo(TabModule):
     def createWidgets(self):
         self.createLeftRightFrames()
         self.map.createWidgets(self.frmLeft, 6, 6)
+        self.lblPos = ttk.Label(self.frmLeft, text='Cliquer sur la carte pour afficher les coordonnées')
+        self.lblPos.pack()
 
 class AppDemo(TabsApp):
     """Demo app for base widgets and other common classes."""

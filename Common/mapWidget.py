@@ -23,9 +23,10 @@ class MapWidget():
     defPosition = LatLonZoom(46.3173, 6.9684, 10)
     defMarker = None # config.mapMarkerGreen
 
-    def __init__(self):
+    def __init__(self, cbkLeftClick=None):
         """Constructor"""
         self.log.info('Constructor')
+        self.cbkLeftClick = cbkLeftClick
 
     def loadData(self, position: LatLonZoom):
         """Display the specified position on the map."""
@@ -74,6 +75,12 @@ class MapWidget():
         """Display the default location on the map."""
         self.setLatLonZoom(self.defPosition)
 
+    def onLeftClick(self, coords):
+        """Map left click callback."""
+        pos = LatLon(*coords)
+        if self.cbkLeftClick:
+            self.cbkLeftClick(pos)
+
     def onRightClick(self, coords):
         """Map right click callback."""
         self.mapView.set_position(coords[0], coords[1])
@@ -82,7 +89,7 @@ class MapWidget():
         """Create user widgets."""
         self.mapView = tkintermapview.TkinterMapView(parent, width=600, height=400)
         self.mapView.pack(padx=padx, pady=pady)
-        # TODO add optional left-click callback
+        self.mapView.add_left_click_map_command(self.onLeftClick)
         self.mapView.add_right_click_menu_command(label='Centrer ici',
             command=self.onRightClick, pass_coords=True)
         self.setDefaultLocation()
