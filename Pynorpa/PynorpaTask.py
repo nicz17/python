@@ -191,6 +191,20 @@ class CopyFromDropBoxTask(PynorpaTask):
         self.setDesc(self.copier.getStatusMessage())
         self.cbkUpdate()
 
+class CopySelectionFiles(PynorpaTask):
+    """Copy selection .txt files from DropBox dir."""
+    log = logging.getLogger('CopySelectionFiles')
+
+    def __init__(self, copier: CopyFromDropBox):
+        self.copier = copier
+        super().__init__('Copier sélections', 'Copier les fichiers de sélection depuis DropBox', 1)
+
+    def prepare(self):
+        pass
+    
+    def run(self):
+        super().run()
+
 class GeoTrackerTask(PynorpaTask):
     """Add GPS tags to copied pictures."""
     log = logging.getLogger('GeoTrackerTask')
