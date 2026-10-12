@@ -4,7 +4,7 @@
 
 __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2024 N. Zwahlen"
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 
 import config
 import logging
@@ -16,6 +16,7 @@ from enum import Enum
 from Task import Task
 from CopyFromCamera import *
 from GeoTracker import *
+from LatLonZoom import LatLonZoom
 
 
 class TaskStatus(Enum):
@@ -195,15 +196,36 @@ class CopySelectionFiles(PynorpaTask):
     """Copy selection .txt files from DropBox dir."""
     log = logging.getLogger('CopySelectionFiles')
 
-    def __init__(self, copier: CopyFromDropBox):
-        self.copier = copier
+    def __init__(self):
         super().__init__('Copier sélections', 'Copier les fichiers de sélection depuis DropBox', 1)
+        self.copied = []
 
     def prepare(self):
-        pass
+        self.selfiles = sorted(glob.glob(config.dirSourceGeoTrack + '*.txt'))
+        self.log.info(f'Found {len(self.selfiles)} selection files in {config.dirSourceGeoTrack}')
+        self.setDesc(f'Chargé {len(self.selfiles)} fichiers sélection')
     
     def run(self):
-        super().run()
+        if len(self.selfiles) == 0:
+            return
+        timer = Timer()
+        for file in self.selfiles:
+            name = os.path.basename(file).removesuffix('.txt')
+            date = name[-6:]
+            self.log.info(f'Selection file date: {date}')
+            target = f'{config.dirPhotosBase}Nature-20{date[:2]}-{date[2:4]}'
+            if not os.path.isdir(target):
+                self.log.error(f'Invalid target dir {target}')
+            dest = f'{target}/orig/{os.path.basename(file)}'
+            if os.path.exists(dest):
+                self.log.info(f'Skipping existing file {dest}')
+            else:
+                cmd = f'mv {file} {dest}'
+                os.system(cmd)
+                self.copied.append(dest)
+        timer.stop()
+        self.log.info('Copied %d selection files in %s', len(self.copied), timer.getElapsed())
+        self.setDesc(f'Copié {len(self.copied)} fichiers sélection en {timer.getElapsed()}')
 
 class GeoTrackerTask(PynorpaTask):
     """Add GPS tags to copied pictures."""
@@ -334,7 +356,7 @@ class TestPynorpaTask(PynorpaTask):
 
 def testTasks():
     """Unit test for Pynorpa tasks."""
-    task = CheckDiskSpace()
+    task = CopySelectionFiles()
     task.prepare()
     task.run()
 

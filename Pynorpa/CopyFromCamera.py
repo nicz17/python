@@ -153,7 +153,6 @@ class CopyFromDropBox():
         self.log.info('Constructor')
         self.images = []  # Photos found on DropBox
         self.copied = []  # Images copied to disk
-        self.copiedsel = []  # Selection files copied to disk
         self.sourceDir = config.dirDropBox
         self.statusMsg = 'Initialisation'
 
@@ -162,12 +161,6 @@ class CopyFromDropBox():
         self.images = sorted(glob.glob(self.sourceDir + '*.jpg'))
         self.log.info('Found %d images', len(self.images))
         self.statusMsg = f'Chargé {len(self.images)} images de {self.sourceDir}'
-
-    def loadSelections(self):
-        """Load the list of selections to copy."""
-        self.selfiles = sorted(glob.glob(config.dirSourceGeoTrack + '*.txt'))
-        self.log.info(f'Found {len(self.selfiles)} selection files in {self.sourceDir}')
-        self.statusMsg = f'Chargé {len(self.selfiles)} fichiers sélection'
 
     def copyImages(self, cbkProgress = None):
         """Copy JPG images from the DropBox dir."""
@@ -200,26 +193,6 @@ class CopyFromDropBox():
 
     def copySelections(self, cbkProgress = None):
         """Copy selection files from the DropBox dir."""
-        if len(self.selfiles) == 0:
-            return
-        timer = Timer()
-        for file in self.selfiles:
-            name = os.path.basename(file).removesuffix('.txt')
-            date = name[-6:]
-            self.log.info(f'Selection file date: {date}')
-            target = f'{config.dirPhotosBase}Nature-20{date[:2]}-{date[2:4]}'
-            if not os.path.isdir(target):
-                self.log.error(f'Invalid target dir {target}')
-            dest = f'{target}/orig/{os.path.basename(file)}'
-            if os.path.exists(dest):
-                self.log.info(f'Skipping existing file {dest}')
-            else:
-                cmd = f'mv {file} {dest}'
-                os.system(cmd)
-                self.copiedsel.append(dest)
-        timer.stop()
-        self.log.info('Copied %d selection files in %s', len(self.copiedsel), timer.getElapsed())
-        self.statusMsg = f'Copié {len(self.copiedsel)} fichiers sélection en {timer.getElapsed()}'
     
     def getNumberImages(self):
         """Get the number of photos to copy."""
@@ -249,16 +222,8 @@ def testCopyFromDropBox():
         copier.log.info(photo)
     copier.copyImages()
 
-def testCopySelections():
-    copier = CopyFromDropBox()
-    copier.loadSelections()
-    for file in copier.selfiles:
-        copier.log.info(file)
-    copier.copySelections()
-
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s", 
         level=logging.INFO, handlers=[logging.StreamHandler()])
     #testCopyFromCamera()
-    #testCopyFromDropBox()
-    testCopySelections()
+    testCopyFromDropBox()
