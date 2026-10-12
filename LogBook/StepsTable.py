@@ -20,6 +20,8 @@ class StepsTable():
         """Constructor with selection callback."""
         self.log.info('Constructor')
         self.cbkSelect = cbkSelect
+        self.task = None
+        self.ctxMenuActions = {}
 
     def build(self, parent: tk.Frame):
         """Add the widgets to the parent frame."""
@@ -46,17 +48,31 @@ class StepsTable():
         self.tree.heading('text',   text='Text',   anchor=tk.W)
         self.tree.heading('order',  text='Order',  anchor=tk.W)
         self.tree.bind('<<TreeviewSelect>>', self.cbkSelect)
+        self.tree.bind("<Button-3>", self.onRightClick)
         self.tree.tag_configure('step-done', background=Status.Done.getColor())
         self.tree.tag_configure('step-todo', background=Status.Todo.getColor())
 
         # Pack
         self.tree.pack(side=tk.LEFT, pady=0)
         self.scrollbar.pack(side=tk.LEFT, fill=tk.Y)
+
+        # Contextual menu
+        self.ctxMenuActions = {
+            'reopen': 'Reopen step',
+            'cancel': 'Cancel step',
+            'delete': 'Delete step'
+        }
+        self.popup = tk.Menu(parent.winfo_toplevel(), tearoff=0)
+        self.popup.add_command(label=self.ctxMenuActions['reopen'], command=self.onReopen)
+        self.popup.add_command(label=self.ctxMenuActions['cancel'], state="disabled")
+        self.popup.add_command(label=self.ctxMenuActions['delete'], state="disabled")
+        self.popup.add_separator()
+        self.popup.add_command(label='Close menu')
     
     def loadData(self, task: LogBookTask):
         """Add steps from the specified task to the table."""
         self.tree.delete(*self.tree.get_children())
-
+        self.task = task
         if task is None:
             return
         
@@ -78,3 +94,29 @@ class StepsTable():
             return None
         else:
             return int(sel)
+        
+    def onRightClick(self, event):
+        """Right-click event callback."""
+        item = self.tree.identify_row(event.y)
+        if item and self.task:
+            idxRow = int(item)
+            step = self.task.steps[idxRow]
+            self.log.info(f'Right-click at {event.x}, {event.y}: {item} {step}')
+            self.openContextMenu(idxRow, step, event.x_root, event.y_root)
+        else:
+            self.popup.unpost()
+
+    def openContextMenu(self, idxRow: int, step: LogBookStep, x: int, y: int):
+        if step:
+            self.tree.focus(idxRow)
+            self.tree.selection_set(idxRow)
+            state = 'normal' if step.status == Status.Done else 'disabled'
+            self.popup.entryconfig(self.ctxMenuActions['reopen'], state=state)
+            self.popup.entryconfig(self.ctxMenuActions['delete'], state="disabled")
+        try:
+            self.popup.tk_popup(x, y)
+        finally:
+            self.popup.grab_release()
+
+    def onReopen(self):
+        pass
