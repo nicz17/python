@@ -52,6 +52,16 @@ class PynorpaManager():
         self.locationCache = LocationCache()
         self.expeditionCache = ExpeditionCache()
 
+    def getDefaultDir(self) -> str:
+        """Find the current default photo dir, for example ../Nature-2026-10"""
+        yearMonth = DateTools.nowAsString('%Y-%m')
+        dir = f'{config.dirPhotosBase}Nature-{yearMonth}'
+        if not os.path.exists(dir):
+            self.log.info('Revert to previous month for default dir')
+            yearMonth = DateTools.timestampToString(DateTools.addDays(DateTools.now(), -28), '%Y-%m')
+            dir = f'{config.dirPhotosBase}Nature-{yearMonth}'
+        return dir
+
     def addPicture(self, filename: str, loc: Location) -> Picture:
         """Add a new Picture to gallery."""
         self.log.info('Adding picture %s at %s', filename, loc)
@@ -436,6 +446,7 @@ def testManager():
     #mgr.addPicture('vanessa-cardui004.jpg', None)
     #mgr.addTaxonFromINat('Solorina saccata')
     #mgr.backupDatabase()
+    mgr.log.info(f'Current dir: {mgr.getDefaultDir()}')
     mgr.getDirsToBackup()
 
 if __name__ == '__main__':

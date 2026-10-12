@@ -51,14 +51,10 @@ class ModuleSelection(TabModule):
 
     def getDefaultDir(self):
         """Find the default photo dir."""
-        yearMonth = DateTools.nowAsString('%Y-%m')
-        self.dir = f'{config.dirPhotosBase}Nature-{yearMonth}/orig'
-        if not os.path.exists(self.dir):
-            self.log.info('Revert to previous month for default dir')
-            yearMonth = DateTools.timestampToString(DateTools.addDays(DateTools.now(), -28), '%Y-%m')
-            self.dir = f'{config.dirPhotosBase}Nature-{yearMonth}/orig'
-        self.selector.setDir(f'{config.dirPhotosBase}Nature-{yearMonth}')
-        self.log.info('Default dir: %s', self.dir)
+        dir = self.manager.getDefaultDir()
+        self.dir =  f'{dir}/orig'
+        self.selector.setDir(dir)
+        self.log.info(f'Default dir: {self.dir}')
 
     def loadData(self):
         """Load the photos to display."""
