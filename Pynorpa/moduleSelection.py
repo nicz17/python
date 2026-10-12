@@ -10,22 +10,23 @@ import config
 import glob
 import json
 import logging
+import os
 import re
 
-import BaseWidgets
-import imageWidget
 import DateTools
-from TabsApp import *
-from PhotoInfo import *
-from BaseTable import *
+import imageWidget
 import LocationCache
-from taxon import Taxon, TaxonRank, TaxonCache
+from BaseTable import *
+from BaseWidgets import BaseEditor, Button, MonthYearSelector
+from PhotoInfo import PhotoInfo
 from picture import PictureCache
 from pynorpaManager import PynorpaManager
-from tkinter import filedialog as fd
-from Timer import Timer
 from selectionParser import SelectionParser
 from selectionParsingDialog import SelectionParsingDialog
+from TabsApp import TabModule, TabsApp
+from taxon import Taxon, TaxonRank, TaxonCache
+from tkinter import filedialog as fd
+from Timer import Timer
 
 
 class ModuleSelection(TabModule):
@@ -37,10 +38,10 @@ class ModuleSelection(TabModule):
         self.app = parent
         self.window = parent.window
         self.table = TablePhotos(self.onSelectPhoto)
-        #self.mapWidget = MapWidget()
         self.imageWidget = imageWidget.ImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
         self.editor = PhotoEditor()
         self.selector = TaxonSelector()
+        self.dirSelector = DirectorySelector(self.onSelectDir, 'orig')
         self.locationCache = LocationCache.LocationCache()
         self.manager = PynorpaManager()
         super().__init__(parent, 'Sélection')
@@ -116,22 +117,29 @@ class ModuleSelection(TabModule):
         """Photo selection callback."""
         self.log.info(f'Selected {photo}')
         self.imageWidget.loadThumb(photo)
-        #self.mapWidget.loadData(photo)
         self.editor.loadData(photo)
         self.selector.loadData(photo)
 
-    def selectDir(self):
-        """Display a dialog to choose a photo dir."""
-        dirNew = fd.askdirectory(mustexist=True, initialdir=config.dirPhotosBase)
-        if dirNew:
-            self.log.info(f'Opening {dirNew}')
-            if not dirNew.endswith('orig'):
-                self.oParent.showErrorMsg('Choisir un dossier orig !')
-                return
-            self.dir = dirNew
-            self.selector.setDir(self.dir.replace('orig', ''))
-            self.oParent.setStatus(f'Selected {self.dir}')
-            self.loadData()
+    def onSelectDir(self, dir: str):
+        """Change the photos directory and reload our data."""
+        self.log.info('Setting dir to %s', dir)
+        self.dir = dir
+        self.selector.setDir(dir.replace('/orig', ''))
+        self.loadData()
+        self.enableWidgets()
+
+    # def selectDir(self):
+    #     """Display a dialog to choose a photo dir."""
+    #     dirNew = fd.askdirectory(mustexist=True, initialdir=config.dirPhotosBase)
+    #     if dirNew:
+    #         self.log.info(f'Opening {dirNew}')
+    #         if not dirNew.endswith('orig'):
+    #             self.oParent.showErrorMsg('Choisir un dossier orig !')
+    #             return
+    #         self.dir = dirNew
+    #         self.selector.setDir(self.dir.replace('orig', ''))
+    #         self.oParent.setStatus(f'Selected {self.dir}')
+    #         self.loadData()
 
     def importSelectionFile(self):
         """Read a list of photos to select from a file."""
@@ -170,6 +178,7 @@ class ModuleSelection(TabModule):
         self.imageWidget.createWidgets(self.frmRight)
         self.editor.createWidgets(self.frmRight)
         self.selector.createWidgets(self.frmRight)
+        self.dirSelector.createWidgets(self.frmRight)
         self.table.setStatus('Chargement...')
 
         # Buttons frame
@@ -177,16 +186,60 @@ class ModuleSelection(TabModule):
         self.frmButtons.pack(anchor=tk.W)
 
         # Buttons
-        self.btnReload = self.addButton('Recharger', self.loadData, 'refresh')
-        self.btnOpen   = self.addButton('Ouvrir', self.selectDir, 'open')
+        #self.btnReload = self.addButton('Recharger', self.loadData, 'refresh')
+        #self.btnOpen   = self.addButton('Ouvrir', self.selectDir, 'open')
         self.btnImport = self.addButton('Importer', self.importSelectionFile, 'go-down')
 
-    def addButton(self, label: str, cmd, icon: str) -> BaseWidgets.Button:
+    def addButton(self, label: str, cmd, icon: str) -> Button:
         """Add a Tk Button to this module's frmButtons."""
-        btn = BaseWidgets.Button(self.table.frmToolBar, label, cmd, icon)
+        btn = Button(self.table.frmToolBar, label, cmd, icon)
         btn.pack(0)
         return btn
+
+class DirectorySelector:
+    """Select a photos dir based on year and month."""
+    log = logging.getLogger("DirectorySelector")
+
+    def __init__(self, cbkReload, kind='photos'):
+        self.cbkReload = cbkReload
+        dtNow = DateTools.nowDatetime()
+        self.year  = dtNow.year
+        self.month = dtNow.month
+        self.kind = kind
     
+    def getYear(self, object=None):
+        return self.year
+    
+    def getMonth(self):
+        return self.month
+    
+    def getDirectory(self):
+        return f'{config.dirPhotosBase}Nature-{self.year}-{self.month:02d}/{self.kind}'
+    
+    def onModified(self, event=None):
+        self.year  = self.monthYearSel.getYear()
+        self.month = self.monthYearSel.getMonth()
+        self.enableWidgets()
+
+    def onReload(self):
+        self.cbkReload(self.getDirectory())
+
+    def createWidgets(self, parent: ttk.Frame):
+        """Create our widgets in the parent frame."""
+        self.frmMain = ttk.LabelFrame(parent, text='Sélection de répertoire photos')
+        self.frmMain.pack(side=tk.TOP, anchor=tk.N, fill=tk.X, expand=False, pady=5)
+
+        self.monthYearSel = MonthYearSelector(self.onModified)
+        self.monthYearSel.createWidgets(self.frmMain, tk.LEFT)
+
+        self.btnReload = Button(self.frmMain, 'Recharger', self.onReload, 'open')
+        self.btnReload.pack(side=tk.RIGHT, pady=0)
+        self.enableWidgets()
+
+    def enableWidgets(self):
+        enabled = os.path.exists(self.getDirectory())
+        self.btnReload.enableWidget(enabled)
+
 class TaxonSelector():
     """Widget to assign a taxon to an original photo."""
     log = logging.getLogger("TaxonSelector")
@@ -320,9 +373,9 @@ class TaxonSelector():
         self.btnGimp   = self.addButton('Ouvrir dans Gimp', self.onOpenGimp, 'gimp')
         self.enableWidgets()
 
-    def addButton(self, label: str, cmd, icon: str) -> BaseWidgets.Button:
+    def addButton(self, label: str, cmd, icon: str) -> Button:
         """Add a Tk Button to this module's frmButtons."""
-        btn = BaseWidgets.Button(self.frmSelect, label, cmd, icon)
+        btn = Button(self.frmSelect, label, cmd, icon)
         btn.pack()
         return btn
 
@@ -366,7 +419,7 @@ class TablePhotos(TableWithColumns):
     def __str__(self) -> str:
         return 'TablePhotos'
 
-class PhotoEditor(BaseWidgets.BaseEditor):
+class PhotoEditor(BaseEditor):
     """A widget for displaying PhotoInfo properties."""
     log = logging.getLogger('PhotoEditor')
 

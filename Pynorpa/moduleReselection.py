@@ -14,8 +14,8 @@ import DateTools
 import LocationCache
 from TabsApp import *
 from BaseTable import TableColumn
-from BaseWidgets import BaseEditor, Button, ComboBox, MonthYearSelector
-from moduleSelection import TablePhotos, PhotoEditor, TaxonSelector
+from BaseWidgets import BaseEditor, Button, ComboBox
+from moduleSelection import TablePhotos, PhotoEditor, TaxonSelector, DirectorySelector
 from pynorpaManager import PynorpaManager, PynorpaException
 from PhotoInfo import *
 import imageWidget
@@ -23,7 +23,8 @@ from MapWidget import MapWidget
 from ModalDialog import *
 from LatLonZoom import LatLonZoom
 from tkinter import messagebox as mb
-from taxon import Taxon, TaxonRank
+from taxon import Taxon
+
 
 class ModuleReselection(TabModule):
     """Pynorpa Module for reselecting photos."""
@@ -132,10 +133,10 @@ class ModuleReselection(TabModule):
 
         # Widgets
         self.table.createWidgets(self.frmLeft)
-        self.dirSelector.createWidgets(self.frmLeft)
         self.imageWidget.createWidgets(self.frmRight)
         self.editor.createWidgets(self.frmRight)
         self.selector.createWidgets(self.frmRight)
+        self.dirSelector.createWidgets(self.frmRight)
         self.table.setStatus('Chargement...')
 
         # Buttons
@@ -152,51 +153,6 @@ class ModuleReselection(TabModule):
         btn = Button(self.table.frmToolBar, label, cmd, icon)
         btn.pack(0)
         return btn
-    
-
-class DirectorySelector:
-    """Select a photos dir based on year and month."""
-    log = logging.getLogger("DirectorySelector")
-
-    def __init__(self, cbkReload):
-        self.cbkReload = cbkReload
-        dtNow = DateTools.nowDatetime()
-        self.year  = dtNow.year
-        self.month = dtNow.month
-    
-    def getYear(self, object=None):
-        return self.year
-    
-    def getMonth(self):
-        return self.month
-    
-    def getDirectory(self):
-        return f'{config.dirPhotosBase}Nature-{self.year}-{self.month:02d}/photos'
-    
-    def onModified(self, event=None):
-        self.year  = self.monthYearSel.getYear()
-        self.month = self.monthYearSel.getMonth()
-        self.enableWidgets()
-
-    def onReload(self):
-        self.cbkReload(self.getDirectory())
-
-    def createWidgets(self, parent: ttk.Frame):
-        """Create our widgets in the parent frame."""
-        self.frmMain = ttk.LabelFrame(parent, text='Sélection de répertoire photos')
-        self.frmMain.pack(side=tk.LEFT, anchor=tk.N, expand=False, pady=3)
-
-        self.monthYearSel = MonthYearSelector(self.onModified)
-        self.monthYearSel.createWidgets(self.frmMain, tk.LEFT)
-
-        self.btnReload = Button(self.frmMain, 'Recharger', self.onReload, 'open')
-        self.btnReload.pack(side=tk.RIGHT, pady=0)
-        self.enableWidgets()
-
-    def enableWidgets(self):
-        enabled = os.path.exists(self.getDirectory())
-        self.btnReload.enableWidget(enabled)
-
 
 class TableReselection(TablePhotos):
     """Table widget for Pynorpa photo."""
