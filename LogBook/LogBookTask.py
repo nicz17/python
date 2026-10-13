@@ -21,6 +21,8 @@ class Status(Enum):
     def getColor(self):
         """Get the hex color code for the status."""
         color = '#ffffd0'
+        if self == Status.Idle:
+            color = '#d0d0d0'
         if self == Status.Done:
             color = '#d0ffd0'
         if self == Status.Fail:
@@ -147,8 +149,9 @@ class LogBookTask:
             if step.status != Status.Done:
                 isDone = False
             if step.status == Status.Fail:
-                self.status = Status.Fail
-                return
+                pass
+                #self.status = Status.Fail
+                #return
         if len(self.steps) > 0 and isDone:
             self.status = Status.Done
         else:
