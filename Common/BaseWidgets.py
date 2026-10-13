@@ -870,10 +870,10 @@ class MonthYearSelector:
         self.frmMain.focus()
         self.cbkModified()
 
-    def createWidgets(self, parent: ttk.Frame, side=tk.TOP):
+    def createWidgets(self, parent: ttk.Frame, side=tk.TOP, pady=5):
         """Create our widgets in the parent frame."""
         self.frmMain = ttk.Frame(parent)
-        self.frmMain.pack(side=side, anchor=tk.N, fill=tk.X, expand=False, pady=5)
+        self.frmMain.pack(side=side, anchor=tk.N, fill=tk.X, expand=False, pady=pady)
 
         self.btnPrev = IconButton(self.frmMain, 'prev', 'Précédant', self.onPrev, 0, False)
         self.btnPrev.lbl.grid(row=0, column=0)

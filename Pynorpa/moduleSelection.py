@@ -124,19 +124,6 @@ class ModuleSelection(TabModule):
         self.loadData()
         self.enableWidgets()
 
-    # def selectDir(self):
-    #     """Display a dialog to choose a photo dir."""
-    #     dirNew = fd.askdirectory(mustexist=True, initialdir=config.dirPhotosBase)
-    #     if dirNew:
-    #         self.log.info(f'Opening {dirNew}')
-    #         if not dirNew.endswith('orig'):
-    #             self.oParent.showErrorMsg('Choisir un dossier orig !')
-    #             return
-    #         self.dir = dirNew
-    #         self.selector.setDir(self.dir.replace('orig', ''))
-    #         self.oParent.setStatus(f'Selected {self.dir}')
-    #         self.loadData()
-
     def importSelectionFile(self):
         """Read a list of photos to select from a file."""
         filename = fd.askopenfilename(
@@ -182,8 +169,6 @@ class ModuleSelection(TabModule):
         self.frmButtons.pack(anchor=tk.W)
 
         # Buttons
-        #self.btnReload = self.addButton('Recharger', self.loadData, 'refresh')
-        #self.btnOpen   = self.addButton('Ouvrir', self.selectDir, 'open')
         self.btnImport = self.addButton('Importer', self.importSelectionFile, 'go-down')
 
     def addButton(self, label: str, cmd, icon: str) -> Button:
@@ -226,7 +211,7 @@ class DirectorySelector:
         self.frmMain.pack(side=tk.TOP, anchor=tk.N, fill=tk.X, expand=False, pady=5)
 
         self.monthYearSel = MonthYearSelector(self.onModified)
-        self.monthYearSel.createWidgets(self.frmMain, tk.LEFT)
+        self.monthYearSel.createWidgets(self.frmMain, tk.LEFT, 7)
 
         self.btnReload = Button(self.frmMain, 'Recharger', self.onReload, 'open')
         self.btnReload.pack(side=tk.RIGHT, pady=0)
