@@ -9,17 +9,18 @@ __version__ = "1.0.0"
 import logging
 import tkinter as tk
 from tkinter import ttk
-from LogBookTask import *
+from LogBookTask import LogBookTask, LogBookStep, Status
 
 
 class StepsTable():
     """A table displaying LogBook steps."""
     log = logging.getLogger(__name__)
 
-    def __init__(self, cbkSelect):
+    def __init__(self, cbkSelect, cbkModified):
         """Constructor with selection callback."""
         self.log.info('Constructor')
         self.cbkSelect = cbkSelect
+        self.cbkModified = cbkModified
         self.task = None
         self.ctxMenuActions = {}
 
@@ -49,8 +50,9 @@ class StepsTable():
         self.tree.heading('order',  text='Order',  anchor=tk.W)
         self.tree.bind('<<TreeviewSelect>>', self.cbkSelect)
         self.tree.bind("<Button-3>", self.onRightClick)
-        self.tree.tag_configure('step-done', background=Status.Done.getColor())
-        self.tree.tag_configure('step-todo', background=Status.Todo.getColor())
+        for status in Status:
+            self.log.debug(f'Status {status} tag {self.getStatusTag(status)}')
+            self.tree.tag_configure(self.getStatusTag(status), background=status.getColor())
 
         # Pack
         self.tree.pack(side=tk.LEFT, pady=0)
@@ -59,12 +61,12 @@ class StepsTable():
         # Contextual menu
         self.ctxMenuActions = {
             'reopen': 'Reopen step',
-            'cancel': 'Cancel step',
+            'failed': 'Failed step',
             'delete': 'Delete step'
         }
         self.popup = tk.Menu(parent.winfo_toplevel(), tearoff=0)
         self.popup.add_command(label=self.ctxMenuActions['reopen'], command=self.onReopen)
-        self.popup.add_command(label=self.ctxMenuActions['cancel'], state="disabled")
+        self.popup.add_command(label=self.ctxMenuActions['failed'], command=self.onFailed)
         self.popup.add_command(label=self.ctxMenuActions['delete'], state="disabled")
         self.popup.add_separator()
         self.popup.add_command(label='Close menu')
@@ -79,15 +81,17 @@ class StepsTable():
         idx = 0
         step: LogBookStep
         for step in task.steps:
-            tag = 'step-todo'
-            if step.status == Status.Done:
-                tag = 'step-done'
             self.tree.insert(parent='', index='end', iid=idx, text='',
-                values=(step.getStatusName(), step.getText(), step.getOrderStr()), tags=(tag))
+                values=(step.getStatusName(), step.getText(), step.getOrderStr()), 
+                tags=(self.getStatusTag(step.status)))
             idx += 1
 
+    def getStatusTag(self, status: Status) -> str:
+        """Get a tree tag name for the status, for example step-done."""
+        return f'step-{status}'
+
     def getSelection(self) -> int:
-        """Get the selected item in table."""
+        """Get the selected row idx in table."""
         sel = self.tree.focus()
         #self.log.info('Table selection: %s', sel)
         if len(sel) == 0:
@@ -95,23 +99,33 @@ class StepsTable():
         else:
             return int(sel)
         
+    def getSelectedStep(self) -> LogBookStep:
+        """Get the selected step in table."""
+        idxRow = self.getSelection()
+        if idxRow and self.task:
+            return self.task.steps[idxRow]
+        return None
+        
     def onRightClick(self, event):
         """Right-click event callback."""
         item = self.tree.identify_row(event.y)
         if item and self.task:
             idxRow = int(item)
             step = self.task.steps[idxRow]
-            self.log.info(f'Right-click at {event.x}, {event.y}: {item} {step}')
+            self.log.debug(f'Right-click at {event.x}, {event.y}: {item} {step}')
             self.openContextMenu(idxRow, step, event.x_root, event.y_root)
         else:
             self.popup.unpost()
 
     def openContextMenu(self, idxRow: int, step: LogBookStep, x: int, y: int):
+        """Display the contextual menu for the specified step. Enable its actions."""
         if step:
             self.tree.focus(idxRow)
             self.tree.selection_set(idxRow)
             state = 'normal' if step.status == Status.Done else 'disabled'
             self.popup.entryconfig(self.ctxMenuActions['reopen'], state=state)
+            state = 'normal' if step.status != Status.Fail else 'disabled'
+            self.popup.entryconfig(self.ctxMenuActions['failed'], state=state)
             self.popup.entryconfig(self.ctxMenuActions['delete'], state="disabled")
         try:
             self.popup.tk_popup(x, y)
@@ -119,4 +133,17 @@ class StepsTable():
             self.popup.grab_release()
 
     def onReopen(self):
-        pass
+        """Set the selected step status to Todo and save."""
+        step = self.getSelectedStep()
+        if step and step.status != Status.Todo:
+            step.status = Status.Todo
+            if self.cbkModified:
+                self.cbkModified(step)
+
+    def onFailed(self):
+        """Set the selected step status to Fail and save."""
+        step = self.getSelectedStep()
+        if step and step.status != Status.Fail:
+            step.status = Status.Fail
+            if self.cbkModified:
+                self.cbkModified(step)
