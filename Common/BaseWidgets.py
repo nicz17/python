@@ -308,11 +308,12 @@ class DateTime(TextInput):
         if fvalue:
             if isinstance(fvalue, float):
                 self.oWidget.insert(0, DateTools.timestampToString(fvalue))
+                self.isFloat = True
             elif isinstance(fvalue, datetime.datetime):
                 self.oWidget.insert(0, DateTools.datetimeToString(fvalue))
                 self.isFloat = False
             else:
-                self.log.error('Unhandled date type %s', fvalue)
+                self.log.error(f'Unhandled date type {fvalue}')
                 self.oWidget.insert(0, 'Error')
 
     def getValue(self):
@@ -863,6 +864,12 @@ class MonthYearSelector:
     def onNext(self):
         self.addMonth(1)
 
+    def onToday(self):
+        dtNow = DateTools.nowDatetime()
+        self.setValue(dtNow.month, dtNow.year)
+        self.frmMain.focus()
+        self.cbkModified()
+
     def createWidgets(self, parent: ttk.Frame, side=tk.TOP):
         """Create our widgets in the parent frame."""
         self.frmMain = ttk.Frame(parent)
@@ -880,8 +887,11 @@ class MonthYearSelector:
         self.spiYear.createWidgets(self.frmMain, 0, 2)
         self.spiYear.setValue(self)
 
+        self.btnToday = IconButton(self.frmMain, 'today', "Aujourd'hui", self.onToday, 0, False)
+        self.btnToday.lbl.grid(row=0, column=3)
+
         self.btnNext = IconButton(self.frmMain, 'next', 'Suivant', self.onNext, 0, False)
-        self.btnNext.lbl.grid(row=0, column=3)
+        self.btnNext.lbl.grid(row=0, column=4)
 
 
 class ToolTip():

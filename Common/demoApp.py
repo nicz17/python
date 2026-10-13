@@ -10,11 +10,11 @@ import datetime
 import glob
 import logging
 import os
-import DateTools
+import random
 from pathlib import Path
-import tkinter as tk
 from tkinter import ttk
 
+import DateTools
 from BaseTable import AdvTable, TableColumn
 from BaseTree import BaseTree
 from BaseWidgets import SearchBar, MonthYearSelector, IconButton, BaseEditor
@@ -31,6 +31,7 @@ class DataDemo:
         self.idx = idx
         self.name = name
         self.desc = desc
+        self.at = 1000*(1650000 + 200000*random.random())
 
     def getIdx(self) -> str:
         return str(self.idx)
@@ -40,6 +41,12 @@ class DataDemo:
     
     def getDesc(self) -> str:
         return self.desc
+    
+    def getAt(self) -> float:
+        return self.at
+    
+    def getAtStr(self) -> str:
+        return DateTools.timestampToString(self.at)
 
     def __str__(self):
         return f'DataDemo {self.idx} {self.name} {self.desc}'
@@ -63,8 +70,9 @@ class TableDemo(AdvTable):
     def addColumns(self):
         """Define the table columns."""
         self.log.info('Column config')
-        self.addColumn(TableColumn('Nom', DataDemo.getName, 120))
-        self.addColumn(TableColumn('Description', DataDemo.getDesc, 240))
+        self.addColumn(TableColumn('Nom',           DataDemo.getName,  100))
+        self.addColumn(TableColumn('Description',   DataDemo.getDesc,  120))
+        self.addColumn(TableColumn('Date',          DataDemo.getAtStr, 160))
 
 class EditorDemo(BaseEditor):
     log = logging.getLogger('EditorDemo')
@@ -77,7 +85,12 @@ class EditorDemo(BaseEditor):
         self.addTextReadOnly('Index', DataDemo.getIdx)
         self.addTextReadOnly('Nom', DataDemo.getName)
         self.addTextReadOnly('Description', DataDemo.getDesc)
+        self.addDateTime('Date', DataDemo.getAt)
         self.createButtons(True, True, True)
+        self.enableWidgets(False)
+    
+    def enableWidgets(self, enabled=True):
+        super().enableWidgets(True)
 
 class ModuleTableDemo(TabModule):
     log = logging.getLogger('ModuleTableDemo')
@@ -109,6 +122,7 @@ class ModuleTableDemo(TabModule):
         self.table.addContextMenuAction('Preview', self.onCtxtMenuAction)
 
         self.editor.createWidgets(self.frmRight)
+        self.editor.enableWidgets(True)
 
     def loadData(self):
         self.log.info('Load data')
@@ -225,6 +239,9 @@ class DateToolsDemoData:
     def __init__(self):
         self.start = DateTools.now()
 
+    def getNowTimestamp(self) -> str:
+        return f'{DateTools.now():.2f}'
+
     def getNowStr(self) -> str:
         return DateTools.nowAsString()
 
@@ -264,6 +281,7 @@ class EditorDateTools(BaseEditor):
 
     def createWidgets(self, parent):
         super().createWidgets(parent, 'DateTools methods')
+        self.addTextReadOnly('Timestamp',   DateToolsDemoData.getNowTimestamp)
         self.addTextReadOnly('Now local',   DateToolsDemoData.getNowStr)
         self.addTextReadOnly('Now UTC',     DateToolsDemoData.getNowUtc)
         self.addTextReadOnly('Midnight',    DateToolsDemoData.getMidnight)
