@@ -834,12 +834,19 @@ class MonthYearSelector:
         self.year  = year
         self.cboMonth.setValue(DateTools.aMonthFr[self.month-1])
         self.spiYear.setValue(self)
+
+    def setValueDatetime(self, at: datetime.datetime):
+        self.setValue(at.month, at.year)
     
     def getMonth(self):
         return self.month
     
     def getYear(self, obj=None):
         return self.year
+
+    def getValueDatetime(self) -> datetime.datetime:
+        """Returns the start of the selected month and year."""
+        return datetime.datetime(self.year, self.month, 1)
     
     def onModified(self, event=None):
         self.year  = self.spiYear.getValue()
