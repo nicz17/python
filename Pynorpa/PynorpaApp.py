@@ -84,6 +84,19 @@ class PynorpaApp(TabsApp):
         if timeUntilSwitch and timeUntilSwitch < 10:
             self.addNotification(f"Changement d'heure dans {timeUntilSwitch} jours!", 'warning')
 
+    def navigateToObject(self, obj):
+        """Specific object navigations not in our tabs."""
+        self.log.info(f'Navigating to {obj}')
+        if not obj:
+            return
+        
+        objClass = type(obj).__name__
+        if objClass == 'INatObs':
+            url = obj.getObsUrl()
+            os.system(f'firefox {url} &')
+        else:
+            super().navigateToObject(obj)
+
     def getCredits(self) -> str:
         """App-specific credits to display in About dialog."""
         return '\n\nTkinterMapView by Tom Schimansky'

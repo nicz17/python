@@ -8,6 +8,7 @@ Find the ancestor taxa for a taxon id.
 
 import logging
 import requests
+import DateTools
 
 
 # iNat API docs
@@ -34,11 +35,13 @@ class INatTaxon():
 class INatObs():
     """Small container for iNat observation."""
     log = logging.getLogger('iNatObs')
+    fmt = "%Y-%m-%dT%H:%M:%S%z"
 
     def __init__(self, id: int, taxon: str, sAt: str, place: str):
         self.id = id
         self.taxon = taxon
-        self.sAt = sAt
+        self.sAt = sAt  # 2026-07-28T12:34:00+02:00
+        self.dtAt = DateTools.stringToDatetime(sAt, self.fmt)
         self.place = place
 
     def getTaxon(self) -> str:
@@ -49,12 +52,15 @@ class INatObs():
         """Returns the iNat place name for this observation."""
         return self.place
 
+    def getAt(self) -> str:
+        return DateTools.datetimeToString(self.dtAt)
+
     def getObsUrl(self) -> str:
         """Returns the iNat URL for this observation."""
         return f'https://www.inaturalist.org/observations/{self.id}'
 
     def __str__(self):
-        return f'INatObs {self.id} {self.sAt} {self.taxon} - {self.place}'
+        return f'INatObs {self.id} {self.dtAt} {self.taxon} - {self.place}'
 
 class INatApiRequestTaxon():
     """Class to send taxon info requests to the iNaturalist API."""

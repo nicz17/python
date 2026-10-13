@@ -45,6 +45,8 @@ class QualityIssue():
             return 'Lieu'
         if objClass == 'Taxon':
             return 'Taxon'
+        if objClass == 'INatObs':
+            return 'iNat'
         return objClass
 
     def getDesc(self) -> str:
@@ -179,6 +181,8 @@ class QualityCheckerINatObs():
     def run(self):
         """Run the checks."""
         req = INatApiRequestObs()
+        # TODO first find the number of observations without details.
+        # TODO then send requests over several pages with a progress bar
         data = req.sendRequest(self.year, self.month)
         lobs = req.readResponse(data)
         for obs in lobs:
@@ -186,9 +190,19 @@ class QualityCheckerINatObs():
             taxon = self.taxCache.findByName(taxname)
             if not taxon:
                 # TODO find if taxon is in Panorpa as a synonym, for example Crocus vernus = Crocus albiflorus
-                # TODO store a list of these synonyms in a json file
+                # TODO store a list of these synonyms in a json file or DB table
                 # TODO also store bad quality Android obs to ignore
                 self.log.info(f'Taxon {taxname} observed on {obs.sAt} missing in Pynorpa - {obs.getObsUrl()}')
+                desc = f'Espèce manquante : {taxname} ({obs.getPlace()})'
+                details = f'Observé le {obs.getAt()}\nà {obs.getPlace()}\n{obs.getObsUrl()}'
+                issue = QualityIssue(obs.id, desc, details, None)
+                # TODO link to online pic?
+                issue.setLink(obs)
+                self.issues.append(issue)
+
+    def getIssues(self) -> list[QualityIssue]:
+        """Get list of detected quality issues."""
+        return self.issues
 
 
 def testQuality():
