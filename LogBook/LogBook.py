@@ -57,7 +57,19 @@ class LogBook():
         """Save this LogBook as a JSON file."""
         self.sort()
         filename = self.getFilename()
-        self.log.info('Saving as %s', filename)
+        self.log.info(f'Saving as {filename}')
+        self.saveAs(filename)
+
+    def backup(self):
+        """Backup this LogBook as a json file."""
+        self.sort()
+        date = DateTools.nowAsString('%y%m%d')
+        filename = f'{LogBook.dir}{self.name}.bkp.{date}.json'
+        self.log.info(f'Backing up as {filename}')
+        self.saveAs(filename)
+
+    def saveAs(self, filename: str):
+        """Save this LogBook as a JSON under filename."""
         file = open(filename, 'w')
         file.write(json.dumps(self.toJson(), indent=2))
         file.close()

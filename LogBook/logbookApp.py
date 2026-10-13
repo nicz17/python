@@ -1,27 +1,31 @@
 #!/usr/bin/env python3
 
 """
- Simple TODOlist app.
+ Simple TodoList app.
 """
 
 __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2024 N. Zwahlen"
-__version__ = "1.0.2"
+__version__ = "1.0.3"
 
+import glob
 import logging
+import os
 import tkinter as tk
 from tkinter import filedialog as fd
 from tkinter import simpledialog as sd
-from BaseApp import *
-from LogBook import *
-from LogBookTask import *
-from TaskList import *
-from TextInputBox import *
-from StepsTable import *
-from BookSelector import *
-from Importer import *
-from Exporter import *
+
+import DateTools
 import logbookWidgets
+from BaseApp import BaseApp
+from LogBook import LogBook
+from LogBookTask import LogBookTask, LogBookStep, Status
+from TaskList import TaskList
+from TextInputBox import TextInputBox
+from StepsTable import StepsTable
+from BookSelector import BookSelector, BookSelectorMove
+from Importer import Importer
+from Exporter import Exporter
 
 
 class LogBookApp(BaseApp):
@@ -40,7 +44,7 @@ class LogBookApp(BaseApp):
         self.taskList = TaskList(self.onTaskSelection)
         self.taskInput = TextInputBox(self.addTask)
         self.stepInput = TextInputBox(self.addStep)
-        self.stepsTable = StepsTable(self.onStepSelection)
+        self.stepsTable = StepsTable(self.onStepSelection, self.onStepModified)
         self.taskEditor = logbookWidgets.TaskEditor(self.onTaskSave)
         self.stepEditor = logbookWidgets.StepEditor(self.onStepSave)
         self.bookSelector = BookSelector(self.onBookSelection)
@@ -167,6 +171,11 @@ class LogBookApp(BaseApp):
         self.taskList.updateTask(self.task)
         self.taskProgress.loadData(self.task)
 
+    def onStepModified(self, step: LogBookStep):
+        """Step modification callback."""
+        self.log.info(f'Modification of {step}')
+        self.onStepSave()
+
     def onOpenFile(self):
         """Display dialog to open book from file."""
         filename = fd.askopenfilename(
@@ -279,6 +288,18 @@ class LogBookApp(BaseApp):
         self.onRefresh()
         self.setStatus(msg)
 
+    def backup(self):
+        """Backup all LogBooks."""
+        files = sorted(glob.glob(f'{LogBook.dir}*.logbook'))
+        books = []
+        for file in files:
+            name = os.path.basename(file).replace('.logbook', '')
+            books.append(LogBook(name))
+        self.log.info(f'Backing up {len(books)} logbooks')
+        for book in books:
+            book.backup()
+        self.setStatus(f'Backed up {len(books)} logbooks')
+
     def onNotImplemented(self):
         """Show a Not implemented yet error message."""
         self.showErrorMsg('Not implemenented yet!')
@@ -291,6 +312,7 @@ class LogBookApp(BaseApp):
         self.addButton('Import',  self.onImportFile)
         self.addButton('Export',  self.onExportFile)
         self.btnArchive = self.addButton('Archive', self.onTaskArchive)
+        self.addButton('Backup',  self.backup)
 
         # Frames
         self.frmBook = tk.Frame(master=self.frmMain,  width=400)#, bg='#f0f0ff')
