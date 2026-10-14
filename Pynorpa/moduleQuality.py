@@ -46,10 +46,14 @@ class ModuleQuality(TabModule):
 
     def onRunINatCheck(self, year: int, month: int):
         self.setLoadingIcon()
-        checker = QualityCheckerINatObs(year, month)
+        checker = QualityCheckerINatObs(year, month, self.onProgress)
         checker.run()
         self.table.loadData(checker.getIssues())
         self.setLoadingIcon(True)
+
+    def onProgress(self, percent: float, msg: str):
+        self.obsfinder.setProgress(percent, msg)
+        self.window.update_idletasks()
 
     def createWidgets(self):
         """Create user widgets."""
@@ -115,6 +119,7 @@ class QualityIssueEditor(BaseEditor):
         self.widDesc = self.addTextArea('Détails',  QualityIssue.getDetails, 4)
         self.createButtons(False, False, False)
         self.btnResolve = self.addButton('Résoudre', self.navigate, 'go-next')
+        # TODO add Button to add missing iNat species as synonym?
         self.enableWidgets()
 
     def enableWidgets(self, enabled=False):
@@ -133,25 +138,45 @@ class MissingObsFinder:
         self.cbkRun = cbkRun
         self.at = DateTools.timestampToDatetimeUTC(DateTools.addDays(DateTools.now(), -60))
         self.selector = MonthYearSelector(self.onModified)
+        self.running = False
 
     def onModified(self):
         self.enableWidgets()
 
     def onSearch(self):
         """Send a request to iNat to find missing species."""
+        self.running = True
+        self.enableWidgets()
         self.cbkRun(self.selector.getYear(), self.selector.getMonth())
+
+    def setProgress(self, percent: float, msg: str):
+        """Update our progress bar."""
+        self.progressBar['value'] = percent
+        self.lblProgress.config(text=msg)
+        if percent == 100.0:
+            self.running = False
+            self.enableWidgets()
 
     def createWidgets(self, parent: tk.Frame):
         """Add our widgets to the parent widget."""
         self.frmMain = ttk.LabelFrame(parent, text="Rechercher des espèces manquantes depuis iNat")
-        self.frmMain.pack(side=tk.TOP, anchor=tk.N, fill=tk.X, expand=False, pady=5)
+        self.frmMain.pack(side=tk.TOP, anchor=tk.N, fill=tk.X, expand=False, pady=0)
+        self.frmTop = ttk.Frame(self.frmMain)
+        self.frmTop.pack(side=tk.TOP, anchor=tk.N, fill=tk.X, expand=False, pady=0)
+        self.frmProgress = ttk.Frame(self.frmMain)
+        self.frmProgress.pack(side=tk.BOTTOM, anchor=tk.S, fill=tk.X, expand=False, pady=3)
 
-        self.selector.createWidgets(self.frmMain, tk.LEFT, 7)
+        self.selector.createWidgets(self.frmTop, tk.LEFT, 7)
         self.selector.setValueDatetime(self.at)
 
-        self.btnSearch = Button(self.frmMain, 'Rechercher', self.onSearch, 'find')
+        self.btnSearch = Button(self.frmTop, 'Rechercher', self.onSearch, 'find')
         self.btnSearch.pack(side=tk.RIGHT, pady=0)
+
+        self.lblProgress = ttk.Label(self.frmProgress, text='Inactif')
+        self.lblProgress.pack(fill=tk.X, expand=True, padx=5, pady=3)
+        self.progressBar = ttk.Progressbar(self.frmProgress, orient='horizontal', mode='determinate')
+        self.progressBar.pack(fill=tk.X, expand=True, padx=5, pady=3)
 
     def enableWidgets(self):
         valid = (self.selector.getValueDatetime() < DateTools.nowDatetime())
-        self.btnSearch.enableWidget(valid)
+        self.btnSearch.enableWidget(valid and not self.running)

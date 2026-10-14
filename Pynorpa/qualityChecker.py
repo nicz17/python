@@ -12,6 +12,7 @@ from LocationCache import LocationCache
 from picture import PictureCache, Picture
 from taxon import TaxonCache, TaxonRank
 from iNatApiRequest import INatApiRequestObs, INatObs
+from Timer import Timer
 
 
 class QualityIssue():
@@ -171,26 +172,35 @@ class QualityCheckerINatObs():
     """Check for iNat species-level observations missing on Pynorpa."""
     log = logging.getLogger("QualityCheckerINatObs")
 
-    def __init__(self, year: int, month: int):
+    def __init__(self, year: int, month: int, cbkProgress=None):
         """Constructor."""
         self.year = year
         self.month = month
+        self.cbkProgress = cbkProgress
         self.issues = []
         self.taxCache = TaxonCache()
 
     def run(self):
         """Run the checks."""
         # First find the number of observations without details.
+        timer = Timer()
         req = INatApiRequestObs(self.year, self.month)
         count = req.sendCountRequest()
         pages = count//10 + 1
         self.log.info(f'Observation count is {count}, requiring {pages} pages')
+        if self.cbkProgress:
+            self.cbkProgress(0.0, f'Vérification de {count} observations sur {pages} pages')
 
-        # TODO then send requests over several pages with a progress bar
-        data = req.sendRequest(1, 20)
-        lobs = req.readResponse(data)
-        for obs in lobs:
-            self.checkTaxon(obs.getTaxon())
+        # Send requests over several pages with a progress bar
+        for page in range(1, pages+1):
+            data = req.sendRequest(page, 10)
+            lobs = req.readResponse(data)
+            for obs in lobs:
+                self.checkTaxon(obs)
+            if self.cbkProgress:
+                self.cbkProgress(100.0*page/pages, f'Page {page} sur {pages}')
+        if self.cbkProgress:
+            self.cbkProgress(100.0, f'Vérifié {count} observations en {timer.getElapsed()}')
 
     def checkTaxon(self, obs: INatObs):
         """Check if the iNat obs taxon is missing in Paynorpa."""
@@ -207,6 +217,7 @@ class QualityCheckerINatObs():
             # TODO link to online pic?
             issue.setLink(obs)
             self.issues.append(issue)
+            # TODO store these found issues in a json file?
 
     def getIssues(self) -> list[QualityIssue]:
         """Get list of detected quality issues."""

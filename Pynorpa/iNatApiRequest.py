@@ -207,7 +207,7 @@ class INatApiRequestObs():
         url += f'&year={self.year}&month={self.month}&order_by=created_at'
         url += f'&page={page}&per_page={nmax}'
 
-        self.log.info(f'Sending request for observations on {self.year}.{self.month}')
+        self.log.info(f'Sending request for observations on {self.year}.{self.month}, page {page}')
         self.log.info(url)
         timer = Timer()
         data = None
@@ -218,7 +218,7 @@ class INatApiRequestObs():
             data = response.json()
             size = len(data["results"])
             #self.log.info(data)
-            self.log.info(f'Fetched {size} observations in {timer.getElapsed()}')
+            self.log.info(f'Fetched {size} observations on page {page} in {timer.getElapsed()}')
         except Exception as exc:
             self.log.error(f'Request for observations failed: {exc}')
         return data
