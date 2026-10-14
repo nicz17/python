@@ -195,10 +195,14 @@ class QualityCheckerINatObs():
         for page in range(1, pages+1):
             data = req.sendRequest(page, 10)
             lobs = req.readResponse(data)
-            for obs in lobs:
-                self.checkTaxon(obs)
+            error = ''
+            if lobs:
+                for obs in lobs:
+                    self.checkTaxon(obs)
+            else:
+                error = ' Erreur: pas de réponse'
             if self.cbkProgress:
-                self.cbkProgress(100.0*page/pages, f'Page {page} sur {pages}')
+                self.cbkProgress(100.0*page/pages, f'Page {page} sur {pages}{error}')
         if self.cbkProgress:
             self.cbkProgress(100.0, f'Vérifié {count} observations en {timer.getElapsed()}')
 
