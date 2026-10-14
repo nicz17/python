@@ -180,25 +180,33 @@ class QualityCheckerINatObs():
 
     def run(self):
         """Run the checks."""
-        req = INatApiRequestObs()
-        # TODO first find the number of observations without details.
+        # First find the number of observations without details.
+        req = INatApiRequestObs(self.year, self.month)
+        count = req.sendCountRequest()
+        pages = count//10 + 1
+        self.log.info(f'Observation count is {count}, requiring {pages} pages')
+
         # TODO then send requests over several pages with a progress bar
-        data = req.sendRequest(self.year, self.month)
+        data = req.sendRequest(1, 20)
         lobs = req.readResponse(data)
         for obs in lobs:
-            taxname = obs.getTaxon()
-            taxon = self.taxCache.findByName(taxname)
-            if not taxon:
-                # TODO find if taxon is in Panorpa as a synonym, for example Crocus vernus = Crocus albiflorus
-                # TODO store a list of these synonyms in a json file or DB table
-                # TODO also store bad quality Android obs to ignore
-                self.log.info(f'Taxon {taxname} observed on {obs.sAt} missing in Pynorpa - {obs.getObsUrl()}')
-                desc = f'Espèce manquante : {taxname} ({obs.getPlace()})'
-                details = f'Observé le {obs.getAt()}\nà {obs.getPlace()}\n{obs.getObsUrl()}'
-                issue = QualityIssue(obs.id, desc, details, None)
-                # TODO link to online pic?
-                issue.setLink(obs)
-                self.issues.append(issue)
+            self.checkTaxon(obs.getTaxon())
+
+    def checkTaxon(self, obs: INatObs):
+        """Check if the iNat obs taxon is missing in Paynorpa."""
+        taxname = obs.getTaxon()
+        taxon = self.taxCache.findByName(taxname)
+        if not taxon:
+            # TODO find if taxon is in Panorpa as a synonym, for example Crocus vernus = Crocus albiflorus
+            # TODO store a list of these synonyms in a json file or DB table
+            # TODO also store bad quality Android obs to ignore
+            self.log.info(f'Taxon {taxname} observed on {obs.sAt} missing in Pynorpa - {obs.getObsUrl()}')
+            desc = f'Espèce manquante : {taxname} ({obs.getPlace()})'
+            details = f'Observé le {obs.getAt()}\nà {obs.getPlace()}\n{obs.getObsUrl()}\n{obs.getPhotoUrl()}'
+            issue = QualityIssue(obs.id, desc, details, None)
+            # TODO link to online pic?
+            issue.setLink(obs)
+            self.issues.append(issue)
 
     def getIssues(self) -> list[QualityIssue]:
         """Get list of detected quality issues."""

@@ -9,6 +9,7 @@ Find the ancestor taxa for a taxon id.
 import logging
 import requests
 import DateTools
+from Timer import Timer
 
 
 # iNat API docs
@@ -37,12 +38,13 @@ class INatObs():
     log = logging.getLogger('iNatObs')
     fmt = "%Y-%m-%dT%H:%M:%S%z"
 
-    def __init__(self, id: int, taxon: str, sAt: str, place: str):
+    def __init__(self, id: int, taxon: str, sAt: str, place: str, photoid: str):
         self.id = id
         self.taxon = taxon
         self.sAt = sAt  # 2026-07-28T12:34:00+02:00
         self.dtAt = DateTools.stringToDatetime(sAt, self.fmt)
         self.place = place
+        self.photoid = photoid
 
     def getTaxon(self) -> str:
         """Returns the iNat taxon name for this observation."""
@@ -58,6 +60,9 @@ class INatObs():
     def getObsUrl(self) -> str:
         """Returns the iNat URL for this observation."""
         return f'https://www.inaturalist.org/observations/{self.id}'
+
+    def getPhotoUrl(self) -> str:
+        return f'https://inaturalist-open-data.s3.amazonaws.com/photos/{self.photoid}/medium.jpg'
 
     def __str__(self):
         return f'INatObs {self.id} {self.dtAt} {self.taxon} - {self.place}'
@@ -175,24 +180,45 @@ class INatApiRequestObs():
     # https://api.inaturalist.org/v1/observations?user_id={me_id}&quality_grade=needs_id&rank=genus
     # https://api.inaturalist.org/v1/observations?rank=species&user_id=nicz&year=2026&hrank=species&quality_grade=research&per_page=1
 
-    def __init__(self):
-        pass
+    def __init__(self, year: int, month: int):
+        self.year = year
+        self.month = month
 
-    def sendRequest(self, year: int, month: int):
-        """Request observations for the specified year and month."""
+    def sendCountRequest(self) -> int:
+        """Count all observations."""
         url = f'{self.baseUrl}?rank=species&user_id=nicz&hrank=species&quality_grade=research'
-        url += f'&year={year}&month={month}&order_by=created_at'
-        url += f'&per_page=20'
+        url += f'&year={self.year}&month={self.month}&only_id=true&per_page=1'
+        self.log.info(f'Sending request for observation count on {self.year}.{self.month}')
 
-        self.log.info(f'Sending request for observations on {year}.{month}')
+        timer = Timer()
+        data = None
+        try:
+            response = requests.get(url)
+            data = response.json()
+            count = data["total_results"]
+            self.log.info(f'Count is {count}, fetched in {timer.getElapsed()}')
+            return count
+        except Exception as exc:
+            self.log.error(f'Request for observations failed: {exc}')
+
+    def sendRequest(self, page: int, nmax: int):
+        """Request an observations page."""
+        url = f'{self.baseUrl}?rank=species&user_id=nicz&hrank=species&quality_grade=research'
+        url += f'&year={self.year}&month={self.month}&order_by=created_at'
+        url += f'&page={page}&per_page={nmax}'
+
+        self.log.info(f'Sending request for observations on {self.year}.{self.month}')
         self.log.info(url)
+        timer = Timer()
         data = None
         try:
             response = requests.get(url)
             # handle requests.exceptions.ConnectionError: ('Connection aborted.', 
             # RemoteDisconnected('Remote end closed connection without response'))
             data = response.json()
+            size = len(data["results"])
             #self.log.info(data)
+            self.log.info(f'Fetched {size} observations in {timer.getElapsed()}')
         except Exception as exc:
             self.log.error(f'Request for observations failed: {exc}')
         return data
@@ -208,9 +234,11 @@ class INatApiRequestObs():
             taxName = jsObs['taxon']['name']
             sAt = jsObs['time_observed_at']
             place = jsObs['place_guess']
+            photoid = jsObs['observation_photos'][0]['photo_id']
             # TODO find if observation comes from Android app
             # TODO use 'location': "46.5302777778,6.5683333333"
-            obs = INatObs(jsObs['id'], taxName, sAt, place)
+            # TODO use 'observation_photos'[0]'photo_id' with "https://inaturalist-open-data.s3.amazonaws.com/photos/709598583/medium.jpg"
+            obs = INatObs(jsObs['id'], taxName, sAt, place, photoid)
             observations.append(obs)
             self.log.info(obs)
         return observations
@@ -231,8 +259,10 @@ def testRequestTaxon():
 
 def testRequestObs():
     """Unit test for observations request."""
-    req = INatApiRequestObs()
-    data = req.sendRequest(2026, 8)
+    req = INatApiRequestObs(2026, 8)
+    count = req.sendCountRequest()
+    req.log.info(f'Total observations: {count}')
+    data = req.sendRequest(1, 20)
     #req.log.info(data)
     req.readResponse(data)
 
