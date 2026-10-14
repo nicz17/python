@@ -119,6 +119,7 @@ class BaseWidget():
         self.log.debug('Constructor')
         self.cbkModified = cbkModified
         self.mtdGetter = mtdGetter
+        self.enabled = False
         self.oWidget = None  # the Tk/Ttk widget
         self.oLabel  = None  # optional Ttk label
 
@@ -148,14 +149,22 @@ class BaseWidget():
         """Check if this widget has changes from the specified object."""
         if object:
             value = self.mtdGetter(object)
-            return self.getValue() != value
+            changed = self.getValue() != value
+            if changed:
+                self.log.info(f'Changed: input: {self.getValue()} obj: {value}')
+            return changed
         return False
+    
+    def isValid(self) -> bool:
+        """Check if this widget has valid inputs."""
+        return True
     
     def createWidgets(self, parent: tk.Frame, row: int, col: int):
         pass
 
     def enableWidget(self, enabled: bool):
         """Enable or disable this widget."""
+        self.enabled = enabled
         if self.oWidget:
             self.oWidget['state'] = tk.NORMAL if enabled else tk.DISABLED
     
@@ -331,11 +340,21 @@ class DateTime(TextInput):
     def hasChanges(self, object) -> bool:
         widValue = self.getValue()
         if widValue is None:
-            return False 
-        return super().hasChanges(object)
+            return False
+        widValueStr = self.oWidget.get().strip()
+        objValueStr = ''
+        if self.isFloat:
+            objValueStr = DateTools.timestampToString(self.mtdGetter(object))
+        else:
+            objValueStr = DateTools.datetimeToString(self.mtdGetter(object))
+        return widValueStr != objValueStr
+        #return super().hasChanges(object)
 
     def isValid(self) -> bool:
         """Check if the current user input is a valid date."""
+        self.log.info(f'Validation for {self.enabled} value {self.oWidget.get().strip()}')
+        if not self.enabled:
+            return True
         value = self.oWidget.get().strip()
         if value:
             return DateTools.validateDateString(value)
@@ -596,21 +615,24 @@ class BaseEditor():
         self.btnCancel = None
         self.btnDelete = None
 
+    def geWidgets(self) -> list[BaseWidget]:
+        return self.widgets
+
     def setValue(self, object):
         """Set each widget value from the specified object."""
         self.object = object
         self.enableWidgets()
-        oWidget: BaseWidget
-        for oWidget in self.widgets:
+        for oWidget in self.geWidgets():
             oWidget.setValue(object)
         self.enableWidgets()
 
     def hasChanges(self, object) -> bool:
         """Check if this editor has changes compared to the specified object."""
-        oWidget: BaseWidget
         hasChanges = False
-        for oWidget in self.widgets:
-            if oWidget.hasChanges(object):
+        for oWidget in self.geWidgets():
+            if not oWidget.isValid():
+                oWidget.setLabelColor('red')
+            elif oWidget.hasChanges(object):
                 oWidget.setLabelColor('orange')
                 hasChanges = True
             else:
@@ -775,10 +797,9 @@ class BaseEditor():
         oWidget.setLabel(oLabel)
         self.row += 1
 
-    def enableWidgets(self, enabled = False):
+    def enableWidgets(self, enabled=False):
         """Enable our internal widgets."""
-        oWidget: BaseWidget
-        for oWidget in self.widgets:
+        for oWidget in self.geWidgets():
             oWidget.enableWidget(enabled)
 
     def __str__(self) -> str:

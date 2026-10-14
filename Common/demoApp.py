@@ -81,22 +81,24 @@ class EditorDemo(BaseEditor):
         super().__init__(cbkSave, colorLabelDef)
 
     def createWidgets(self, parent):
-        super().createWidgets(parent, 'Propriétés')
+        super().createWidgets(parent, 'Demo Editor')
         self.addTextReadOnly('Index', DataDemo.getIdx)
         self.addTextReadOnly('Nom', DataDemo.getName)
-        self.addTextReadOnly('Description', DataDemo.getDesc)
+        self.addText('Description', DataDemo.getDesc, 32)
         self.addDateTime('Date', DataDemo.getAt)
         self.createButtons(True, True, True)
         self.enableWidgets(False)
     
     def enableWidgets(self, enabled=True):
-        super().enableWidgets(True)
+        modified = self.hasChanges(self.object)
+        super().enableWidgets(enabled)
+        self.enableButtons(modified, modified, False)
 
 class ModuleTableDemo(TabModule):
     log = logging.getLogger('ModuleTableDemo')
 
     def __init__(self, oParent):
-        self.nameGen = NameGen()
+        self.nameGen = NameGen(random.randint(0, 42))
         self.table = TableDemo(self.onSelection)
         self.editor = EditorDemo()
         super().__init__(oParent, 'AdvTable')
@@ -122,7 +124,6 @@ class ModuleTableDemo(TabModule):
         self.table.addContextMenuAction('Preview', self.onCtxtMenuAction)
 
         self.editor.createWidgets(self.frmRight)
-        self.editor.enableWidgets(True)
 
     def loadData(self):
         self.log.info('Load data')
@@ -136,12 +137,19 @@ class ModuleTreeDemo(TabModule):
     log = logging.getLogger('ModuleTreeDemo')
 
     def __init__(self, oParent):
-        self.tree = BaseTree(None)
+        self.tree = BaseTree(self.onSelection)
         super().__init__(oParent, 'BaseTree')
+
+    def onSelection(self, event=None):
+        id = self.tree.getSelectedId()
+        self.log.info(f'Selected {id}')
+        self.lblStatus.config(text=f'Sélectionné {id}')
 
     def createWidgets(self):
         self.createLeftRightFrames()
         self.tree.createWidgets(self.frmLeft)
+        self.lblStatus = ttk.Label(self.frmRight, text='Select a node')
+        self.lblStatus.pack(fill='x')
 
     def populate(self, depth: int, parentId: str):
         for i in range(3):
