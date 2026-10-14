@@ -151,7 +151,7 @@ class BaseWidget():
             value = self.mtdGetter(object)
             changed = self.getValue() != value
             if changed:
-                self.log.info(f'Changed: input: {self.getValue()} obj: {value}')
+                self.log.debug(f'Changed: input: {self.getValue()} obj: {value}')
             return changed
         return False
     
@@ -352,7 +352,7 @@ class DateTime(TextInput):
 
     def isValid(self) -> bool:
         """Check if the current user input is a valid date."""
-        self.log.info(f'Validation for {self.enabled} value {self.oWidget.get().strip()}')
+        self.log.debug(f'Validation enabled {self.enabled} value {self.oWidget.get().strip()}')
         if not self.enabled:
             return True
         value = self.oWidget.get().strip()
