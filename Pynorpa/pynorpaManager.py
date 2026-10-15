@@ -113,6 +113,8 @@ class PynorpaManager():
                 raise PynorpaException(f"Taxon inconnu pour {basename}")
         
         # Create Picture
+        # FIXME must be offset-naive datetime
+        # dtShotAt = DateTools.datetimeToLocal(DateTools.timestampToDatetimeUTC(info.getShotAt())) ? to test!
         tShotAt = DateTools.timestampToDatetimeUTC(info.getShotAt())
         rating = 3
         if info.width < 1000 or info.height < 1000:
