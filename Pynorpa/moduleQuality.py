@@ -40,7 +40,9 @@ class ModuleQuality(TabModule):
     def onSelectIssue(self, issue: QualityIssue):
         self.editor.loadData(issue)
         if issue:
+            self.setLoadingIcon()
             self.imageWidget.loadThumb(issue.getPic())
+            self.setLoadingIcon(True)
         else:
             self.imageWidget.loadThumb(None)
 

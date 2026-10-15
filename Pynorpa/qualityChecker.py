@@ -9,6 +9,7 @@ import logging
 import os
 
 from LocationCache import LocationCache
+from PhotoInfo import WebPhoto
 from picture import PictureCache, Picture
 from taxon import TaxonCache, TaxonRank
 from iNatApiRequest import INatApiRequestObs, INatObs
@@ -171,6 +172,7 @@ class QualityChecker():
 class QualityCheckerINatObs():
     """Check for iNat species-level observations missing on Pynorpa."""
     log = logging.getLogger("QualityCheckerINatObs")
+    perPage = 12
 
     def __init__(self, year: int, month: int, cbkProgress=None):
         """Constructor."""
@@ -186,14 +188,14 @@ class QualityCheckerINatObs():
         timer = Timer()
         req = INatApiRequestObs(self.year, self.month)
         count = req.sendCountRequest()
-        pages = count//10 + 1
+        pages = count//self.perPage + 1
         self.log.info(f'Observation count is {count}, requiring {pages} pages')
         if self.cbkProgress:
             self.cbkProgress(0.0, f'Vérification de {count} observations sur {pages} pages')
 
         # Send requests over several pages with a progress bar
         for page in range(1, pages+1):
-            data = req.sendRequest(page, 10)
+            data = req.sendRequest(page, self.perPage)
             lobs = req.readResponse(data)
             error = ''
             if lobs:
@@ -216,12 +218,13 @@ class QualityCheckerINatObs():
             # TODO also store bad quality Android obs to ignore
             self.log.info(f'Taxon {taxname} observed on {obs.sAt} missing in Pynorpa - {obs.getObsUrl()}')
             desc = f'Espèce manquante : {taxname} ({obs.getPlace()})'
-            details = f'Observé le {obs.getAt()}\nà {obs.getPlace()}\n{obs.getObsUrl()}\n{obs.getPhotoUrl()}'
-            issue = QualityIssue(obs.id, desc, details, None)
-            # TODO link to online pic?
+            details = f'Observé le {obs.getAt()}\nà {obs.getPlace()}\n{obs.getObsUrl()}'
+            webPhoto = WebPhoto(obs.getPhotoUrl(), f'{taxname} sur iNaturalist')
+            issue = QualityIssue(obs.id, desc, details, webPhoto)
+            # TODO separate iNat obs URL (external link) and Reselection link (internal, with timestamp)
             issue.setLink(obs)
             self.issues.append(issue)
-            # TODO store these found issues in a json file?
+            # TODO store these found issues in a json file? on demand in module (export table)
 
     def getIssues(self) -> list[QualityIssue]:
         """Get list of detected quality issues."""
