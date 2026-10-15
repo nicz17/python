@@ -13,8 +13,8 @@ import tkinter as tk
 from tkinter import ttk
 from PIL import ImageTk, Image
 from picture import Picture
-from PhotoInfo import PhotoInfo
-from BaseWidgets import Button, IconButton
+from PhotoInfo import PhotoInfo, WebPhoto
+from BaseWidgets import IconButton
 
 
 class ImageWidget():
@@ -25,13 +25,14 @@ class ImageWidget():
         """Constructor"""
         self.log.info('Constructor')
         self.defImage = defImage
+        self.img = None
+        self.photoInfo = None
 
     def loadData(self, filename: str):
         """Display the specified image if it exists."""
         if filename and os.path.exists(filename):
-            img = ImageTk.PhotoImage(Image.open(filename))
-            self.lblImage.configure(image=img)
-            self.lblImage.image = img
+            self.img = ImageTk.PhotoImage(Image.open(filename))
+            self.lblImage.configure(image=self.img)
         else:
             self.setDefaultImage()
             if filename:
@@ -46,7 +47,7 @@ class ImageWidget():
             if isinstance(picture, Picture):
                 self.log.info('Loading thumb for Picture %s', picture.filename)
                 fileMedium = f'{config.dirPicsBase}medium/{picture.filename}'
-            if isinstance(picture, PhotoInfo):
+            elif isinstance(picture, PhotoInfo):
                 self.log.info('Loading thumb for PhotoInfo %s', picture.filename)
                 if picture.filename.startswith(config.dirPictures):
                     # It's the PhotoInfo of a database Picture
@@ -60,6 +61,16 @@ class ImageWidget():
                 if fileMedium and not os.path.exists(fileMedium):
                     self.log.info('Creating medium image for %s', picture.filename)
                     os.system(f'convert {picture.filename} -resize 500x500 {fileMedium}')
+            elif isinstance(picture, WebPhoto):
+                self.log.info(f'Loading {picture}')
+                self.photoInfo = picture
+                self.img = picture.getImage()
+                if self.img:
+                    self.lblImage.config(image=self.img)
+                    return # Don't load image from fileMedium!
+                else:
+                    self.log.warning(f'No image data in {picture}')
+                    self.lblImage.configure(text=f'Error: Could not load\n{picture.url}')
         self.loadData(fileMedium)
 
     def setDefaultImage(self):

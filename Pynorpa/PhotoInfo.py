@@ -5,15 +5,20 @@
 
 __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2024 N. Zwahlen"
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 import config
-import logging
-import glob
 import exifread
+import glob
+import io
+import logging
 import os
+import urllib.request
 import DateTools
+
+from PIL import ImageTk, Image
 from LocationCache import Location
+
 
 class PhotoInfo:
     log = logging.getLogger(__name__)
@@ -139,6 +144,42 @@ class PhotoInfo:
         if self.hasGPSData():
             str += f' Lon/Lat {self.lon:.5f}/{self.lat:.5f}'
         return str
+
+class WebPhoto:
+    """A photo referenced by a web URL."""
+    log = logging.getLogger('WebPhoto')
+
+    def __init__(self, url: str, desc: str):
+        self.url = url
+        self.desc = desc
+        self.img = None
+
+    def loadData(self):
+        with urllib.request.urlopen(self.url) as u:
+            rawdata = u.read()
+            image = Image.open(io.BytesIO(rawdata))
+            self.img = ImageTk.PhotoImage(image)
+            self.log.info(f'Done loading data from {self.url}')
+
+    def getImage(self) -> ImageTk.PhotoImage:
+        if not self.img:
+            self.loadData()
+        return self.img
+    
+    def getSize(self) -> str:
+        if not self.img:
+            return '-'
+        return f'{self.img.width()}x{self.img.height()}px'
+    
+    def getDescription(self) -> str:
+        return self.desc
+
+    def getCaption(self) -> str:
+        return f'{self.desc} [{self.getSize()}]'
+
+    def __str__(self):
+        return f'WebPhoto {self.url}'
+
     
 def testPhotoInfo():
     dir = '/home/nicz/Pictures/Nature-2023-12/photos/'
