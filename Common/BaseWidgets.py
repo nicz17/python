@@ -110,6 +110,38 @@ class IconButton():
         return f'IconButton {self.iconName} enabled:{self.enabled}'
 
 
+class Label:
+    """Wrapper for a ttk label widget."""
+    log = logging.getLogger('Label')
+
+    def __init__(self, parent: ttk.Frame, text: str, tooltip=None):
+        self.widget = ttk.Label(parent, text='')
+        self.setText(text)
+        if tooltip:
+            self.tt = ToolTip(self.widget, tooltip)
+        
+    def setText(self, text: str):
+        """Set this label's text. May be None."""
+        if text is None:
+            self.widget.config(text='')
+        else:
+            self.widget.config(text=text)
+
+    def clear(self):
+        """Clears this label's text."""
+        self.setText(None)
+
+    def getWdiget(self) -> ttk.Label:
+        """Returns the internal ttk label widget."""
+        return self.widget
+    
+    def pack(self) -> 'Label':
+        """Default widget pack."""
+        self.widget.pack(padx=4, pady=4)
+        #self.widget.pack(fill=tk.X, padx=4, pady=4)
+        return self
+    
+
 class BaseWidget():
     """Base superclass for custom input widgets."""
     log = logging.getLogger('BaseWidget')
