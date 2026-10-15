@@ -17,8 +17,9 @@ from tkinter import ttk
 import DateTools
 from BaseTable import AdvTable, TableColumn
 from BaseTree import BaseTree
-from BaseWidgets import SearchBar, MonthYearSelector, IconButton, BaseEditor
+from BaseWidgets import SearchBar, MonthYearSelector, Button, IconButton, BaseEditor, Label
 from calendarWidget import CalendarWidget, CalendarItem
+from imageWidget import WebPhoto, ImageWidget
 from mapWidget import MapWidget
 from LatLonZoom import LatLon
 from NameGen import NameGen
@@ -143,13 +144,13 @@ class ModuleTreeDemo(TabModule):
     def onSelection(self, event=None):
         id = self.tree.getSelectedId()
         self.log.info(f'Selected {id}')
-        self.lblStatus.config(text=f'Sélectionné {id}')
+        self.lblStatus.setText(f'Sélectionné {id}')
 
     def createWidgets(self):
         self.createLeftRightFrames()
         self.tree.createWidgets(self.frmLeft)
-        self.lblStatus = ttk.Label(self.frmRight, text='Select a node')
-        self.lblStatus.pack(fill='x')
+        self.lblStatus = Label(self.frmRight, 'Select a node')
+        self.lblStatus.pack()
 
     def populate(self, depth: int, parentId: str):
         for i in range(3):
@@ -174,10 +175,7 @@ class ModuleCalendarDemo(TabModule):
         self.loadData()
 
     def onItemSelection(self, item=None):
-        if item:
-            self.lblSelected.config(text=item)
-        else:
-            self.lblSelected.config(text='')
+        self.lblSelected.setText(item)
 
     def loadData(self):
         month = self.selector.getMonth()
@@ -196,8 +194,7 @@ class ModuleCalendarDemo(TabModule):
         self.createLeftRightFrames()
         self.selector.createWidgets(self.frmLeft)
         self.calendar.createWidgets(self.frmLeft)
-        self.lblSelected = ttk.Label(self.frmLeft, text='')
-        self.lblSelected.pack()
+        self.lblSelected = Label(self.frmLeft, None).pack()
 
 class ModuleIconsDemo(TabModule):
     log = logging.getLogger('ModuleIconsDemo')
@@ -334,7 +331,7 @@ class ModuleMapDemo(TabModule):
     def onMapClick(self, pos: LatLon):
         """Map widget left click callback."""
         self.log.info(f'Map click {pos}')
-        self.lblPos.config(text=pos.toPrettyString())
+        self.lblPos.setText(pos.toPrettyString())
 
     def loadData(self):
         self.map.loadData(None)
@@ -342,8 +339,29 @@ class ModuleMapDemo(TabModule):
     def createWidgets(self):
         self.createLeftRightFrames()
         self.map.createWidgets(self.frmLeft, 6, 6)
-        self.lblPos = ttk.Label(self.frmLeft, text='Cliquer sur la carte pour afficher les coordonnées')
-        self.lblPos.pack()
+        self.lblPos = Label(self.frmLeft, 'Cliquer sur la carte pour afficher les coordonnées').pack()
+
+class ModuleWebPhotoDemo(TabModule):
+    log = logging.getLogger('ModuleWebPhotoDemo')
+
+    def __init__(self, oParent):
+        super().__init__(oParent, 'WebPhoto')
+        self.imageWidget = ImageWidget()
+        self.lblDesc = None
+        self.photo = None
+
+    def loadData(self):
+        url = 'https://inaturalist-open-data.s3.amazonaws.com/photos/709598583/medium.jpg'
+        self.photo = WebPhoto(url, 'iNat online photo')
+        self.setLoadingIcon()
+        self.imageWidget.display(self.photo)
+        self.lblDesc.setText(f'{self.photo.getDescription()} {self.photo.getSize()}')
+        self.setLoadingIcon(True)
+        
+    def createWidgets(self):
+        self.createLeftRightFrames()
+        self.imageWidget.createWidgets(self.frmLeft)
+        self.lblDesc = Label(self.frmLeft, 'Chargement...').pack()
 
 class AppDemo(TabsApp):
     """Demo app for base widgets and other common classes."""
@@ -356,7 +374,7 @@ class AppDemo(TabsApp):
         ModuleIconsDemo(self)
         ModuleDateToolsDemo(self)
         ModuleMapDemo(self)
-
+        ModuleWebPhotoDemo(self)
 
 def main():
     app = AppDemo()
