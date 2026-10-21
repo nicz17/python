@@ -731,6 +731,12 @@ class Exporter():
             link = provider.getLink(taxon)
             if link:
                 ul.addItem(link)
+
+        # Synonyms list
+        if len(taxon.getSynonyms()) > 0:
+            divSyn = MyBoxHtmlTag('Synonymes')
+            divSyn.addTag(ListHtmlTag([f'<i>{name}</i>' for name in taxon.getSynonyms()]))
+            tableLinks.getNextCell(divSyn)
         
         page.save(f'{config.dirWebExport}{self.getTaxonLink(taxon)}')
 

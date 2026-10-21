@@ -5,8 +5,9 @@ __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
 import config
-from enum import Enum
 import logging
+import os
+from enum import Enum
 
 import Database
 import TextTools
@@ -75,6 +76,7 @@ class Taxon():
         self.parent = None
         self.children = []
         self.pictures = []
+        self.synonyms = set()
 
     def addChild(self, child: 'Taxon'):
         """Add a child of this taxon."""
@@ -228,6 +230,13 @@ class Taxon():
             return self.getParent().getAncestor(rank)
         return None
 
+    def addSynonym(self, name):
+        """Add name as a synonym of this taxon."""
+        self.synonyms.add(name)
+
+    def getSynonyms(self) -> list[str]:
+        return self.synonyms
+
     def toJson(self):
         """Create a dict of this Taxon for json export."""
         data = {
@@ -269,6 +278,7 @@ class TaxonCache():
         self.db = Database.Database(config.dbName)
         self.topLevel = []
         self.dictById = {}
+        self.synonyms = {}
         self.db.connect(config.dbUser, config.dbPass)
         query = Database.Query('Taxon')
         query.add('select idxTaxon, taxName, taxNameFr, taxRank, taxParent, taxOrder, taxTypical')
@@ -293,6 +303,9 @@ class TaxonCache():
                     taxon.setParent(parent)
                 else:
                     self.log.error('Could not find parent of %s', taxon)
+
+        # Load synonyms
+        self.loadSynonyms()
 
     def save(self, obj: Taxon):
         """Insert or update the specified Taxon in database."""
@@ -511,7 +524,47 @@ class TaxonCache():
     def size(self):
         """Returns the number of taxa in cache."""
         return len(self.dictById)
-        
+
+    def loadSynonyms(self):
+        """Load synonym taxon info."""
+        filename = config.fileSynonyms
+        self.log.info(f'Loading synonyms from {filename}')
+        if not os.path.exists(filename):
+            self.log.error(f'Unknown file {filename}')
+            return
+
+        with open(filename, 'r') as file:
+            for line in file:
+                value = line.strip()
+                if '=' in value:
+                    names = value.split('=', 2)
+                    self.addSynonym(names[0].strip(), names[1].strip())
+                else:
+                    self.log.error(f'Invalid input: {value}')
+
+    def addSynonym(self, extName: str, intName: str):
+        """Add extName as a synonym of taxon intName."""
+        self.log.debug(f'Synonyms: {extName}, {intName}')
+        # Check if name2 is a known taxon in Pynorpa
+        taxon = self.findByName(intName)
+        if taxon:
+            self.log.info(f'Adding {extName} as a synonym of {taxon}')
+            taxon.addSynonym(extName)
+            self.synonyms[extName] = taxon
+        else:
+            self.log.error(f'Unknown taxon name {intName} as synonym of {extName}')
+
+    def findBySynonym(self, name) -> Taxon:
+        """Check if name is a synonym of a taxon in this cache."""
+        if name in self.synonyms:
+            taxon = self.synonyms[name]
+            self.log.info(f'{name} is a synonym of {taxon}')
+            return taxon
+        self.log.info(f'{name} is not a synonym')
+        return None
+
+    # TODO def saveSynonyms(self):
+    
     def __str__(self):
         return f'TaxonCache with {len(self.dictById)} taxa'
 
@@ -555,10 +608,20 @@ def testReflection():
     result = mtdGetter(taxon)
     taxon.log.info(result)
 
+def testSynonyms():
+    """Unit test for loading taxon synonyms."""
+    TaxonCache.log.info('Testing synonyms')
+    cache = TaxonCache()
+    TaxonCache.log.info('Testing synonym lookup')
+    cache.findBySynonym('Blast')
+    cache.findBySynonym('Crocus vernus')
+    cache.findBySynonym('Crocus albiflorus')
+
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",
         level=logging.INFO, handlers=[logging.StreamHandler()])
-    testTaxonCache()
-    testCreateTaxaFromFilename()
+    #testTaxonCache()
+    #testCreateTaxaFromFilename()
     #testReflection()
+    testSynonyms()
 

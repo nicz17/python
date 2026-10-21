@@ -199,7 +199,7 @@ class INatApiRequestObs():
             self.log.info(f'Count is {count}, fetched in {timer.getElapsed()}')
             return count
         except Exception as exc:
-            self.log.error(f'Request for observations failed: {exc}')
+            self.log.error(f'Request for observations count failed: {exc}')
 
     def sendRequest(self, page: int, nmax: int):
         """Request an observations page."""

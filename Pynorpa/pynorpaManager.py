@@ -19,7 +19,7 @@ from PhotoInfo import PhotoInfo
 from picture import Picture, PictureCache
 from taxon import TaxonCache, Taxon, TaxonRank
 from expedition import Expedition, ExpeditionCache
-from iNatApiRequest import INatApiRequestTaxon, INatTaxon
+from iNatApiRequest import INatApiRequestTaxon, INatObs
 from exporter import Exporter
 from uploader import Uploader
 
@@ -432,6 +432,32 @@ class PynorpaManager():
         cmd = f'cp -r {config.dirPhotosBase}{dir} {config.dirElements}Pictures/'
         self.runSystemCommand(cmd)
         self.log.info(f'Backup of  {dir} done')
+
+    def findMatchingSelections(self, iNatObs: INatObs) -> list[PhotoInfo]:
+        """Find selected photos matching the iNat observation, based on its timestamp."""
+        maxOffset = 60 # At most 60s between iNat and photo timestamps
+        self.log.info(f'Looking for selected photos matching {iNatObs}')
+        matches = []
+
+        # Find the correct photos dir
+        ym = DateTools.datetimeToString(iNatObs.dtAt, '%Y-%m')
+        dir = f'{config.dirPhotosBase}Nature-{ym}/photos'
+        self.log.info(f'Looking in {dir}')
+        if not os.path.isdir(dir):
+            self.log.error(f'Missing directory {dir}')
+        else:
+            files = glob.glob(f'{dir}/*.jpg')
+            self.log.info(f'Checking {len(files)} photos')
+            for file in files:
+                photo = PhotoInfo(file)
+                photo.identify()
+                offset = abs(iNatObs.dtAt.timestamp() - photo.getShotAt())
+                if (offset < maxOffset):
+                    matches.append(photo)
+                    self.log.info(f'Candidate at {offset}s: {photo}')
+
+        self.log.info(f'Found {len(matches)} matches')
+        return matches
     
     def runSystemCommand(self, cmd: str, dryrun=False):
         """Run a system command."""
@@ -449,7 +475,9 @@ def testManager():
     #mgr.addTaxonFromINat('Solorina saccata')
     #mgr.backupDatabase()
     mgr.log.info(f'Current dir: {mgr.getDefaultDir()}')
-    mgr.getDirsToBackup()
+    #mgr.getDirsToBackup()
+    iNatObs = INatObs(42, 'test taxon', '2026-07-28T12:34:00+02:00', 'test location', 'photo42') 
+    mgr.findMatchingSelections(iNatObs)
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",

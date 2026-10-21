@@ -50,7 +50,9 @@ class ModuleQuality(TabModule):
         self.setLoadingIcon()
         checker = QualityCheckerINatObs(year, month, self.onProgress)
         checker.run()
-        self.table.loadData(checker.getIssues())
+        issues = checker.getIssues()
+        if len(issues) > 0:
+            self.table.loadData(checker.getIssues())
         self.setLoadingIcon(True)
 
     def onProgress(self, percent: float, msg: str):

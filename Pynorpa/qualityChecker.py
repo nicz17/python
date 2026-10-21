@@ -11,6 +11,7 @@ import os
 from LocationCache import LocationCache
 from PhotoInfo import WebPhoto
 from picture import PictureCache, Picture
+from pynorpaManager import PynorpaManager
 from taxon import TaxonCache, TaxonRank
 from iNatApiRequest import INatApiRequestObs, INatObs
 from Timer import Timer
@@ -181,6 +182,7 @@ class QualityCheckerINatObs():
         self.cbkProgress = cbkProgress
         self.issues = []
         self.taxCache = TaxonCache()
+        self.manager = PynorpaManager()
 
     def run(self):
         """Run the checks."""
@@ -188,7 +190,14 @@ class QualityCheckerINatObs():
         timer = Timer()
         req = INatApiRequestObs(self.year, self.month)
         count = req.sendCountRequest()
+        if count is None:
+            self.log.error('Count request failed')
+            if self.cbkProgress:
+                self.cbkProgress(0.0, 'Echec de chargement des observations')
+            return
+        
         pages = count//self.perPage + 1
+        fetched = 0
         self.log.info(f'Observation count is {count}, requiring {pages} pages')
         if self.cbkProgress:
             self.cbkProgress(0.0, f'Vérification de {count} observations sur {pages} pages')
@@ -199,6 +208,7 @@ class QualityCheckerINatObs():
             lobs = req.readResponse(data)
             error = ''
             if lobs:
+                fetched += len(lobs) 
                 for obs in lobs:
                     self.checkTaxon(obs)
             else:
@@ -206,19 +216,26 @@ class QualityCheckerINatObs():
             if self.cbkProgress:
                 self.cbkProgress(100.0*page/pages, f'Page {page} sur {pages}{error}')
         if self.cbkProgress:
-            self.cbkProgress(100.0, f'Vérifié {count} observations en {timer.getElapsed()}')
+            self.cbkProgress(100.0, f'Vérifié {fetched}/{count} observations en {timer.getElapsed()}')
 
     def checkTaxon(self, obs: INatObs):
         """Check if the iNat obs taxon is missing in Paynorpa."""
         taxname = obs.getTaxon()
         taxon = self.taxCache.findByName(taxname)
         if not taxon:
-            # TODO find if taxon is in Panorpa as a synonym, for example Crocus vernus = Crocus albiflorus
-            # TODO store a list of these synonyms in a json file or DB table
+            # Check if it is a known synonym
+            taxon = self.taxCache.findBySynonym(taxname)
+            if taxon:
+                self.log.info(f'{taxname} is a synonym of {taxon}')
+        if not taxon:
             # TODO also store bad quality Android obs to ignore
             self.log.info(f'Taxon {taxname} observed on {obs.sAt} missing in Pynorpa - {obs.getObsUrl()}')
+            matches = self.manager.findMatchingSelections(obs)
+            matchinfo = f'{len(matches)} sélections correspondates'
+            if len(matches) == 1:
+                matchinfo = f'Correspond à {matches[0]}'
             desc = f'Espèce manquante : {taxname} ({obs.getPlace()})'
-            details = f'Observé le {obs.getAt()}\nà {obs.getPlace()}\n{obs.getObsUrl()}'
+            details = f'Observé le {obs.getAt()}\nà {obs.getPlace()}\n{obs.getObsUrl()}\n{matchinfo}'
             webPhoto = WebPhoto(obs.getPhotoUrl(), f'{taxname} sur iNaturalist')
             issue = QualityIssue(obs.id, desc, details, webPhoto)
             # TODO separate iNat obs URL (external link) and Reselection link (internal, with timestamp)

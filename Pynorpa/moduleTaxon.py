@@ -15,6 +15,7 @@ from tkinter import ttk
 import BaseWidgets
 import imageWidget
 from TabsApp import TabsApp, TabModule
+from BaseTable import AdvTable, TableColumn
 from BaseTree import BaseTree
 from taxon import Taxon, TaxonCache, TaxonRank
 from pynorpaManager import PynorpaManager
@@ -38,11 +39,13 @@ class ModuleTaxon(TabModule):
         self.tree   = TaxonTree(self.onSelectTaxon)
         self.editor = TaxonEditor(self.onSaveTaxon, parent)
         self.imageWidget = imageWidget.CaptionImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
+        self.tableSyn = SynonymsTable(None)
 
     def loadData(self):
         self.cache = TaxonCache()
         self.tree.loadData()
         self.enableWidgets()
+        self.tableSyn.setStatus('Synonymes')
 
     def navigateToObject(self, taxon: Taxon):
         self.tree.setSelection(taxon)
@@ -59,6 +62,13 @@ class ModuleTaxon(TabModule):
         self.editor.loadData(taxon)
         self.imageWidget.loadThumb(taxon.getTypicalPicture() if taxon else None)
         self.enableWidgets()
+
+        # Display synonyms in table
+        synonyms = []
+        for name in taxon.getSynonyms():
+            synonyms.append(SynonymTaxon(name))
+        self.tableSyn.objectlabel = f'Synonymes de {taxon.getName()}' if taxon else 'Synonymes'
+        self.tableSyn.loadData(synonyms)
 
     def onSaveTaxon(self, taxon: Taxon):
         self.log.info('Saving %s', taxon)
@@ -103,9 +113,13 @@ class ModuleTaxon(TabModule):
                 self.tree.setSelection(taxon)
                 self.enableWidgets()
 
+    def onAddSynonym(self):
+        # TODO name input dialog
+        pass
+
     def createWidgets(self):
         """Create user widgets."""
-        self.createLeftRightFrames()
+        self.createLeftCenterRightFrames()
 
         # Taxon tree
         self.tree.createWidgets(self.frmLeft)
@@ -126,9 +140,14 @@ class ModuleTaxon(TabModule):
         frmToolbar2.pack(fill=tk.X)
 
         # Editor and image
-        self.editor.createWidgets(self.frmRight)
-        self.imageWidget.createWidgets(self.frmRight)
+        self.editor.createWidgets(self.frmCenter)
+        self.imageWidget.createWidgets(self.frmCenter)
         self.editor.loadData(None)
+
+        # Synonyms table
+        self.tableSyn.createWidgets(self.frmRight, 4)
+        self.btnAddSyn = BaseWidgets.Button(self.tableSyn.frmToolBar, 'Ajouter', self.onAddSynonym, 'add')
+        self.btnAddSyn.pack()
 
     def enableWidgets(self):
         """Enable or disable the buttons."""
@@ -136,6 +155,7 @@ class ModuleTaxon(TabModule):
         canUpload = (self.uploader.getTaxonPage(self.taxon) is not None)
         self.btnAdd.enableWidget(canAdd)
         self.btnUpload.enableWidget(canUpload)
+        self.btnAddSyn.enableWidget(self.taxon is not None)
 
 class TaxonTree(BaseTree):
     """Subclass of BaseTree displaying taxa."""
@@ -267,3 +287,31 @@ class TaxonEditor(BaseWidgets.BaseEditor):
 
     def __str__(self) -> str:
         return f'TaxonEditor for {self.taxon}'
+
+class SynonymTaxon:
+    def __init__(self, name):
+        self.name = name
+
+    def getName(self):
+        return self.name
+
+class SynonymsTable(AdvTable):
+    """Class SynonymsTable"""
+    log = logging.getLogger("SynonymsTable")
+
+    def __init__(self, cbkSelect):
+        """Constructor."""
+        super().__init__(cbkSelect, "Synonymes", 6)
+
+    def addColumns(self):
+        """Define the table columns."""
+        self.addColumn(TableColumn('Synonyme', SynonymTaxon.getName, 240))
+
+    def loadData(self, data: list[SynonymTaxon]):
+        """Display the specified objects in this table."""
+        self.clear()
+        self.data = data
+        self.addRows(data)
+
+    def __str__(self):
+        return 'SynonymsTable'
