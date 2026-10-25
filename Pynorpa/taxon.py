@@ -538,21 +538,27 @@ class TaxonCache():
                 value = line.strip()
                 if '=' in value:
                     names = value.split('=', 2)
-                    self.addSynonym(names[0].strip(), names[1].strip())
+                    self.addSynonym(names[0].strip(), self.findByName(names[1].strip()))
                 else:
                     self.log.error(f'Invalid input: {value}')
 
-    def addSynonym(self, extName: str, intName: str):
+    def saveSynonyms(self):
+        """Save the taxon synonyms to file."""
+        filename = config.fileSynonyms
+        self.log.info(f'Saving synonyms to {filename}')
+        with open(filename, 'w') as file:
+            for name in sorted(self.synonyms.keys()):
+                file.write(f'{name} = {self.synonyms[name].getName()}\n')
+
+    def addSynonym(self, extName: str, taxon: Taxon):
         """Add extName as a synonym of taxon intName."""
-        self.log.debug(f'Synonyms: {extName}, {intName}')
-        # Check if name2 is a known taxon in Pynorpa
-        taxon = self.findByName(intName)
+        self.log.debug(f'Synonyms: {extName}, {taxon}')
         if taxon:
             self.log.info(f'Adding {extName} as a synonym of {taxon}')
             taxon.addSynonym(extName)
             self.synonyms[extName] = taxon
         else:
-            self.log.error(f'Unknown taxon name {intName} as synonym of {extName}')
+            self.log.error(f'Unknown taxon as synonym of {extName}')
 
     def findBySynonym(self, name) -> Taxon:
         """Check if name is a synonym of a taxon in this cache."""
@@ -562,8 +568,6 @@ class TaxonCache():
             return taxon
         self.log.info(f'{name} is not a synonym')
         return None
-
-    # TODO def saveSynonyms(self):
     
     def __str__(self):
         return f'TaxonCache with {len(self.dictById)} taxa'
@@ -612,10 +616,11 @@ def testSynonyms():
     """Unit test for loading taxon synonyms."""
     TaxonCache.log.info('Testing synonyms')
     cache = TaxonCache()
-    TaxonCache.log.info('Testing synonym lookup')
     cache.findBySynonym('Blast')
     cache.findBySynonym('Crocus vernus')
     cache.findBySynonym('Crocus albiflorus')
+    cache.addSynonym('Galatella linosyris', cache.findByName('Aster linosyris'))
+    cache.saveSynonyms()
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",

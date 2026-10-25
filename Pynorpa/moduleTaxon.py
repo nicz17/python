@@ -11,6 +11,7 @@ import logging
 import os
 import tkinter as tk
 from tkinter import ttk
+from tkinter import simpledialog as sd
 
 import BaseWidgets
 import imageWidget
@@ -114,8 +115,14 @@ class ModuleTaxon(TabModule):
                 self.enableWidgets()
 
     def onAddSynonym(self):
-        # TODO name input dialog
-        pass
+        """Add a synonym for the selected taxon."""
+        if not self.taxon:
+            return
+        name = sd.askstring('Synonyme', f'Entrer un synonyme pour {self.taxon.getName()} :')
+        if name:
+            self.log.info(f'Add {name} as synonym of {self.taxon}')
+            self.cache.addSynonym(name, self.taxon)
+            self.cache.saveSynonyms()
 
     def createWidgets(self):
         """Create user widgets."""
