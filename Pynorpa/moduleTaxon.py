@@ -62,14 +62,8 @@ class ModuleTaxon(TabModule):
         # Display in widgets
         self.editor.loadData(taxon)
         self.imageWidget.loadThumb(taxon.getTypicalPicture() if taxon else None)
+        self.loadSynonyms(self.taxon)
         self.enableWidgets()
-
-        # Display synonyms in table
-        synonyms = []
-        for name in taxon.getSynonyms():
-            synonyms.append(SynonymTaxon(name))
-        self.tableSyn.objectlabel = f'Synonymes de {taxon.getName()}' if taxon else 'Synonymes'
-        self.tableSyn.loadData(synonyms)
 
     def onSaveTaxon(self, taxon: Taxon):
         self.log.info('Saving %s', taxon)
@@ -123,6 +117,17 @@ class ModuleTaxon(TabModule):
             self.log.info(f'Add {name} as synonym of {self.taxon}')
             self.cache.addSynonym(name, self.taxon)
             self.cache.saveSynonyms()
+            self.loadSynonyms(self.taxon)
+
+    def loadSynonyms(self, taxon: Taxon):
+        """Display synonyms in table"""
+        synonyms = []
+        self.tableSyn.objectlabel = 'Synonymes'
+        if taxon:
+            for name in taxon.getSynonyms():
+                synonyms.append(SynonymTaxon(name))
+            self.tableSyn.objectlabel = f'Synonymes de {taxon.getName()}'
+        self.tableSyn.loadData(synonyms)
 
     def createWidgets(self):
         """Create user widgets."""
