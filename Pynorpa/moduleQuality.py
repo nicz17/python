@@ -6,6 +6,7 @@ __version__ = "1.0.0"
 
 import config
 import logging
+import os
 import tkinter as tk
 from tkinter import ttk
 
@@ -111,24 +112,30 @@ class QualityIssueEditor(BaseEditor):
         self.issue = issue
         self.enableWidgets()
 
-    def navigate(self):
+    def resolve(self):
         self.log.info(f'Navigating to {self.issue.getLink()}')
         self.app.navigateToObject(self.issue.getLink())
+
+    def navigate(self):
+        self.log.info(f'Navigating to {self.issue.getExternalUrl()}')
+        os.system(f'firefox {self.issue.getExternalUrl()} &')
 
     def createWidgets(self, parent: tk.Frame):
         """Add the editor widgets to the parent widget."""
         super().createWidgets(parent, 'Propriétés du problème')
         self.widKind = self.addTextReadOnly('Type', QualityIssue.getKind)
         self.widDesc = self.addTextArea('Descr.',   QualityIssue.getDesc, 2)
-        self.widDesc = self.addTextArea('Détails',  QualityIssue.getDetails, 4)
+        self.widDesc = self.addTextArea('Détails',  QualityIssue.getDetails, 6)
         self.createButtons(False, False, False)
-        self.btnResolve = self.addButton('Résoudre', self.navigate, 'go-next')
-        # TODO add Button to add missing iNat species as synonym?
+        self.btnResolve  = self.addButton('Résoudre', self.resolve,  'go-next')
+        self.btnNavigate = self.addButton('Naviguer', self.navigate, 'internet')
+        # TODO add Button to add missing iNat species as synonym if unique match
         self.enableWidgets()
 
     def enableWidgets(self, enabled=False):
         super().enableWidgets(enabled)
         self.btnResolve.enableWidget(self.issue is not None)
+        self.btnNavigate.enableWidget(self.issue and self.issue.getExternalUrl())
 
     def __str__(self):
         return 'QualityIssueEditor'

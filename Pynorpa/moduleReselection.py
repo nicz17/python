@@ -6,11 +6,11 @@ __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2024 N. Zwahlen"
 __version__ = "1.0.0"
 
-import logging
 import config
+import datetime as dt
 import glob
+import logging
 
-import DateTools
 import LocationCache
 from TabsApp import *
 from BaseTable import TableColumn
@@ -26,6 +26,13 @@ from tkinter import messagebox as mb
 from taxon import Taxon
 
 
+class ReselectionContext:
+    """Container class for navigation to reselection module at a given timestamp."""
+    def __init__(self, at: dt.datetime):
+        self.at = at
+    def __str__(self):
+        return f'ReselectionContext at {self.at}'
+
 class ModuleReselection(TabModule):
     """Pynorpa Module for reselecting photos."""
     log = logging.getLogger('ModuleReselection')
@@ -34,7 +41,7 @@ class ModuleReselection(TabModule):
         """Constructor."""
         self.app = parent
         self.window = parent.window
-        super().__init__(parent, 'Resélection')
+        super().__init__(parent, 'Resélection', 'ReselectionContext')
         self.locationCache = LocationCache.LocationCache()
         self.table = TableReselection(self.onSelectPhoto)
         self.imageWidget = imageWidget.ImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
@@ -70,6 +77,12 @@ class ModuleReselection(TabModule):
         self.setLoadingIcon(True)
         self.app.setStatus(f'Chargé {self.dir}')
         self.enableWidgets()
+
+    def navigateToObject(self, context: ReselectionContext):
+        """Navigate to the timestamp in context."""
+        self.log.info(f'Navigating to {context}')
+        # TODO set dir = self.manager.getDirAt(context.at)
+        # TODO select photo from context by filename
 
     def onSelectDir(self, dir: str):
         """Change the photos directory and reload our data."""

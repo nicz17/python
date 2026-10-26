@@ -9,6 +9,7 @@ import logging
 import os
 
 from LocationCache import LocationCache
+from moduleReselection import ReselectionContext
 from PhotoInfo import WebPhoto
 from picture import PictureCache, Picture
 from pynorpaManager import PynorpaManager
@@ -28,6 +29,7 @@ class QualityIssue():
         self.details = details
         self.pic = pic
         self.cbkLink = None
+        self.extUrl = None
 
     def setLink(self, cbkLink):
         """Setter for link"""
@@ -50,6 +52,8 @@ class QualityIssue():
             return 'Taxon'
         if objClass == 'INatObs':
             return 'iNat'
+        if objClass == 'ReselectionContext':
+            return 'iNat'
         return objClass
 
     def getDesc(self) -> str:
@@ -67,6 +71,12 @@ class QualityIssue():
     def getLink(self):
         """Getter for link"""
         return self.cbkLink
+
+    def setExternalUrl(self, url: str):
+        self.extUrl = url
+
+    def getExternalUrl(self) -> str:
+        return self.extUrl
 
     def __str__(self):
         return f'QualityIssue {self.idx}: {self.desc}'
@@ -228,18 +238,19 @@ class QualityCheckerINatObs():
             if taxon:
                 self.log.info(f'{taxname} is a synonym of {taxon}')
         if not taxon:
+            # Add as an issue
             # TODO also store bad quality Android obs to ignore
             self.log.info(f'Taxon {taxname} observed on {obs.sAt} missing in Pynorpa - {obs.getObsUrl()}')
             matches = self.manager.findMatchingSelections(obs)
             matchinfo = f'{len(matches)} sélections correspondates'
             if len(matches) == 1:
-                matchinfo = f'Correspond à {matches[0]}'
+                matchinfo = f'Correspond à {matches[0].getNameNoExt()}'
             desc = f'Espèce manquante : {taxname} ({obs.getPlace()})'
             details = f'Observé le {obs.getAt()}\nà {obs.getPlace()}\n{obs.getObsUrl()}\n{matchinfo}'
             webPhoto = WebPhoto(obs.getPhotoUrl(), f'{taxname} sur iNaturalist')
             issue = QualityIssue(obs.id, desc, details, webPhoto)
-            # TODO separate iNat obs URL (external link) and Reselection link (internal, with timestamp)
-            issue.setLink(obs)
+            issue.setLink(ReselectionContext(obs.dtAt))
+            issue.setExternalUrl(obs.getObsUrl())
             self.issues.append(issue)
             # TODO store these found issues in a json file? on demand in module (export table)
 
