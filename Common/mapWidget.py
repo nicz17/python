@@ -22,6 +22,14 @@ class MapWidget():
     log = logging.getLogger('MapWidget')
     defPosition = LatLonZoom(46.3173, 6.9684, 10)
     defMarker = None # config.mapMarkerGreen
+    tileServers = {
+        'OpenStreetMap': "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        'Google satellite': "https://mt0.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}&s=Ga",
+        'Painting': "http://c.tile.stamen.com/watercolor/{z}/{x}/{y}.png",
+        'Black and white': "http://a.tile.stamen.com/toner/{z}/{x}/{y}.png",
+        'Hiking': "https://tiles.wmflabs.org/hikebike/{z}/{x}/{y}.png",
+        'SwissTopo': "https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-farbe/default/current/3857/{z}/{x}/{y}.jpeg"
+    }
 
     def __init__(self, cbkLeftClick=None):
         """Constructor"""
@@ -92,5 +100,6 @@ class MapWidget():
         self.mapView.add_left_click_map_command(self.onLeftClick)
         self.mapView.add_right_click_menu_command(label='Centrer ici',
             command=self.onRightClick, pass_coords=True)
+        self.mapView.set_tile_server(self.tileServers['SwissTopo'])
         self.setDefaultLocation()
     
