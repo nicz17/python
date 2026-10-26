@@ -12,7 +12,7 @@ import tkinter as tk
 from BaseWidgets import ComboBox, ToolTip, Button
 from CopyFromCamera import *
 from LocationCache import *
-from MapWidget import *
+from mapWidget import MapWidget
 from PynorpaTask import *
 from Renderer import *
 from TabsApp import *

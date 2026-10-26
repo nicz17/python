@@ -15,7 +15,7 @@ import TextTools
 
 from BaseTable import *
 from LocationCache import *
-from MapWidget import *
+from mapWidget import MapWidget
 from pynorpaManager import PynorpaManager, PynorpaException
 from TabsApp import TabModule, TabsApp
 
@@ -45,7 +45,7 @@ class ModuleLocations(TabModule):
     def onSelectLocation(self, location: Location):
         self.log.info(f'Selected {location}')
         # Display in widgets
-        self.mapWidget.loadData(location)
+        self.mapWidget.loadData(location.getLatLonZoom() if location else None)
         self.mapWidget.removeMarkers()
         if location:
             self.mapWidget.addMarker(location.getLatLonZoom(), config.mapMarkerGreen)

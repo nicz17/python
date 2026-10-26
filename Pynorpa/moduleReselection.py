@@ -19,7 +19,7 @@ from moduleSelection import TablePhotos, PhotoEditor, TaxonSelector, DirectorySe
 from pynorpaManager import PynorpaManager, PynorpaException
 from PhotoInfo import *
 import imageWidget
-from MapWidget import MapWidget
+from mapWidget import MapWidget
 from ModalDialog import *
 from LatLonZoom import LatLonZoom
 from tkinter import messagebox as mb
@@ -209,13 +209,13 @@ class DialogLocate(ModalDialog):
         self.hasChanges = False
         self.locCache = LocationCache.LocationCache()
         super().__init__(parent, 'Localisation fine')
-        self.root.geometry('1020x600+300+150')
+        self.root.geometry('1150x600+300+150')
 
     def onSelectPhoto(self, photo: PhotoInfo):
         """Photo selection callback."""
         self.photo = photo
         self.hasChanges = False
-        llz = MapWidget.locZero
+        llz = MapWidget.defPosition
         status = 'Sans données GPS'
         if photo and photo.lon and photo.lat:
             llz = LatLonZoom(photo.lat, photo.lon, 17)

@@ -15,7 +15,7 @@ from Timer import Timer
 from GeoTracker import GeoTrack
 from LatLonZoom import LatLon
 from BaseWidgets import MonthYearSelector, DateTime, Button
-from MapWidget import MapWidget
+from mapWidget import MapWidget
 from TabsApp import TabModule, TabsApp
 from BaseTable import AdvTable, TableColumn
 
@@ -57,7 +57,7 @@ class ModuleTracking(TabModule):
     def onSelectPosition(self, pos: LatLon):
         """Display the specified position on the map."""
         self.mapWidget.removeMarkers()
-        self.mapWidget.addMarker(pos)
+        self.mapWidget.addMarker(pos, config.mapMarkerGreen)
 
     def loadData(self):
         """Load tracking data."""
