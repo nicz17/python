@@ -445,13 +445,12 @@ class TaxonCache():
         return self.findById(result[0][0])
 
     def findByFilename(self, filename: str) -> Taxon:
-        """Find a Taxon from a file name."""
+        """Find a Taxon from a filename (may have digits and extension)."""
         name = filename.removesuffix('.jpg')
         name = TextTools.removeDigits(name)
         name = TextTools.upperCaseFirst(name)
         if name.endswith('-sp'):
             name = name.removesuffix('-sp')
-        #name = name.replace('-sp', '')
         name = name.replace('-', ' ', 1)
         return self.findByName(name)
     

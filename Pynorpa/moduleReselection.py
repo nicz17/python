@@ -23,11 +23,14 @@ from mapWidget import MapWidget
 from ModalDialog import *
 from LatLonZoom import LatLonZoom
 from tkinter import messagebox as mb
-from taxon import Taxon
+from taxon import Taxon, TaxonCache
 
 
 class ReselectionContext:
-    """Container class for navigation to reselection module at a given timestamp."""
+    """
+    Container class for navigation to reselection module
+    at a given timestamp or photo.
+    """
     def __init__(self, at: dt.datetime, photo: PhotoInfo):
         self.at = at
         self.photo = photo
@@ -44,6 +47,7 @@ class ModuleReselection(TabModule):
         self.window = parent.window
         super().__init__(parent, 'Confirmation', 'ReselectionContext')
         self.locationCache = LocationCache.LocationCache()
+        self.taxonCache = TaxonCache()
         self.table = TableReselection(self.onSelectPhoto)
         self.imageWidget = imageWidget.ImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
         self.editor = PhotoEditorReselection()
@@ -140,6 +144,19 @@ class ModuleReselection(TabModule):
             # TODO replace mb with dialog to edit remark and quality
         self.enableWidgets()
 
+    def onNavigateTaxon(self):
+        """Navigate to the selected photo's taxon, if it can be found."""
+        taxon = self.getPhotoTaxon()
+        if taxon:
+            self.app.navigateToObject(taxon)
+
+    def getPhotoTaxon(self) -> Taxon:
+        """Find the selected PhotoInfo's taxon based on the filename."""
+        taxon = None
+        if self.photo:
+            taxon = self.taxonCache.findByFilename(self.photo.getNameShort())
+        return taxon
+
     def createWidgets(self):
         """Create user widgets."""
         self.createLeftRightFrames()
@@ -153,17 +170,19 @@ class ModuleReselection(TabModule):
         self.table.setStatus('Chargement...')
 
         # Buttons
-        self.btnLocate = self.addButton('Localiser', self.onLocate, 'location22')
-        self.btnAddPic = self.addButton('Ajouter', self.onAddPic, 'add')
+        self.btnLocate = self.addButton('Localiser', self.onLocate, 'location22', 'Dialogue de localisation fine')
+        self.btnTaxon  = self.addButton('Taxon', self.onNavigateTaxon, 'go-next', 'Naviguer vers le taxon')
+        self.btnAddPic = self.addButton('Ajouter', self.onAddPic, 'add', 'Ajouter cette photo en galerie')
         self.enableWidgets()
 
     def enableWidgets(self):
         """Enable or disable user widgets."""
         self.btnAddPic.enableWidget(self.photo and not self.photo.isAdded)
+        self.btnTaxon.enableWidget(self.getPhotoTaxon() is not None)
 
-    def addButton(self, label: str, cmd, icon: str) -> Button:
+    def addButton(self, label: str, cmd, icon: str, tootip=None) -> Button:
         """Add a Tk Button to this module's frmButtons."""
-        btn = Button(self.table.frmToolBar, label, cmd, icon)
+        btn = Button(self.table.frmToolBar, label, cmd, icon, tootip)
         btn.pack(0)
         return btn
 
