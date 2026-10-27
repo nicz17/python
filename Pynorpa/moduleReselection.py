@@ -86,9 +86,9 @@ class ModuleReselection(TabModule):
     def navigateToObject(self, context: ReselectionContext):
         """Navigate to the timestamp in context."""
         self.log.info(f'Navigating to {context}')
-        dir = self.manager.getDirAt(context.at)
-        self.onSelectDir(f'{dir}/photos')
-        # TODO select photo from context by filename
+        dir = f'{self.manager.getDirAt(context.at)}/photos'
+        if dir != self.dir:
+            self.onSelectDir(dir)
         if context.photo:
             self.table.selectByIdx(context.photo.getIdx())
 
