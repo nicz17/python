@@ -47,6 +47,8 @@ def stringToTimestamp(strAt: str, format=formatDef) -> float:
 
 def stringToDatetime(strAt: str, format=formatDef) -> datetime.datetime:
     """Convert string like 2023.12.28 13:15:36 to datetime."""
+    if not strAt:
+        return None
     return datetime.datetime.strptime(strAt, format)
 
 def exifToTimestamp(strAt: str) -> float:
