@@ -5,6 +5,7 @@ __copyright__ = "Copyright 2025 N. Zwahlen"
 __version__ = "1.0.0"
 
 import config
+import datetime as dt
 import glob
 import logging
 import os
@@ -52,10 +53,14 @@ class PynorpaManager():
         self.locationCache = LocationCache()
         self.expeditionCache = ExpeditionCache()
 
+    def getDirAt(self, at: dt.datetime) -> str:
+        """Find the photo dir at the given datetime, for example ../Nature-2026-10"""
+        yearMonth = DateTools.datetimeToString(at, '%Y-%m')
+        return f'{config.dirPhotosBase}Nature-{yearMonth}'
+
     def getDefaultDir(self) -> str:
         """Find the current default photo dir, for example ../Nature-2026-10"""
-        yearMonth = DateTools.nowAsString('%Y-%m')
-        dir = f'{config.dirPhotosBase}Nature-{yearMonth}'
+        dir = self.getDirAt(DateTools.nowDatetime())
         if not os.path.exists(dir):
             self.log.info('Revert to previous month for default dir')
             yearMonth = DateTools.timestampToString(DateTools.addDays(DateTools.now(), -28), '%Y-%m')

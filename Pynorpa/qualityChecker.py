@@ -242,14 +242,17 @@ class QualityCheckerINatObs():
             # TODO also store bad quality Android obs to ignore
             self.log.info(f'Taxon {taxname} observed on {obs.sAt} missing in Pynorpa - {obs.getObsUrl()}')
             matches = self.manager.findMatchingSelections(obs)
-            matchinfo = f'{len(matches)} sélections correspondates'
+            matchinfo = 'Pas de sélections correspondates'
+            closest = None if len(matches) == 0 else matches[0]
             if len(matches) == 1:
                 matchinfo = f'Correspond à {matches[0].getNameNoExt()}'
+            elif len(matches) > 1:
+                matchinfo = f'{len(matches)} sélections correspondates'
             desc = f'Espèce manquante : {taxname} ({obs.getPlace()})'
             details = f'Observé le {obs.getAt()}\nà {obs.getPlace()}\n{obs.getObsUrl()}\n{matchinfo}'
             webPhoto = WebPhoto(obs.getPhotoUrl(), f'{taxname} sur iNaturalist')
             issue = QualityIssue(obs.id, desc, details, webPhoto)
-            issue.setLink(ReselectionContext(obs.dtAt))
+            issue.setLink(ReselectionContext(obs.dtAt, closest))
             issue.setExternalUrl(obs.getObsUrl())
             self.issues.append(issue)
             # TODO store these found issues in a json file? on demand in module (export table)

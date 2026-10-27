@@ -171,6 +171,21 @@ class TableWithColumns(BaseTable):
             rowdata.append(col.mtdGetter(object))
         self.tree.item(iid, values=rowdata)
 
+    def selectRow(self, idxRow):
+        """Set the selection at the specified row."""
+        if idxRow:
+            self.tree.see(idxRow)
+            self.tree.focus(idxRow)
+            self.tree.selection_set(idxRow)
+
+    def selectByIdx(self, idx):
+        """Set selection by object index (not row number)."""
+        self.log.info(f'Selecting object with idx {idx}')
+        for idxRow, obj in enumerate(self.data):
+            if obj.getIdx() == idx:
+                self.selectRow(idxRow)
+                return
+
         
 class AdvTable(TableWithColumns):
     """Table with title, scrollbar and toolbar."""
@@ -217,21 +232,6 @@ class AdvTable(TableWithColumns):
     def setStatus(self, text: str):
         """Set the title bar text."""
         self.lblTitle.configure(text=f'{self.objectlabel} ({self.nRows})')
-
-    def selectRow(self, idxRow):
-        """Set the selection at the specified row."""
-        if idxRow:
-            self.tree.see(idxRow)
-            self.tree.focus(idxRow)
-            self.tree.selection_set(idxRow)
-
-    def selectByIdx(self, idx):
-        """Set selection by object index (not row number)."""
-        self.log.info(f'Selecting object with idx {idx}')
-        for idxRow, obj in enumerate(self.data):
-            if obj.getIdx() == idx:
-                self.selectRow(idxRow)
-                return
 
     def createWidgets(self, parent: tk.Frame, height=40):
         """Create user widgets."""
