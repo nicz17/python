@@ -109,9 +109,12 @@ class PhotoInfo:
                     self.fNumber = f'{fValue:.1f}'
             elif tag == 'EXIF ISOSpeedRatings':
                 self.isoRating = tags[tag]
-        gpsCoords = exifread.utils.get_gps_coords(tags)
-        if gpsCoords:
-            self.lat, self.lon = gpsCoords
+        try:
+            gpsCoords = exifread.utils.get_gps_coords(tags)
+            if gpsCoords:
+                self.lat, self.lon = gpsCoords
+        except:
+            self.log.error(f'Failed to read GPS coordinates from tags for {self.filename}')
         file.close()
         self.log.debug(self)
 
