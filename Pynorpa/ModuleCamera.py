@@ -138,7 +138,7 @@ class ModuleCamera(TabModule):
         self.frmButtons.pack(anchor=tk.W)
 
         # Buttons
-        self.btnCopy = self.addButton('Copier', 'run',  self.copyFiles)
+        self.btnCopy = self.addButton('Copier', 'sdcard',  self.copyFiles)  # run icon
         self.btnOpen = self.addButton('Ouvrir', 'open', self.openPhotoDir)
         #ToolTip(self.btnCopy, 'Copier les photos depuis la carte mémoire')
 
