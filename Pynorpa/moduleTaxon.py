@@ -145,7 +145,7 @@ class ModuleTaxon(TabModule):
         self.btnCollapse = BaseWidgets.IconButton(frmToolbar, 'undo', 'Tout fermer', self.tree.closeAll, 6)
         frmToolbar.pack(fill=tk.X)
         frmToolbar2 = ttk.Frame(self.frmLeft)
-        self.btnAddINat = BaseWidgets.Button(frmToolbar2, 'iNat', self.onAddTaxonINatDialog, 'add')
+        self.btnAddINat = BaseWidgets.Button(frmToolbar2, 'iNat', self.onAddTaxonINatDialog, 'inat')
         self.btnAddINat.pack(0)
         self.btnUpload = BaseWidgets.Button(frmToolbar2, 'Publier', self.onUpload, 'go-up')
         self.btnUpload.pack(0)

@@ -180,7 +180,7 @@ class MissingObsFinder:
         self.selector.createWidgets(self.frmTop, tk.LEFT, 7)
         self.selector.setValueDatetime(self.at)
 
-        self.btnSearch = Button(self.frmTop, 'Rechercher', self.onSearch, 'find')
+        self.btnSearch = Button(self.frmTop, 'Rechercher', self.onSearch, 'inat')
         self.btnSearch.pack(side=tk.RIGHT, pady=0)
 
         self.lblProgress = ttk.Label(self.frmProgress, text='Inactif')
