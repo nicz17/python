@@ -366,7 +366,7 @@ class ModuleWebPhotoDemo(TabModule):
 class AppDemo(TabsApp):
     """Demo app for base widgets and other common classes."""
     def __init__(self):
-        appIcon = f'{Path.home()}/prog/icons/ok.png'
+        appIcon = f'{Path.home()}/prog/icons/demo.png'
         super().__init__('Demo TabsApp', '1200x800', appIcon)
         ModuleTableDemo(self)
         ModuleTreeDemo(self)
