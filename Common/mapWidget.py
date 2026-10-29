@@ -100,6 +100,6 @@ class MapWidget():
         self.mapView.add_left_click_map_command(self.onLeftClick)
         self.mapView.add_right_click_menu_command(label='Centrer ici',
             command=self.onRightClick, pass_coords=True)
-        self.mapView.set_tile_server(self.tileServers['SwissTopo'])
+        self.mapView.set_tile_server(self.tileServers['OpenStreetMap'])
         self.setDefaultLocation()
     
