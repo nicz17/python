@@ -171,7 +171,7 @@ class ModuleReselection(TabModule):
 
         # Buttons
         self.btnLocate = self.addButton('Localiser', self.onLocate, 'location22', 'Dialogue de localisation fine')
-        self.btnTaxon  = self.addButton('Taxon', self.onNavigateTaxon, 'go-next', 'Naviguer vers le taxon')
+        self.btnTaxon  = self.addButton('Taxon', self.onNavigateTaxon, 'nodes', 'Naviguer vers le taxon')
         self.btnAddPic = self.addButton('Ajouter', self.onAddPic, 'add', 'Ajouter cette photo en galerie')
         self.enableWidgets()
 

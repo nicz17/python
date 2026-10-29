@@ -120,8 +120,8 @@ class ModuleBackups(TabModule):
         self.frmButtons.pack(anchor=tk.W)
 
         # Buttons
-        self.btnRun = self.addButton('Backup', 'run',  self.runBackups)
-        self.btnRefresh = self.addButton('Recharger', 'refresh',  self.reloadTasks)
+        self.btnRun     = self.addButton('Backup',    'db',      self.runBackups)
+        self.btnRefresh = self.addButton('Recharger', 'refresh', self.reloadTasks)
 
     def enableWidgets(self):
         self.btnRun.enableWidget(not self.isRunning)

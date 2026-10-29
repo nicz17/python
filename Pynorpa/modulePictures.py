@@ -78,7 +78,7 @@ class ModulePictures(TabModule):
         """Create user widgets."""
         self.createLeftRightFrames()
         self.table.createWidgets(self.frmLeft, 36)
-        self.btnReclass = BaseWidgets.Button(self.table.frmToolBar, 'Reclasser', self.onReclassify, 'edit')
+        self.btnReclass = BaseWidgets.Button(self.table.frmToolBar, 'Reclasser', self.onReclassify, 'nodes')
         self.btnReclass.pack(0)
         self.searchBar = BaseWidgets.SearchBar(self.table.frmToolBar, 36, self.table.onSearch)
         self.table.addRefreshButton(self.loadData)
@@ -338,8 +338,8 @@ class DialogReclassify(ModalDialog):
         # Buttons
         self.frmButtons = ttk.Frame(self.frmRight)
         self.frmButtons.pack(fill=tk.X, pady=6)
-        self.btnSave = BaseWidgets.Button(self.frmButtons, 'Reclasser', self.onSave, 'edit')
-        self.btnExit = BaseWidgets.Button(self.frmButtons, 'Quitter',   self.exit, 'cancel')
+        self.btnSave = BaseWidgets.Button(self.frmButtons, 'Reclasser', self.onSave, 'nodes')
+        self.btnExit = BaseWidgets.Button(self.frmButtons, 'Quitter',   self.exit,   'cancel')
         self.btnSave.pack()
         self.btnExit.pack()
 
