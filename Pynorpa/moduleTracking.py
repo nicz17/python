@@ -165,7 +165,7 @@ class PositionFinder:
         self.enableWidgets()
 
     def enableWidgets(self):
-        valid = self.widDatetime.isValid()
+        valid = self.track and self.widDatetime.isValid()
         self.btnSearch.enableWidget(valid)
 
     
