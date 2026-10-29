@@ -156,6 +156,8 @@ class MissingObsFinder:
 
     def onSearch(self):
         """Send a request to iNat to find missing species."""
+        self.progressBar['value'] = 0.0
+        self.progressBar.pack(fill=tk.X, expand=True, padx=5, pady=3)
         self.running = True
         self.enableWidgets()
         self.cbkRun(self.selector.getYear(), self.selector.getMonth())
@@ -166,6 +168,7 @@ class MissingObsFinder:
         self.lblProgress.config(text=msg)
         if percent == 100.0:
             self.running = False
+            self.progressBar.pack_forget()
             self.enableWidgets()
 
     def createWidgets(self, parent: tk.Frame):
@@ -186,7 +189,6 @@ class MissingObsFinder:
         self.lblProgress = ttk.Label(self.frmProgress, text='Inactif')
         self.lblProgress.pack(fill=tk.X, expand=True, padx=5, pady=3)
         self.progressBar = ttk.Progressbar(self.frmProgress, orient='horizontal', mode='determinate')
-        self.progressBar.pack(fill=tk.X, expand=True, padx=5, pady=3)
 
     def enableWidgets(self):
         valid = (self.selector.getValueDatetime() < DateTools.nowDatetime())
