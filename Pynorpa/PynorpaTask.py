@@ -204,6 +204,7 @@ class CopySelectionFiles(PynorpaTask):
         self.selfiles = sorted(glob.glob(config.dirSourceGeoTrack + '*.txt'))
         self.log.info(f'Found {len(self.selfiles)} selection files in {config.dirSourceGeoTrack}')
         self.setDesc(f'Chargé {len(self.selfiles)} fichiers sélection')
+        self.nStepsTotal = len(self.selfiles)
     
     def run(self):
         if len(self.selfiles) == 0:
@@ -212,7 +213,7 @@ class CopySelectionFiles(PynorpaTask):
         for file in self.selfiles:
             name = os.path.basename(file).removesuffix('.txt')
             date = name[-6:]
-            self.log.info(f'Selection file date: {date}')
+            self.log.debug(f'Selection file date: {date}')
             target = f'{config.dirPhotosBase}Nature-20{date[:2]}-{date[2:4]}'
             if not os.path.isdir(target):
                 self.log.error(f'Invalid target dir {target}')
@@ -223,6 +224,9 @@ class CopySelectionFiles(PynorpaTask):
                 cmd = f'mv {file} {dest}'
                 os.system(cmd)
                 self.copied.append(dest)
+                self.log.info(f'Copied selection file {file}')
+            self.inc()
+            self.cbkUpdate()
         timer.stop()
         self.log.info('Copied %d selection files in %s', len(self.copied), timer.getElapsed())
         self.setDesc(f'Copié {len(self.copied)} fichiers sélection en {timer.getElapsed()}')
