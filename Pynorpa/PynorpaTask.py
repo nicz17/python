@@ -268,22 +268,21 @@ class CheckDiskSpace(PynorpaTask):
     log = logging.getLogger('CheckDiskSpace')
 
     def __init__(self):
-        super().__init__('Espace disque', "Vérifier l'espace disque restant", 1)
         self.file = config.dirPhotosBase
+        self.total, self.used, self.free = shutil.disk_usage(self.file)
+        super().__init__('Espace disque', f'Espace disponible : {TextTools.fileSizeToString(self.free)}', 1)
 
     def prepare(self):
         self.log.info('Prepare')
         self.log.info(f'Checking disk usage on {self.file}')
-        total, used, free = shutil.disk_usage(self.file)
-        self.log.info(f'Free disk space: {TextTools.fileSizeToString(free)}')
-        self.setDesc(f'Espace disponible : {TextTools.fileSizeToString(free)}')
+        self.log.info(f'Free disk space: {TextTools.fileSizeToString(self.free)}')
+        self.setDesc(f'Espace disponible : {TextTools.fileSizeToString(self.free)}')
 
     def run(self):
         super().run()
-        total, used, free = shutil.disk_usage(self.file)
-        if free < 16*1024*1024*1024:
-            self.log.error(f'Insufficiant disk space: {TextTools.fileSizeToString(free)}')
-            self.setDesc(f'Espace insuffisant : {TextTools.fileSizeToString(free)}')
+        if self.free < 16*1024*1024*1024:
+            self.log.error(f'Insufficiant disk space: {TextTools.fileSizeToString(self.free)}')
+            self.setDesc(f'Espace insuffisant : {TextTools.fileSizeToString(self.free)}')
             self.setStatus('Error')
         else:
             self.inc()
