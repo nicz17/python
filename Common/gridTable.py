@@ -9,6 +9,7 @@ __version__ = "1.0.0"
 import logging
 import tkinter as tk
 from tkinter import ttk
+from pathlib import Path
 
 from BaseWidgets import IconButton, SearchBar
 from Timer import Timer
@@ -27,9 +28,11 @@ class TableColumn():
 class GridTable:
     """A grid table."""
     log = logging.getLogger('GridTable')
+    dirIcons = f'{Path.home()}/prog/icons'
 
     def __init__(self, title: str, cbkSelection):
         self.log.info(f'Constructor for GridTable {title}')
+        self.iconOk = tk.PhotoImage(file=f'{self.dirIcons}/ok18.png')
         self.cbkSelection = cbkSelection
         self.title = title
         self.columns = []
@@ -75,7 +78,7 @@ class GridTable:
             if obj.getIdx() == o.getIdx():
                 for icol, column in enumerate(self.columns):
                     value = column.mtdGetter(obj)
-                    self.widgets[row][icol].config(text=value)
+                    self.setCellValue(self.widgets[row][icol], value)
 
     def setSelectionStyle(self, row: int):
         for irow in range(len(self.data)):
@@ -105,9 +108,10 @@ class GridTable:
         for irow, obj in enumerate(data):
             for icol, column in enumerate(self.columns):
                 value = column.mtdGetter(obj)
-                lblCell = ttk.Label(self.frmBody, text=value, justify="left", style='Main.TLabel')
+                lblCell = ttk.Label(self.frmBody, justify="left", style='Main.TLabel')
                 lblCell.grid(column=icol, row=irow+1, sticky='we', padx=4, pady=1)
                 lblCell.bind("<Button-1>", lambda event, obj=obj, row=irow: self.onCellSelected(obj, row, event))
+                self.setCellValue(lblCell, value)
                 if not irow in self.widgets:
                     self.widgets[irow] = {}
                 self.widgets[irow][icol] = lblCell
@@ -115,6 +119,13 @@ class GridTable:
         count = len(data)
         perf = timer.getElapsed()
         self.lblCount.config(text=f'{count} | {perf}')
+
+    def setCellValue(self, lblCell: ttk.Label, value):
+        if isinstance(value, str):
+            lblCell.config(text=value)
+        elif isinstance(value, bool):
+            icon = self.iconOk if value else None
+            lblCell.config(image=icon)
 
     def createWidgets(self, parent: ttk.Frame):
         """Create user widgets."""

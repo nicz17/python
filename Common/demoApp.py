@@ -50,6 +50,9 @@ class DataDemo:
     def getAtStr(self) -> str:
         return DateTools.timestampToString(self.at)
 
+    def isFuture(self) -> bool:
+        return self.at > DateTools.now()
+
     def __str__(self):
         return f'DataDemo {self.idx} {self.name} {self.desc}'
 
@@ -402,6 +405,7 @@ class ModuleGridTableDemo(TabModule):
         self.table.addColumn('Nom', DataDemo.getName)
         self.table.addColumn('Description', DataDemo.getDesc)
         self.table.addColumn('Date', DataDemo.getAtStr)
+        self.table.addColumn('Futur', DataDemo.isFuture)
         self.table.createWidgets(self.frmLeft)
         self.table.addSearchBar()
         IconButton(self.table.frmFoot, 'undo', 'Déselectionner', self.onUnselect)
