@@ -9,7 +9,10 @@ __version__ = "1.0.0"
 import logging
 import tkinter as tk
 from tkinter import ttk
+
+from BaseWidgets import IconButton, SearchBar
 from Timer import Timer
+
 
 class TableColumn():
     """A table column."""
@@ -33,11 +36,46 @@ class GridTable:
         self.data = []
         self.widgets = {}
 
+    def onSearch(self, search: str):
+        """Search bar callback. Look for a matching record and select it."""
+        for row, obj in enumerate(self.data):
+            for col in self.getColumns():
+                value = col.mtdGetter(obj)
+                if isinstance(value, str) and search.lower() in value.lower():
+                    self.log.info(f'{obj} matches {search}')
+                    self.selectRow(row)
+                    return
+        self.log.info(f'No match for {search}')
+
     def onCellSelected(self, obj, row: int, event=None):
         self.log.info(f'Selected {obj} on row {row}')
+        self.selectRow(row)
+
+    def selectRow(self, row: int):
+        """Select the given row. The first object is on row 0."""
         self.setSelectionStyle(row)
         if self.cbkSelection:
-            self.cbkSelection(obj)
+            self.cbkSelection(self.data[row] if row is not None else None)
+
+    def selectObject(self, obj):
+        """Select the given object by its getIdx()."""
+        if obj is None:
+            self.selectRow(None)
+            return
+        for row, o in enumerate(self.data):
+            if obj.getIdx() == o.getIdx():
+                self.selectRow(row)
+                break
+
+    def updateObject(self, obj):
+        """Update the given object in table."""
+        if obj is None:
+            return
+        for row, o in enumerate(self.data):
+            if obj.getIdx() == o.getIdx():
+                for icol, column in enumerate(self.columns):
+                    value = column.mtdGetter(obj)
+                    self.widgets[row][icol].config(text=value)
 
     def setSelectionStyle(self, row: int):
         for irow in range(len(self.data)):
@@ -47,6 +85,18 @@ class GridTable:
 
     def addColumn(self, name: str, mtdGetter):
         self.columns.append(TableColumn(name, mtdGetter))
+
+    def getColumns(self) -> list[TableColumn]:
+        """Returns the table column definitions."""
+        return self.columns
+
+    def addRefreshButton(self, cbkRefresh):
+        """Add an icon button to refresh table contents."""
+        self.btnRefresh = IconButton(self.frmFoot, 'refresh', 'Recharger la table', cbkRefresh, 6)
+
+    def addSearchBar(self):
+        """Add a search bar."""
+        self.searchBar = SearchBar(self.frmFoot, None, self.onSearch)
 
     def loadData(self, data: list):
         timer = Timer()
@@ -64,7 +114,7 @@ class GridTable:
 
         count = len(data)
         perf = timer.getElapsed()
-        self.lblCount.config(text=f'{count}, {perf}')
+        self.lblCount.config(text=f'{count} | {perf}')
 
     def createWidgets(self, parent: ttk.Frame):
         """Create user widgets."""
@@ -80,12 +130,13 @@ class GridTable:
         # Frames
         self.frmMain = ttk.Frame(parent)
         self.frmMain.pack(pady=6)
+        self.frmMain.grid_columnconfigure(0, weight=1)
         self.frmHead = ttk.Frame(self.frmMain)
         self.frmHead.grid(column=0, row=0, sticky='we')
         self.frmBody = ttk.Frame(self.frmMain, relief=tk.SUNKEN, style='Main.TFrame')
         self.frmBody.grid(column=0, row=1)
         self.frmFoot = ttk.Frame(self.frmMain)
-        self.frmFoot.grid(column=0, row=2)
+        self.frmFoot.grid(column=0, row=2, sticky='we')
 
         # Title bar
         self.lblTitle = ttk.Label(self.frmHead, text=self.title, justify="left", style="Bold.TLabel")

@@ -82,11 +82,15 @@ class EditorDemo(BaseEditor):
     def __init__(self, cbkSave=None, colorLabelDef='black'):
         super().__init__(cbkSave, colorLabelDef)
 
+    def onSave(self, evt=None):
+        if self.cbkSave:
+            self.cbkSave(self.object)
+
     def createWidgets(self, parent):
         super().createWidgets(parent, 'Demo Editor')
         self.addTextReadOnly('Index', DataDemo.getIdx)
         self.addTextReadOnly('Nom', DataDemo.getName)
-        self.addText('Description', DataDemo.getDesc, 32)
+        self.widDesc = self.addText('Description', DataDemo.getDesc, 32)
         self.addDateTime('Date', DataDemo.getAt)
         self.createButtons(True, True, True)
         self.enableWidgets(False)
@@ -370,13 +374,22 @@ class ModuleGridTableDemo(TabModule):
     def __init__(self, oParent):
         self.nameGen = NameGen(random.randint(0, 42))
         self.table = GridTable('Demo objects', self.onSelection)
-        self.editor = EditorDemo()
+        self.editor = EditorDemo(self.onSave)
         super().__init__(oParent, 'GridTable')
 
     def onSelection(self, obj: DataDemo):
         self.log.info(f'Selected {obj}')
         self.editor.setValue(obj)
         self.editor.enableWidgets(obj is not None)
+
+    def onUnselect(self):
+        self.table.selectObject(None)
+
+    def onSave(self, obj: DataDemo):
+        self.log.info(f'Saving {obj}')
+        obj.desc = self.editor.widDesc.getValue()
+        self.table.updateObject(obj)
+        self.editor.setValue(obj)
 
     def onCtxtMenuAction(self):
         sel = self.table.getSelectedRow()
@@ -390,8 +403,9 @@ class ModuleGridTableDemo(TabModule):
         self.table.addColumn('Description', DataDemo.getDesc)
         self.table.addColumn('Date', DataDemo.getAtStr)
         self.table.createWidgets(self.frmLeft)
-        # self.searchBar = SearchBar(self.table.frmToolBar, 36, self.table.onSearch)
-        # self.table.addRefreshButton(self.loadData)
+        self.table.addSearchBar()
+        IconButton(self.table.frmFoot, 'undo', 'Déselectionner', self.onUnselect)
+        self.table.addRefreshButton(self.loadData)
         # self.table.addContextMenu(self.oParent.window)
         # self.table.addContextMenuAction('Details', self.onCtxtMenuAction)
         # self.table.addContextMenuAction('Preview', self.onCtxtMenuAction)
@@ -400,11 +414,12 @@ class ModuleGridTableDemo(TabModule):
 
     def loadData(self):
         self.log.info('Load data')
+        #self.editor.setValue(None)
+        #self.editor.enableWidgets(False)
         data = []
         for i in range(16):
             data.append(DataDemo(i, f'DemoData{i:02d}', self.nameGen.generate()))
         self.table.loadData(data)
-        #self.searchBar.enableWidget(True)
 
 class AppDemo(TabsApp):
     """Demo app for base widgets and other common classes."""

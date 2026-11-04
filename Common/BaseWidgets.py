@@ -370,6 +370,8 @@ class DateTime(TextInput):
             return DateTools.stringToDatetime(sValue)
     
     def hasChanges(self, object) -> bool:
+        if object is None:
+            return False
         widValue = self.getValue()
         if widValue is None:
             return False
@@ -657,6 +659,7 @@ class BaseEditor():
         for oWidget in self.geWidgets():
             oWidget.setValue(object)
         self.enableWidgets()
+        self.hasChanges(object)
 
     def hasChanges(self, object) -> bool:
         """Check if this editor has changes compared to the specified object."""
@@ -845,8 +848,10 @@ class SearchBar():
     def __init__(self, parent: tk.Frame, width: int, cbkSearch):
         """Constructor."""
         self.cbkSearch = cbkSearch
-        self.txtInput = ttk.Entry(parent, width=width)
-        self.txtInput.pack(side=tk.LEFT, padx=3, fill=tk.X)
+        self.txtInput = ttk.Entry(parent)
+        if width:
+            self.txtInput.config(width=width)
+        self.txtInput.pack(side=tk.LEFT, padx=0, fill=tk.X, expand=True)
         self.txtInput.bind('<Return>', self.onSearch)
         self.btnClear  = IconButton(parent, 'clear-bar', 'Effacer', self.onClear, 6)
         self.btnSearch = IconButton(parent, 'find', 'Chercher', self.onSearch, 6)
