@@ -19,6 +19,7 @@ from BaseTable import AdvTable, TableColumn
 from BaseTree import BaseTree
 from BaseWidgets import SearchBar, MonthYearSelector, Button, IconButton, BaseEditor, Label
 from calendarWidget import CalendarWidget, CalendarItem
+from gridTable import GridTable
 from imageWidget import WebPhoto, ImageWidget
 from mapWidget import MapWidget
 from LatLonZoom import LatLon
@@ -129,7 +130,7 @@ class ModuleTableDemo(TabModule):
     def loadData(self):
         self.log.info('Load data')
         data = []
-        for i in range(20):
+        for i in range(32):
             data.append(DataDemo(i, f'DemoData{i:02d}', self.nameGen.generate()))
         self.table.loadData(data)
         #self.searchBar.enableWidget(True)
@@ -363,6 +364,48 @@ class ModuleWebPhotoDemo(TabModule):
         self.imageWidget.createWidgets(self.frmLeft)
         self.lblDesc = Label(self.frmLeft, 'Chargement...').pack()
 
+class ModuleGridTableDemo(TabModule):
+    log = logging.getLogger('ModuleGridTableDemo')
+
+    def __init__(self, oParent):
+        self.nameGen = NameGen(random.randint(0, 42))
+        self.table = GridTable('Demo objects', self.onSelection)
+        self.editor = EditorDemo()
+        super().__init__(oParent, 'GridTable')
+
+    def onSelection(self, obj: DataDemo):
+        self.log.info(f'Selected {obj}')
+        self.editor.setValue(obj)
+        self.editor.enableWidgets(obj is not None)
+
+    def onCtxtMenuAction(self):
+        sel = self.table.getSelectedRow()
+        self.log.info(f'Context menu action {sel}')
+
+    def createWidgets(self):
+        self.log.info('Create widgets')
+        self.createLeftRightFrames()
+
+        self.table.addColumn('Nom', DataDemo.getName)
+        self.table.addColumn('Description', DataDemo.getDesc)
+        self.table.addColumn('Date', DataDemo.getAtStr)
+        self.table.createWidgets(self.frmLeft)
+        # self.searchBar = SearchBar(self.table.frmToolBar, 36, self.table.onSearch)
+        # self.table.addRefreshButton(self.loadData)
+        # self.table.addContextMenu(self.oParent.window)
+        # self.table.addContextMenuAction('Details', self.onCtxtMenuAction)
+        # self.table.addContextMenuAction('Preview', self.onCtxtMenuAction)
+
+        self.editor.createWidgets(self.frmRight)
+
+    def loadData(self):
+        self.log.info('Load data')
+        data = []
+        for i in range(16):
+            data.append(DataDemo(i, f'DemoData{i:02d}', self.nameGen.generate()))
+        self.table.loadData(data)
+        #self.searchBar.enableWidget(True)
+
 class AppDemo(TabsApp):
     """Demo app for base widgets and other common classes."""
     def __init__(self):
@@ -375,6 +418,7 @@ class AppDemo(TabsApp):
         ModuleDateToolsDemo(self)
         ModuleMapDemo(self)
         ModuleWebPhotoDemo(self)
+        ModuleGridTableDemo(self)
 
 def main():
     app = AppDemo()
