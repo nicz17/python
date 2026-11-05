@@ -25,6 +25,7 @@ from mapWidget import MapWidget
 from LatLonZoom import LatLon
 from NameGen import NameGen
 from TabsApp import TabsApp, TabModule
+from Timer import Timer
 
 
 class DataDemo:
@@ -146,7 +147,7 @@ class ModuleTreeDemo(TabModule):
     log = logging.getLogger('ModuleTreeDemo')
 
     def __init__(self, oParent):
-        self.tree = BaseTree(self.onSelection)
+        self.tree = BaseTree('Tree demo', self.onSelection)
         super().__init__(oParent, 'BaseTree')
 
     def onSelection(self, event=None):
@@ -168,7 +169,9 @@ class ModuleTreeDemo(TabModule):
                 self.populate(depth+1, id)
 
     def loadData(self):
+        timer = Timer()
         self.populate(1, None)
+        self.tree.setStatus(timer)
 
 class ModuleCalendarDemo(TabModule):
     log = logging.getLogger('ModuleCalendarDemo')
