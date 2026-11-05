@@ -51,8 +51,6 @@ class BaseTable():
         # Status and toolbar frame
         self.frmToolBar = ttk.Frame(parent, relief=tk.RAISED)
         self.frmToolBar.pack(fill=tk.X, side=tk.TOP)
-        #self.toolbar = ttk.Frame(self.frmLeft, relief=tk.RAISED)
-        #self.toolbar.pack(side=tk.TOP, fill=tk.X)
         self.lblStatus = ttk.Label(master=self.frmToolBar)
         self.lblStatus.pack(fill=tk.X, side=tk.LEFT) 
 
@@ -61,7 +59,7 @@ class BaseTable():
         idx = self.nRows
         self.tree.insert(parent='', index='end', iid=idx, text='', values=rowData)
         self.nRows += 1
-        self.setStatus(f'{self.nRows} {self.objectlabel}')
+        #self.setStatus(f'{self.nRows} {self.objectlabel}')
 
     def getSelectedRow(self) -> int:
         """Get the selected row index."""
@@ -82,7 +80,7 @@ class BaseTable():
         """Clears the tree contents."""
         self.tree.delete(*self.tree.get_children())
         self.nRows = 0
-        self.setStatus(f'No {self.objectlabel}')
+        self.setStatus(self.objectlabel)
 
     def __str__(self) -> str:
         return f'BaseTable for {self.objectlabel}'
@@ -150,9 +148,10 @@ class TableWithColumns(BaseTable):
         self.lblStatus.pack(fill=tk.X, side=tk.LEFT) 
 
     def addRows(self, data):
-        """Add on table row for each object in data."""
+        """Add one table row for each object in data."""
         for object in data:
             self.addObject(object)
+        self.setStatus(self.objectlabel)
 
     def addObject(self, object):
         """Add a single object as a table row."""
@@ -231,7 +230,8 @@ class AdvTable(TableWithColumns):
         
     def setStatus(self, text: str):
         """Set the title bar text."""
-        #self.lblTitle.configure(text=text)
+        self.objectlabel = text
+        self.lblTitle.configure(text=text)
         self.lblCount.config(text=f'{self.nRows}')
 
     def createWidgets(self, parent: tk.Frame, height=40):

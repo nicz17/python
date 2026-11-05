@@ -127,7 +127,7 @@ class ModuleTaxon(TabModule):
         if taxon:
             for name in taxon.getSynonyms():
                 synonyms.append(SynonymTaxon(name))
-            self.tableSyn.objectlabel = f'Synonymes de {taxon.getName()}'
+            self.tableSyn.setStatus(f'Synonymes de {taxon.getNameShort()}')
         self.tableSyn.loadData(synonyms)
 
     def createWidgets(self):

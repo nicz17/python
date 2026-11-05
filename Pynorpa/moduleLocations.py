@@ -81,7 +81,6 @@ class ModuleLocations(TabModule):
         self.btnAdd.pack(0)
         self.searchBar = BaseWidgets.SearchBar(self.table.frmToolBar, 28, self.table.onSearch)
         self.table.addRefreshButton(self.loadData)
-        self.table.setStatus('Chargement...')
         
         self.mapWidget.createWidgets(self.frmRight)
         self.editor.createWidgets(self.frmRight)
