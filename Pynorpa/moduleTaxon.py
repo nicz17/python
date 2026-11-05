@@ -188,7 +188,7 @@ class TaxonTree(BaseTree):
 
         # tag = f'taxon-rank{taxon.getRank().value}'
         icon = self.taxonIcons[taxon.getRank().value]
-        text = taxon.getName()
+        text = f' {taxon.getName()}'
         if len(taxon.getChildren()) > 0:
             text += f' ({len(taxon.getChildren())})'
         self.addItem(str(taxon.getIdx()), text, parentId, None, icon)
@@ -202,7 +202,7 @@ class TaxonTree(BaseTree):
             iconFile = f'{config.dirPicsBase}resources/rank{rank.value}.png'
             icon = None
             if os.path.exists(iconFile):
-                self.log.info(f'Loaded icon file for rank {rank.value}: {iconFile}')
+                self.log.debug(f'Loaded icon file for rank {rank.value}: {iconFile}')
                 icon = tk.PhotoImage(file=iconFile)
             self.taxonIcons[rank.value] = icon
 
