@@ -22,6 +22,7 @@ from taxon import Taxon, TaxonCache, TaxonRank
 from pynorpaManager import PynorpaManager
 from iNatTaxonDialog import INatTaxonDialog
 from uploader import Uploader
+from Timer import Timer
 
 
 class ModuleTaxon(TabModule):
@@ -174,7 +175,7 @@ class TaxonTree(BaseTree):
     log = logging.getLogger('TaxonTree')
 
     def __init__(self, cbkSelectItem):
-        super().__init__(self.onSelectEvent)
+        super().__init__('Taxons', self.onSelectEvent)
         self.cbkSelectItem = cbkSelectItem
         self.cache = None
         self.taxonIcons = {}
@@ -184,31 +185,35 @@ class TaxonTree(BaseTree):
         parentId = None
         if taxon.getIdxParent() is not None:
             parentId = str(taxon.getIdxParent())
-        tag = None #f'taxon-rank{taxon.getRank().value}'
-        iconFile = f'{config.dirPicsBase}resources/rank{taxon.getRank().value}.png'
-        icon = None
-        if os.path.exists(iconFile):
-            icon = tk.PhotoImage(file=iconFile)
-            self.taxonIcons[taxon.getIdx()] = icon
+
+        # tag = f'taxon-rank{taxon.getRank().value}'
+        icon = self.taxonIcons[taxon.getRank().value]
         text = taxon.getName()
         if len(taxon.getChildren()) > 0:
             text += f' ({len(taxon.getChildren())})'
-        self.addItem(str(taxon.getIdx()), text, parentId, tag, icon)
+        self.addItem(str(taxon.getIdx()), text, parentId, None, icon)
         for child in taxon.getChildren():
             self.addTaxon(child)
 
     def createWidgets(self, parent: tk.Frame):
         super().createWidgets(parent)
         for rank in TaxonRank:
-            self.tree.tag_configure(f'taxon-rank{rank.value}', background=rank.getColor())
+            #self.tree.tag_configure(f'taxon-rank{rank.value}', background=rank.getColor())
+            iconFile = f'{config.dirPicsBase}resources/rank{rank.value}.png'
+            icon = None
+            if os.path.exists(iconFile):
+                self.log.info(f'Loaded icon file for rank {rank.value}: {iconFile}')
+                icon = tk.PhotoImage(file=iconFile)
+            self.taxonIcons[rank.value] = icon
 
     def loadData(self):
+        timer = Timer()
         if not self.cache:
             self.cache = TaxonCache()
         self.clear()
-        self.taxonIcons = {}
         for tax in self.cache.getTopLevelTaxa():
             self.addTaxon(tax)
+        self.setStatus(timer)
         self.log.info(f'Reloaded with {self.size()} taxa')
         self.log.info(f'Cache has {self.cache.size()} taxa')
 
