@@ -191,7 +191,7 @@ class AdvTable(TableWithColumns):
     """Table with title, scrollbar and toolbar."""
     log = logging.getLogger('AdvTable')
 
-    def __init__(self, cbkSelectRow, objectLabel='rows', pady=0):
+    def __init__(self, cbkSelectRow, objectLabel='rows', pady=4):
         self.pady = pady
         super().__init__(cbkSelectRow, objectLabel)
         self.addColumns()
@@ -231,7 +231,8 @@ class AdvTable(TableWithColumns):
         
     def setStatus(self, text: str):
         """Set the title bar text."""
-        self.lblTitle.configure(text=f'{self.objectlabel} ({self.nRows})')
+        #self.lblTitle.configure(text=text)
+        self.lblCount.config(text=f'{self.nRows}')
 
     def createWidgets(self, parent: tk.Frame, height=40):
         """Create user widgets."""
@@ -239,11 +240,22 @@ class AdvTable(TableWithColumns):
             self.log.error(f'Cannot create widgets: no parent frame!')
             return
 
+        # Styles
+        style = ttk.Style()
+        style.configure('Count.TLabel', foreground='grey')
+        style.configure("Bold.TLabel",  font=("Helvetica", 11, "bold"))
+
         # Title bar
-        self.lblTitle = ttk.Label(master=parent, text=f'Table for {self.objectlabel}', 
-                                  #background='#ece8e4', 
-                                  borderwidth=1, relief="groove")
-        self.lblTitle.pack(fill=tk.X, side=tk.TOP, pady=(self.pady, 0))
+        self.frmHead = ttk.Frame(parent)
+        self.frmHead.pack(fill=tk.X, side=tk.TOP, pady=(self.pady, 0))
+        self.lblTitle = ttk.Label(self.frmHead, text=self.objectlabel, justify="left", style="Bold.TLabel")
+        self.lblTitle.pack(side='left')
+        self.lblCount = ttk.Label(self.frmHead, justify="right", style='Count.TLabel')
+        self.lblCount.pack(side='right')
+        # self.lblTitle = ttk.Label(master=parent, text=f'Table for {self.objectlabel}', 
+        #                           #background='#ece8e4', 
+        #                           borderwidth=1, relief="groove")
+        # self.lblTitle.pack(fill=tk.X, side=tk.TOP, pady=(self.pady, 0))
 
         # Scrolling frame
         frmScroll = ttk.Frame(parent)
