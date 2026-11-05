@@ -7,6 +7,7 @@ __copyright__ = "Copyright 2026 N. Zwahlen"
 __version__ = "1.0.0"
 
 import logging
+import os
 import tkinter as tk
 from tkinter import ttk
 from pathlib import Path
@@ -30,14 +31,23 @@ class GridTable:
     log = logging.getLogger('GridTable')
     dirIcons = f'{Path.home()}/prog/icons'
 
-    def __init__(self, title: str, cbkSelection):
-        self.log.info(f'Constructor for GridTable {title}')
-        self.iconOk = tk.PhotoImage(file=f'{self.dirIcons}/ok18.png')
+    def __init__(self, title: str, cbkSelection=None, nRows=24):
+        self.log.info(f'Constructor for GridTable {title} with {nRows} rows')
         self.cbkSelection = cbkSelection
+        self.nRows = nRows
         self.title = title
         self.columns = []
         self.data = []
         self.widgets = {}
+        self.iconOk = None
+
+    def loadIcons(self):
+        """Load icons for boolean values."""
+        filename = f'{self.dirIcons}/ok18.png'
+        if os.path.exists(filename):
+            self.iconOk = tk.PhotoImage(file=filename)
+        else:
+            self.log.warning(f'Could not find icon {filename}')
 
     def onSearch(self, search: str):
         """Search bar callback. Look for a matching record and select it."""
@@ -81,7 +91,8 @@ class GridTable:
                     self.setCellValue(self.widgets[row][icol], value)
 
     def setSelectionStyle(self, row: int):
-        for irow in range(len(self.data)):
+        iRowsDisplayed = min(self.nRows, len(self.data))
+        for irow in range(iRowsDisplayed):
             style = 'Sel.TLabel' if row == irow else 'Main.TLabel'
             for col in range(len(self.columns)):
                 self.widgets[irow][col].config(style=style)   
@@ -105,7 +116,10 @@ class GridTable:
         timer = Timer()
         self.data = data
 
-        for irow, obj in enumerate(data):
+        #for irow, obj in enumerate(data):
+        iRowsDisplayed = min(self.nRows, len(data))
+        for irow in range(iRowsDisplayed):
+            obj = data[irow]
             for icol, column in enumerate(self.columns):
                 value = column.mtdGetter(obj)
                 lblCell = ttk.Label(self.frmBody, justify="left", style='Main.TLabel')
@@ -116,7 +130,7 @@ class GridTable:
                     self.widgets[irow] = {}
                 self.widgets[irow][icol] = lblCell
 
-        count = len(data)
+        count = f'{iRowsDisplayed}/{len(data)}'
         perf = timer.getElapsed()
         self.lblCount.config(text=f'{count} | {perf}')
 
@@ -124,8 +138,12 @@ class GridTable:
         if isinstance(value, str):
             lblCell.config(text=value)
         elif isinstance(value, bool):
-            icon = self.iconOk if value else None
-            lblCell.config(image=icon)
+            if self.iconOk:
+                icon = self.iconOk if value else None
+                lblCell.config(image=icon)
+            else:
+                svalue = 'Oui' if value else ''
+                lblCell.config(text=svalue)
 
     def createWidgets(self, parent: ttk.Frame):
         """Create user widgets."""
@@ -161,6 +179,8 @@ class GridTable:
             frmHeader.grid(column=icol, row=0, padx=1, pady=1, sticky='we')
             lblHeader = ttk.Label(frmHeader, text=column.label)
             lblHeader.pack(padx=3)
+
+        self.loadIcons()
 
     def __str__(self):
         return f'GridTable {self.title}'

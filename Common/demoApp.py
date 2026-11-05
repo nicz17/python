@@ -421,7 +421,7 @@ class ModuleGridTableDemo(TabModule):
         #self.editor.setValue(None)
         #self.editor.enableWidgets(False)
         data = []
-        for i in range(16):
+        for i in range(32):
             data.append(DataDemo(i, f'DemoData{i:02d}', self.nameGen.generate()))
         self.table.loadData(data)
 
