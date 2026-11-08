@@ -58,7 +58,7 @@ class ModuleCamera(TabModule):
         self.tasks.append(MountCameraTask(self.copier, self.updateTaskDisplay))
         self.tasks.append(CopyFromCameraTask(self.copier, self.updateTaskDisplay))
         self.tasks.append(GeoTrackerTask(self.tracker, self.copier.getNumberImages(), self.updateTaskDisplay))
-        self.tasks.append(CopySelectionFiles())
+        self.tasks.append(CopySelectionFiles(self.updateTaskDisplay))
         #self.tasks.append(CreateThumbnailsTask(self.copier, self.updateTaskDisplay))
 
     def copyFiles(self):

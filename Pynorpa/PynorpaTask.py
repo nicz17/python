@@ -196,7 +196,8 @@ class CopySelectionFiles(PynorpaTask):
     """Copy selection .txt files from DropBox dir."""
     log = logging.getLogger('CopySelectionFiles')
 
-    def __init__(self):
+    def __init__(self, cbkUpdate):
+        self.cbkUpdate = cbkUpdate
         super().__init__('Copier sélections', 'Copier les fichiers de sélection depuis DropBox', 1)
         self.copied = []
 
