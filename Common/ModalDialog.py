@@ -4,7 +4,7 @@ Tkinter modal dialog window.
 
 __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2023 N. Zwahlen"
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 import tkinter as tk
 import logging
@@ -12,8 +12,8 @@ import logging
 class ModalDialog(object):
     log = logging.getLogger(__name__)
 
-    def __init__(self, parent, title=None):
-        self.log.info('Open modal dialog window with title %s', title)
+    def __init__(self, parent: tk.Tk, title=None):
+        self.log.info(f'Open modal dialog window with title {title}')
 
         # The return value of the dialog.
         self.data = None
@@ -73,3 +73,6 @@ class ModalDialog(object):
         self.log.info('Close modal dialog window')
         self.root.grab_release()
         self.root.destroy()
+
+    def __str__(self):
+        return 'ModalDialog'

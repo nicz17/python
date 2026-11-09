@@ -140,8 +140,7 @@ class ModuleTableDemo(TabModule):
     def onModalDialog(self):
         self.log.info('Open modal dialog demo')
         dlg = ModalDialog(self.oParent.window, 'Modal Dialog demo')
-        self.oParent.window.wait_window(dlg.root)
-        data = dlg.getData()
+        data = self.openModalDialog(dlg)
         self.log.info(f'Dialog closed with result {data}')
 
     def createWidgets(self):

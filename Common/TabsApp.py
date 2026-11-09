@@ -174,6 +174,12 @@ class TabModule:
         """Schedule the specified function after delay ms."""
         self.oParent.window.after(delay, fct)
 
+    def openModalDialog(self, dlg: 'ModalDialog'):
+        """Open the specified modal dialog window and wait. Return its data."""
+        self.log.info(f'Waiting on modal dialog {dlg}')
+        self.oParent.window.wait_window(dlg.root)
+        return dlg.getData()
+
     def __str__(self) -> str:
         return f'TabModule {self.sTitle}'
 
