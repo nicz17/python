@@ -13,8 +13,9 @@ class ModalDialog(object):
     log = logging.getLogger(__name__)
 
     def __init__(self, parent, title=None):
-        # The return value of the dialog.
         self.log.info('Open modal dialog window with title %s', title)
+
+        # The return value of the dialog.
         self.data = None
 
         self.root = tk.Toplevel(parent)
@@ -36,6 +37,10 @@ class ModalDialog(object):
         """Load user data."""
         pass
 
+    def getData(self):
+        """Returns the user input value of this dialog."""
+        return self.data
+
     def setLoadingIcon(self, isLoading=True):
         """Set the window icon to waiting, or reset it to normal."""
         if isLoading:
@@ -48,12 +53,23 @@ class ModalDialog(object):
         """Create the user widgets."""
         self.entry = tk.Entry(self.root)
         self.entry.pack()
-        self.btnExit = tk.Button(self.root, text='Exit', command=self.exit)
+        self.btnExit = tk.Button(self.root, text='OK', command=self.accept)
         self.btnExit.pack()
+        self.btnCancel = tk.Button(self.root, text='Cancel', command=self.cancel)
+        self.btnCancel.pack()
+
+    def accept(self):
+        """Accept user input and close."""
+        self.data = self.entry.get()
+        self.exit()
+
+    def cancel(self):
+        """Close dialog and set data to None."""
+        self.data = None
+        self.exit()
 
     def exit(self):
         """Close the modal window. Release event grab."""
         self.log.info('Close modal dialog window')
-        #self.data = self.entry.get()
         self.root.grab_release()
         self.root.destroy()
