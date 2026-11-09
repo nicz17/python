@@ -15,6 +15,7 @@ from pathlib import Path
 from tkinter import ttk
 
 import DateTools
+from autoEditor import AutoEditor
 from BaseTable import AdvTable, TableColumn
 from BaseTree import BaseTree
 from BaseWidgets import SearchBar, MonthYearSelector, Button, IconButton, BaseEditor, Label
@@ -23,6 +24,7 @@ from gridTable import GridTable
 from imageWidget import WebPhoto, ImageWidget
 from mapWidget import MapWidget
 from LatLonZoom import LatLon
+from ModalDialog import ModalDialog
 from NameGen import NameGen
 from TabsApp import TabsApp, TabModule
 from Timer import Timer
@@ -35,6 +37,7 @@ class DataDemo:
         self.name = name
         self.desc = desc
         self.at = 1000*(1650000 + 200000*random.random())
+        self.score = random.randint(1, 100)
 
     def getIdx(self) -> str:
         return str(self.idx)
@@ -44,15 +47,27 @@ class DataDemo:
     
     def getDesc(self) -> str:
         return self.desc
+
+    def setDesc(self, desc: str):
+        self.desc = desc
     
     def getAt(self) -> float:
         return self.at
+
+    def setAt(self, at: float):
+        self.at = at
     
     def getAtStr(self) -> str:
         return DateTools.timestampToString(self.at)
 
     def isFuture(self) -> bool:
         return self.at > DateTools.now()
+
+    def getScore(self) -> int:
+        return self.score
+
+    def setScore(self, score: int):
+        self.score = score
 
     def __str__(self):
         return f'DataDemo {self.idx} {self.name} {self.desc}'
@@ -122,6 +137,13 @@ class ModuleTableDemo(TabModule):
         sel = self.table.getSelectedRow()
         self.log.info(f'Context menu action {sel}')
 
+    def onModalDialog(self):
+        self.log.info('Open modal dialog demo')
+        dlg = ModalDialog(self.oParent.window, 'Modal Dialog demo')
+        self.oParent.window.wait_window(dlg.root)
+        data = dlg.getData()
+        self.log.info(f'Dialog closed with result {data}')
+
     def createWidgets(self):
         self.log.info('Create widgets')
         self.createLeftRightFrames()
@@ -134,6 +156,9 @@ class ModuleTableDemo(TabModule):
         self.table.addContextMenuAction('Preview', self.onCtxtMenuAction)
 
         self.editor.createWidgets(self.frmRight)
+
+        btnModalDialog = Button(self.frmRight, "Modal Dialog demo", self.onModalDialog)
+        btnModalDialog.pack()
 
     def loadData(self):
         self.log.info('Load data')
@@ -381,21 +406,30 @@ class ModuleGridTableDemo(TabModule):
         self.nameGen = NameGen(random.randint(0, 42))
         self.table = GridTable('Demo objects', self.onSelection)
         self.editor = EditorDemo(self.onSave)
+        self.autoed = AutoEditor('AutoEditor Demo', DataDemo, self.onSaveAuto)
         super().__init__(oParent, 'GridTable')
 
     def onSelection(self, obj: DataDemo):
         self.log.info(f'Selected {obj}')
         self.editor.setValue(obj)
         self.editor.enableWidgets(obj is not None)
+        self.autoed.loadData(obj)
 
     def onUnselect(self):
         self.table.selectObject(None)
 
     def onSave(self, obj: DataDemo):
-        self.log.info(f'Saving {obj}')
+        self.log.info(f'Saving {obj} from BaseEditor')
         obj.desc = self.editor.widDesc.getValue()
         self.table.updateObject(obj)
         self.editor.setValue(obj)
+        self.autoed.loadData(obj)
+
+    def onSaveAuto(self, obj: DataDemo):
+        self.log.info(f'Saving {obj} from AutoEditor')
+        self.table.updateObject(obj)
+        self.editor.setValue(obj)
+        self.autoed.loadData(obj)
 
     def onCtxtMenuAction(self):
         sel = self.table.getSelectedRow()
@@ -417,7 +451,17 @@ class ModuleGridTableDemo(TabModule):
         # self.table.addContextMenuAction('Details', self.onCtxtMenuAction)
         # self.table.addContextMenuAction('Preview', self.onCtxtMenuAction)
 
+        # BaseEditor
         self.editor.createWidgets(self.frmRight)
+
+        # AutoEditor
+        self.autoed.addField('Index', DataDemo.getIdx)
+        self.autoed.addField('Nom', DataDemo.getName)
+        self.autoed.addField('Description', DataDemo.getDesc)
+        self.autoed.addField('Date', DataDemo.getAt)
+        self.autoed.addField('Futur', DataDemo.isFuture)
+        self.autoed.addField('Score', DataDemo.getScore, '%')
+        self.autoed.createWidgets(self.frmRight)
 
     def loadData(self):
         self.log.info('Load data')
