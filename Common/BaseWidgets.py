@@ -127,6 +127,10 @@ class Label:
         else:
             self.widget.config(text=text)
 
+    def setColor(self, color: str):
+        """Set this label's foreground color."""
+        self.widget.config(foreground=color)
+
     def clear(self):
         """Clears this label's text."""
         self.setText(None)

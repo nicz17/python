@@ -1,5 +1,5 @@
 """
-Automatic editor using reflection to find appropriate input widgets.
+Automatic editor using inspection to find appropriate input widgets.
 """
 
 __author__ = "Nicolas Zwahlen"
@@ -8,6 +8,7 @@ __version__ = "1.0.0"
 
 import logging
 from tkinter import ttk
+
 from BaseWidgets import (
     BaseWidget, Button, Label,
     CheckBox, 
@@ -44,6 +45,7 @@ class AutoEditor:
     colorUndef    = 'grey'
 
     def __init__(self, title: str, objClass, cbkSave=None):
+        """Constructor with title, object class and save callback."""
         self.title = title
         self.objClass = objClass
         self.cbkSave = cbkSave
@@ -51,6 +53,7 @@ class AutoEditor:
         self.object = None
 
     def addField(self, label: str, mtdGetter, unit=None):
+        """Add an editor field for the specified getter."""
         mtdSetter = None
         name = mtdGetter.__name__
         if name.startswith('get'):
@@ -77,6 +80,7 @@ class AutoEditor:
         self.enableWidgets()
 
     def hasChanges(self) -> bool:
+        """Check if editor has modifications."""
         if self.object is None:
             return False
         for field in self.getFields():
@@ -101,7 +105,7 @@ class AutoEditor:
                 color = self.colorError
             elif field.widValue.hasChanges(self.object):
                 color = self.colorModified
-            field.widLabel.widget.config(foreground=color)
+            field.widLabel.setColor(color)
 
     def onSave(self, evt=None):
         """Save changes to the edited object."""
@@ -129,6 +133,7 @@ class AutoEditor:
         self.enableWidgets()
 
     def createWidgets(self, parent: ttk.Frame):
+        """Creates a label and input widget for each field."""
         self.frmMain = ttk.LabelFrame(parent, text=self.title)
         self.frmMain.pack()
 
@@ -138,8 +143,6 @@ class AutoEditor:
         for row, field in enumerate(self.getFields()):
             field.widLabel = Label(self.frmFields, field.label)
             field.widLabel.widget.grid(row=row, column=0, sticky='w', padx=0)
-            #field.widValue = Label(self.frmFields, None)
-            #field.widValue.widget.grid(row=row, column=1, sticky='we', padx=4)
             field.widValue = self.getWidget(field)
             field.widValue.createWidgets(self.frmFields, row, 1)
 
@@ -177,6 +180,7 @@ class AutoEditor:
         return None
 
     def enableWidgets(self):
+        """Enable or disable the widgets."""
         editing = self.object is not None
         modified = editing and self.hasChanges()
         valid = editing and self.isValid()
@@ -188,3 +192,6 @@ class AutoEditor:
         self.btnCancel.enableWidget(modified)
         self.btnDelete.enableWidget(False)
         self.applyLabelColors()
+
+    def __str__(self):
+        return f'AutoEditor {self.title}'
