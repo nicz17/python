@@ -106,7 +106,7 @@ class EditorDemo(BaseEditor):
             self.cbkSave(self.object)
 
     def createWidgets(self, parent):
-        super().createWidgets(parent, 'Demo Editor')
+        super().createWidgets(parent, 'BaseEditor Demo')
         self.addTextReadOnly('Index', DataDemo.getIdx)
         self.addTextReadOnly('Nom', DataDemo.getName)
         self.widDesc = self.addText('Description', DataDemo.getDesc, 32)
@@ -443,6 +443,7 @@ class ModuleGridTableDemo(TabModule):
         self.table.addColumn('Description', DataDemo.getDesc)
         self.table.addColumn('Date', DataDemo.getAtStr)
         self.table.addColumn('Futur', DataDemo.isFuture)
+        self.table.addColumn('Score', DataDemo.getScore)
         self.table.createWidgets(self.frmLeft)
         self.table.addSearchBar()
         IconButton(self.table.frmFoot, 'undo', 'Déselectionner', self.onUnselect)

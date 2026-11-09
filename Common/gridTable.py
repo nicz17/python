@@ -140,10 +140,15 @@ class GridTable:
         elif isinstance(value, bool):
             if self.iconOk:
                 icon = self.iconOk if value else None
-                lblCell.config(image=icon)
+                lblCell.config(image=icon, anchor='center')
             else:
                 svalue = 'Oui' if value else ''
                 lblCell.config(text=svalue)
+        elif isinstance(value, int):
+            lblCell.config(text=str(value), anchor='e')
+        else:
+            self.log.error(f'Unhandled datatype for {value}')
+            lblCell.config(text='Erreur!')
 
     def createWidgets(self, parent: ttk.Frame):
         """Create user widgets."""
