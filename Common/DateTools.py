@@ -43,7 +43,11 @@ def datetimeToLocal(dtAt: datetime.datetime) -> datetime.datetime:
 
 def stringToTimestamp(strAt: str, format=formatDef) -> float:
     """Convert string like 2023.12.28 13:15:36 to float timestamp."""
-    return time.mktime(datetime.datetime.strptime(strAt, format).timetuple())
+    try:
+        return time.mktime(datetime.datetime.strptime(strAt, format).timetuple())
+    except:
+        print(f'Error: failed to convert {strAt} to timestamp')
+        return -1.0
 
 def stringToDatetime(strAt: str, format=formatDef) -> datetime.datetime:
     """Convert string like 2023.12.28 13:15:36 to datetime."""

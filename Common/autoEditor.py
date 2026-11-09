@@ -84,6 +84,13 @@ class AutoEditor:
             if field.widValue.hasChanges(self.object):
                 return True
 
+    def isValid(self) -> bool:
+        """Check if user inputs are valid."""
+        for field in self.getFields():
+            if not field.widValue.isValid():
+                return False
+        return True
+
     def applyLabelColors(self):
         """Set label colors depending on current value."""
         for field in self.getFields():
@@ -172,11 +179,12 @@ class AutoEditor:
     def enableWidgets(self):
         editing = self.object is not None
         modified = editing and self.hasChanges()
+        valid = editing and self.isValid()
 
         for field in self.getFields():
             field.widValue.enableWidget(editing)
 
-        self.btnSave.enableWidget(modified)
+        self.btnSave.enableWidget(modified and valid)
         self.btnCancel.enableWidget(modified)
         self.btnDelete.enableWidget(False)
         self.applyLabelColors()
