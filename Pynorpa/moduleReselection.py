@@ -20,7 +20,7 @@ from pynorpaManager import PynorpaManager, PynorpaException
 from PhotoInfo import *
 import imageWidget
 from mapWidget import MapWidget
-from ModalDialog import *
+from ModalDialog import ModalDialog
 from LatLonZoom import LatLonZoom
 from tkinter import messagebox as mb
 from taxon import Taxon, TaxonCache
@@ -121,10 +121,9 @@ class ModuleReselection(TabModule):
         self.editor.loadData(photo)
 
     def onLocate(self):
+        """Open a modal dialog to set photo locations."""
         dlgLocate = DialogLocate(self.window, self.photos)
-        self.log.info('Opened dialog window, waiting')
-        self.window.wait_window(dlgLocate.root)
-        self.log.info(f'Dialog closed with data: {dlgLocate.data}')
+        self.openModalDialog(dlgLocate)
 
     def onAddPic(self, event=None):
         """Add the selected PhotoInfo as picture in gallery."""
@@ -345,3 +344,6 @@ class DialogLocate(ModalDialog):
     def enableWidgets(self):
         self.btnRepeat.enableWidget(self.lastCoords is not None)
         self.btnSave.enableWidget(self.hasChanges)
+
+    def __str__(self):
+        return 'DialogLocate'

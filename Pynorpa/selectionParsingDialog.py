@@ -72,6 +72,9 @@ class SelectionParsingDialog(ModalDialog):
         self.btnExit.pack()
         self.btnEdit.pack()
 
+    def __str__(self):
+        return f'SelectionParsingDialog for {self.filename}'
+
 
 class TableSelectedPhoto(AdvTable):
     """Table widget for selected photos."""

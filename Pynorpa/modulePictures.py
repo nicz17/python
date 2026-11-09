@@ -65,8 +65,7 @@ class ModulePictures(TabModule):
 
     def onReclassify(self):
         """Reclassify the selected picture."""
-        dlg = DialogReclassify(self.window, self.picture)
-        self.window.wait_window(dlg.root)
+        self.openModalDialog(DialogReclassify(self.window, self.picture))
 
     def navigateToObject(self, pic: Picture):
         """Select the specified object in this module."""
@@ -346,4 +345,5 @@ class DialogReclassify(ModalDialog):
     def enableWidgets(self):
         self.btnSave.enableWidget(self.newName is not None)
 
-
+    def __str__(self):
+        return f'DialogReclassify for {self.picture}'

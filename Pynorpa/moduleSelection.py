@@ -137,9 +137,8 @@ class ModuleSelection(TabModule):
         parser = SelectionParser(filename, self.dir)
         result = parser.parse(True)
         dlg = SelectionParsingDialog(self.window, filename, result)
-        self.window.wait_window(dlg.root)
-        self.log.info(f'Dialog closed with data: {dlg.data}')
-        if dlg.data is True:
+        apply = self.openModalDialog(dlg)
+        if apply is True:
             self.log.info('Applying selections:')
             for item in result:
                 if item.hasError():

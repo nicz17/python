@@ -191,3 +191,6 @@ class INatTaxonDialog(ModalDialog):
 
     def enableWidgets(self):
         self.btnSave.enableWidget(self.hasChanges())
+
+    def __str__(self):
+        return 'INatTaxonDialog'
