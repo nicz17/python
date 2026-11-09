@@ -162,11 +162,14 @@ class WebPhoto:
         self.img = None
 
     def loadData(self):
-        with urllib.request.urlopen(self.url) as u:
-            rawdata = u.read()
-            image = Image.open(io.BytesIO(rawdata))
-            self.img = ImageTk.PhotoImage(image)
-            self.log.info(f'Done loading data from {self.url}')
+        try:
+            with urllib.request.urlopen(self.url) as u:
+                rawdata = u.read()
+                image = Image.open(io.BytesIO(rawdata))
+                self.img = ImageTk.PhotoImage(image)
+                self.log.info(f'Done loading data from {self.url}')
+        except:
+            self.log.error(f'Failed to load {self.url}')
 
     def getImage(self) -> ImageTk.PhotoImage:
         if not self.img:
@@ -175,7 +178,7 @@ class WebPhoto:
     
     def getSize(self) -> str:
         if not self.img:
-            return '-'
+            return 'Erreur'
         return f'{self.img.width()}x{self.img.height()}px'
     
     def getDescription(self) -> str:
