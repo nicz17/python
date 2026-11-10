@@ -424,7 +424,7 @@ class TextArea(BaseWidget):
         """Get the current string value."""
         return self.oWidget.get(1.0, tk.END).strip()
         
-    def createWidgets(self, parent: tk.Frame, row: int, col: int, width=64):
+    def createWidgets(self, parent: tk.Frame, row: int, col: int, width=32):
         """Create widget in parent frame with grid layout."""
         self.oWidget = tk.Text(parent, width=width, height=self.nLines, wrap=tk.WORD)
         self.oWidget.grid(row=row, column=col, padx=4, sticky='we')

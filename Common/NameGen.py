@@ -28,6 +28,25 @@ class NameGen:
         for s in range(nSyllables):
             sName += self.getSyllable()
         return sName.capitalize()
+    
+    def sentence(self, words: int, suffix='.'):
+        """Generates a random sentence with the given numer of words."""
+        awords = []
+        for i in range(words):
+            nSyllables = random.randint(1, 4)
+            word = ''
+            for s in range(nSyllables):
+                word += self.getSyllable()
+            awords.append(word)
+        return ' '.join(awords).capitalize() + suffix
+
+    def paragraph(self, sentences: int, minWords: int, maxWords: int) -> str:
+        """Generates a random paragraph with the specified number of sentences."""
+        asentences = []
+        for i in range(sentences):
+            nwords = random.randint(minWords, maxWords)
+            asentences.append(self.sentence(nwords))
+        return ' '.join(asentences)
 
     def getSyllable(self):
         """Returns a random syllable."""
@@ -61,10 +80,16 @@ def testGrid(ng: NameGen):
         print(sRow)
     print()
 
+def testSentence():
+    gen = NameGen(random.randint(0, 64))
+    print(gen.sentence(8))
+    print(gen.paragraph(3, 6, 8))
+
 def testNameGen():
     """Unit test for NameGen."""
     testGrid(NameGen(random.randint(0, 42)))
     testGrid(NameGen(random.randint(0, 42), 3, 3, 0.01))
+    testSentence()
 
 if __name__ == '__main__':
     testNameGen()

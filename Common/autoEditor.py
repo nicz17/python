@@ -14,7 +14,7 @@ from BaseWidgets import (
     CheckBox, 
     DateTime, DateTimeReadOnly, 
     IntInput, 
-    TextReadOnly, TextInput
+    TextArea, TextReadOnly, TextInput
 )
 
 
@@ -22,13 +22,14 @@ class EditorField:
     """Automatic editor edition field."""
     log = logging.getLogger('EditorField')
 
-    def __init__(self, label: str, mtdGetter, mtdSetter, unit):
+    def __init__(self, label: str, mtdGetter, mtdSetter, unit: str, length: int):
         self.label = label
         self.mtdGetter = mtdGetter
         self.mtdSetter = mtdSetter
         self.widLabel = None
         self.widValue = None
         self.unit = unit
+        self.length = length
 
     def isReadOnly(self) -> bool:
         return self.mtdSetter is None
@@ -52,7 +53,7 @@ class AutoEditor:
         self.fields = []
         self.object = None
 
-    def addField(self, label: str, mtdGetter, unit=None):
+    def addField(self, label: str, mtdGetter, unit=None, length=None):
         """Add an editor field for the specified getter."""
         mtdSetter = None
         name = mtdGetter.__name__
@@ -62,7 +63,7 @@ class AutoEditor:
             if callable(getattr(self.objClass, nameSetter, None)):
                 mtdSetter = getattr(self.objClass, nameSetter, None)
                 self.log.debug(f'Found callable {mtdSetter}')
-        self.fields.append(EditorField(label, mtdGetter, mtdSetter, unit))
+        self.fields.append(EditorField(label, mtdGetter, mtdSetter, unit, length))
 
     def getFields(self) -> list[EditorField]:
         return self.fields
@@ -164,8 +165,11 @@ class AutoEditor:
         if type == str:
             if field.isReadOnly():
                 return TextReadOnly(field.label, field.mtdGetter)
+            elif field.length and field.length > 64:
+                return TextArea(field.label, field.mtdGetter, 6, self.onModified)
             else:
-                return TextInput(self.onModified, field.mtdGetter, 32)
+                length = field.length if field.length else 32
+                return TextInput(self.onModified, field.mtdGetter, length)
         elif type == bool:
             return CheckBox(self.onModified, field.mtdGetter, field.label)
         elif type == int:
@@ -187,6 +191,8 @@ class AutoEditor:
 
         for field in self.getFields():
             field.widValue.enableWidget(editing)
+            if isinstance(field.widValue, TextArea):
+                field.widValue.resetModified()
 
         self.btnSave.enableWidget(modified and valid)
         self.btnCancel.enableWidget(modified)

@@ -32,10 +32,11 @@ from Timer import Timer
 
 class DataDemo:
     """Container class for demo data."""
-    def __init__(self, idx: int, name: str, desc: str):
+    def __init__(self, idx: int, name: str, desc: str, text: str):
         self.idx = idx
         self.name = name
         self.desc = desc
+        self.text = text
         self.at = 1000*(1650000 + 200000*random.random())
         self.score = random.randint(1, 100)
 
@@ -50,6 +51,12 @@ class DataDemo:
 
     def setDesc(self, desc: str):
         self.desc = desc
+
+    def getText(self) -> str:
+        return self.text
+
+    def setText(self, text: str):
+        self.text = text
     
     def getAt(self) -> float:
         return self.at
@@ -70,7 +77,7 @@ class DataDemo:
         self.score = score
 
     def __str__(self):
-        return f'DataDemo {self.idx} {self.name} {self.desc}'
+        return f'DataDemo {self.idx} {self.name} {self.desc} len {len(self.text)}'
 
 class TableDemo(AdvTable):
     log = logging.getLogger('TableDemo')
@@ -163,7 +170,8 @@ class ModuleTableDemo(TabModule):
         self.log.info('Load data')
         data = []
         for i in range(32):
-            data.append(DataDemo(i, f'DemoData{i:02d}', self.nameGen.generate()))
+            text = self.nameGen.paragraph(3, 5, 9)
+            data.append(DataDemo(i, f'DemoData{i:02d}', self.nameGen.generate(), text))
         self.table.loadData(data)
         #self.searchBar.enableWidget(True)
 
@@ -458,18 +466,18 @@ class ModuleGridTableDemo(TabModule):
         self.autoed.addField('Index', DataDemo.getIdx)
         self.autoed.addField('Nom', DataDemo.getName)
         self.autoed.addField('Description', DataDemo.getDesc)
+        self.autoed.addField('Texte', DataDemo.getText, length=256)
         self.autoed.addField('Date', DataDemo.getAt)
         self.autoed.addField('Futur', DataDemo.isFuture)
-        self.autoed.addField('Score', DataDemo.getScore, '%')
+        self.autoed.addField('Score', DataDemo.getScore, unit='%')
         self.autoed.createWidgets(self.frmRight)
 
     def loadData(self):
         self.log.info('Load data')
-        #self.editor.setValue(None)
-        #self.editor.enableWidgets(False)
         data = []
         for i in range(32):
-            data.append(DataDemo(i, f'DemoData{i:02d}', self.nameGen.generate()))
+            text = self.nameGen.paragraph(3, 5, 9)
+            data.append(DataDemo(i, f'DemoData{i:02d}', self.nameGen.generate(), text))
         self.table.loadData(data)
 
 class AppDemo(TabsApp):
