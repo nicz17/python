@@ -10,6 +10,7 @@ import logging
 import tkinter as tk
 from tkinter import ttk
 from BaseWidgets import IconButton
+from Timer import Timer
 
 
 class BaseTable():
@@ -232,7 +233,12 @@ class AdvTable(TableWithColumns):
         """Set the title bar text."""
         self.objectlabel = text
         self.lblTitle.configure(text=text)
-        self.lblCount.config(text=f'{self.nRows}')
+        self.setCount(None)
+
+    def setCount(self, timer: Timer):
+        """Set the row count and timing info."""
+        timing = '' if timer is None else f' | {timer.getElapsed()}'
+        self.lblCount.config(text=f'{self.nRows}{timing}')
 
     def createWidgets(self, parent: tk.Frame, height=40):
         """Create user widgets."""

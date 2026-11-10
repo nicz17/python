@@ -12,11 +12,12 @@ import json
 import logging
 import os
 import re
+import tkinter as tk
 
 import DateTools
 import imageWidget
 import LocationCache
-from BaseTable import *
+from BaseTable import AdvTable, TableColumn
 from BaseWidgets import BaseEditor, Button, MonthYearSelector
 from PhotoInfo import PhotoInfo
 from picture import PictureCache
@@ -26,6 +27,7 @@ from selectionParsingDialog import SelectionParsingDialog
 from TabsApp import TabModule, TabsApp
 from taxon import Taxon, TaxonRank, TaxonCache
 from tkinter import filedialog as fd
+from tkinter import ttk
 from Timer import Timer
 
 
@@ -76,6 +78,7 @@ class ModuleSelection(TabModule):
         self.table.loadData(self.photos)
         self.setLoadingIcon(True)
         self.app.setStatus(f'Chargé {self.dir} en {timer.getElapsed()}')
+        self.table.setCount(timer)
         self.writeMetadata()
 
     def loadMetadata(self):
@@ -161,7 +164,6 @@ class ModuleSelection(TabModule):
         self.editor.createWidgets(self.frmRight)
         self.selector.createWidgets(self.frmRight)
         self.dirSelector.createWidgets(self.frmRight)
-        self.table.setStatus('Chargement...')
 
         # Buttons frame
         self.frmButtons = ttk.Frame(self.frmLeft, padding=5)
@@ -220,7 +222,7 @@ class DirectorySelector:
         enabled = os.path.exists(self.getDirectory())
         self.btnReload.enableWidget(enabled)
 
-class TaxonSelector():
+class TaxonSelector:
     """Widget to assign a taxon to an original photo."""
     log = logging.getLogger("TaxonSelector")
 
@@ -370,14 +372,14 @@ class TaxonSelector():
         if oWidget:
             oWidget['state'] = tk.NORMAL if enabled else tk.DISABLED
 
-class TablePhotos(TableWithColumns):
+class TablePhotos(AdvTable):
     """Table widget for Pynorpa photo."""
     log = logging.getLogger("TablePhotos")
 
-    def __init__(self, cbkSelect):
+    def __init__(self, cbkSelect, title='Photos originales'):
         """Constructor with selection callback."""
         self.log.info('Constructor')
-        super().__init__(cbkSelect, 'photos')
+        super().__init__(cbkSelect, title)
         self.setColumns()
 
     def setColumns(self):
@@ -405,7 +407,7 @@ class PhotoEditor(BaseEditor):
 
     def __init__(self):
         """Constructor."""
-        super().__init__()
+        super().__init__(None, '#62564f')
         self.photo = None
 
     def loadData(self, photo: PhotoInfo):

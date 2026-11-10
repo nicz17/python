@@ -24,6 +24,7 @@ from ModalDialog import ModalDialog
 from LatLonZoom import LatLonZoom
 from tkinter import messagebox as mb
 from taxon import Taxon, TaxonCache
+from Timer import Timer
 
 
 class ReselectionContext:
@@ -70,6 +71,7 @@ class ModuleReselection(TabModule):
         """Load the photos to display."""
         self.photos = []
         self.setLoadingIcon()
+        timer = Timer()
         files = sorted(glob.glob(f'{self.dir}/*.jpg'))
         for file in files:
             photo = PhotoInfo(file)
@@ -81,6 +83,7 @@ class ModuleReselection(TabModule):
         self.table.loadData(self.photos)
         self.setLoadingIcon(True)
         self.app.setStatus(f'Chargé {self.dir}')
+        self.table.setCount(timer)
         self.enableWidgets()
 
     def navigateToObject(self, context: ReselectionContext):
@@ -166,7 +169,6 @@ class ModuleReselection(TabModule):
         self.editor.createWidgets(self.frmRight)
         self.selector.createWidgets(self.frmRight)
         self.dirSelector.createWidgets(self.frmRight)
-        self.table.setStatus('Chargement...')
 
         # Buttons
         self.btnLocate = self.addButton('Localiser', self.onLocate, 'location22', 'Dialogue de localisation fine')
@@ -191,7 +193,7 @@ class TableReselection(TablePhotos):
 
     def __init__(self, cbkSelect):
         """Constructor with selection callback."""
-        super().__init__(cbkSelect)
+        super().__init__(cbkSelect, 'Photos sélectionnées')
 
     def setColumns(self):
         self.addColumn(TableColumn('Nom',     PhotoInfo.getNameNoExt,    240))
