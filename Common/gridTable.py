@@ -193,22 +193,15 @@ class GridTable:
         scrollbar = ttk.Scrollbar(self.frmMain, orient=tk.VERTICAL)
         scrollbar.grid(column=1, row=1, sticky='nswe')
         scrollbar.config(command=self.canvas.yview)
-        #scrollbar.bind('<Enter>', self._bound_to_mousewheel)
-        #scrollbar.bind('<Leave>', self._unbound_to_mousewheel)
         self.canvas.configure(yscrollcommand=scrollbar.set)
-        #self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
 
         #self.frmBody = ttk.Frame(self.frmMain, relief=tk.SUNKEN, style='Main.TFrame')
         #self.frmBody.grid(column=0, row=1)
         self.frmBody = ttk.Frame(self.canvas, relief=tk.SUNKEN, style='Main.TFrame')
         self.canvas.create_window((0, 0), window=self.frmBody, anchor="nw")
         self.frmBody.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
-        #self.frmBody.bind('<Enter>', self._bound_to_mousewheel)
-        #self.frmBody.bind('<Leave>', self._unbound_to_mousewheel)
-        self.frmBody.bind_all("<MouseWheel>", self._on_mousewheel)
-        self.frmBody.bind_all("<Button-4>", self._on_mousewheel)
-        self.frmBody.bind_all("<Button-5>", self._on_mousewheel)
-        # TODO fix mousewheel scrolling
+        self.frmBody.bind_all("<Button-4>", self.onMouseWheel)
+        self.frmBody.bind_all("<Button-5>", self.onMouseWheel)
 
         self.frmFoot = ttk.Frame(self.frmMain)
         self.frmFoot.grid(column=0, row=2, sticky='we', columnspan=2)
@@ -228,14 +221,10 @@ class GridTable:
 
         self.loadIcons()
 
-    def _bound_to_mousewheel(self, event):
-        self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
-
-    def _unbound_to_mousewheel(self, event):
-        self.canvas.unbind_all("<MouseWheel>")
-
-    def _on_mousewheel(self, event):
-        self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+    def onMouseWheel(self, event):
+        # event.num is 4 for up, 5 for down
+        direction = 1 if event.num == 5 else -1
+        self.canvas.yview_scroll(direction, "units")
 
     def __str__(self):
         return f'GridTable {self.title}'
