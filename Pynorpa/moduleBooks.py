@@ -157,7 +157,7 @@ class ModuleBooks(TabModule):
         self.bookPicEditor.createWidgets(self.frmRight)
 
         # Image preview
-        self.imageWidget = imageWidget.CaptionImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
+        self.imageWidget = imageWidget.CaptionImageWidget()
         self.imageWidget.createWidgets(self.frmRight, 4)
 
         # Buttons

@@ -20,11 +20,11 @@ from BaseWidgets import IconButton
 class ImageWidget():
     """A widget displaying an image from a file."""
     log = logging.getLogger('ImageWidget')
+    defImage = None
 
-    def __init__(self, defImage = None):
+    def __init__(self):
         """Constructor"""
         self.log.info('Constructor')
-        self.defImage = defImage
         self.img = None
         self.photoInfo = None
 
@@ -125,9 +125,9 @@ class MultiImageWidget(ImageWidget):
     """A widget displaying multiple images."""
     log = logging.getLogger('MultiImageWidget')
 
-    def __init__(self, defImage=None, cbkSelectImage=None):
+    def __init__(self, cbkSelectImage=None):
         """Constructor"""
-        super().__init__(defImage)
+        super().__init__()
         self.cbkSelectImage = cbkSelectImage
         self.files = []
         self.iSelected = None

@@ -26,7 +26,7 @@ class ModuleCalendar(TabModule):
         self.window = parent.window
         self.monthYearSel = MonthYearSelector(self.loadData)
         self.calWidget = CalendarWidget(self.onSelectItem)
-        self.imgWidget = MultiImageWidget(None, None)
+        self.imgWidget = MultiImageWidget(None)
         super().__init__(parent, 'Calendrier')
 
     def loadData(self):

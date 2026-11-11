@@ -50,7 +50,7 @@ class ModuleReselection(TabModule):
         self.locationCache = LocationCache.LocationCache()
         self.taxonCache = TaxonCache()
         self.table = TableReselection(self.onSelectPhoto)
-        self.imageWidget = imageWidget.ImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
+        self.imageWidget = imageWidget.ImageWidget()
         self.editor = PhotoEditorReselection()
         self.selector = TaxonReselector(self.onRename)
         self.dirSelector = DirectorySelector(self.onSelectDir)

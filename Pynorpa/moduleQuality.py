@@ -28,7 +28,7 @@ class ModuleQuality(TabModule):
         self.checker = None
         self.table   = QualityTable(self.onSelectIssue)
         self.editor  = QualityIssueEditor(parent)
-        self.imageWidget = CaptionImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
+        self.imageWidget = CaptionImageWidget()
         self.obsfinder = MissingObsFinder(self.onRunINatCheck)
         super().__init__(parent, 'Qualité', QualityIssue.__name__)
 

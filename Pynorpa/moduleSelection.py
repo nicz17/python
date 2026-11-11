@@ -40,7 +40,7 @@ class ModuleSelection(TabModule):
         self.app = parent
         self.window = parent.window
         self.table = TablePhotos(self.onSelectPhoto)
-        self.imageWidget = imageWidget.ImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
+        self.imageWidget = imageWidget.ImageWidget()
         self.editor = PhotoEditor()
         self.selector = TaxonSelector()
         self.dirSelector = DirectorySelector(self.onSelectDir, 'orig')

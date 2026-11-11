@@ -13,6 +13,7 @@ import config
 import DateTools
 from appParam import AppParamCache
 from TabsApp import *
+from imageWidget import ImageWidget
 
 from moduleBackups import ModuleBackups
 from moduleBooks import ModuleBooks
@@ -45,6 +46,7 @@ class PynorpaApp(TabsApp):
         style.set_theme("radiance")  # Ubuntu
         #style.set_theme("scidgrey")
         #style.set_theme("equilux")  # Dark theme
+        ImageWidget.defImage = f'{config.dirPicsBase}medium/blank-leaf.png'
 
         # Tabbed modules
         ModuleCamera(self)

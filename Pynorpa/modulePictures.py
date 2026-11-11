@@ -33,7 +33,7 @@ class ModulePictures(TabModule):
         self.table   = PictureTable(self.onSelectPicture)
         self.editor  = PictureEditor(self.onSavePicture, parent)
         self.factory = PictureFactory(self.onAddPicture, parent)
-        self.imageWidget = imageWidget.ImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
+        self.imageWidget = imageWidget.ImageWidget()
         super().__init__(parent, 'Photos', Picture.__name__)
         self.picture = None
 

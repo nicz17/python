@@ -40,7 +40,7 @@ class ModuleTaxon(TabModule):
         self.uploader = Uploader()
         self.tree   = TaxonTree(self.onSelectTaxon)
         self.editor = TaxonEditor(self.onSaveTaxon, parent)
-        self.imageWidget = imageWidget.CaptionImageWidget(f'{config.dirPicsBase}medium/blank.jpg')
+        self.imageWidget = imageWidget.CaptionImageWidget()
         self.tableSyn = SynonymsTable(None)
 
     def loadData(self):
