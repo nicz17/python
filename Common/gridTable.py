@@ -31,9 +31,10 @@ class GridTable:
     log = logging.getLogger('GridTable')
     dirIcons = f'{Path.home()}/prog/icons'
 
-    def __init__(self, title: str, cbkSelection=None, nRows=24):
+    def __init__(self, title: str, cbkSelection=None, nRows=24, height=500):
         self.log.info(f'Constructor for GridTable {title} with {nRows} rows')
         self.cbkSelection = cbkSelection
+        self.height = height
         self.nRows = nRows
         self.title = title
         self.columns = []
@@ -56,6 +57,7 @@ class GridTable:
                 value = col.mtdGetter(obj)
                 if isinstance(value, str) and search.lower() in value.lower():
                     self.log.info(f'{obj} matches {search}')
+                    self.moveTo(row)
                     self.selectRow(row)
                     return
         self.log.info(f'No match for {search}')
@@ -69,6 +71,11 @@ class GridTable:
         self.setSelectionStyle(row)
         if self.cbkSelection:
             self.cbkSelection(self.data[row] if row is not None else None)
+
+    def moveTo(self, row: int):
+        if row is not None:
+            position = row/self.nRows
+            self.canvas.yview_moveto(position)
 
     def selectObject(self, obj):
         """Select the given object by its getIdx()."""
@@ -115,6 +122,7 @@ class GridTable:
     def loadData(self, data: list):
         timer = Timer()
         self.data = data
+        self.log.info(f'Loading {len(data)} data rows')
 
         #for irow, obj in enumerate(data):
         iRowsDisplayed = min(self.nRows, len(data))
@@ -130,9 +138,24 @@ class GridTable:
                     self.widgets[irow] = {}
                 self.widgets[irow][icol] = lblCell
 
-        count = f'{iRowsDisplayed}/{len(data)}'
+        # Adjust table width
+        self.adjustTableWidth()
+
+        heightFrame  = self.frmBody.winfo_height()
+        heightCanvas = self.canvas.winfo_height()
+        nRowsVisible = len(self.data)*heightCanvas//heightFrame
+        self.log.info(f'Table height: {heightCanvas}/{heightFrame}px: {nRowsVisible} rows visible')
+        count = f'{nRowsVisible}/{len(data)}'
         perf = timer.getElapsed()
         self.lblCount.config(text=f'{count} | {perf}')
+
+    def adjustTableWidth(self):
+        root = self.frmMain.winfo_toplevel()
+        root.update()
+        width = self.frmBody.winfo_width()
+        self.log.info(f'Adjusting table width to {width}px')
+        if width > 1:
+            self.canvas.config(width=width)
 
     def setCellValue(self, lblCell: ttk.Label, value):
         if isinstance(value, str):
@@ -164,13 +187,34 @@ class GridTable:
         # Frames
         self.frmMain = ttk.Frame(parent)
         self.frmMain.pack(pady=6)
-        self.frmMain.grid_columnconfigure(0, weight=1)
+        #self.frmMain.grid_columnconfigure(0, weight=1)
         self.frmHead = ttk.Frame(self.frmMain)
-        self.frmHead.grid(column=0, row=0, sticky='we')
-        self.frmBody = ttk.Frame(self.frmMain, relief=tk.SUNKEN, style='Main.TFrame')
-        self.frmBody.grid(column=0, row=1)
+        self.frmHead.grid(column=0, row=0, sticky='we', columnspan=2)
+
+        self.canvas = tk.Canvas(self.frmMain, bd=0, highlightthickness=0, height=self.height)
+        self.canvas.grid(column=0, row=1, sticky='nswe')
+
+        scrollbar = ttk.Scrollbar(self.frmMain, orient=tk.VERTICAL)
+        scrollbar.grid(column=1, row=1, sticky='nswe')
+        scrollbar.config(command=self.canvas.yview)
+        #scrollbar.bind('<Enter>', self._bound_to_mousewheel)
+        #scrollbar.bind('<Leave>', self._unbound_to_mousewheel)
+        self.canvas.configure(yscrollcommand=scrollbar.set)
+        #self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
+
+        #self.frmBody = ttk.Frame(self.frmMain, relief=tk.SUNKEN, style='Main.TFrame')
+        #self.frmBody.grid(column=0, row=1)
+        self.frmBody = ttk.Frame(self.canvas, relief=tk.SUNKEN, style='Main.TFrame')
+        self.canvas.create_window((0, 0), window=self.frmBody, anchor="nw")
+        self.frmBody.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+        #self.frmBody.bind('<Enter>', self._bound_to_mousewheel)
+        #self.frmBody.bind('<Leave>', self._unbound_to_mousewheel)
+        self.frmBody.bind_all("<MouseWheel>", self._on_mousewheel)
+        self.frmBody.bind_all("<Button-4>", self._on_mousewheel)
+        self.frmBody.bind_all("<Button-5>", self._on_mousewheel)
+
         self.frmFoot = ttk.Frame(self.frmMain)
-        self.frmFoot.grid(column=0, row=2, sticky='we')
+        self.frmFoot.grid(column=0, row=2, sticky='we', columnspan=2)
 
         # Title bar
         self.lblTitle = ttk.Label(self.frmHead, text=self.title, justify="left", style="Bold.TLabel")
@@ -183,9 +227,18 @@ class GridTable:
             frmHeader = ttk.Frame(self.frmBody)
             frmHeader.grid(column=icol, row=0, padx=1, pady=1, sticky='we')
             lblHeader = ttk.Label(frmHeader, text=column.label)
-            lblHeader.pack(padx=3)
+            lblHeader.pack(padx=3, fill=tk.X)
 
         self.loadIcons()
+
+    def _bound_to_mousewheel(self, event):
+        self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
+
+    def _unbound_to_mousewheel(self, event):
+        self.canvas.unbind_all("<MouseWheel>")
+
+    def _on_mousewheel(self, event):
+        self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
 
     def __str__(self):
         return f'GridTable {self.title}'

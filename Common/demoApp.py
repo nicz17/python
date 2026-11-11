@@ -410,8 +410,9 @@ class ModuleGridTableDemo(TabModule):
     log = logging.getLogger('ModuleGridTableDemo')
 
     def __init__(self, oParent):
+        self.nRows = 64
         self.nameGen = NameGen(random.randint(0, 42))
-        self.table = GridTable('Demo objects', self.onSelection)
+        self.table = GridTable('GridTable Demo', self.onSelection, self.nRows)
         self.editor = EditorDemo(self.onSave)
         self.autoed = AutoEditor('AutoEditor Demo', DataDemo, self.onSaveAuto)
         super().__init__(oParent, 'GridTable')
@@ -475,16 +476,19 @@ class ModuleGridTableDemo(TabModule):
     def loadData(self):
         self.log.info('Load data')
         data = []
-        for i in range(32):
+        for i in range(self.nRows):
             text = self.nameGen.paragraph(3, 5, 9)
             data.append(DataDemo(i, f'DemoData{i:02d}', self.nameGen.generate(), text))
         self.table.loadData(data)
+        #self.oParent.window.update()
+        #self.table.adjustTableWidth()
 
 class AppDemo(TabsApp):
     """Demo app for base widgets and other common classes."""
     def __init__(self):
         appIcon = f'{Path.home()}/prog/icons/demo.png'
         super().__init__('Demo TabsApp', '1200x800', appIcon)
+        ModuleGridTableDemo(self)
         ModuleTableDemo(self)
         ModuleTreeDemo(self)
         ModuleCalendarDemo(self)
@@ -492,7 +496,6 @@ class AppDemo(TabsApp):
         ModuleDateToolsDemo(self)
         ModuleMapDemo(self)
         ModuleWebPhotoDemo(self)
-        ModuleGridTableDemo(self)
 
 def main():
     app = AppDemo()
