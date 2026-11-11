@@ -84,7 +84,7 @@ class ModuleTracking(TabModule):
         """Create user widgets."""
         self.createLeftRightFrames()
         self.monthYearSel.createWidgets(self.frmLeft)
-        self.table.createWidgets(self.frmLeft)
+        self.table.createWidgets(self.frmLeft, 24)
         self.mapWidget.createWidgets(self.frmRight)
         self.finder.createWidgets(self.frmRight)
 
@@ -175,7 +175,7 @@ class TableGeoTracks(AdvTable):
 
     def __init__(self, cbkSelect):
         """Constructor with selection callback."""
-        super().__init__(cbkSelect, 'Tracks', 6)
+        super().__init__(cbkSelect, 'GeoTracks', 6)
         self.addColumn(TableColumn('Nom',  GeoTrack.getNameNoExt, 260))
         self.addColumn(TableColumn('Date', GeoTrack.getNameDate,  100))
 
