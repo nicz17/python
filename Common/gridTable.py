@@ -31,11 +31,11 @@ class GridTable:
     log = logging.getLogger('GridTable')
     dirIcons = f'{Path.home()}/prog/icons'
 
-    def __init__(self, title: str, cbkSelection=None, nRows=24, height=500):
-        self.log.info(f'Constructor for GridTable {title} with {nRows} rows')
+    def __init__(self, title: str, cbkSelection=None, height=500):
+        self.log.info(f'Constructor for GridTable {title} height {height}px')
         self.cbkSelection = cbkSelection
         self.height = height
-        self.nRows = nRows
+        self.nRows = None
         self.title = title
         self.columns = []
         self.data = []
@@ -98,8 +98,7 @@ class GridTable:
                     self.setCellValue(self.widgets[row][icol], value)
 
     def setSelectionStyle(self, row: int):
-        iRowsDisplayed = min(self.nRows, len(self.data))
-        for irow in range(iRowsDisplayed):
+        for irow in range(len(self.data)):
             style = 'Sel.TLabel' if row == irow else 'Main.TLabel'
             for col in range(len(self.columns)):
                 self.widgets[irow][col].config(style=style)   
@@ -124,10 +123,7 @@ class GridTable:
         self.data = data
         self.log.info(f'Loading {len(data)} data rows')
 
-        #for irow, obj in enumerate(data):
-        iRowsDisplayed = min(self.nRows, len(data))
-        for irow in range(iRowsDisplayed):
-            obj = data[irow]
+        for irow, obj in enumerate(data):
             for icol, column in enumerate(self.columns):
                 value = column.mtdGetter(obj)
                 lblCell = ttk.Label(self.frmBody, justify="left", style='Main.TLabel')
@@ -143,9 +139,9 @@ class GridTable:
 
         heightFrame  = self.frmBody.winfo_height()
         heightCanvas = self.canvas.winfo_height()
-        nRowsVisible = len(self.data)*heightCanvas//heightFrame
-        self.log.info(f'Table height: {heightCanvas}/{heightFrame}px: {nRowsVisible} rows visible')
-        count = f'{nRowsVisible}/{len(data)}'
+        self.nRows = len(self.data)*heightCanvas//heightFrame
+        self.log.info(f'Table height: {heightCanvas}/{heightFrame}px: {self.nRows} rows visible')
+        count = f'{self.nRows}/{len(data)}'
         perf = timer.getElapsed()
         self.lblCount.config(text=f'{count} | {perf}')
 
@@ -212,6 +208,7 @@ class GridTable:
         self.frmBody.bind_all("<MouseWheel>", self._on_mousewheel)
         self.frmBody.bind_all("<Button-4>", self._on_mousewheel)
         self.frmBody.bind_all("<Button-5>", self._on_mousewheel)
+        # TODO fix mousewheel scrolling
 
         self.frmFoot = ttk.Frame(self.frmMain)
         self.frmFoot.grid(column=0, row=2, sticky='we', columnspan=2)

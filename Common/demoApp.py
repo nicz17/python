@@ -412,7 +412,7 @@ class ModuleGridTableDemo(TabModule):
     def __init__(self, oParent):
         self.nRows = 64
         self.nameGen = NameGen(random.randint(0, 42))
-        self.table = GridTable('GridTable Demo', self.onSelection, self.nRows)
+        self.table = GridTable('GridTable Demo', self.onSelection, 532)
         self.editor = EditorDemo(self.onSave)
         self.autoed = AutoEditor('AutoEditor Demo', DataDemo, self.onSaveAuto)
         super().__init__(oParent, 'GridTable')
@@ -480,8 +480,6 @@ class ModuleGridTableDemo(TabModule):
             text = self.nameGen.paragraph(3, 5, 9)
             data.append(DataDemo(i, f'DemoData{i:02d}', self.nameGen.generate(), text))
         self.table.loadData(data)
-        #self.oParent.window.update()
-        #self.table.adjustTableWidth()
 
 class AppDemo(TabsApp):
     """Demo app for base widgets and other common classes."""
