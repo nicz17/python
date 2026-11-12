@@ -463,6 +463,23 @@ class PynorpaManager():
 
         self.log.info(f'Found {len(matches)} matches')
         return matches
+
+    def cleanupFtpFiles(self):
+        """Look for FTP files that should be deleted."""
+        self.log.info('Cleanup FTP files')
+        # TODO move to ftpCleaner class instead of uploader
+        uploader = Uploader()
+        uploader.connect()
+        files = uploader.listFiles()
+        self.log.info(f'Checking {len(files)} files')
+        for file in files:
+            #self.log.info(f'  {file}')
+            if not file.endswith('.html'):
+                continue
+            name = file.removesuffix('.html').replace('-', ' ', 1).capitalize()
+            if not self.taxonCache.findByName(name):
+                self.log.info(f'Unknown taxon name {name}')
+        uploader.quit()
     
     def runSystemCommand(self, cmd: str, dryrun=False):
         """Run a system command."""
@@ -481,8 +498,9 @@ def testManager():
     #mgr.backupDatabase()
     mgr.log.info(f'Current dir: {mgr.getDefaultDir()}')
     #mgr.getDirsToBackup()
-    iNatObs = INatObs(42, 'test taxon', '2026-07-28T12:34:00+02:00', 'test location', 'photo42') 
-    mgr.findMatchingSelections(iNatObs)
+    #iNatObs = INatObs(42, 'test taxon', '2026-07-28T12:34:00+02:00', 'test location', 'photo42') 
+    #mgr.findMatchingSelections(iNatObs)
+    mgr.cleanupFtpFiles()
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",

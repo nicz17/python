@@ -189,6 +189,12 @@ class Uploader:
             self.log.error(f'File to upload does not exist: {filename}')
             return False
 
+    def listFiles(self) -> list[str]:
+        """List the files on the FTP server."""
+        self.oSession.cwd('pages')
+        files = self.oSession.nlst()
+        return files
+
     def connect(self):
         """Connect to FTP server."""
         if not self.bDryRun:
