@@ -30,6 +30,8 @@ class GridTable:
     """A grid table."""
     log = logging.getLogger('GridTable')
     dirIcons = f'{Path.home()}/prog/icons'
+    colorBg  = '#fdfdfd'
+    colorSel = '#d0d0ff'
 
     def __init__(self, title: str, cbkSelection=None, height=500):
         self.log.info(f'Constructor for GridTable {title} height {height}px')
@@ -125,12 +127,25 @@ class GridTable:
         self.data = data
         self.log.info(f'Loading {len(data)} data rows')
 
+        # Clear all cells
+        for widget in self.frmBody.winfo_children():
+            widget.destroy()
+
+        # Header cells
+        for icol, column in enumerate(self.columns):
+            frmHeader = ttk.Frame(self.frmBody)
+            frmHeader.grid(column=icol, row=0, padx=1, pady=2, sticky='we')
+            lblHeader = ttk.Label(frmHeader, text=column.label)
+            lblHeader.pack(padx=3, fill=tk.X)
+            if column.width:
+                self.frmBody.grid_columnconfigure(icol, minsize=column.width)
+
         # Fill each table cell
         for irow, obj in enumerate(data):
             for icol, column in enumerate(self.columns):
                 value = column.mtdGetter(obj)
                 lblCell = ttk.Label(self.frmBody, justify="left", style='Main.TLabel')
-                lblCell.grid(column=icol, row=irow+1, sticky='we', padx=4, pady=1)
+                lblCell.grid(column=icol, row=irow+1, sticky='we', padx=2, pady=1)
                 lblCell.bind("<Button-1>", lambda event, obj=obj, row=irow: self.onCellSelected(obj, row, event))
                 self.setCellValue(lblCell, value)
                 if not irow in self.widgets:
@@ -161,8 +176,8 @@ class GridTable:
         self.log.info(f'Adjusting table size to {width}x{height}px')
         if width > 1:
             self.canvas.config(width=width)
-        if height > 1 and height < self.height:
-            self.canvas.config(height=height)
+        if height > 1:
+            self.canvas.config(height=min(height, self.height))
 
         # Update root window to have correct sizes
         root.update()
@@ -188,9 +203,9 @@ class GridTable:
 
         # Styles
         style = ttk.Style()
-        style.configure('Main.TFrame',  background='#f1f1f1')
-        style.configure('Main.TLabel',  background='#f1f1f1')
-        style.configure('Sel.TLabel',   background='#e0e0ff')
+        style.configure('Main.TFrame',  background=self.colorBg)
+        style.configure('Main.TLabel',  background=self.colorBg)
+        style.configure('Sel.TLabel',   background=self.colorSel)
         style.configure('Count.TLabel', foreground='grey')
         style.configure("Bold.TLabel", font=("Helvetica", 11, "bold"))
 
@@ -227,15 +242,6 @@ class GridTable:
         self.lblTitle.pack(side='left')
         self.lblCount = ttk.Label(self.frmHead, justify="right", style='Count.TLabel')
         self.lblCount.pack(side='right')
-
-        # Header cells
-        for icol, column in enumerate(self.columns):
-            frmHeader = ttk.Frame(self.frmBody)
-            frmHeader.grid(column=icol, row=0, padx=1, pady=1, sticky='we')
-            lblHeader = ttk.Label(frmHeader, text=column.label)
-            lblHeader.pack(padx=3, fill=tk.X)
-            if column.width:
-                self.frmBody.grid_columnconfigure(icol, minsize=column.width)
 
         self.loadIcons()
 
