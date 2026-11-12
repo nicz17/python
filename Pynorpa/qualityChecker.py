@@ -124,6 +124,7 @@ class QualityChecker():
                 self.log.error(f'Missing picture file {pic.getFilename()} on {pic.getShotAt()} in {pic.getLocationName()}')
                 details = f'{pic.getShotAt()} à {pic.getLocationName()}'
                 self.addIssue(f"La photo {pic.getFilename()} n'existe pas", details, pic, pic)
+            # TODO also check that pic filename matches taxon name, for example after typo fix
 
     def checkEmptyTaxa(self):
         """Check that each taxon has observations."""
