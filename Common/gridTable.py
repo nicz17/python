@@ -20,7 +20,7 @@ class TableColumn():
     """A table column."""
     log = logging.getLogger('TableColumn')
 
-    def __init__(self, label: str, mtdGetter, width=100):
+    def __init__(self, label: str, mtdGetter, width=None):
         """Constructor with label, getter method, and width in pixels."""
         self.label = label
         self.mtdGetter = mtdGetter
@@ -103,8 +103,9 @@ class GridTable:
             for col in range(len(self.columns)):
                 self.widgets[irow][col].config(style=style)   
 
-    def addColumn(self, name: str, mtdGetter):
-        self.columns.append(TableColumn(name, mtdGetter))
+    def addColumn(self, name: str, mtdGetter, minWidth=None):
+        """Add a table column for the given label and data accessor."""
+        self.columns.append(TableColumn(name, mtdGetter, minWidth))
 
     def getColumns(self) -> list[TableColumn]:
         """Returns the table column definitions."""
@@ -118,11 +119,13 @@ class GridTable:
         """Add a search bar."""
         self.searchBar = SearchBar(self.frmFoot, None, self.onSearch)
 
-    def loadData(self, data: list):
-        timer = Timer()
+    def loadData(self, data: list, timer=None):
+        if timer is None:
+            timer = Timer()
         self.data = data
         self.log.info(f'Loading {len(data)} data rows')
 
+        # Fill each table cell
         for irow, obj in enumerate(data):
             for icol, column in enumerate(self.columns):
                 value = column.mtdGetter(obj)
@@ -135,23 +138,34 @@ class GridTable:
                 self.widgets[irow][icol] = lblCell
 
         # Adjust table width
-        self.adjustTableWidth()
+        self.adjustTableSize()
 
+        # Display row count and timing in title bar
         heightFrame  = self.frmBody.winfo_height()
         heightCanvas = self.canvas.winfo_height()
         self.nRows = len(self.data)*heightCanvas//heightFrame
         self.log.info(f'Table height: {heightCanvas}/{heightFrame}px: {self.nRows} rows visible')
-        count = f'{self.nRows}/{len(data)}'
+        nRowsDisplayed = min(self.nRows, len(data))
+        count = f'{nRowsDisplayed}/{len(data)}'
         perf = timer.getElapsed()
         self.lblCount.config(text=f'{count} | {perf}')
 
-    def adjustTableWidth(self):
+    def adjustTableSize(self):
+        # Update root window to have correct sizes
         root = self.frmMain.winfo_toplevel()
         root.update()
-        width = self.frmBody.winfo_width()
-        self.log.info(f'Adjusting table width to {width}px')
+
+        # Adjust convas size if needed
+        width  = self.frmBody.winfo_width()
+        height = self.frmBody.winfo_height()
+        self.log.info(f'Adjusting table size to {width}x{height}px')
         if width > 1:
             self.canvas.config(width=width)
+        if height > 1 and height < self.height:
+            self.canvas.config(height=height)
+
+        # Update root window to have correct sizes
+        root.update()
 
     def setCellValue(self, lblCell: ttk.Label, value):
         if isinstance(value, str):
@@ -200,8 +214,10 @@ class GridTable:
         self.frmBody = ttk.Frame(self.canvas, relief=tk.SUNKEN, style='Main.TFrame')
         self.canvas.create_window((0, 0), window=self.frmBody, anchor="nw")
         self.frmBody.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
-        self.frmBody.bind_all("<Button-4>", self.onMouseWheel)
-        self.frmBody.bind_all("<Button-5>", self.onMouseWheel)
+        #self.frmBody.bind_all("<Button-4>", self.onMouseWheel)
+        #self.frmBody.bind_all("<Button-5>", self.onMouseWheel)
+        self.frmBody.bind('<Enter>', self.bindMouseWheel)
+        self.frmBody.bind('<Leave>', self.unbindMouseWheel)
 
         self.frmFoot = ttk.Frame(self.frmMain)
         self.frmFoot.grid(column=0, row=2, sticky='we', columnspan=2)
@@ -218,13 +234,23 @@ class GridTable:
             frmHeader.grid(column=icol, row=0, padx=1, pady=1, sticky='we')
             lblHeader = ttk.Label(frmHeader, text=column.label)
             lblHeader.pack(padx=3, fill=tk.X)
+            if column.width:
+                self.frmBody.grid_columnconfigure(icol, minsize=column.width)
 
         self.loadIcons()
 
+    def bindMouseWheel(self, event):
+        self.frmBody.bind_all("<Button-4>", self.onMouseWheel)
+        self.frmBody.bind_all("<Button-5>", self.onMouseWheel)
+
+    def unbindMouseWheel(self, event):
+        self.frmBody.unbind_all("<Button-4>")
+        self.frmBody.unbind_all("<Button-5>")
+
     def onMouseWheel(self, event):
         # event.num is 4 for up, 5 for down
-        direction = 1 if event.num == 5 else -1
-        self.canvas.yview_scroll(direction, "units")
+        amount = 2 if event.num == 5 else -2
+        self.canvas.yview_scroll(amount, "units")
 
     def __str__(self):
         return f'GridTable {self.title}'

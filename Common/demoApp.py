@@ -8,9 +8,11 @@ __version__ = "1.0.2"
 
 import datetime
 import glob
+import inspect
 import logging
 import os
 import random
+import tkinter as tk
 from pathlib import Path
 from tkinter import ttk
 
@@ -26,6 +28,7 @@ from mapWidget import MapWidget
 from LatLonZoom import LatLon
 from ModalDialog import ModalDialog
 from NameGen import NameGen
+from Palette import Palette
 from TabsApp import TabsApp, TabModule
 from Timer import Timer
 
@@ -229,7 +232,7 @@ class ModuleCalendarDemo(TabModule):
         self.addCalendarItem(datetime.date(year, month, 15), 'Ides')
 
     def addCalendarItem(self, day: datetime.date, name: str):
-        obj = DataDemo(0, name, name)
+        obj = DataDemo(0, name, name, name)
         item = CalendarItem(obj, self.onItemSelection)
         self.calendar.addItem(day, item)
 
@@ -410,7 +413,7 @@ class ModuleGridTableDemo(TabModule):
     log = logging.getLogger('ModuleGridTableDemo')
 
     def __init__(self, oParent):
-        self.nRows = 64
+        self.nRows = 32
         self.nameGen = NameGen(random.randint(0, 42))
         self.table = GridTable('GridTable Demo', self.onSelection, 532)
         self.editor = EditorDemo(self.onSave)
@@ -448,7 +451,7 @@ class ModuleGridTableDemo(TabModule):
         self.createLeftRightFrames()
 
         self.table.addColumn('Nom', DataDemo.getName)
-        self.table.addColumn('Description', DataDemo.getDesc)
+        self.table.addColumn('Description', DataDemo.getDesc, 120)
         self.table.addColumn('Date', DataDemo.getAtStr)
         self.table.addColumn('Futur', DataDemo.isFuture)
         self.table.addColumn('Score', DataDemo.getScore)
@@ -481,6 +484,37 @@ class ModuleGridTableDemo(TabModule):
             data.append(DataDemo(i, f'DemoData{i:02d}', self.nameGen.generate(), text))
         self.table.loadData(data)
 
+class ModulePaletteDemo(TabModule):
+    log = logging.getLogger('ModulePaletteDemo')
+
+    def __init__(self, oParent):
+        super().__init__(oParent, 'Palette')
+
+    def createWidgets(self):
+        self.log.info('Loading Palette subclasses')
+        self.createLeftRightFrames()
+
+        module = __import__('Palette')
+        row = 0
+        for name, obj in inspect.getmembers(module):
+            isConcrete = name != 'Palette' and name != 'SimplePalette' and name != 'GrayScalePalette'
+            if isConcrete and inspect.isclass(obj) and issubclass(obj, Palette):
+                self.log.info(f'{name} is a Palette subclass')
+                palette = obj()
+                self.previewPalette(palette, row)
+                row += 1
+
+    def previewPalette(self, palette: Palette, row: int):
+        width = 256
+        height = 24
+        lblName = Label(self.frmLeft, palette.sName)
+        lblName.getWdiget().grid(column=0, row=row, sticky='w', pady=4, padx=4)
+        canvas = tk.Canvas(self.frmLeft, width=width, height=height)
+        canvas.grid(column=1, row=row, sticky='w', pady=4, padx=4)
+        for x in range(width):
+            color = palette.getColorHex(x/width)
+            canvas.create_line(x, 0, x, height, fill=color)
+
 class AppDemo(TabsApp):
     """Demo app for base widgets and other common classes."""
     def __init__(self):
@@ -491,6 +525,7 @@ class AppDemo(TabsApp):
         ModuleTreeDemo(self)
         ModuleCalendarDemo(self)
         ModuleIconsDemo(self)
+        ModulePaletteDemo(self)
         ModuleDateToolsDemo(self)
         ModuleMapDemo(self)
         ModuleWebPhotoDemo(self)
