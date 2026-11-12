@@ -18,6 +18,7 @@ from BaseWidgets import MonthYearSelector, DateTime, Button
 from mapWidget import MapWidget
 from TabsApp import TabModule, TabsApp
 from BaseTable import AdvTable, TableColumn
+from gridTable import GridTable
 
 
 class ModuleTracking(TabModule):
@@ -28,7 +29,8 @@ class ModuleTracking(TabModule):
         """Constructor."""
         self.window = parent.window
         self.monthYearSel = MonthYearSelector(self.loadData)
-        self.table = TableGeoTracks(self.onSelectTrack)
+        #self.table = TableGeoTracks(self.onSelectTrack)
+        self.table = GridTable('GeoTracks', self.onSelectTrack, 400)
         self.mapWidget = MapWidget()
         self.finder = PositionFinder(self.onSelectPosition)
         super().__init__(parent, 'GeoTracks', GeoTrack.__name__)
@@ -83,8 +85,11 @@ class ModuleTracking(TabModule):
     def createWidgets(self):
         """Create user widgets."""
         self.createLeftRightFrames()
+        #self.table.createWidgets(self.frmLeft, 24)
+        self.table.addColumn('Nom',  GeoTrack.getNameNoExt, 250)
+        self.table.addColumn('Date', GeoTrack.getNameDate,  100)
+        self.table.createWidgets(self.frmLeft)
         self.monthYearSel.createWidgets(self.frmLeft)
-        self.table.createWidgets(self.frmLeft, 24)
         self.mapWidget.createWidgets(self.frmRight)
         self.finder.createWidgets(self.frmRight)
 
