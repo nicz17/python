@@ -23,6 +23,7 @@ from expedition import Expedition, ExpeditionCache
 from iNatApiRequest import INatApiRequestTaxon, INatObs
 from exporter import Exporter
 from uploader import Uploader
+from ftpCleaner import FTPCleaner
 
 
 class PynorpaException(Exception):
@@ -467,10 +468,11 @@ class PynorpaManager():
     def cleanupFtpFiles(self):
         """Look for FTP files that should be deleted."""
         self.log.info('Cleanup FTP files')
-        # TODO move to ftpCleaner class instead of uploader
-        uploader = Uploader()
-        uploader.connect()
-        files = uploader.listFiles()
+        cleaner = FTPCleaner()
+        cleaner.connect()
+        files = cleaner.listFiles('pages')
+        cleaner.quit()
+
         self.log.info(f'Checking {len(files)} files')
         for file in files:
             #self.log.info(f'  {file}')
@@ -479,7 +481,6 @@ class PynorpaManager():
             name = file.removesuffix('.html').replace('-', ' ', 1).capitalize()
             if not self.taxonCache.findByName(name):
                 self.log.info(f'Unknown taxon name {name}')
-        uploader.quit()
     
     def runSystemCommand(self, cmd: str, dryrun=False):
         """Run a system command."""
