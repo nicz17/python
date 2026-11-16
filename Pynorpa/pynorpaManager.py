@@ -469,18 +469,7 @@ class PynorpaManager():
         """Look for FTP files that should be deleted."""
         self.log.info('Cleanup FTP files')
         cleaner = FTPCleaner()
-        cleaner.connect()
-        files = cleaner.listFiles('pages')
-        cleaner.quit()
-
-        self.log.info(f'Checking {len(files)} files')
-        for file in files:
-            #self.log.info(f'  {file}')
-            if not file.endswith('.html'):
-                continue
-            name = file.removesuffix('.html').replace('-', ' ', 1).capitalize()
-            if not self.taxonCache.findByName(name):
-                self.log.info(f'Unknown taxon name {name}')
+        cleaner.getFilesToRemove()
     
     def runSystemCommand(self, cmd: str, dryrun=False):
         """Run a system command."""

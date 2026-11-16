@@ -10,7 +10,7 @@ import os
 from appParam import AppParamCache
 from LocationCache import Location
 from picture import Picture, PictureCache
-from taxon import Taxon, TaxonRank
+from taxon import TaxonCache
 from Timer import Timer
 
 
@@ -20,6 +20,28 @@ class FTPCleaner:
     def __init__(self):
         self.log.info('Constructor')
         self.oSession = None
+
+    def getFilesToRemove(self):
+        """Build the list of files to remove from the FTP server."""
+        taxonCache = TaxonCache()
+        self.connect()
+
+        # HTML pages
+        files = self.listFiles('pages')
+        self.log.info(f'Checking {len(files)} HTML pages')
+        for file in files:
+            #self.log.info(f'  {file}')
+            if not file.endswith('.html'):
+                continue
+            name = file.removesuffix('.html').replace('-', ' ', 1).capitalize()
+            if not taxonCache.findByName(name):
+                self.log.info(f'  {file}: Unknown taxon name {name}')
+
+        # TODO pictures
+        # TODO medium
+        # TODO thumbs
+
+        self.disconnect()
 
     def listFiles(self, dir: str) -> list[str]:
         """Returns a list of files in the specified dir."""
@@ -37,9 +59,9 @@ class FTPCleaner:
             self.oSession.cwd('httpdocs/nature/')
         except ftplib.error_perm:
             self.log.error('Failed to connect or cwd')
-            self.quit()
+            self.disconnect()
 
-    def quit(self):
+    def disconnect(self):
         """Close the connection if it is still open."""
         if self.oSession:
             self.log.info('Closing FTP connection')
