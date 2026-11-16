@@ -39,10 +39,12 @@ class GridTable:
         self.height = height
         self.nRows = None
         self.title = title
+        self.selobj = None
         self.columns = []
         self.data = []
         self.widgets = {}
         self.iconOk = None
+        self.ctxtmenu = None
 
     def loadIcons(self):
         """Load icons for boolean values."""
@@ -66,13 +68,22 @@ class GridTable:
 
     def onCellSelected(self, obj, row: int, event=None):
         self.log.info(f'Selected {obj} on row {row}')
+        if self.ctxtmenu:
+            self.ctxtmenu.hide()
         self.selectRow(row)
+
+    def onCellRightClick(self, obj, row: int, event=None):
+        self.log.info(f'Right-click {obj} on row {row}')
+        self.selectRow(row)
+        if self.ctxtmenu and event:
+            self.ctxtmenu.show(event.x_root, event.y_root)
 
     def selectRow(self, row: int):
         """Select the given row. The first object is on row 0."""
         self.setSelectionStyle(row)
+        self.selobj = self.data[row] if row is not None else None
         if self.cbkSelection:
-            self.cbkSelection(self.data[row] if row is not None else None)
+            self.cbkSelection(self.selobj)
 
     def moveTo(self, row: int):
         if row is not None:
@@ -88,6 +99,9 @@ class GridTable:
             if obj.getIdx() == o.getIdx():
                 self.selectRow(row)
                 break
+
+    def getSelectedObject(self):
+        return self.selobj
 
     def updateObject(self, obj):
         """Update the given object in table."""
@@ -147,6 +161,7 @@ class GridTable:
                 lblCell = ttk.Label(self.frmBody, justify="left", style='Main.TLabel')
                 lblCell.grid(column=icol, row=irow+1, sticky='we', padx=2, pady=1)
                 lblCell.bind("<Button-1>", lambda event, obj=obj, row=irow: self.onCellSelected(obj, row, event))
+                lblCell.bind("<Button-3>", lambda event, obj=obj, row=irow: self.onCellRightClick(obj, row, event))
                 self.setCellValue(lblCell, value)
                 if not irow in self.widgets:
                     self.widgets[irow] = {}
@@ -258,5 +273,39 @@ class GridTable:
         amount = 2 if event.num == 5 else -2
         self.canvas.yview_scroll(amount, "units")
 
+    def addContextMenuAction(self, label: str, cmdExecute):
+        if self.ctxtmenu is None:
+            self.ctxtmenu = ContextMenu(self.frmMain.winfo_toplevel())
+            #self.frmBody.bind_all("<Button-3>", self.showContextMenu)
+        self.ctxtmenu.addAction(label, label, cmdExecute)
+
+    def showContextMenu(self, event):
+        """Shows the contextual menu if there is a selection."""
+        self.log.info('Show context menu')
+        if self.getSelectedObject() is not None:
+            self.ctxtmenu.show(event.x_root, event.y_root)
+
     def __str__(self):
         return f'GridTable {self.title}'
+
+class ContextMenu:
+    log = logging.getLogger('ContextMenu')
+
+    def __init__(self, root: tk.Tk):
+        self.log.info('Constructor')
+        self.widget = tk.Menu(root, tearoff=0)
+        self.actions = {}
+
+    def addAction(self, id: str, label: str, cbkExecute):
+        self.actions[id] = cbkExecute
+        self.widget.add_command(label=label, command=cbkExecute)
+
+    def show(self, x, y):
+        try:
+            #self.widget.post(x, y)
+            self.widget.tk_popup(x, y)
+        finally:
+            self.widget.grab_release()
+
+    def hide(self):
+        self.widget.unpost()

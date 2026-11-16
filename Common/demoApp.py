@@ -166,8 +166,8 @@ class ModuleTableDemo(TabModule):
 
         self.editor.createWidgets(self.frmRight)
 
-        btnModalDialog = Button(self.frmRight, "Modal Dialog demo", self.onModalDialog)
-        btnModalDialog.pack()
+        self.btnModalDialog = Button(self.frmRight, "Modal Dialog demo", self.onModalDialog, 'info')
+        self.btnModalDialog.pack()
 
     def loadData(self):
         self.log.info('Load data')
@@ -443,7 +443,7 @@ class ModuleGridTableDemo(TabModule):
         self.autoed.loadData(obj)
 
     def onCtxtMenuAction(self):
-        sel = self.table.getSelectedRow()
+        sel = self.table.getSelectedObject()
         self.log.info(f'Context menu action {sel}')
 
     def createWidgets(self):
@@ -459,9 +459,8 @@ class ModuleGridTableDemo(TabModule):
         self.table.addSearchBar()
         IconButton(self.table.frmFoot, 'undo', 'Déselectionner', self.onUnselect)
         self.table.addRefreshButton(self.loadData)
-        # self.table.addContextMenu(self.oParent.window)
-        # self.table.addContextMenuAction('Details', self.onCtxtMenuAction)
-        # self.table.addContextMenuAction('Preview', self.onCtxtMenuAction)
+        self.table.addContextMenuAction('Montrer les détails', self.onCtxtMenuAction)
+        self.table.addContextMenuAction('Archiver', self.onCtxtMenuAction)
 
         # BaseEditor
         self.editor.createWidgets(self.frmRight)
