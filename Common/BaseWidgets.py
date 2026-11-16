@@ -92,9 +92,12 @@ class IconButton():
         """Change the button icon."""
         file = f'{self.dirIcons}/{iconName}.png'
         if os.path.exists(file):
-            self.iconImg = tk.PhotoImage(file=file)
+            try:
+                self.iconImg = tk.PhotoImage(file=file)
+            except:
+                self.log.error(f'Could not load icon image from {file}')
         else:
-            self.log.error('Could not find icon image %s', file)
+            self.log.error(f'Could not find icon image {file}')
 
     def setEnabled(self, enabled: bool):
         """Setter for enabled"""
