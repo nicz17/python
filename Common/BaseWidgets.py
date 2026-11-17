@@ -1017,3 +1017,51 @@ class ToolTip():
         self.tw= None
         if tw:
             tw.destroy()
+
+class ContextMenuAction:
+    """Container class for contextual menu actions."""
+    log = logging.getLogger('ContextMenuAction')
+
+    def __init__(self, label: str, cbkExecute, cbkEnable=None):
+        self.label = label
+        self.cbkExecute = cbkExecute
+        self.cbkEnable = cbkEnable
+
+class ContextMenu:
+    log = logging.getLogger('ContextMenu')
+
+    def __init__(self, root: tk.Tk, name: str):
+        self.log.info('Constructor')
+        self.widget = tk.Menu(root, tearoff=0)
+        self.name = name
+        self.actions = []
+
+    def addAction(self, label: str, cbkExecute, cbkEnable=None):
+        action = ContextMenuAction(label, cbkExecute, cbkEnable)
+        self.actions.append(action)
+        self.widget.add_command(label=label, command=cbkExecute)
+
+    def enableAction(self, action: ContextMenuAction, enabled: bool):
+        state = 'normal' if enabled else 'disabled'
+        self.widget.entryconfig(action.label, state=state)
+
+    def addSeparator(self):
+        self.widget.add_separator()
+
+    def show(self, x: int, y: int, obj):
+        """Displays the context menu at the root x,y coords."""
+        for action in self.actions:
+            enabled = action.cbkEnable(obj) if action.cbkEnable else False
+            self.enableAction(action, enabled)
+        try:
+            #self.widget.post(x, y)
+            self.widget.tk_popup(x, y)
+        finally:
+            self.widget.grab_release()
+
+    def hide(self):
+        """Hides the context menu."""
+        self.widget.unpost()
+
+    def __str__(self):
+        return f'ContextMenu for {self.name}'

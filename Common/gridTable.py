@@ -12,7 +12,7 @@ import tkinter as tk
 from tkinter import ttk
 from pathlib import Path
 
-from BaseWidgets import IconButton, SearchBar
+from BaseWidgets import ContextMenu, IconButton, SearchBar
 from Timer import Timer
 
 
@@ -76,7 +76,7 @@ class GridTable:
         self.log.info(f'Right-click {obj} on row {row}')
         self.selectRow(row)
         if self.ctxtmenu and event:
-            self.ctxtmenu.show(event.x_root, event.y_root)
+            self.ctxtmenu.show(event.x_root, event.y_root, self.selobj)
 
     def selectRow(self, row: int):
         """Select the given row. The first object is on row 0."""
@@ -273,39 +273,20 @@ class GridTable:
         amount = 2 if event.num == 5 else -2
         self.canvas.yview_scroll(amount, "units")
 
-    def addContextMenuAction(self, label: str, cmdExecute):
+    def addContextMenuAction(self, label: str, cmdExecute, cbkEnable):
         if self.ctxtmenu is None:
-            self.ctxtmenu = ContextMenu(self.frmMain.winfo_toplevel())
+            self.ctxtmenu = ContextMenu(self.frmMain.winfo_toplevel(), f'GridTable {self.title}')
             #self.frmBody.bind_all("<Button-3>", self.showContextMenu)
-        self.ctxtmenu.addAction(label, label, cmdExecute)
+        self.ctxtmenu.addAction(label, cmdExecute, cbkEnable)
+
+    def addContextMenuSeparator(self):
+        self.ctxtmenu.addSeparator()
 
     def showContextMenu(self, event):
         """Shows the contextual menu if there is a selection."""
-        self.log.info('Show context menu')
+        self.log.info(f'Show context menu for {self.selobj}')
         if self.getSelectedObject() is not None:
-            self.ctxtmenu.show(event.x_root, event.y_root)
+            self.ctxtmenu.show(event.x_root, event.y_root, self.selobj)
 
     def __str__(self):
         return f'GridTable {self.title}'
-
-class ContextMenu:
-    log = logging.getLogger('ContextMenu')
-
-    def __init__(self, root: tk.Tk):
-        self.log.info('Constructor')
-        self.widget = tk.Menu(root, tearoff=0)
-        self.actions = {}
-
-    def addAction(self, id: str, label: str, cbkExecute):
-        self.actions[id] = cbkExecute
-        self.widget.add_command(label=label, command=cbkExecute)
-
-    def show(self, x, y):
-        try:
-            #self.widget.post(x, y)
-            self.widget.tk_popup(x, y)
-        finally:
-            self.widget.grab_release()
-
-    def hide(self):
-        self.widget.unpost()

@@ -459,8 +459,12 @@ class ModuleGridTableDemo(TabModule):
         self.table.addSearchBar()
         IconButton(self.table.frmFoot, 'undo', 'Déselectionner', self.onUnselect)
         self.table.addRefreshButton(self.loadData)
-        self.table.addContextMenuAction('Montrer les détails', self.onCtxtMenuAction)
-        self.table.addContextMenuAction('Archiver', self.onCtxtMenuAction)
+        self.table.addContextMenuAction('Montrer les détails', self.onCtxtMenuAction, 
+            lambda obj: True)
+        self.table.addContextMenuAction('Archiver', self.onCtxtMenuAction, 
+            lambda obj: not obj.isFuture())
+        self.table.addContextMenuSeparator()
+        self.table.addContextMenuAction('Fermer', None, lambda obj: True)
 
         # BaseEditor
         self.editor.createWidgets(self.frmRight)
