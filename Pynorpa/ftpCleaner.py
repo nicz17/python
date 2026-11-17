@@ -42,7 +42,8 @@ class FTPCleaner:
         self.connect()
 
         # HTML pages
-        files = self.listFiles('pages')
+        path = 'pages'
+        files = self.listFiles(path)
         self.log.info(f'Checking {len(files)} HTML pages')
         for file in files:
             #self.log.info(f'  {file}')
@@ -51,13 +52,28 @@ class FTPCleaner:
             name = file.removesuffix('.html').replace('-', ' ', 1).capitalize()
             if not taxonCache.findByName(name):
                 self.log.info(f'  {file}: Unknown taxon name {name}')
-                result.append(FTPFile('pages', file))
+                result.append(FTPFile(path, file))
+
+        # Full-size photos
+        path = 'photos'
+        files = self.listFiles(path)
+        self.log.info(f'Checking {len(files)} photos')
+        for file in files:
+            #self.log.info(f'  {file}')
+            if not file.endswith('.jpg'):
+                continue
+            filename = f'{config.dirPictures}{file}'
+            if not os.path.exists(filename):
+                self.log.info(f'  Unknown picture: {file}')
+                result.append(FTPFile(path, file))
+
 
         # TODO pictures
         # TODO medium
         # TODO thumbs
 
         self.disconnect()
+        self.log.info(f'Found {len(result)} files to remove')
         task.done()
         return result
 
@@ -66,6 +82,7 @@ class FTPCleaner:
         self.log.info(f'Listing files in {dir}')
         self.oSession.cwd(dir)
         files = self.oSession.nlst()
+        self.oSession.cwd('..')
         return files
 
     def connect(self):
