@@ -11,8 +11,21 @@ from appParam import AppParamCache
 from LocationCache import Location
 from picture import Picture, PictureCache
 from taxon import TaxonCache
-from Timer import Timer
+from Timer import TimedTask
 
+
+class FTPFile:
+    log = logging.getLogger('FTPFile')
+
+    def __init__(self, path: str, name: str):
+        self.path = path
+        self.name = name
+
+    def getPath(self) -> str:
+        return self.path
+    
+    def getName(self) -> str:
+        return self.name
 
 class FTPCleaner:
     log = logging.getLogger('FTPCleaner')
@@ -21,9 +34,11 @@ class FTPCleaner:
         self.log.info('Constructor')
         self.oSession = None
 
-    def getFilesToRemove(self):
+    def getFilesToRemove(self) -> list[FTPFile]:
         """Build the list of files to remove from the FTP server."""
+        task = TimedTask('Check for files to remove from FTP server')
         taxonCache = TaxonCache()
+        result = []
         self.connect()
 
         # HTML pages
@@ -36,12 +51,15 @@ class FTPCleaner:
             name = file.removesuffix('.html').replace('-', ' ', 1).capitalize()
             if not taxonCache.findByName(name):
                 self.log.info(f'  {file}: Unknown taxon name {name}')
+                result.append(FTPFile('pages', file))
 
         # TODO pictures
         # TODO medium
         # TODO thumbs
 
         self.disconnect()
+        task.done()
+        return result
 
     def listFiles(self, dir: str) -> list[str]:
         """Returns a list of files in the specified dir."""
