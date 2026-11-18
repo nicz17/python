@@ -20,7 +20,7 @@ import DateTools
 from autoEditor import AutoEditor
 from BaseTable import AdvTable, TableColumn
 from BaseTree import BaseTree
-from BaseWidgets import SearchBar, MonthYearSelector, Button, IconButton, BaseEditor, Label
+from BaseWidgets import SearchBar, MonthYearSelector, Button, IconButton, BaseEditor, Label, ProgressBar
 from calendarWidget import CalendarWidget, CalendarItem
 from gridTable import GridTable
 from imageWidget import WebPhoto, ImageWidget
@@ -518,6 +518,38 @@ class ModulePaletteDemo(TabModule):
             color = palette.getColorHex(x/width)
             canvas.create_line(x, 0, x, height, fill=color)
 
+class ModuleAnimationDemo(TabModule):
+    log = logging.getLogger('ModuleAnimationDemo')
+
+    def __init__(self, parent):
+        super().__init__(parent, 'Animation')
+        self.progbar = ProgressBar('Animation demo')
+        self.step = 0
+        self.steps = 10
+
+    def onAnimate(self):
+        """Run button animation callback."""
+        self.log.info('Running')
+        self.refreshLoop()
+
+    def refreshLoop(self):
+        """Refresh the data every second."""
+        self.step += 1
+        if self.step <= self.steps:
+            self.schedule(100, self.refreshLoop)
+        else:
+            self.step = 0
+        self.progbar.setAt(self.step, self.steps)
+
+    def createWidgets(self):
+        self.createLeftRightFrames()
+
+        self.frmTask = ttk.Frame(self.frmLeft)
+        self.frmTask.pack(fill='x')
+        self.btnRun = Button(self.frmTask, 'Run', self.onAnimate)
+        self.btnRun.pack()
+        self.progbar.createWidgets(self.frmTask, tk.LEFT)
+
 class AppDemo(TabsApp):
     """Demo app for base widgets and other common classes."""
     def __init__(self):
@@ -532,6 +564,8 @@ class AppDemo(TabsApp):
         ModuleDateToolsDemo(self)
         ModuleMapDemo(self)
         ModuleWebPhotoDemo(self)
+        ModuleAnimationDemo(self)
+
 
 def main():
     app = AppDemo()

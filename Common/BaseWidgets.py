@@ -13,6 +13,7 @@ from tkinter import ttk
 from pathlib import Path
 import datetime
 import DateTools
+from Palette import GreenRedPalette
 
         
 def enableWidget(widget: tk.Widget, enabled: bool):
@@ -1065,3 +1066,27 @@ class ContextMenu:
 
     def __str__(self):
         return f'ContextMenu for {self.name}'
+
+class ProgressBar:
+    """A progress bar widget."""
+    log = logging.getLogger('ProgressBar')
+
+    def __init__(self, name: str):
+        self.name = name
+        self.palette = GreenRedPalette()
+        self.width = 250
+        self.height = 20
+
+    def setAt(self, step: int, total: int):
+        """Set progress bar value at step/total."""
+        frac = step/total
+        color = self.palette.getColorHex(1.0 - frac)
+        self.canvas.delete("all")
+        self.canvas.create_rectangle(0, 0, frac*self.width, self.height, fill=color, outline=color)
+
+    def createWidgets(self, parent: ttk.Frame, side=tk.TOP, pady=5):
+        self.canvas = tk.Canvas(parent, width=self.width, height=self.height, bg='#606060')
+        self.canvas.pack(side=side, pady=pady)
+
+    def __str__(self):
+        return f'ProgressBar for {self.name}'
