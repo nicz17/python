@@ -12,7 +12,7 @@ import tkinter as tk
 from tkinter import ttk
 from pathlib import Path
 
-from BaseWidgets import ContextMenu, IconButton, SearchBar
+from BaseWidgets import Button, ContextMenu, IconButton, SearchBar
 from Timer import Timer
 
 
@@ -146,13 +146,7 @@ class GridTable:
             widget.destroy()
 
         # Header cells
-        for icol, column in enumerate(self.columns):
-            frmHeader = ttk.Frame(self.frmBody)
-            frmHeader.grid(column=icol, row=0, padx=1, pady=2, sticky='we')
-            lblHeader = ttk.Label(frmHeader, text=column.label)
-            lblHeader.pack(padx=3, fill=tk.X)
-            if column.width:
-                self.frmBody.grid_columnconfigure(icol, minsize=column.width)
+        self.addHeaderCells()
 
         # Fill each table cell
         for irow, obj in enumerate(data):
@@ -179,6 +173,16 @@ class GridTable:
         count = f'{nRowsDisplayed}/{len(data)}'
         perf = timer.getElapsed()
         self.lblCount.config(text=f'{count} | {perf}')
+
+    def addHeaderCells(self):
+        # Header cells
+        for icol, column in enumerate(self.columns):
+            frmHeader = ttk.Frame(self.frmBody)
+            frmHeader.grid(column=icol, row=0, padx=1, pady=2, sticky='we')
+            lblHeader = ttk.Label(frmHeader, text=column.label)
+            lblHeader.pack(padx=3, fill=tk.X)
+            if column.width:
+                self.frmBody.grid_columnconfigure(icol, minsize=column.width)
 
     def adjustTableSize(self):
         # Update root window to have correct sizes
@@ -255,9 +259,10 @@ class GridTable:
         # Title bar
         self.lblTitle = ttk.Label(self.frmHead, text=self.title, justify="left", style="Bold.TLabel")
         self.lblTitle.pack(side='left')
-        self.lblCount = ttk.Label(self.frmHead, justify="right", style='Count.TLabel')
+        self.lblCount = ttk.Label(self.frmHead, justify="right", style='Count.TLabel', text='Aucune donnée')
         self.lblCount.pack(side='right')
 
+        self.addHeaderCells()
         self.loadIcons()
 
     def bindMouseWheel(self, event):
@@ -272,6 +277,12 @@ class GridTable:
         # event.num is 4 for up, 5 for down
         amount = 2 if event.num == 5 else -2
         self.canvas.yview_scroll(amount, "units")
+
+    def addButton(self, label: str, icon: str, cbkExecute):
+        """Add a button to this table's toolbar."""
+        btn = Button(self.frmFoot, label, cbkExecute, icon)
+        btn.pack()
+        return btn
 
     def addContextMenuAction(self, label: str, cmdExecute, cbkEnable):
         if self.ctxtmenu is None:
