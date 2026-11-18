@@ -6,14 +6,8 @@ __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2026 N. Zwahlen"
 __version__ = "1.0.0"
 
-import config
 import logging
-import os
-import tkinter as tk
-from tkinter import ttk
-from tkinter import simpledialog as sd
 
-from BaseWidgets import Button
 from TabsApp import TabsApp, TabModule
 from gridTable import GridTable
 from pynorpaManager import PynorpaManager
@@ -32,6 +26,7 @@ class ModuleCleanup(TabModule):
         self.manager = PynorpaManager()
         self.cleaner = FTPCleaner()
         self.table = GridTable('Fichiers à effacer', None, 750)
+        self.isLoading = False
 
     def loadData(self):
         self.enableWidgets()
@@ -40,14 +35,20 @@ class ModuleCleanup(TabModule):
     def onLoadData(self):
         """Scan FTP server for files to cleanup."""
         timer = Timer()
+        self.isLoading = True
         self.setLoadingIcon()
         files = self.cleaner.getFilesToRemove()
         self.table.loadData(files, timer)
+        self.isLoading = False
         self.enableWidgets()
         self.setLoadingIcon(True)
 
     def onCleanup(self):
         pass
+
+    def onSelectFile(self, file: FTPFile):
+        pass
+        # TODO display details: unkown taxon, or taxon pics if known
 
     def createWidgets(self):
         """Create user widgets."""
@@ -60,4 +61,5 @@ class ModuleCleanup(TabModule):
         self.btnClean = self.table.addButton('Nettoyer', 'clear', self.onCleanup)
 
     def enableWidgets(self):
-        self.btnClean.enableWidget(False)
+        self.btnLoad.enableWidget(not self.isLoading)
+        self.btnClean.enableWidget(self.table.getSize() > 0)

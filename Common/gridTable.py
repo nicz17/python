@@ -101,7 +101,12 @@ class GridTable:
                 break
 
     def getSelectedObject(self):
+        """Returns the selected object if any."""
         return self.selobj
+
+    def getSize(self) -> int:
+        """Return the number of data rows in this table."""
+        return len(self.data)
 
     def updateObject(self, obj):
         """Update the given object in table."""
@@ -131,6 +136,12 @@ class GridTable:
         """Add an icon button to refresh table contents."""
         self.btnRefresh = IconButton(self.frmFoot, 'refresh', 'Recharger la table', cbkRefresh, 6)
 
+    def addButton(self, label: str, icon: str, cbkExecute):
+        """Add a button to this table's toolbar."""
+        btn = Button(self.frmFoot, label, cbkExecute, icon)
+        btn.pack()
+        return btn
+
     def addSearchBar(self):
         """Add a search bar."""
         self.searchBar = SearchBar(self.frmFoot, None, self.onSearch)
@@ -150,7 +161,7 @@ class GridTable:
 
         # Fill each table cell
         for irow, obj in enumerate(data):
-            for icol, column in enumerate(self.columns):
+            for icol, column in enumerate(self.getColumns()):
                 value = column.mtdGetter(obj)
                 lblCell = ttk.Label(self.frmBody, justify="left", style='Main.TLabel')
                 lblCell.grid(column=icol, row=irow+1, sticky='we', padx=2, pady=1)
@@ -277,12 +288,6 @@ class GridTable:
         # event.num is 4 for up, 5 for down
         amount = 2 if event.num == 5 else -2
         self.canvas.yview_scroll(amount, "units")
-
-    def addButton(self, label: str, icon: str, cbkExecute):
-        """Add a button to this table's toolbar."""
-        btn = Button(self.frmFoot, label, cbkExecute, icon)
-        btn.pack()
-        return btn
 
     def addContextMenuAction(self, label: str, cmdExecute, cbkEnable):
         if self.ctxtmenu is None:
