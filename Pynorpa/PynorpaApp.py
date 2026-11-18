@@ -19,6 +19,7 @@ from moduleBackups import ModuleBackups
 from moduleBooks import ModuleBooks
 from moduleCalendar import ModuleCalendar
 from ModuleCamera import ModuleCamera
+from moduleCleanup import ModuleCleanup
 from moduleExpeditions import ModuleExpeditions
 from moduleLocations import ModuleLocations
 from modulePictures import ModulePictures
@@ -53,6 +54,7 @@ class PynorpaApp(TabsApp):
         ModuleSelection(self)
         ModuleReselection(self)
         ModuleLocations(self)
+        ModuleTracking(self)
         ModuleTaxon(self)
         ModulePictures(self)
         ModuleCalendar(self)
@@ -61,7 +63,7 @@ class PynorpaApp(TabsApp):
         ModuleBooks(self)
         ModuleBackups(self)
         ModuleQuality(self)
-        ModuleTracking(self)
+        ModuleCleanup(self)
 
         self.setStatus('Bienvenue à Pynorpa !')
         self.loadNotifications()
