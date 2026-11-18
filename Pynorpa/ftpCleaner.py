@@ -7,9 +7,6 @@ import ftplib
 import logging
 import os
 
-from appParam import AppParamCache
-from LocationCache import Location
-from picture import Picture, PictureCache
 from taxon import TaxonCache
 from Timer import TimedTask
 
@@ -26,6 +23,9 @@ class FTPFile:
     
     def getName(self) -> str:
         return self.name
+
+    def __str__(self):
+        return f'FTPFile {self.path}/{self.name}'
 
 class FTPCleaner:
     log = logging.getLogger('FTPCleaner')
@@ -67,8 +67,6 @@ class FTPCleaner:
                 self.log.info(f'  Unknown picture: {file}')
                 result.append(FTPFile(path, file))
 
-
-        # TODO pictures
         # TODO medium
         # TODO thumbs
 
