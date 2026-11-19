@@ -11,8 +11,11 @@ import logging
 from ftpCleaner import FTPCleaner, FTPFile
 from Timer import Timer
 
+from BaseWidgets import Label
 from gridTable import GridTable
+from imageWidget import MultiImageWidget
 from TabsApp import TabsApp, TabModule
+from taxon import TaxonCache
 
 
 class ModuleCleanup(TabModule):
@@ -24,7 +27,9 @@ class ModuleCleanup(TabModule):
         self.parent = parent
         super().__init__(parent, 'Nettoyage FTP', FTPFile.__name__)
         self.cleaner = FTPCleaner()
-        self.table = GridTable('Fichiers à effacer', None, 743)
+        self.cache = TaxonCache()
+        self.table = GridTable('Fichiers à effacer', self.onSelectFile, 743)
+        self.imageViewer = MultiImageWidget() # TODO option to display file names
         self.isLoading = False
 
     def loadData(self):
@@ -38,6 +43,7 @@ class ModuleCleanup(TabModule):
         self.enableWidgets()
         self.setLoadingIcon()
 
+        # TODO add a progress bar while loading
         files = self.cleaner.getFilesToRemove()
         self.table.loadData(files, timer)
 
@@ -49,8 +55,16 @@ class ModuleCleanup(TabModule):
         pass
 
     def onSelectFile(self, file: FTPFile):
-        pass
-        # TODO display details: unkown taxon, or taxon pics if known, websearch
+        taxon = self.cache.findByFilename(file.getName())
+        if taxon:
+            # If known taxon, display its pics
+            self.lblTaxon.setText(taxon.getName())
+            pics = taxon.getPictures()
+            self.imageViewer.loadImages(pics)
+        else:
+            # TODO If unkown taxon, say so and display closest match or websearch
+            self.lblTaxon.setText(f'Taxon inconnu pour {file.getName()}')
+            self.imageViewer.loadImages(None)
 
     def createWidgets(self):
         """Create user widgets."""
@@ -61,6 +75,9 @@ class ModuleCleanup(TabModule):
         self.table.createWidgets(self.frmLeft)
         self.btnLoad  = self.table.addButton('Charger',  'run',   self.onLoadData)
         self.btnClean = self.table.addButton('Nettoyer', 'clear', self.onCleanup)
+
+        self.lblTaxon = Label(self.frmRight, 'Choisir un fichier').pack()
+        self.imageViewer.createWidgets(self.frmRight)
 
     def enableWidgets(self):
         self.btnLoad.enableWidget(not self.isLoading)
