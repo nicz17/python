@@ -54,25 +54,26 @@ class FTPCleaner:
                 self.log.info(f'  {file}: Unknown taxon name {name}')
                 result.append(FTPFile(path, file))
 
-        # Full-size photos
-        path = 'photos'
-        files = self.listFiles(path)
-        self.log.info(f'Checking {len(files)} photos')
-        for file in files:
-            #self.log.info(f'  {file}')
-            if not file.endswith('.jpg'):
-                continue
-            filename = f'{config.dirPictures}{file}'
-            if not os.path.exists(filename):
-                self.log.info(f'  Unknown picture: {file}')
-                result.append(FTPFile(path, file))
-
-        # TODO medium
-        # TODO thumbs
+        result.extend(self.checkPictureKind('photos', f'{config.dirPictures}'))
+        result.extend(self.checkPictureKind('medium', f'{config.dirWebExport}medium/'))
+        result.extend(self.checkPictureKind('thumbs', f'{config.dirWebExport}thumbs/'))
 
         self.disconnect()
         self.log.info(f'Found {len(result)} files to remove')
         task.done()
+        return result
+
+    def checkPictureKind(self, path: str, localPath: str) -> list[FTPFile]:
+        result = []
+        files = self.listFiles(path)
+        self.log.info(f'Checking {len(files)} in {path}')
+        for file in files:
+            if not file.endswith('.jpg'):
+                continue
+            filename = f'{localPath}{file}'
+            if not os.path.exists(filename):
+                self.log.info(f'  Unknown {path} picture: {file}')
+                result.append(FTPFile(path, file))
         return result
 
     def listFiles(self, dir: str) -> list[str]:
