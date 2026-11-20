@@ -125,12 +125,13 @@ class MultiImageWidget(ImageWidget):
     """A widget displaying multiple images."""
     log = logging.getLogger('MultiImageWidget')
 
-    def __init__(self, cbkSelectImage=None):
+    def __init__(self, cbkSelectImage=None, showFilename=False):
         """Constructor"""
         super().__init__()
         self.cbkSelectImage = cbkSelectImage
         self.files = []
         self.iSelected = None
+        self.showFilename = showFilename
 
     def loadImages(self, files: list):
         """Display the specified images."""
@@ -154,7 +155,8 @@ class MultiImageWidget(ImageWidget):
             self.log.debug('Displaying image [%d/%d] %s', self.iSelected, self.size(), obj)
             if isinstance(obj, Picture):
                 self.loadThumb(obj)
-                status = f'[{self.iSelected+1}/{self.size()}] {obj.getTaxonName()}'
+                caption = obj.getFilename() if self.showFilename else obj.getTaxonName()
+                status = f'[{self.iSelected+1}/{self.size()}] {caption}'
                 self.lblStatus.configure(text=status)
             elif isinstance(obj, PhotoInfo):
                 self.loadThumb(obj)
