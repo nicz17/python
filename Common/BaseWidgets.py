@@ -1076,6 +1076,15 @@ class ProgressBar:
         self.palette = GreenRedPalette()
         self.width = 250
         self.height = 20
+        self.total = 1
+        self.at = 0
+
+    def setTotal(self, total: int):
+        self.total = total
+
+    def increment(self):
+        self.at += 1
+        self.setAt(self.at, self.total)
 
     def setAt(self, step: int, total: int):
         """Set progress bar value at step/total."""
@@ -1083,6 +1092,7 @@ class ProgressBar:
         color = self.palette.getColorHex(1.0 - frac)
         self.canvas.delete("all")
         self.canvas.create_rectangle(0, 0, frac*self.width, self.height, fill=color, outline=color)
+        self.canvas.winfo_toplevel().update()
 
     def createWidgets(self, parent: ttk.Frame, side=tk.TOP, pady=5):
         self.canvas = tk.Canvas(parent, width=self.width, height=self.height, bg='#606060')
