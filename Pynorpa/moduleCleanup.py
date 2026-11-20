@@ -11,7 +11,7 @@ import logging
 from ftpCleaner import FTPCleaner, FTPFile
 from Timer import Timer
 
-from BaseWidgets import Label
+from BaseWidgets import Label, ProgressBar
 from gridTable import GridTable
 from imageWidget import MultiImageWidget
 from TabsApp import TabsApp, TabModule
@@ -26,10 +26,11 @@ class ModuleCleanup(TabModule):
         """Constructor."""
         self.parent = parent
         super().__init__(parent, 'Nettoyage FTP', FTPFile.__name__)
-        self.cleaner = FTPCleaner()
+        self.progbar = ProgressBar('FTP file cleanup loading')
+        self.cleaner = FTPCleaner(self.progbar)
         self.cache = TaxonCache()
         self.table = GridTable('Fichiers à effacer', self.onSelectFile, 743)
-        self.imageViewer = MultiImageWidget() # TODO option to display file names
+        self.imageViewer = MultiImageWidget(showFilename=True)
         self.isLoading = False
 
     def loadData(self):
@@ -43,7 +44,6 @@ class ModuleCleanup(TabModule):
         self.enableWidgets()
         self.setLoadingIcon()
 
-        # TODO add a progress bar while loading
         files = self.cleaner.getFilesToRemove()
         self.table.loadData(files, timer)
 
@@ -58,7 +58,8 @@ class ModuleCleanup(TabModule):
         taxon = self.cache.findByFilename(file.getName())
         if taxon:
             # If known taxon, display its pics
-            self.lblTaxon.setText(taxon.getName())
+            desc = f'{taxon.getName()} : {taxon.getRankFr()} avec {taxon.countAllPictures()} photos'
+            self.lblTaxon.setText(desc)
             pics = taxon.getPictures()
             self.imageViewer.loadImages(pics)
         else:
@@ -75,6 +76,7 @@ class ModuleCleanup(TabModule):
         self.table.createWidgets(self.frmLeft)
         self.btnLoad  = self.table.addButton('Charger',  'run',   self.onLoadData)
         self.btnClean = self.table.addButton('Nettoyer', 'clear', self.onCleanup)
+        self.progbar.createWidgets(self.frmLeft)
 
         self.lblTaxon = Label(self.frmRight, 'Choisir un fichier').pack()
         self.imageViewer.createWidgets(self.frmRight)

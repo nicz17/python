@@ -7,6 +7,7 @@ import ftplib
 import logging
 import os
 
+from BaseWidgets import ProgressBar
 from taxon import TaxonCache
 from Timer import TimedTask
 
@@ -30,15 +31,17 @@ class FTPFile:
 class FTPCleaner:
     log = logging.getLogger('FTPCleaner')
 
-    def __init__(self):
+    def __init__(self, progbar: ProgressBar):
         self.log.info('Constructor')
         self.oSession = None
+        self.progbar = progbar
 
     def getFilesToRemove(self) -> list[FTPFile]:
         """Build the list of files to remove from the FTP server."""
         task = TimedTask('Check for files to remove from FTP server')
         taxonCache = TaxonCache()
         result = []
+        self.progbar.setTotal(4)
         self.connect()
 
         # HTML pages
@@ -53,6 +56,7 @@ class FTPCleaner:
             if not taxonCache.findByName(name):
                 self.log.info(f'  {file}: Unknown taxon name {name}')
                 result.append(FTPFile(path, file))
+        self.progbar.increment()
 
         result.extend(self.checkPictureKind('photos', f'{config.dirPictures}'))
         result.extend(self.checkPictureKind('medium', f'{config.dirWebExport}medium/'))
@@ -74,6 +78,7 @@ class FTPCleaner:
             if not os.path.exists(filename):
                 self.log.info(f'  Unknown {path} picture: {file}')
                 result.append(FTPFile(path, file))
+        self.progbar.increment()
         return result
 
     def listFiles(self, dir: str) -> list[str]:
