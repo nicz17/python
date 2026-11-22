@@ -59,8 +59,8 @@ class FTPCleaner:
         self.progbar.increment()
 
         result.extend(self.checkPictureKind('photos', f'{config.dirPictures}'))
-        result.extend(self.checkPictureKind('medium', f'{config.dirWebExport}medium/'))
-        result.extend(self.checkPictureKind('thumbs', f'{config.dirWebExport}thumbs/'))
+        #result.extend(self.checkPictureKind('medium', f'{config.dirWebExport}medium/'))
+        #result.extend(self.checkPictureKind('thumbs', f'{config.dirWebExport}thumbs/'))
 
         self.disconnect()
         self.log.info(f'Found {len(result)} files to remove')

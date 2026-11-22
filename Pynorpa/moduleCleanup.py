@@ -7,11 +7,12 @@ __copyright__ = "Copyright 2026 N. Zwahlen"
 __version__ = "1.0.0"
 
 import logging
+import os
 
 from ftpCleaner import FTPCleaner, FTPFile
 from Timer import Timer
 
-from BaseWidgets import Label, ProgressBar
+from BaseWidgets import Button, Label, ProgressBar
 from gridTable import GridTable
 from imageWidget import MultiImageWidget
 from TabsApp import TabsApp, TabModule
@@ -32,6 +33,7 @@ class ModuleCleanup(TabModule):
         self.table = GridTable('Fichiers à effacer', self.onSelectFile, 743)
         self.imageViewer = MultiImageWidget(showFilename=True)
         self.isLoading = False
+        self.file = None
 
     def loadData(self):
         self.enableWidgets()
@@ -55,6 +57,7 @@ class ModuleCleanup(TabModule):
         pass
 
     def onSelectFile(self, file: FTPFile):
+        self.file = file
         taxon = self.cache.findByFilename(file.getName())
         if taxon:
             # If known taxon, display its pics
@@ -66,6 +69,15 @@ class ModuleCleanup(TabModule):
             # TODO If unkown taxon, say so and display closest match or websearch
             self.lblTaxon.setText(f'Taxon inconnu pour {file.getName()}')
             self.imageViewer.loadImages(None)
+        self.enableWidgets()
+
+    def onWebSearch(self):
+        """Open a web search in browser."""
+        # https://www.ecosia.org/search?q=leiobunum
+        if self.file:
+            # TODO self.cache.filenameToTaxonName(self.file.getName())
+            query = self.file.getName()
+            os.system(f'firefox https://www.ecosia.org/search?q={query} &')
 
     def createWidgets(self):
         """Create user widgets."""
@@ -80,7 +92,10 @@ class ModuleCleanup(TabModule):
 
         self.lblTaxon = Label(self.frmRight, 'Choisir un fichier').pack()
         self.imageViewer.createWidgets(self.frmRight)
+        self.btnSearch = Button(self.frmRight, 'Recherche web', self.onWebSearch, 'internet')
+        self.btnSearch.pack()
 
     def enableWidgets(self):
         self.btnLoad.enableWidget(not self.isLoading)
         self.btnClean.enableWidget(self.table.getSize() > 0)
+        self.btnSearch.enableWidget(self.file is not None)
