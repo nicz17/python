@@ -523,23 +523,27 @@ class ModuleAnimationDemo(TabModule):
 
     def __init__(self, parent):
         super().__init__(parent, 'Animation')
-        self.progbar = ProgressBar('Animation demo')
-        self.step = 0
         self.steps = 10
+        self.step = 0
+        self.progbar = ProgressBar('Animation demo', self.steps)
 
     def onAnimate(self):
         """Run button animation callback."""
         self.log.info('Running')
+        self.progbar.reset()
+        self.progbar.show()
         self.refreshLoop()
 
     def refreshLoop(self):
         """Refresh the data every second."""
         self.step += 1
         if self.step <= self.steps:
+            self.progbar.getEstimatedTimeLeft()
             self.schedule(100, self.refreshLoop)
         else:
             self.step = 0
-        self.progbar.setAt(self.step, self.steps)
+            self.progbar.hide()
+        self.progbar.increment()
 
     def createWidgets(self):
         self.createLeftRightFrames()

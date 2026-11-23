@@ -10,18 +10,32 @@ import logging
 import tkinter as tk
 from tkinter import ttk
 from Timer import Timer
+from BaseWidgets import ContextMenu
 
 
 class BaseTree():
     """A tree widget."""
     log = logging.getLogger(__name__)
 
-    def __init__(self, title: str, cbkSelectionEvent):
+    def __init__(self, title: str, cbkSelection, cbkRightClick=None):
         """Constructor with item selection callback."""
         self.log.info(f'Constructor for {title}')
         self.title = title
-        self.cbkSelectionEvent = cbkSelectionEvent
+        self.cbkSelection = cbkSelection
+        self.cbkRightClick = cbkRightClick
         self.nItems = 0
+        self.ctxtmenu = None
+
+    def onRightClick(self, event=None):
+        iid = self.tree.identify_row(event.y)
+        self.log.info(f'Right-click {event} {iid}')
+        if self.cbkRightClick:
+            self.tree.focus(iid)
+            self.tree.selection_set(iid)
+            self.cbkRightClick(event, iid)
+        #self.selectRow(row)
+        #if self.ctxtmenu and event:
+        #    self.ctxtmenu.show(event.x_root, event.y_root, self.selobj)
 
     def createWidgets(self, parent: tk.Frame):
         """Create user widgets."""
@@ -46,7 +60,8 @@ class BaseTree():
         # Tree
         self.tree = ttk.Treeview(self.frmMain, show='tree', height=36)
         self.tree.column('#0', width=535)
-        self.tree.bind('<<TreeviewSelect>>', self.cbkSelectionEvent)
+        self.tree.bind('<<TreeviewSelect>>', self.cbkSelection)
+        self.tree.bind('<Button-3>', self.onRightClick)
         #self.tree.pack(pady=5, anchor=tk.W)
         self.tree.grid(column=0, row=1, sticky='we')
 
@@ -93,6 +108,14 @@ class BaseTree():
         else:
             return int(sel)
 
+    def setSelection(self, obj):
+        """Set the tree selection to the specified object."""
+        if obj:
+            iid = str(obj.getIdx())
+            self.tree.see(iid)
+            self.tree.focus(iid)
+            self.tree.selection_set(iid)
+
     def setStatus(self, timer: Timer):
         """Set the status label with tem count and load time."""
         status = f'{self.size()} | {timer.getElapsed()}'
@@ -106,3 +129,8 @@ class BaseTree():
         """Clears the tree contents."""
         self.tree.delete(*self.tree.get_children())
         self.nItems = 0
+
+    def addContextMenuAction(self, label: str, cmdExecute, cbkEnable):
+        if self.ctxtmenu is None:
+            self.ctxtmenu = ContextMenu(self.frmMain.winfo_toplevel(), f'BaseTree {self.title}')
+        self.ctxtmenu.addAction(label, cmdExecute, cbkEnable)

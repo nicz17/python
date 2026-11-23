@@ -13,7 +13,9 @@ from tkinter import ttk
 from pathlib import Path
 import datetime
 import DateTools
+import TextTools
 from Palette import GreenRedPalette
+from Timer import Timer
 
         
 def enableWidget(widget: tk.Widget, enabled: bool):
@@ -1071,12 +1073,13 @@ class ProgressBar:
     """A progress bar widget."""
     log = logging.getLogger('ProgressBar')
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, total: int):
         self.name = name
         self.palette = GreenRedPalette()
+        self.timer = Timer()
         self.width = 250
         self.height = 20
-        self.total = 1
+        self.total = total
         self.at = 0
 
     def setTotal(self, total: int):
@@ -1084,19 +1087,33 @@ class ProgressBar:
 
     def increment(self):
         self.at += 1
-        self.setAt(self.at, self.total)
-
-    def setAt(self, step: int, total: int):
-        """Set progress bar value at step/total."""
-        frac = step/total
+        frac = self.at/self.total
         color = self.palette.getColorHex(1.0 - frac)
         self.canvas.delete("all")
         self.canvas.create_rectangle(0, 0, frac*self.width, self.height, fill=color, outline=color)
         self.canvas.winfo_toplevel().update()
 
+    def reset(self):
+        self.at = 0
+        self.timer.start()
+
+    def getEstimatedTimeLeft(self) -> str:
+        if self.total == 0 or self.at == 0:
+            return None
+        elapsed = self.timer.getElapsedSeconds()
+        remaining = elapsed*(self.total-self.at)/self.at
+        self.log.info(f'Task took {elapsed:.4f}s for {self.at}/{self.total}, remaining: {remaining:.4f}s')
+        return TextTools.durationToString(remaining)
+
     def createWidgets(self, parent: ttk.Frame, side=tk.TOP, pady=5):
         self.canvas = tk.Canvas(parent, width=self.width, height=self.height, bg='#606060')
-        self.canvas.pack(side=side, pady=pady)
+        #self.canvas.pack(side=side, pady=pady)
+
+    def show(self):
+        self.canvas.pack(side=tk.LEFT, pady=5)
+
+    def hide(self):
+        self.canvas.pack_forget()
 
     def __str__(self):
         return f'ProgressBar for {self.name}'

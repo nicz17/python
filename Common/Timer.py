@@ -28,15 +28,14 @@ class Timer:
 
     def getElapsedSeconds(self):
         """Returns the elapsed time in seconds as a float."""
-        if not self.tEnd:
-            self.tEnd = time.time()
-        return self.tEnd - self.tStart
+        tUntil = self.tEnd if self.tEnd else time.time()
+        return tUntil - self.tStart
 
     def getElapsed(self) -> str:
         """Returns the elapsed time as a string, formatted with millisecond precision."""
-        if not self.tEnd:
-            self.tEnd = time.time()
-        return '%.3fs' % (self.tEnd - self.tStart)
+        tUntil = self.tEnd if self.tEnd else time.time()
+        return f'{(tUntil - self.tStart):.3}s'
+        #return '%.3fs' % (self.tEnd - self.tStart)
 
 class TimedTask:
     """A task with a timer for performance."""
