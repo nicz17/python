@@ -33,7 +33,7 @@ class FTPCleaner:
 
     def __init__(self, progbar: ProgressBar):
         self.log.info('Constructor')
-        self.oSession = None
+        self.session = None
         self.progbar = progbar
 
     def getFilesToRemove(self) -> list[FTPFile]:
@@ -41,7 +41,6 @@ class FTPCleaner:
         task = TimedTask('Check for files to remove from FTP server')
         taxonCache = TaxonCache()
         result = []
-        self.progbar.setTotal(4)
         self.connect()
 
         # HTML pages
@@ -49,7 +48,6 @@ class FTPCleaner:
         files = self.listFiles(path)
         self.log.info(f'Checking {len(files)} HTML pages')
         for file in files:
-            #self.log.info(f'  {file}')
             if not file.endswith('.html'):
                 continue
             name = file.removesuffix('.html').replace('-', ' ', 1).capitalize()
@@ -84,24 +82,24 @@ class FTPCleaner:
     def listFiles(self, dir: str) -> list[str]:
         """Returns a list of files in the specified dir."""
         self.log.info(f'Listing files in {dir}')
-        self.oSession.cwd(dir)
-        files = self.oSession.nlst()
-        self.oSession.cwd('..')
+        self.session.cwd(dir)
+        files = self.session.nlst()
+        self.session.cwd('..')
         return files
 
     def connect(self):
         """Connect to FTP server."""
-        self.log.info('Connecting to FTP %s as %s', config.ftpAddress, config.ftpUser)
+        self.log.info(f'Connecting to FTP {config.ftpAddress} as {config.ftpUser}')
         try:
-            self.oSession = ftplib.FTP(config.ftpAddress, config.ftpUser, config.ftpPassword)
-            self.log.info('Connected to FTP: %s', self.oSession.getwelcome())
-            self.oSession.cwd('httpdocs/nature/')
+            self.session = ftplib.FTP(config.ftpAddress, config.ftpUser, config.ftpPassword)
+            self.log.info(f'Connected to FTP: {self.session.getwelcome()}')
+            self.session.cwd('httpdocs/nature/')
         except ftplib.error_perm:
             self.log.error('Failed to connect or cwd')
             self.disconnect()
 
     def disconnect(self):
         """Close the connection if it is still open."""
-        if self.oSession:
+        if self.session:
             self.log.info('Closing FTP connection')
-            self.oSession.close()
+            self.session.close()

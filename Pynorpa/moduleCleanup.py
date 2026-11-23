@@ -27,7 +27,7 @@ class ModuleCleanup(TabModule):
         """Constructor."""
         self.parent = parent
         super().__init__(parent, 'Nettoyage FTP', FTPFile.__name__)
-        self.progbar = ProgressBar('FTP file cleanup loading')
+        self.progbar = ProgressBar('FTP file cleanup loading', 4)
         self.cleaner = FTPCleaner(self.progbar)
         self.cache = TaxonCache()
         self.table = GridTable('Fichiers à effacer', self.onSelectFile, 743)
@@ -44,12 +44,15 @@ class ModuleCleanup(TabModule):
         timer = Timer()
         self.isLoading = True
         self.enableWidgets()
+        self.progbar.reset()
+        self.progbar.show()
         self.setLoadingIcon()
 
         files = self.cleaner.getFilesToRemove()
         self.table.loadData(files, timer)
 
         self.isLoading = False
+        self.progbar.hide()
         self.enableWidgets()
         self.setLoadingIcon(True)
 
