@@ -57,6 +57,7 @@ class ModuleCleanup(TabModule):
         self.setLoadingIcon(True)
 
     def onCleanup(self):
+        # TODO delete the files with progress bar
         pass
 
     def onSelectFile(self, file: FTPFile):
@@ -78,9 +79,8 @@ class ModuleCleanup(TabModule):
         """Open a web search in browser."""
         # https://www.ecosia.org/search?q=leiobunum
         if self.file:
-            # TODO self.cache.filenameToTaxonName(self.file.getName())
-            query = self.file.getName()
-            os.system(f'firefox https://www.ecosia.org/search?q={query} &')
+            query = self.cache.filenameToTaxonName(self.file.getName())
+            os.system(f'firefox https://www.ecosia.org/search?q="{query}" &')
 
     def createWidgets(self):
         """Create user widgets."""

@@ -50,8 +50,8 @@ class FTPCleaner:
         for file in files:
             if not file.endswith('.html'):
                 continue
-            name = file.removesuffix('.html').replace('-', ' ', 1).capitalize()
-            if not taxonCache.findByName(name):
+            if not taxonCache.findByFilename(file):
+                name = taxonCache.filenameToTaxonName(file)
                 self.log.info(f'  {file}: Unknown taxon name {name}')
                 result.append(FTPFile(path, file))
         self.progbar.increment()

@@ -446,13 +446,18 @@ class TaxonCache():
 
     def findByFilename(self, filename: str) -> Taxon:
         """Find a Taxon from a filename (may have digits and extension)."""
+        name = self.filenameToTaxonName(filename)
+        return self.findByName(name)
+
+    def filenameToTaxonName(self, filename: str) -> str:
         name = filename.removesuffix('.jpg')
+        name = name.removesuffix('.html')
         name = TextTools.removeDigits(name)
         name = TextTools.upperCaseFirst(name)
         if name.endswith('-sp'):
             name = name.removesuffix('-sp')
         name = name.replace('-', ' ', 1)
-        return self.findByName(name)
+        return name
     
     def createTaxonForFilename(self, filename: str, dryrun=False) -> Taxon:
         """Create a Taxon from a file name and save to DB."""
