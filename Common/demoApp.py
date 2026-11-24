@@ -178,29 +178,92 @@ class ModuleTableDemo(TabModule):
         self.table.loadData(data)
         #self.searchBar.enableWidget(True)
 
+class DataTreeDemo:
+    """Demo data with parent and children."""
+    log = logging.getLogger('DataTreeDemo')
+
+    def __init__(self, idx: str, idxParent: str, desc: str, depth: int):
+        self.idx = idx
+        self.idxParent = idxParent
+        self.desc = desc
+        self.depth = depth
+
+    def getIdx(self) -> str:
+        return self.idx
+
+    def getIdxParent(self) -> str:
+        return self.idxParent
+
+    def getDesc(self) -> str:
+        return self.desc
+
+    def getDepth(self) -> int:
+        return self.depth
+
+    def __str__(self):
+        return f'DataTreeDemo {self.idx}'
+
 class ModuleTreeDemo(TabModule):
     log = logging.getLogger('ModuleTreeDemo')
 
     def __init__(self, oParent):
-        self.tree = BaseTree('Tree demo', self.onSelection)
+        self.tree = BaseTree('Tree demo', self.onSelection, self.onRightClick)
+        self.editor = AutoEditor('DataTreeDemo', DataTreeDemo)
         super().__init__(oParent, 'BaseTree')
+        self.data = {}
 
     def onSelection(self, event=None):
         id = self.tree.getSelectedId()
         self.log.info(f'Selected {id}')
         self.lblStatus.setText(f'Sélectionné {id}')
+        self.editor.loadData(self.data[id])
+
+    def onRightClick(self, event, id: str):
+        self.log.info(f'Right-clicked {id}')
+        self.lblStatus.setText(f'Clic droit {id}')
+        self.tree.showContextMenu(event, self.data[id])
+
+    def onContextMenu(self):
+        id = self.tree.getSelectedId()
+        self.log.info(f'ContextMenu action for {id}')
+
+    def onExpandNode(self):
+        id = self.tree.getSelectedId()
+        self.log.info(f'ContextMenu action: expand node {id}')
+        self.tree.expandNode(id)
+
+    def onSearch(self, query: str):
+        self.log.info(f'Searching for {query}')
+        for obj in self.data.values():
+            if query in obj.getDesc():
+                self.tree.setSelection(obj)
+                return
+        self.log.info(f'No match for {query} in tree')
 
     def createWidgets(self):
         self.createLeftRightFrames()
         self.tree.createWidgets(self.frmLeft)
+        self.tree.addSearchBar(self.onSearch)
+        self.tree.addCollapseButton()
+        self.tree.addContextMenuAction('Développer', self.onExpandNode, lambda obj: True)
+        self.tree.addContextMenuAction('Réduire', self.onContextMenu, lambda obj: True)
         self.lblStatus = Label(self.frmRight, 'Select a node')
         self.lblStatus.pack()
+
+        self.editor.addField('Id', DataTreeDemo.getIdx)
+        self.editor.addField('Parent', DataTreeDemo.getIdxParent)
+        self.editor.addField('Niveau', DataTreeDemo.getDepth)
+        self.editor.addField('Desc', DataTreeDemo.getDesc)
+        self.editor.createWidgets(self.frmRight)
 
     def populate(self, depth: int, parentId: str):
         for i in range(3):
             id = f'{parentId}-{i}' if parentId else str(i)
-            self.tree.addItem(id, f'Level {depth} Item {id}', parentId)
-            if depth < 3:
+            desc = f'Level {depth} Item {id}'
+            obj = DataTreeDemo(id, parentId, desc, depth)
+            self.data[id] = obj
+            self.tree.addItem(id, desc, parentId)
+            if depth < 4:
                 self.populate(depth+1, id)
 
     def loadData(self):
@@ -416,30 +479,19 @@ class ModuleGridTableDemo(TabModule):
         self.nRows = 32
         self.nameGen = NameGen(random.randint(0, 42))
         self.table = GridTable('GridTable Demo', self.onSelection, 532)
-        self.editor = EditorDemo(self.onSave)
-        self.autoed = AutoEditor('AutoEditor Demo', DataDemo, self.onSaveAuto)
+        self.autoed = AutoEditor('AutoEditor Demo', DataDemo, self.onSave)
         super().__init__(oParent, 'GridTable')
 
     def onSelection(self, obj: DataDemo):
         self.log.info(f'Selected {obj}')
-        self.editor.setValue(obj)
-        self.editor.enableWidgets(obj is not None)
         self.autoed.loadData(obj)
 
     def onUnselect(self):
         self.table.selectObject(None)
 
     def onSave(self, obj: DataDemo):
-        self.log.info(f'Saving {obj} from BaseEditor')
-        obj.desc = self.editor.widDesc.getValue()
-        self.table.updateObject(obj)
-        self.editor.setValue(obj)
-        self.autoed.loadData(obj)
-
-    def onSaveAuto(self, obj: DataDemo):
         self.log.info(f'Saving {obj} from AutoEditor')
         self.table.updateObject(obj)
-        self.editor.setValue(obj)
         self.autoed.loadData(obj)
 
     def onCtxtMenuAction(self):
@@ -465,9 +517,6 @@ class ModuleGridTableDemo(TabModule):
             lambda obj: not obj.isFuture())
         self.table.addContextMenuSeparator()
         self.table.addContextMenuAction('Fermer', None, lambda obj: True)
-
-        # BaseEditor
-        self.editor.createWidgets(self.frmRight)
 
         # AutoEditor
         self.autoed.addField('Index', DataDemo.getIdx)

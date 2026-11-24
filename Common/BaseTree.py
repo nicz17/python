@@ -10,7 +10,7 @@ import logging
 import tkinter as tk
 from tkinter import ttk
 from Timer import Timer
-from BaseWidgets import ContextMenu
+from BaseWidgets import ContextMenu, IconButton, SearchBar
 
 
 class BaseTree():
@@ -37,7 +37,7 @@ class BaseTree():
         #if self.ctxtmenu and event:
         #    self.ctxtmenu.show(event.x_root, event.y_root, self.selobj)
 
-    def createWidgets(self, parent: tk.Frame):
+    def createWidgets(self, parent: tk.Frame, height=32):
         """Create user widgets."""
 
         # Styles
@@ -58,12 +58,16 @@ class BaseTree():
         self.lblCount.pack(side='right')
 
         # Tree
-        self.tree = ttk.Treeview(self.frmMain, show='tree', height=36)
+        self.tree = ttk.Treeview(self.frmMain, show='tree', height=height)
         self.tree.column('#0', width=535)
         self.tree.bind('<<TreeviewSelect>>', self.cbkSelection)
         self.tree.bind('<Button-3>', self.onRightClick)
         #self.tree.pack(pady=5, anchor=tk.W)
         self.tree.grid(column=0, row=1, sticky='we')
+
+        # Toolbar
+        self.frmToolbar = ttk.Frame(self.frmMain)
+        self.frmToolbar.grid(column=0, row=2, sticky='we')
 
     def addItem(self, id: str, text: str, parentId: str, tag=None, icon=None):
         """Add an item to the tree, possibly as a child."""
@@ -129,8 +133,31 @@ class BaseTree():
         """Clears the tree contents."""
         self.tree.delete(*self.tree.get_children())
         self.nItems = 0
+        
+    def expandNode(self, iid):
+        self.tree.item(iid, open=True)  # open parent
+        for child in self.tree.get_children(iid):
+            self.expandNode(child)    # recursively open children
+
+    def closeAll(self):
+        """Close all tree nodes."""
+        for node in self.tree.get_children():
+            self.tree.item(node, open=False)
+
+    def addSearchBar(self, cbkSearch):
+        """Add a search bar."""
+        self.searchBar = SearchBar(self.frmToolbar, None, cbkSearch)
+
+    def addCollapseButton(self):
+        self.btnCollapse = IconButton(self.frmToolbar, 'undo', 'Tout fermer', self.closeAll, 6)
 
     def addContextMenuAction(self, label: str, cmdExecute, cbkEnable):
         if self.ctxtmenu is None:
             self.ctxtmenu = ContextMenu(self.frmMain.winfo_toplevel(), f'BaseTree {self.title}')
         self.ctxtmenu.addAction(label, cmdExecute, cbkEnable)
+
+    def showContextMenu(self, event, obj):
+        """Shows the contextual menu."""
+        self.log.info(f'Show context menu for {obj}')
+        if obj is not None:
+            self.ctxtmenu.show(event.x_root, event.y_root, obj)
