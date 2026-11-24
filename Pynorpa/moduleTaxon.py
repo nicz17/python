@@ -135,18 +135,14 @@ class ModuleTaxon(TabModule):
         self.tree.createWidgets(self.frmLeft)
 
         # Toolbar
-        frmToolbar = ttk.Frame(self.frmLeft)
-        self.btnAdd = BaseWidgets.Button(frmToolbar, 'Enfant', self.onAddTaxon, 'add')
-        self.btnAdd.pack(0)
-        self.searchBar = BaseWidgets.SearchBar(frmToolbar, 32, self.onSearch)
-        self.btnReload = BaseWidgets.IconButton(frmToolbar, 'refresh', 'Recharger les taxons', self.tree.loadData, 6)
-        self.btnCollapse = BaseWidgets.IconButton(frmToolbar, 'undo', 'Tout fermer', self.tree.closeAll, 6)
-        frmToolbar.pack(fill=tk.X)
+        #frmToolbar = self.tree.frmToolbar
+        self.btnAdd = self.tree.addIconButton('add', 'Ajouter un enfant à ce taxon', self.onAddTaxon)
+        self.tree.addSearchBar(self.onSearch)
+        self.btnReload = self.tree.addIconButton('refresh', 'Recharger les taxons', self.tree.loadData)
+        self.tree.addCollapseButton()
         frmToolbar2 = ttk.Frame(self.frmLeft)
-        self.btnAddINat = BaseWidgets.Button(frmToolbar2, 'iNat', self.onAddTaxonINatDialog, 'inat')
-        self.btnAddINat.pack(0)
-        self.btnUpload = BaseWidgets.Button(frmToolbar2, 'Publier', self.onUpload, 'go-up')
-        self.btnUpload.pack(0)
+        self.btnAddINat = BaseWidgets.Button(frmToolbar2, 'iNat', self.onAddTaxonINatDialog, 'inat').pack(0)
+        self.btnUpload = BaseWidgets.Button(frmToolbar2, 'Publier', self.onUpload, 'go-up').pack(0)
         frmToolbar2.pack(fill=tk.X)
 
         # Editor and image
@@ -156,8 +152,7 @@ class ModuleTaxon(TabModule):
 
         # Synonyms table
         self.tableSyn.createWidgets(self.frmRight, 4)
-        self.btnAddSyn = BaseWidgets.Button(self.tableSyn.frmToolBar, 'Ajouter', self.onAddSynonym, 'add')
-        self.btnAddSyn.pack()
+        self.btnAddSyn = BaseWidgets.Button(self.tableSyn.frmToolBar, 'Ajouter', self.onAddSynonym, 'add').pack()
 
     def enableWidgets(self):
         """Enable or disable the buttons."""
@@ -172,7 +167,7 @@ class TaxonTree(BaseTree):
     log = logging.getLogger('TaxonTree')
 
     def __init__(self, cbkSelectItem):
-        super().__init__('Taxons', self.onSelectEvent)
+        super().__init__('Taxons', self.onSelectEvent, self.cbkRightClick)
         self.cbkSelectItem = cbkSelectItem
         self.cache = None
         self.taxonIcons = {}
@@ -195,13 +190,13 @@ class TaxonTree(BaseTree):
     def createWidgets(self, parent: tk.Frame):
         super().createWidgets(parent)
         for rank in TaxonRank:
-            #self.tree.tag_configure(f'taxon-rank{rank.value}', background=rank.getColor())
             iconFile = f'{config.dirPicsBase}resources/rank{rank.value}.png'
             icon = None
             if os.path.exists(iconFile):
                 self.log.debug(f'Loaded icon file for rank {rank.value}: {iconFile}')
                 icon = tk.PhotoImage(file=iconFile)
             self.taxonIcons[rank.value] = icon
+        self.addContextMenuAction('Tout développer', self.onExpandNode, lambda obj: True)
 
     def loadData(self):
         timer = Timer()
@@ -217,6 +212,15 @@ class TaxonTree(BaseTree):
     def onSelectEvent(self, event):
         self.cbkSelectItem(self.getSelectedId())
 
+    def cbkRightClick(self, event, id: str):
+        self.log.info(f'Right-clicked {id}')
+        self.showContextMenu(event, self.cache.findById(int(id)))
+
+    def onExpandNode(self):
+        id = self.getSelectedId()
+        self.log.info(f'Expanding node {id}')
+        self.expandNode(id)
+
     def setSelection(self, taxon: Taxon):
         """Set the tree selection to the specified taxon."""
         if taxon:
@@ -224,11 +228,6 @@ class TaxonTree(BaseTree):
             self.tree.see(iid)
             self.tree.focus(iid)
             self.tree.selection_set(iid)
-
-    def closeAll(self):
-        """Close all tree nodes."""
-        for node in self.tree.get_children():
-            self.tree.item(node, open=False)
 
 class TaxonEditor(BaseWidgets.BaseEditor):
     """A widget for editing Pynorpa taxa."""

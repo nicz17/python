@@ -43,11 +43,13 @@ class Button():
         if tooltip:
             self.tooltip = ToolTip(self.btn, tooltip)
 
-    def pack(self, pady=3, side=tk.LEFT):
+    def pack(self, pady=3, side=tk.LEFT) -> 'Button':
         self.btn.pack(side=tk.LEFT, padx=3, pady=pady)
+        return self
 
-    def grid(self, row: int, col: int):
+    def grid(self, row: int, col: int) -> 'Button':
         self.btn.grid(row=row, column=col, padx=3, sticky='w')
+        return self
 
     def getIcon(self, iconName: str) -> tk.PhotoImage:
         if iconName:
@@ -105,6 +107,9 @@ class IconButton():
     def setEnabled(self, enabled: bool):
         """Setter for enabled"""
         self.enabled = enabled
+    
+    def enableWidget(self, enabled: bool):
+        self.setEnabled(enabled)
 
     def onClick(self, event=None):
         """On click."""
@@ -861,7 +866,7 @@ class SearchBar():
         self.txtInput = ttk.Entry(parent)
         if width:
             self.txtInput.config(width=width)
-        self.txtInput.pack(side=tk.LEFT, padx=0, fill=tk.X, expand=True)
+        self.txtInput.pack(side=tk.LEFT, padx=(4, 0), fill=tk.X, expand=True)
         self.txtInput.bind('<Return>', self.onSearch)
         self.btnClear  = IconButton(parent, 'clear-bar', 'Effacer', self.onClear, 6)
         self.btnSearch = IconButton(parent, 'find', 'Chercher', self.onSearch, 6)

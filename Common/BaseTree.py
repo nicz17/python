@@ -28,14 +28,11 @@ class BaseTree():
 
     def onRightClick(self, event=None):
         iid = self.tree.identify_row(event.y)
-        self.log.info(f'Right-click {event} {iid}')
+        self.log.debug(f'Right-click {event} {iid}')
         if self.cbkRightClick:
             self.tree.focus(iid)
             self.tree.selection_set(iid)
             self.cbkRightClick(event, iid)
-        #self.selectRow(row)
-        #if self.ctxtmenu and event:
-        #    self.ctxtmenu.show(event.x_root, event.y_root, self.selobj)
 
     def createWidgets(self, parent: tk.Frame, height=32):
         """Create user widgets."""
@@ -62,7 +59,6 @@ class BaseTree():
         self.tree.column('#0', width=535)
         self.tree.bind('<<TreeviewSelect>>', self.cbkSelection)
         self.tree.bind('<Button-3>', self.onRightClick)
-        #self.tree.pack(pady=5, anchor=tk.W)
         self.tree.grid(column=0, row=1, sticky='we')
 
         # Toolbar
@@ -149,7 +145,11 @@ class BaseTree():
         self.searchBar = SearchBar(self.frmToolbar, None, cbkSearch)
 
     def addCollapseButton(self):
-        self.btnCollapse = IconButton(self.frmToolbar, 'undo', 'Tout fermer', self.closeAll, 6)
+        self.btnCollapse = self.addIconButton('undo', 'Tout fermer', self.closeAll)
+
+    def addIconButton(self, icon: str, tooltip: str, cmd) -> IconButton:
+        """Add an icon button to this tree's toolbar and return it."""
+        return IconButton(self.frmToolbar, icon, tooltip, cmd, 6)
 
     def addContextMenuAction(self, label: str, cmdExecute, cbkEnable):
         if self.ctxtmenu is None:
