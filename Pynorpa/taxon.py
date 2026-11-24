@@ -91,6 +91,10 @@ class Taxon():
     def getChildren(self) -> list['Taxon']:
         """Get all children of this taxon."""
         return self.children
+
+    def hasChildren(self) -> bool:
+        """Check if this taxon has children."""
+        return len(self.children) > 0
     
     def getTypicalChild(self) -> 'Taxon':
         """Get the typical child of this taxon, or None."""

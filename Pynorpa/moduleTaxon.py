@@ -92,8 +92,10 @@ class ModuleTaxon(TabModule):
 
     def onUpload(self):
         """Upload the selected taxon page."""
-        if self.taxon:
+        canUpload =  self.taxon and (self.uploader.getTaxonPage(self.taxon) is not None)
+        if canUpload:
             self.uploader.uploadSingleTaxon(self.taxon)
+            self.parent.setStatus(f'Publié {self.taxon.getName()}')
 
     def onSearch(self, search: str):
         """Search bar callback. Search taxon and select it in tree."""
@@ -133,9 +135,11 @@ class ModuleTaxon(TabModule):
 
         # Taxon tree
         self.tree.createWidgets(self.frmLeft)
+        self.tree.addContextMenuAction('Publier', self.onUpload, lambda taxon: self.canUpload(taxon))
+        self.tree.ctxtmenu.addSeparator()
+        self.tree.addContextMenuAction('Fermer', None, lambda taxon: True)
 
         # Toolbar
-        #frmToolbar = self.tree.frmToolbar
         self.btnAdd = self.tree.addIconButton('add', 'Ajouter un enfant à ce taxon', self.onAddTaxon)
         self.tree.addSearchBar(self.onSearch)
         self.btnReload = self.tree.addIconButton('refresh', 'Recharger les taxons', self.tree.loadData)
@@ -154,12 +158,18 @@ class ModuleTaxon(TabModule):
         self.tableSyn.createWidgets(self.frmRight, 4)
         self.btnAddSyn = BaseWidgets.Button(self.tableSyn.frmToolBar, 'Ajouter', self.onAddSynonym, 'add').pack()
 
+    def canUpload(self, taxon: Taxon) -> bool:
+        """Check if the selected taxon's page can be uploaded."""
+        if not taxon:
+            return False
+        return self.uploader.getTaxonPage(taxon) is not None
+
     def enableWidgets(self):
         """Enable or disable the buttons."""
         canAdd    = (self.taxon and self.taxon.rank != TaxonRank.SPECIES)
-        canUpload = (self.uploader.getTaxonPage(self.taxon) is not None)
+        #canUpload = (self.uploader.getTaxonPage(self.taxon) is not None)
         self.btnAdd.enableWidget(canAdd)
-        self.btnUpload.enableWidget(canUpload)
+        self.btnUpload.enableWidget(self.canUpload(self.taxon))
         self.btnAddSyn.enableWidget(self.taxon is not None)
 
 class TaxonTree(BaseTree):
@@ -196,7 +206,7 @@ class TaxonTree(BaseTree):
                 self.log.debug(f'Loaded icon file for rank {rank.value}: {iconFile}')
                 icon = tk.PhotoImage(file=iconFile)
             self.taxonIcons[rank.value] = icon
-        self.addContextMenuAction('Tout développer', self.onExpandNode, lambda obj: True)
+        self.addContextMenuAction('Tout développer', self.onExpandNode, lambda taxon: taxon.hasChildren())
 
     def loadData(self):
         timer = Timer()
