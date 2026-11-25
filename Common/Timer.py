@@ -8,6 +8,7 @@ __version__ = "1.0.0"
 
 import logging
 import time
+import TextTools
 
 
 class Timer:
@@ -34,7 +35,8 @@ class Timer:
     def getElapsed(self) -> str:
         """Returns the elapsed time as a string, formatted with millisecond precision."""
         tUntil = self.tEnd if self.tEnd else time.time()
-        return f'{(tUntil - self.tStart):.3}s'
+        return TextTools.durationToString(tUntil - self.tStart)
+        #return f'{(tUntil - self.tStart):.3}s'
         #return '%.3fs' % (self.tEnd - self.tStart)
 
 class TimedTask:
