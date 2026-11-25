@@ -21,16 +21,24 @@ from pynorpaManager import PynorpaManager
 class INatTaxonDialog(ModalDialog):
     log = logging.getLogger('INatTaxonDialog')
 
-    def __init__(self, parent: tk.Tk, sTaxonName=None):
+    def __init__(self, parent: tk.Tk, taxon=None):
         """Constructor."""
-        super().__init__(parent, 'Ajouter des taxons via iNaturalist')
+        title = 'Vérifier un taxon via iNaturalist' if taxon else 'Ajouter des taxons via iNaturalist'
+        super().__init__(parent, title)
         self.root.geometry('1020x600+300+150')
         self.manager = PynorpaManager()
         self.cache = TaxonCache()
         self.req = INatApiRequestTaxon()
         self.taxa = []
 
-    def queryINat(self, name: str):
+        # If a taxon was provided, fill the input field and run the query
+        if taxon:
+            self.txtEntry.delete(0, tk.END)
+            self.txtEntry.insert(0, taxon.getName())
+            self.root.update()
+            self.queryINat(taxon.getName(), taxon.getIdx())
+
+    def queryINat(self, name: str, idxTaxon=-1):
         """Query the iNat API about the named taxon."""
         self.setStatus(f'Requête à iNat pour {name} ...')
         self.setLoadingIcon()
@@ -42,6 +50,9 @@ class INatTaxonDialog(ModalDialog):
             self.log.info(f'Found {inatTaxon}')
             self.setStatus(f'Trouvé {inatTaxon}')
             taxon = self.cache.createFromINatTaxon(inatTaxon, -1)
+            if idxTaxon > 0:
+                # We are checking the taxon on iNat, don't mark its as new
+                taxon.idx = idxTaxon
             self.displayTaxon(taxon)
             self.root.update()
             self.queryAncestors(inatTaxon.id)

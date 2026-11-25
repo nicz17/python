@@ -90,6 +90,12 @@ class ModuleTaxon(TabModule):
             self.tree.loadData()
             self.tree.setSelection(taxon)
 
+    def onCheckTaxonINat(self):
+        """Show dialog to check taxon on iNaturalist."""
+        if not self.taxon:
+            return
+        self.openModalDialog(INatTaxonDialog(self.window, self.taxon))
+
     def onUpload(self):
         """Upload the selected taxon page."""
         canUpload =  self.taxon and (self.uploader.getTaxonPage(self.taxon) is not None)
@@ -135,8 +141,10 @@ class ModuleTaxon(TabModule):
 
         # Taxon tree
         self.tree.createWidgets(self.frmLeft)
-        self.tree.addContextMenuAction('Publier', self.onUpload, lambda taxon: self.canUpload(taxon))
-        self.tree.ctxtmenu.addSeparator()
+        self.tree.addContextMenuSeparator()
+        self.tree.addContextMenuAction('Vérifier sur iNat', self.onCheckTaxonINat, lambda taxon: True)
+        self.tree.addContextMenuAction('Publier sur TF79', self.onUpload, lambda taxon: self.canUpload(taxon))
+        self.tree.addContextMenuSeparator()
         self.tree.addContextMenuAction('Fermer', None, lambda taxon: True)
 
         # Toolbar
