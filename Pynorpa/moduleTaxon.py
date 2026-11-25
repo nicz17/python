@@ -140,14 +140,11 @@ class ModuleTaxon(TabModule):
         self.tree.addContextMenuAction('Fermer', None, lambda taxon: True)
 
         # Toolbar
+        self.btnINat = self.tree.addIconButton('inat', 'Ajouter un taxon avec iNaturalist', self.onAddTaxonINatDialog)
         self.btnAdd = self.tree.addIconButton('add', 'Ajouter un enfant à ce taxon', self.onAddTaxon)
         self.tree.addSearchBar(self.onSearch)
         self.btnReload = self.tree.addIconButton('refresh', 'Recharger les taxons', self.tree.loadData)
         self.tree.addCollapseButton()
-        frmToolbar2 = ttk.Frame(self.frmLeft)
-        self.btnAddINat = BaseWidgets.Button(frmToolbar2, 'iNat', self.onAddTaxonINatDialog, 'inat').pack(0)
-        self.btnUpload = BaseWidgets.Button(frmToolbar2, 'Publier', self.onUpload, 'go-up').pack(0)
-        frmToolbar2.pack(fill=tk.X)
 
         # Editor and image
         self.editor.createWidgets(self.frmCenter)
@@ -167,9 +164,7 @@ class ModuleTaxon(TabModule):
     def enableWidgets(self):
         """Enable or disable the buttons."""
         canAdd    = (self.taxon and self.taxon.rank != TaxonRank.SPECIES)
-        #canUpload = (self.uploader.getTaxonPage(self.taxon) is not None)
         self.btnAdd.enableWidget(canAdd)
-        self.btnUpload.enableWidget(self.canUpload(self.taxon))
         self.btnAddSyn.enableWidget(self.taxon is not None)
 
 class TaxonTree(BaseTree):
