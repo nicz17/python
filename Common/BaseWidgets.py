@@ -1082,7 +1082,6 @@ class ProgressBar:
         self.name = name
         self.palette = GreenRedPalette()
         self.timer = Timer()
-        self.width = 250
         self.height = 20
         self.total = total
         self.at = 0
@@ -1094,8 +1093,10 @@ class ProgressBar:
         self.at += 1
         frac = self.at/self.total
         color = self.palette.getColorHex(1.0 - frac)
+        width = self.canvas.winfo_width()
+        self.log.debug(f'Increment to {self.at}/{self.total} width {width}px')
         self.canvas.delete("all")
-        self.canvas.create_rectangle(0, 0, frac*self.width, self.height, fill=color, outline=color)
+        self.canvas.create_rectangle(0, 0, frac*width, self.height, fill=color, outline=color)
         self.canvas.winfo_toplevel().update()
 
     def reset(self):
@@ -1111,11 +1112,10 @@ class ProgressBar:
         return TextTools.durationToString(remaining)
 
     def createWidgets(self, parent: ttk.Frame, side=tk.TOP, pady=5):
-        self.canvas = tk.Canvas(parent, width=self.width, height=self.height, bg='#606060')
-        #self.canvas.pack(side=side, pady=pady)
+        self.canvas = tk.Canvas(parent, height=self.height, bg='#606060')
 
     def show(self):
-        self.canvas.pack(side=tk.LEFT, pady=5)
+        self.canvas.pack(side=tk.LEFT, pady=5, fill=tk.X)
 
     def hide(self):
         self.canvas.pack_forget()
