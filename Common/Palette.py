@@ -11,7 +11,7 @@ import random
 import math
 import logging
 import os
-from PIL import Image
+from PIL import Image, ImageDraw
 import numpy as np
 from HtmlPage import *
 
@@ -44,8 +44,30 @@ class Palette:
         aColor = self.getColor(x)
         return '#%02x%02x%02x' % (aColor[0], aColor[1], aColor[2])
     
-    def gauss(x, mu, sig):
-        return (int)(255. * math.exp(-(x-mu)*(x-mu)/(sig*sig)))
+    def generateIcons(self, nIcons: int, size: int) -> list[Image.Image]:
+        """Generate square monochrome icons using this palette's colors."""
+        icons = []
+        for n in range(nIcons):
+            rgb = tuple(self.getColor(n/nIcons))
+            img = Image.new('RGB', (size, size), rgb)
+            icons.append(img)
+        return icons
+    
+    def generateIconsMargin(self, nIcons: int, size: int, margin=4) -> list[Image.Image]:
+        """Generate square monochrome icons using this palette's colors and a margin."""
+        icons = []
+        for n in range(nIcons):
+            # Create image with transparent background
+            rgb = tuple(self.getColor(n/nIcons))
+            img = Image.new('RGBA', (size+margin, size), (256, 256, 256, 0))
+            draw = ImageDraw.Draw(img)
+            #draw.rounded_rectangle((0, 0, size-1, size-1), 0, rgb)
+            draw.rectangle((0, 0, size-1, size-1), rgb)
+            icons.append(img)
+        return icons
+    
+    def gauss(x, mu, sig) -> int:
+        return int(255. * math.exp(-(x-mu)*(x-mu)/(sig*sig)))
 
     def __str__(self):
         return f'Palette {self.sName}'

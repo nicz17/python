@@ -15,6 +15,7 @@ import random
 import tkinter as tk
 from pathlib import Path
 from tkinter import ttk
+from PIL import ImageTk
 
 import DateTools
 from autoEditor import AutoEditor
@@ -28,7 +29,7 @@ from mapWidget import MapWidget
 from LatLonZoom import LatLon
 from ModalDialog import ModalDialog
 from NameGen import NameGen
-from Palette import Palette
+from Palette import Palette, BlueGoldPalette
 from TabsApp import TabsApp, TabModule
 from Timer import Timer
 
@@ -209,6 +210,8 @@ class ModuleTreeDemo(TabModule):
     def __init__(self, oParent):
         self.tree = BaseTree('Tree demo', self.onSelection, self.onRightClick)
         self.editor = AutoEditor('DataTreeDemo', DataTreeDemo)
+        self.palette = BlueGoldPalette()
+        self.depth = 4
         super().__init__(oParent, 'BaseTree')
         self.data = {}
 
@@ -262,12 +265,18 @@ class ModuleTreeDemo(TabModule):
             desc = f'Level {depth} Item {id}'
             obj = DataTreeDemo(id, parentId, desc, depth)
             self.data[id] = obj
-            self.tree.addItem(id, desc, parentId)
-            if depth < 4:
+            self.tree.addItem(id, desc, parentId, icon=self.icons[depth-1])
+            if depth < self.depth:
                 self.populate(depth+1, id)
 
     def loadData(self):
         timer = Timer()
+
+        # Generate tree color icons from a Palette
+        icons = self.palette.generateIconsMargin(self.depth, 16)
+        self.icons = [ImageTk.PhotoImage(icon) for icon in icons]
+
+        # Recursively populate the tree
         self.populate(1, None)
         self.tree.setStatus(timer)
 
@@ -311,10 +320,21 @@ class ModuleIconsDemo(TabModule):
     def __init__(self, oParent):
         super().__init__(oParent, 'Icons')
         self.path = f'{Path.home()}/prog/icons'
+        self.palette = BlueGoldPalette()
         self.maxCols = 6
 
     def onIconClick(self, file: str):
         self.log.info(f'Selected {file}')
+
+    def loadData(self):
+        nIcons = 8
+        icons = self.palette.generateIcons(nIcons, 20)
+        self.palimgs = []
+        for i, icon in enumerate(icons):
+            img = ImageTk.PhotoImage(icon)
+            self.palimgs.append(img)
+            lbl = ttk.Label(self.frmPaletteIcons, image=img)
+            lbl.grid(column=i, row=0, padx=4, pady=4)
 
     def createWidgets(self):
         self.createLeftRightFrames()
@@ -345,6 +365,10 @@ class ModuleIconsDemo(TabModule):
             self.frmLeft.grid_columnconfigure(col, minsize=64)
         for row in range(1, row_count):
             self.frmLeft.grid_rowconfigure(row, minsize=32)
+
+        # Palette icons
+        self.frmPaletteIcons = ttk.LabelFrame(self.frmRight, text='Palette icons')
+        self.frmPaletteIcons.pack()
 
 class DateToolsDemoData:
     """Demo data for DateTools methods."""

@@ -12,6 +12,7 @@ import tkinter as tk
 from tkinter import ttk
 from pathlib import Path
 
+import TextTools
 from BaseWidgets import Button, ContextMenu, IconButton, SearchBar
 from Timer import Timer
 
