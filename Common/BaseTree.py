@@ -29,10 +29,13 @@ class BaseTree():
     def onRightClick(self, event=None):
         iid = self.tree.identify_row(event.y)
         self.log.debug(f'Right-click {event} {iid}')
-        if self.cbkRightClick:
+        if self.cbkRightClick and iid:
             self.tree.focus(iid)
             self.tree.selection_set(iid)
             self.cbkRightClick(event, iid)
+        elif self.cbkRightClick and self.ctxtmenu:
+            # Close ContextMenu if shown
+            self.ctxtmenu.hide()
 
     def createWidgets(self, parent: tk.Frame, height=32):
         """Create user widgets."""
@@ -155,6 +158,10 @@ class BaseTree():
         if self.ctxtmenu is None:
             self.ctxtmenu = ContextMenu(self.frmMain.winfo_toplevel(), f'BaseTree {self.title}')
         self.ctxtmenu.addAction(label, cmdExecute, cbkEnable)
+
+    def addContextMenuSeparator(self):
+        if self.ctxtmenu:
+            self.ctxtmenu.addSeparator()
 
     def showContextMenu(self, event, obj):
         """Shows the contextual menu."""
