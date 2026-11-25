@@ -67,12 +67,15 @@ class ModuleCleanup(TabModule):
             # If known taxon, display its pics
             desc = f'{taxon.getName()} : {taxon.getRankFr()} avec {taxon.countAllPictures()} photos'
             self.lblTaxon.setText(desc)
-            pics = taxon.getPictures()
-            self.imageViewer.loadImages(pics)
+            self.imageViewer.loadImages(taxon.getPictures())
         else:
-            # TODO If unkown taxon, say so and display closest match or websearch
-            self.lblTaxon.setText(f'Taxon inconnu pour {file.getName()}')
-            self.imageViewer.loadImages(None)
+            # If unkown taxon, display closest match and websearch
+            name = self.cache.filenameToTaxonName(file.getName())
+            closest = self.cache.findByClosest(name)
+            closeto = f'proche de {closest.getName()}' if closest else 'sans taxon proche'
+            desc = f'Taxon inconnu : {name}, {closeto}'
+            self.lblTaxon.setText(desc)
+            self.imageViewer.loadImages(closest.getPictures() if closest else None)
         self.enableWidgets()
 
     def onWebSearch(self):

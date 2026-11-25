@@ -448,6 +448,16 @@ class TaxonCache():
             return None
         return self.findById(result[0][0])
 
+    def findByClosest(self, name: str) -> Taxon:
+        """Find the lexically closest taxon by gradually removing chars from name."""
+        if name and len(name) > 5:
+            taxon = self.findByPartialName(name)
+            if taxon:
+                return taxon
+            else:
+                return self.findByClosest(name[:-1])
+        return None
+
     def findByFilename(self, filename: str) -> Taxon:
         """Find a Taxon from a filename (may have digits and extension)."""
         name = self.filenameToTaxonName(filename)
@@ -600,9 +610,16 @@ def testTaxonCache():
         if taxon:
             cache.log.info('%s first observed %s', taxon, tFirstObs)
     
-    filename = 'anas-clypeata008.jpg'
-    taxon = cache.findByFilename(filename)
-    cache.log.info('File %s taxon %s', filename, taxon)
+    #filename = 'anas-clypeata008.jpg'
+    #taxon = cache.findByFilename(filename)
+    #cache.log.info(f'File {filename}: taxon {taxon}')
+
+    name = 'Anas Clypeata'
+    taxon = cache.findByClosest(name)
+    cache.log.info(f'{name} closest to {taxon}')
+    name = 'anas clypoata'
+    taxon = cache.findByClosest(name)
+    cache.log.info(f'{name} closest to {taxon}')
 
 def testCreateTaxaFromFilename():
     """Unit test for creating a species and its genus from a file name."""
@@ -633,8 +650,8 @@ def testSynonyms():
 if __name__ == '__main__':
     logging.basicConfig(format="%(levelname)s %(name)s: %(message)s",
         level=logging.INFO, handlers=[logging.StreamHandler()])
-    #testTaxonCache()
+    testTaxonCache()
     #testCreateTaxaFromFilename()
     #testReflection()
-    testSynonyms()
+    #testSynonyms()
 
