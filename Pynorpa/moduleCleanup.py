@@ -33,6 +33,7 @@ class ModuleCleanup(TabModule):
         self.table = GridTable('Fichiers à effacer', self.onSelectFile, 743)
         self.imageViewer = MultiImageWidget(showFilename=True)
         self.isLoading = False
+        self.files = None
         self.file = None
 
     def loadData(self):
@@ -44,12 +45,11 @@ class ModuleCleanup(TabModule):
         timer = Timer()
         self.isLoading = True
         self.enableWidgets()
-        self.progbar.reset()
         self.progbar.show()
         self.setLoadingIcon()
 
-        files = self.cleaner.getFilesToRemove()
-        self.table.loadData(files, timer)
+        self.files = self.cleaner.getFilesToRemove()
+        self.table.loadData(self.files, timer)
 
         self.isLoading = False
         self.progbar.hide()
@@ -57,11 +57,25 @@ class ModuleCleanup(TabModule):
         self.setLoadingIcon(True)
 
     def onCleanup(self):
-        # TODO delete the files with progress bar
-        pass
+        self.isLoading = True
+        self.enableWidgets()
+        self.progbar.show()
+        self.setLoadingIcon()
+
+        self.cleaner.removeFiles(self.files)
+        self.files = None
+        self.table.loadData([])
+
+        self.isLoading = False
+        self.progbar.hide()
+        self.enableWidgets()
+        self.setLoadingIcon(True)
+        
 
     def onSelectFile(self, file: FTPFile):
         self.file = file
+        if not file:
+            return
         taxon = self.cache.findByFilename(file.getName())
         if taxon:
             # If known taxon, display its pics
@@ -103,5 +117,5 @@ class ModuleCleanup(TabModule):
 
     def enableWidgets(self):
         self.btnLoad.enableWidget(not self.isLoading)
-        self.btnClean.enableWidget(self.table.getSize() > 0)
+        self.btnClean.enableWidget(self.files is not None)
         self.btnSearch.enableWidget(self.file is not None)

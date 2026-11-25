@@ -1099,8 +1099,12 @@ class ProgressBar:
         self.canvas.create_rectangle(0, 0, frac*width, self.height, fill=color, outline=color)
         self.canvas.winfo_toplevel().update()
 
-    def reset(self):
+    def reset(self, total=None):
         self.at = 0
+        if total:
+            self.total = total
+        self.canvas.delete("all")
+        self.canvas.winfo_toplevel().update()
         self.timer.start()
 
     def getEstimatedTimeLeft(self) -> str:

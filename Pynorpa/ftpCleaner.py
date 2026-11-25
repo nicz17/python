@@ -36,11 +36,34 @@ class FTPCleaner:
         self.session = None
         self.progbar = progbar
 
+    def removeFiles(self, files: list[FTPFile]):
+        """Remove the files from FTP server."""
+        nfiles = len(files)
+        task = TimedTask(f'Remove {nfiles} files from FTP server')
+        self.log.info(f'Removing {nfiles} files from FTP server')
+        self.progbar.reset(nfiles)
+        self.connect()
+        dir = None
+
+        for file in files:
+            if not dir == file.getPath():
+                self.log.info(f'Changing to {file.getPath()}')
+                if dir is not None:
+                    self.session.cwd('..')
+                dir = file.getPath()
+                self.session.cwd(dir)
+            self.session.delete(file.getName())
+            self.progbar.increment()
+
+        self.disconnect()
+        task.done()
+
     def getFilesToRemove(self) -> list[FTPFile]:
         """Build the list of files to remove from the FTP server."""
         task = TimedTask('Check for files to remove from FTP server')
         taxonCache = TaxonCache()
         result = []
+        self.progbar.reset(4)
         self.connect()
 
         # HTML pages
@@ -57,8 +80,8 @@ class FTPCleaner:
         self.progbar.increment()
 
         result.extend(self.checkPictureKind('photos', f'{config.dirPictures}'))
-        #result.extend(self.checkPictureKind('medium', f'{config.dirWebExport}medium/'))
-        #result.extend(self.checkPictureKind('thumbs', f'{config.dirWebExport}thumbs/'))
+        result.extend(self.checkPictureKind('medium', f'{config.dirWebExport}medium/'))
+        result.extend(self.checkPictureKind('thumbs', f'{config.dirWebExport}thumbs/'))
 
         self.disconnect()
         self.log.info(f'Found {len(result)} files to remove')
