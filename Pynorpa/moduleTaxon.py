@@ -160,7 +160,8 @@ class ModuleTaxon(TabModule):
         self.editor.loadData(None)
 
         # Synonyms table
-        self.tableSyn.createWidgets(self.frmRight, 4)
+        self.frmSynonyms = ttk.Frame(self.frmRight)
+        self.tableSyn.createWidgets(self.frmSynonyms, 4)
         self.btnAddSyn = BaseWidgets.Button(self.tableSyn.frmToolBar, 'Ajouter', self.onAddSynonym, 'add').pack()
 
     def canUpload(self, taxon: Taxon) -> bool:
@@ -171,9 +172,14 @@ class ModuleTaxon(TabModule):
 
     def enableWidgets(self):
         """Enable or disable the buttons."""
-        canAdd    = (self.taxon and self.taxon.rank != TaxonRank.SPECIES)
+        canAdd       = (self.taxon and self.taxon.rank != TaxonRank.SPECIES)
+        showSynonyms = (self.taxon and self.taxon.rank == TaxonRank.SPECIES)
         self.btnAdd.enableWidget(canAdd)
         self.btnAddSyn.enableWidget(self.taxon is not None)
+        if showSynonyms:
+            self.frmSynonyms.pack()
+        else:
+            self.frmSynonyms.pack_forget()
 
 class TaxonTree(BaseTree):
     """Subclass of BaseTree displaying taxa."""
@@ -327,7 +333,7 @@ class SynonymsTable(AdvTable):
 
     def __init__(self, cbkSelect):
         """Constructor."""
-        super().__init__(cbkSelect, "Synonymes", 6)
+        super().__init__(cbkSelect, "Synonymes", 4)
 
     def addColumns(self):
         """Define the table columns."""
