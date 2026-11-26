@@ -24,7 +24,8 @@ class TaxonRank(Enum):
     GENUS    = 5
     SPECIES  = 6
 
-    def getNameFr(self):
+    def getNameFr(self) -> str:
+        """Get the French name of this rank."""
         name = 'Inconnu'
         match self:
             case TaxonRank.KINGDOM: name = 'Règne'
@@ -37,22 +38,16 @@ class TaxonRank(Enum):
         return name
 
     def getColor(self):
-        """Get the hex color code for the taxon."""
+        """Get the hex color code for this rank."""
         color = '#ffffff'
-        if self == TaxonRank.KINGDOM:
-            color = '#cf7dff'
-        if self == TaxonRank.PHYLUM:
-            color = '#8da7ff'
-        if self == TaxonRank.CLASS:
-            color = '#8dffe6'
-        if self == TaxonRank.ORDER:
-            color = '#afff8d'
-        if self == TaxonRank.FAMILY:
-            color = '#ffff8d'
-        if self == TaxonRank.GENUS:
-            color = '#ffcf8d'
-        if self == TaxonRank.SPECIES:
-            color = '#ffcdcd'
+        match self:
+            case TaxonRank.KINGDOM: color = '#cf7dff'
+            case TaxonRank.PHYLUM:  color = '#8da7ff'
+            case TaxonRank.CLASS:   color = '#8dffe6'
+            case TaxonRank.ORDER:   color = '#afff8d'
+            case TaxonRank.FAMILY:  color = '#ffff8d'
+            case TaxonRank.GENUS:   color = '#ffcf8d'
+            case TaxonRank.SPECIES: color = '#ffadad'
         return color
 
     def __str__(self):
