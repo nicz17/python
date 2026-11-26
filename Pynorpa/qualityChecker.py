@@ -204,14 +204,14 @@ class QualityCheckerINatObs():
         if count is None:
             self.log.error('Count request failed')
             if self.cbkProgress:
-                self.cbkProgress(0.0, 'Echec de chargement des observations')
+                self.cbkProgress(0, 1, 'Echec de chargement des observations')
             return
         
         pages = count//self.perPage + 1
         fetched = 0
         self.log.info(f'Observation count is {count}, requiring {pages} pages')
         if self.cbkProgress:
-            self.cbkProgress(0.0, f'Vérification de {count} observations sur {pages} pages')
+            self.cbkProgress(1, pages+1, f'Vérification de {count} observations sur {pages} pages')
 
         # Send requests over several pages with a progress bar
         for page in range(1, pages+1):
@@ -225,9 +225,9 @@ class QualityCheckerINatObs():
             else:
                 error = ' Erreur: pas de réponse'
             if self.cbkProgress:
-                self.cbkProgress(100.0*page/pages, f'Page {page} sur {pages}{error}')
+                self.cbkProgress(page+1, pages+1, f'Page {page} sur {pages}{error}')
         if self.cbkProgress:
-            self.cbkProgress(100.0, f'Vérifié {fetched}/{count} observations en {timer.getElapsed()}')
+            self.cbkProgress(pages+1, pages+1, f'Vérifié {fetched}/{count} observations en {timer.getElapsed()}')
 
     def checkTaxon(self, obs: INatObs):
         """Check if the iNat obs taxon is missing in Paynorpa."""

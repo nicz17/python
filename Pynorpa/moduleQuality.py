@@ -4,7 +4,6 @@ __author__ = "Nicolas Zwahlen"
 __copyright__ = "Copyright 2025 N. Zwahlen"
 __version__ = "1.0.0"
 
-import config
 import logging
 import os
 import tkinter as tk
@@ -12,7 +11,7 @@ from tkinter import ttk
 
 import DateTools
 from BaseTable import AdvTable, TableColumn
-from BaseWidgets import BaseEditor, Button, MonthYearSelector
+from BaseWidgets import BaseEditor, Button, MonthYearSelector, ProgressBar
 from imageWidget import CaptionImageWidget
 from TabsApp import TabModule, TabsApp
 from qualityChecker import QualityChecker, QualityCheckerINatObs, QualityIssue
@@ -49,16 +48,12 @@ class ModuleQuality(TabModule):
 
     def onRunINatCheck(self, year: int, month: int):
         self.setLoadingIcon()
-        checker = QualityCheckerINatObs(year, month, self.onProgress)
+        checker = QualityCheckerINatObs(year, month, self.obsfinder.onProgress)
         checker.run()
         issues = checker.getIssues()
         if len(issues) > 0:
             self.table.loadData(checker.getIssues())
         self.setLoadingIcon(True)
-
-    def onProgress(self, percent: float, msg: str):
-        self.obsfinder.setProgress(percent, msg)
-        self.window.update_idletasks()
 
     def createWidgets(self):
         """Create user widgets."""
@@ -149,6 +144,7 @@ class MissingObsFinder:
         self.cbkRun = cbkRun
         self.at = DateTools.timestampToDatetimeUTC(DateTools.addDays(DateTools.now(), -60))
         self.selector = MonthYearSelector(self.onModified)
+        self.progbar = ProgressBar('MissingObsFinder', 1)
         self.running = False
 
     def onModified(self):
@@ -156,20 +152,24 @@ class MissingObsFinder:
 
     def onSearch(self):
         """Send a request to iNat to find missing species."""
-        self.progressBar['value'] = 0.0
-        self.progressBar.pack(fill=tk.X, expand=True, padx=5, pady=3)
+        self.progbar.reset(1)
+        self.progbar.show()
         self.running = True
         self.enableWidgets()
         self.cbkRun(self.selector.getYear(), self.selector.getMonth())
 
-    def setProgress(self, percent: float, msg: str):
+    def onProgress(self, at: int, total: int, msg: str):
         """Update our progress bar."""
-        self.progressBar['value'] = percent
-        self.lblProgress.config(text=msg)
-        if percent == 100.0:
+        self.log.info(f'onProgress {at}/{total}: {msg}')
+        self.progbar.setTotal(total)
+        self.progbar.increment()
+        remain = f', reste {self.progbar.getEstimatedTimeLeft()}' if at < total else ''
+        if at == total:
             self.running = False
-            self.progressBar.pack_forget()
+            self.progbar.hide()
             self.enableWidgets()
+        self.lblProgress.config(text=f'{msg}{remain}')
+        self.frmMain.winfo_toplevel().update()
 
     def createWidgets(self, parent: tk.Frame):
         """Add our widgets to the parent widget."""
@@ -178,7 +178,7 @@ class MissingObsFinder:
         self.frmTop = ttk.Frame(self.frmMain)
         self.frmTop.pack(side=tk.TOP, anchor=tk.N, fill=tk.X, expand=False, pady=0)
         self.frmProgress = ttk.Frame(self.frmMain)
-        self.frmProgress.pack(side=tk.BOTTOM, anchor=tk.S, fill=tk.X, expand=False, pady=3)
+        self.frmProgress.pack(side=tk.BOTTOM, anchor=tk.S, fill=tk.X, expand=True, pady=3, padx=5)
 
         self.selector.createWidgets(self.frmTop, tk.LEFT, 7)
         self.selector.setValueDatetime(self.at)
@@ -187,8 +187,8 @@ class MissingObsFinder:
         self.btnSearch.pack(side=tk.RIGHT, pady=0)
 
         self.lblProgress = ttk.Label(self.frmProgress, text='Inactif')
-        self.lblProgress.pack(fill=tk.X, expand=True, padx=5, pady=3)
-        self.progressBar = ttk.Progressbar(self.frmProgress, orient='horizontal', mode='determinate')
+        self.lblProgress.pack(fill=tk.X, expand=True, padx=0, pady=3)
+        self.progbar.createWidgets(self.frmProgress)
 
     def enableWidgets(self):
         valid = (self.selector.getValueDatetime() < DateTools.nowDatetime())
