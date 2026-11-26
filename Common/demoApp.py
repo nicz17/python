@@ -24,7 +24,6 @@ from BaseTree import BaseTree
 from BaseWidgets import SearchBar, MonthYearSelector, Button, IconButton, BaseEditor, Label, ProgressBar
 from calendarWidget import CalendarWidget, CalendarItem
 from gridTable import GridTable
-from imageWidget import WebPhoto, ImageWidget
 from mapWidget import MapWidget
 from LatLonZoom import LatLon
 from ModalDialog import ModalDialog
@@ -474,28 +473,6 @@ class ModuleMapDemo(TabModule):
         self.map.createWidgets(self.frmLeft, 6, 6)
         self.lblPos = Label(self.frmLeft, 'Cliquer sur la carte pour afficher les coordonnées').pack()
 
-class ModuleWebPhotoDemo(TabModule):
-    log = logging.getLogger('ModuleWebPhotoDemo')
-
-    def __init__(self, oParent):
-        super().__init__(oParent, 'WebPhoto')
-        self.imageWidget = ImageWidget()
-        self.lblDesc = None
-        self.photo = None
-
-    def loadData(self):
-        url = 'https://inaturalist-open-data.s3.amazonaws.com/photos/709598583/medium.jpg'
-        self.photo = WebPhoto(url, 'iNat online photo')
-        self.setLoadingIcon()
-        self.imageWidget.display(self.photo)
-        self.lblDesc.setText(f'{self.photo.getDescription()} {self.photo.getSize()}')
-        self.setLoadingIcon(True)
-        
-    def createWidgets(self):
-        self.createLeftRightFrames()
-        self.imageWidget.createWidgets(self.frmLeft)
-        self.lblDesc = Label(self.frmLeft, 'Chargement...').pack()
-
 class ModuleGridTableDemo(TabModule):
     log = logging.getLogger('ModuleGridTableDemo')
 
@@ -640,7 +617,6 @@ class AppDemo(TabsApp):
         ModulePaletteDemo(self)
         ModuleDateToolsDemo(self)
         ModuleMapDemo(self)
-        ModuleWebPhotoDemo(self)
         ModuleAnimationDemo(self)
 
 
